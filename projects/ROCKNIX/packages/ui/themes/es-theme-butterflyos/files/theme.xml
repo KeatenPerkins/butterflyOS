@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ButterflyOS theme prototype
+  Copyright (C) 2026 Keaten Perkins
+  SPDX-License-Identifier: GPL-2.0-only
+-->
+<theme defaultTransition="instant">
+  <formatVersion>7</formatVersion>
+
+  <variables>
+    <fontRegular>/usr/share/fonts/liberation/LiberationSans-Regular.ttf</fontRegular>
+    <fontBold>/usr/share/fonts/liberation/LiberationSans-Bold.ttf</fontBold>
+  </variables>
+
+  <view name="system,basic,detailed,grid,video">
+    <image name="butterfly-background" extra="true">
+      <origin>0 0</origin>
+      <pos>0 0</pos>
+      <size>1 1</size>
+      <path>./assets/background.svg</path>
+      <zIndex>-10</zIndex>
+    </image>
+    <helpsystem name="help">
+      <origin>0.5 0.5</origin>
+      <pos>0.5 0.945</pos>
+      <textColor>d9e7ffff</textColor>
+      <iconColor>ffffffff</iconColor>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+    </helpsystem>
+  </view>
+
+  <view name="system">
+    <text name="systemInfo,logoText">
+      <visible>false</visible>
+    </text>
+    <carousel name="systemcarousel">
+      <origin>0 0</origin>
+      <pos>0 0</pos>
+      <size>1 0.88</size>
+      <type>horizontal</type>
+      <logoSize>0.001 0.001</logoSize>
+      <maxLogoCount>1</maxLogoCount>
+      <color>00000000</color>
+      <defaultTransition>instant</defaultTransition>
+      <zIndex>1</zIndex>
+    </carousel>
+    <image name="butterfly-brand" extra="true">
+      <origin>0.5 0</origin>
+      <pos>0.5 0.045</pos>
+      <maxSize>0.34 0.17</maxSize>
+      <path>./assets/butterflyos-logo.png</path>
+      <zIndex>3</zIndex>
+    </image>
+    <image name="system-card" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.5 0.51</pos>
+      <size>0.8125 0.4375</size>
+      <path>./assets/card.svg</path>
+      <zIndex>2</zIndex>
+    </image>
+    <text name="system-name" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.5 0.485</pos>
+      <size>0.72 0.2</size>
+      <text>${system.fullName}</text>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.0791667</fontSize>
+      <lineSpacing>1</lineSpacing>
+      <alignment>center</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>ffffffff</color>
+      <zIndex>4</zIndex>
+    </text>
+    <text name="system-count" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.5 0.625</pos>
+      <size>0.7 0.06</size>
+      <text>{system:total} GAMES</text>
+      <fontPath>${fontRegular}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <alignment>center</alignment>
+      <color>88dcffff</color>
+      <zIndex>4</zIndex>
+    </text>
+    <text name="previous-arrow" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.055 0.51</pos>
+      <text>&lt;</text>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.075</fontSize>
+      <color>10d9ffff</color>
+      <zIndex>4</zIndex>
+    </text>
+    <text name="next-arrow" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.945 0.51</pos>
+      <text>&gt;</text>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.075</fontSize>
+      <color>ff3fa4ff</color>
+      <zIndex>4</zIndex>
+    </text>
+  </view>
+
+  <view name="basic,detailed">
+    <image name="background">
+      <visible>false</visible>
+    </image>
+    <image name="logo">
+      <visible>false</visible>
+    </image>
+    <text name="logoText">
+      <origin>0 0.5</origin>
+      <pos>0.055 0.105</pos>
+      <size>0.89 0.1</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.058333</fontSize>
+      <forceUppercase>true</forceUppercase>
+      <alignment>left</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>ffffffff</color>
+      <zIndex>5</zIndex>
+    </text>
+    <textlist name="gamelist">
+      <origin>0 0</origin>
+      <pos>0.045 0.205</pos>
+      <size>0.47 0.65</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.045833</fontSize>
+      <lines>7</lines>
+      <alignment>left</alignment>
+      <selectorColor>5636aacc</selectorColor>
+      <selectedColor>ffffffff</selectedColor>
+      <primaryColor>b9c4d6ff</primaryColor>
+      <secondaryColor>b9c4d6ff</secondaryColor>
+      <scrollbarColor>10d9ff88</scrollbarColor>
+      <scrollbarSize>0.00625</scrollbarSize>
+      <zIndex>5</zIndex>
+    </textlist>
+  </view>
+
+  <view name="basic">
+    <textlist name="gamelist">
+      <size>0.91 0.65</size>
+      <alignment>center</alignment>
+    </textlist>
+  </view>
+
+  <view name="detailed">
+    <text name="md_lbl_rating,md_lbl_developer,md_developer,md_lbl_publisher,md_publisher,md_lbl_playcount,md_playcount,md_lbl_lastplayed,md_lbl_players,md_players,md_lbl_releasedate,md_lbl_genre,md_genre,md_description,md_name,md_lbl_gametime,md_gametime">
+      <visible>false</visible>
+    </text>
+    <datetime name="md_releasedate,md_lastplayed">
+      <visible>false</visible>
+    </datetime>
+    <rating name="md_rating">
+      <visible>false</visible>
+    </rating>
+    <image name="md_image">
+      <visible>false</visible>
+    </image>
+    <image name="game-card" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.75 0.49</pos>
+      <size>0.43 0.56</size>
+      <path>./assets/card.svg</path>
+      <zIndex>2</zIndex>
+    </image>
+    <image name="game-artwork" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.75 0.475</pos>
+      <maxSize>0.36 0.46</maxSize>
+      <path>{game:image}</path>
+      <roundCorners>0.018</roundCorners>
+      <zIndex>4</zIndex>
+    </image>
+    <text name="no-artwork" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.75 0.475</pos>
+      <size>0.32 0.15</size>
+      <text>NO ARTWORK</text>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <alignment>center</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>7b8496ff</color>
+      <zIndex>3</zIndex>
+    </text>
+  </view>
+</theme>

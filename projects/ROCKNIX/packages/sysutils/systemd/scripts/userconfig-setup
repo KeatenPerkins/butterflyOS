@@ -40,7 +40,11 @@ then
   then
     tocon "Installing themes..."
     mkdir -p /storage/.config/emulationstation/themes  >/dev/null
-    ln -s /usr/share/themes/es-theme-art-book-next /storage/.config/emulationstation/themes/system-theme  >/dev/null 2>&1
+    if [ -d /usr/share/themes/es-theme-butterflyos ]; then
+      ln -sfn /usr/share/themes/es-theme-butterflyos /storage/.config/emulationstation/themes/system-theme  >/dev/null 2>&1
+    else
+      ln -sfn /usr/share/themes/es-theme-art-book-next /storage/.config/emulationstation/themes/system-theme  >/dev/null 2>&1
+    fi
 
     ### Link the game controller database so it is managed with OS updates.
     tocon "Configuring controller database..."
