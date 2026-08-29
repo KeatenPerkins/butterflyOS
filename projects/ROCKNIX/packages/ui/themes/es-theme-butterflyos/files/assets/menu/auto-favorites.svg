@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="528" height="84" viewBox="0 0 528 84">
+  <defs><linearGradient id="label" x1="92" y1="0" x2="360" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#159dff"/><stop offset=".34" stop-color="#7c4dff"/><stop offset=".68" stop-color="#ef476f"/><stop offset="1" stop-color="#ffd166"/></linearGradient></defs>
   <path fill="#fff" d="M42 69 14 42C-3 25 21 4 36 20l6 6 6-6c15-16 39 5 22 22Z"/>
-  <text x="92" y="57" fill="#fff" font-family="Liberation Sans, sans-serif" font-size="39" font-weight="700">Favorites</text>
+  <text x="92" y="57" fill="url(#label)" font-family="Liberation Sans, sans-serif" font-size="39" font-weight="700">Favorites</text>
 </svg>

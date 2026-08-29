@@ -69,7 +69,7 @@
     </carousel>
     <!-- Use a compact icon-and-label logo when one exists for the system. -->
     <image name="logo">
-      <path>./assets/menu/${system.theme}.svg</path>
+      <path>./assets/menu/${system.theme}.png</path>
     </image>
     <text name="logoText">
       <fontPath>${fontBold}</fontPath>
