@@ -14,9 +14,14 @@ PKG_NEED_UNPACK="${PROJECT_DIR}/${PROJECT}/bootloader ${PROJECT_DIR}/${PROJECT}/
 PKG_NEED_UNPACK+=" ${PROJECT_DIR}/${PROJECT}/options ${PROJECT_DIR}/${PROJECT}/devices/${DEVICE}/options"
 
 for PKG_SUBDEVICE in ${SUBDEVICES}; do
-  PKG_DEPENDS_TARGET+=" u-boot-${PKG_SUBDEVICE}"
-  PKG_DEPENDS_UNPACK+=" u-boot-${PKG_SUBDEVICE}"
-  PKG_NEED_UNPACK+=" $(get_pkg_directory u-boot-${PKG_SUBDEVICE})"
+  case "${PKG_SUBDEVICE}" in
+    Miyoo_Flip_V2) PKG_UBOOT_SUBDEVICE="Specific" ;;
+    *)             PKG_UBOOT_SUBDEVICE="${PKG_SUBDEVICE}" ;;
+  esac
+
+  PKG_DEPENDS_TARGET+=" u-boot-${PKG_UBOOT_SUBDEVICE}"
+  PKG_DEPENDS_UNPACK+=" u-boot-${PKG_UBOOT_SUBDEVICE}"
+  PKG_NEED_UNPACK+=" $(get_pkg_directory u-boot-${PKG_UBOOT_SUBDEVICE})"
 done
 
 make_target() {
@@ -27,7 +32,12 @@ makeinstall_target() {
   mkdir -p $INSTALL/usr/share/bootloader
 
   for PKG_SUBDEVICE in ${SUBDEVICES}; do
-    PKG_UBOOTBIN=$(get_build_dir u-boot-${PKG_SUBDEVICE})/uboot.bin
+    case "${PKG_SUBDEVICE}" in
+      Miyoo_Flip_V2) PKG_UBOOT_SUBDEVICE="Specific" ;;
+      *)             PKG_UBOOT_SUBDEVICE="${PKG_SUBDEVICE}" ;;
+    esac
+
+    PKG_UBOOTBIN=$(get_build_dir u-boot-${PKG_UBOOT_SUBDEVICE})/uboot.bin
     cp -av ${PKG_UBOOTBIN} $INSTALL/usr/share/bootloader/${PKG_SUBDEVICE}_uboot.bin
   done
 }

@@ -217,6 +217,15 @@ CONFIGXML="${PROJECT_DIR}/${PROJECT}/config.xml"
 
 SUBDEVICES=$(xmlstarlet sel -t -m "//rocknix/${DEVICE}/*[@mkimage_options]" -v "name()" -n "${CONFIGXML}" 2>/dev/null | tr '\n' ' ')
 
+if [[ -n "${IMAGE_SUBDEVICE}" ]]; then
+  if [[ " ${SUBDEVICES} " != *" ${IMAGE_SUBDEVICE} "* ]]; then
+    echo "Invalid IMAGE_SUBDEVICE '${IMAGE_SUBDEVICE}' for ${DEVICE}. Available values: ${SUBDEVICES}" >&2
+    exit 1
+  fi
+
+  SUBDEVICES="${IMAGE_SUBDEVICE}"
+fi
+
 get_kernel_make_extracmd() {
   local DTB_PREFIX
   DTB_PREFIX=$(xmlstarlet sel -t -v "//rocknix/${DEVICE}/@dtb_prefix" "${CONFIGXML}" 2>/dev/null)
