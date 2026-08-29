@@ -1,0 +1,194 @@
+From: Keaten Perkins <keaten.perkins@gmail.com>
+Subject: [PATCH] Render an optional ButterflyOS PPM splash
+
+Keep the existing vector logo as a fallback for images that do not install
+the ButterflyOS asset.  A dependency-free PPM reader keeps the initramfs
+small and works with both RGB565 and 32-bit framebuffers.
+
+---
+ main.c | 128 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 128 insertions(+)
+
+diff --git a/main.c b/main.c
+index 8b7ed8e..18c55dc 100644
+--- a/main.c
++++ b/main.c
+@@ -3,6 +3,7 @@
+ #include <unistd.h>
+ #include <errno.h>
+ #include <string.h>
++#include <stdint.h>
+ #include "fbsplash.h"
+ #include "svg_parser.h"
+ #include "svg_renderer.h"
+@@ -11,6 +12,131 @@
+ 
+ int z9(void);
+ 
++#define BUTTERFLYOS_SPLASH "/usr/share/butterflyos/boot.ppm"
++
++static int read_ppm_header(FILE *fp, unsigned int *width,
++                           unsigned int *height) {
++    char magic[3] = {0};
++    unsigned int max_value;
++    int separator;
++
++    if (fscanf(fp, "%2s", magic) != 1 || strcmp(magic, "P6") != 0)
++        return -1;
++
++    if (fscanf(fp, "%u %u %u", width, height, &max_value) != 3)
++        return -1;
++
++    if (*width == 0 || *height == 0 || max_value != 255)
++        return -1;
++
++    separator = fgetc(fp);
++    if (separator == EOF)
++        return -1;
++
++    return 0;
++}
++
++static int render_ppm(Framebuffer *fb, const char *path, int rotation) {
++    FILE *fp;
++    unsigned int source_width;
++    unsigned int source_height;
++    unsigned int rotated_width;
++    unsigned int rotated_height;
++    unsigned int draw_width;
++    unsigned int draw_height;
++    unsigned int x_offset;
++    unsigned int y_offset;
++    uint8_t *pixels;
++    size_t pixel_bytes;
++
++    fp = fopen(path, "rb");
++    if (!fp)
++        return -1;
++
++    if (read_ppm_header(fp, &source_width, &source_height) != 0) {
++        fclose(fp);
++        return -1;
++    }
++
++    if (source_width > SIZE_MAX / source_height / 3) {
++        fclose(fp);
++        return -1;
++    }
++
++    pixel_bytes = (size_t)source_width * source_height * 3;
++    pixels = malloc(pixel_bytes);
++    if (!pixels) {
++        fclose(fp);
++        return -1;
++    }
++
++    if (fread(pixels, 1, pixel_bytes, fp) != pixel_bytes) {
++        free(pixels);
++        fclose(fp);
++        return -1;
++    }
++    fclose(fp);
++
++    rotation = ((rotation % 360) + 360) % 360;
++    rotated_width = (rotation == 90 || rotation == 270)
++                      ? source_height : source_width;
++    rotated_height = (rotation == 90 || rotation == 270)
++                       ? source_width : source_height;
++
++    draw_width = fb->vinfo.xres;
++    draw_height = (unsigned int)((uint64_t)draw_width * rotated_height /
++                                 rotated_width);
++    if (draw_height > fb->vinfo.yres) {
++        draw_height = fb->vinfo.yres;
++        draw_width = (unsigned int)((uint64_t)draw_height * rotated_width /
++                                    rotated_height);
++    }
++
++    x_offset = (fb->vinfo.xres - draw_width) / 2;
++    y_offset = (fb->vinfo.yres - draw_height) / 2;
++
++    for (unsigned int y = 0; y < draw_height; y++) {
++        unsigned int ry = (unsigned int)((uint64_t)y * rotated_height /
++                                         draw_height);
++        for (unsigned int x = 0; x < draw_width; x++) {
++            unsigned int rx = (unsigned int)((uint64_t)x * rotated_width /
++                                             draw_width);
++            unsigned int sx;
++            unsigned int sy;
++            size_t offset;
++            uint32_t color;
++
++            switch (rotation) {
++            case 90:
++                sx = ry;
++                sy = source_height - 1 - rx;
++                break;
++            case 180:
++                sx = source_width - 1 - rx;
++                sy = source_height - 1 - ry;
++                break;
++            case 270:
++                sx = source_width - 1 - ry;
++                sy = rx;
++                break;
++            default:
++                sx = rx;
++                sy = ry;
++                break;
++            }
++
++            offset = ((size_t)sy * source_width + sx) * 3;
++            color = ((uint32_t)pixels[offset] << 16) |
++                    ((uint32_t)pixels[offset + 1] << 8) |
++                    pixels[offset + 2];
++            set_pixel(fb, x + x_offset, y + y_offset, color);
++        }
++    }
++
++    free(pixels);
++    return 0;
++}
++
+ /*
+  * SVG path data for rendering the logo
+  * Contains the path data for each component of the logo
+@@ -100,21 +225,23 @@ int main(void) {
+         }
+     }
+ 
+-    // Process and render each path component
+-    for (size_t i = 0; i < NUM_PATHS; i++) {
+-        SVGPath *svg = parse_svg_path(svg_paths[i], svg_colors[i]);
+-        if (!svg) {
+-            fprintf(stderr, "Failed to parse SVG path %zu\n", i);
+-            continue;
+-        }
++    if (render_ppm(fb, BUTTERFLYOS_SPLASH, rotation) != 0) {
++        // Process and render each path component as the default fallback
++        for (size_t i = 0; i < NUM_PATHS; i++) {
++            SVGPath *svg = parse_svg_path(svg_paths[i], svg_colors[i]);
++            if (!svg) {
++                fprintf(stderr, "Failed to parse SVG path %zu\n", i);
++                continue;
++            }
+ 
+-        // Apply rotation from device tree if specified
+-        if (rotation)
+-            rotate_svg_path(svg, rotation);
++            // Apply rotation from device tree if specified
++            if (rotation)
++                rotate_svg_path(svg, rotation);
+ 
+-        // Render the path
+-        render_svg_path(fb, svg, display_info);
+-        free_svg_path(svg);
++            // Render the path
++            render_svg_path(fb, svg, display_info);
++            free_svg_path(svg);
++        }
+     }
+ 
+     // Flush changes to the framebuffer
+-- 
+2.51.0
