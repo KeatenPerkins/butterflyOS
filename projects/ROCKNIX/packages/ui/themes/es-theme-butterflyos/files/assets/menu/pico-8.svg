@@ -1,4 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="528" height="84" viewBox="0 0 528 84">
   <path fill="#fff" d="M18 24h48c8 0 12 6 14 14l6 25c2 10-9 17-17 10L58 63H26L15 73C7 80-4 73-2 63l6-25c2-8 6-14 14-14Zm5 13v9h-9v8h9v9h8v-9h9v-8h-9v-9Zm37 8a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm13-9a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z"/>
+  <circle cx="60" cy="51" r="4.5" fill="#ef476f"/>
+  <circle cx="73" cy="42" r="4.5" fill="#159dff"/>
   <text x="100" y="57" fill="#fff" font-family="Liberation Sans, sans-serif" font-size="39" font-weight="700">PICO-8</text>
 </svg>
