@@ -12,6 +12,25 @@
     <fontBold>/usr/share/fonts/liberation/LiberationSans-Bold.ttf</fontBold>
   </variables>
 
+  <!-- Keep global status indicators inside the Flip's visible safe area. -->
+  <view name="screen">
+    <text name="clock">
+      <origin>0 0</origin>
+      <pos>0.035 0.035</pos>
+      <size>0.18 0.055</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <alignment>left</alignment>
+      <color>d9e7ffff</color>
+    </text>
+    <batteryIndicator name="batteryIndicator">
+      <pos>0.735 0.035</pos>
+      <size>0.23 0.055</size>
+      <horizontalAlignment>right</horizontalAlignment>
+      <color>d9e7ffff</color>
+    </batteryIndicator>
+  </view>
+
   <view name="system,basic,detailed,grid,video">
     <image name="butterfly-background" extra="true">
       <origin>0 0</origin>
@@ -31,76 +50,60 @@
   </view>
 
   <view name="system">
-    <text name="systemInfo,logoText">
+    <text name="systemInfo">
       <visible>false</visible>
     </text>
     <carousel name="systemcarousel">
       <origin>0 0</origin>
-      <pos>0 0</pos>
-      <size>1 0.88</size>
-      <type>horizontal</type>
-      <logoSize>0.001 0.001</logoSize>
-      <maxLogoCount>1</maxLogoCount>
+      <pos>0.15 0.1475</pos>
+      <size>0.7 0.58</size>
+      <type>vertical</type>
+      <logoSize>0.62 0.105</logoSize>
+      <logoScale>1</logoScale>
+      <logoAlignment>center</logoAlignment>
+      <maxLogoCount>4</maxLogoCount>
+      <minLogoOpacity>1</minLogoOpacity>
       <color>00000000</color>
       <defaultTransition>instant</defaultTransition>
-      <zIndex>1</zIndex>
+      <zIndex>5</zIndex>
     </carousel>
-    <image name="butterfly-brand" extra="true">
-      <origin>0.5 0</origin>
-      <pos>0.5 0.045</pos>
-      <maxSize>0.34 0.17</maxSize>
-      <path>./assets/butterflyos-logo.png</path>
-      <zIndex>3</zIndex>
-    </image>
-    <image name="system-card" extra="true">
-      <origin>0.5 0.5</origin>
-      <pos>0.5 0.51</pos>
-      <size>0.8125 0.4375</size>
-      <path>./assets/card.svg</path>
-      <zIndex>2</zIndex>
-    </image>
-    <text name="system-name" extra="true">
-      <origin>0.5 0.5</origin>
-      <pos>0.5 0.485</pos>
-      <size>0.72 0.2</size>
-      <text>${system.fullName}</text>
+    <text name="logoText">
       <fontPath>${fontBold}</fontPath>
-      <fontSize>0.0791667</fontSize>
-      <lineSpacing>1</lineSpacing>
+      <fontSize>0.0479167</fontSize>
+      <forceUppercase>false</forceUppercase>
       <alignment>center</alignment>
       <verticalAlignment>center</verticalAlignment>
       <color>ffffffff</color>
-      <zIndex>4</zIndex>
+      <zIndex>6</zIndex>
     </text>
-    <text name="system-count" extra="true">
-      <origin>0.5 0.5</origin>
-      <pos>0.5 0.625</pos>
-      <size>0.7 0.06</size>
-      <text>{system:total} GAMES</text>
-      <fontPath>${fontRegular}</fontPath>
-      <fontSize>0.033333</fontSize>
-      <alignment>center</alignment>
-      <color>88dcffff</color>
-      <zIndex>4</zIndex>
-    </text>
-    <text name="previous-arrow" extra="true">
-      <origin>0.5 0.5</origin>
-      <pos>0.055 0.51</pos>
-      <text>&lt;</text>
-      <fontPath>${fontBold}</fontPath>
-      <fontSize>0.075</fontSize>
-      <color>10d9ffff</color>
-      <zIndex>4</zIndex>
-    </text>
-    <text name="next-arrow" extra="true">
-      <origin>0.5 0.5</origin>
-      <pos>0.945 0.51</pos>
-      <text>&gt;</text>
-      <fontPath>${fontBold}</fontPath>
-      <fontSize>0.075</fontSize>
-      <color>ff3fa4ff</color>
-      <zIndex>4</zIndex>
-    </text>
+    <image name="butterfly-brand" extra="true">
+      <origin>0.5 0</origin>
+      <pos>0.5 0.025</pos>
+      <maxSize>0.30 0.15</maxSize>
+      <path>./assets/butterflyos-logo.png</path>
+      <zIndex>3</zIndex>
+    </image>
+    <!-- Four stationary row frames make the carousel read like a console menu. -->
+    <rectangle name="menu-row-1" extra="true">
+      <pos>0.18 0.245</pos><size>0.64 0.105</size>
+      <color>110b1fcc</color><borderColor>7c4dffff</borderColor>
+      <borderSize>0.0046875</borderSize><roundCorners>0.018</roundCorners><zIndex>2</zIndex>
+    </rectangle>
+    <rectangle name="menu-row-2" extra="true">
+      <pos>0.18 0.385</pos><size>0.64 0.105</size>
+      <color>102849ee</color><borderColor>159dffff</borderColor>
+      <borderSize>0.00625</borderSize><roundCorners>0.018</roundCorners><zIndex>3</zIndex>
+    </rectangle>
+    <rectangle name="menu-row-3" extra="true">
+      <pos>0.18 0.525</pos><size>0.64 0.105</size>
+      <color>110b1fcc</color><borderColor>7c4dffff</borderColor>
+      <borderSize>0.0046875</borderSize><roundCorners>0.018</roundCorners><zIndex>2</zIndex>
+    </rectangle>
+    <rectangle name="menu-row-4" extra="true">
+      <pos>0.18 0.665</pos><size>0.64 0.105</size>
+      <color>110b1fcc</color><borderColor>7c4dffff</borderColor>
+      <borderSize>0.0046875</borderSize><roundCorners>0.018</roundCorners><zIndex>2</zIndex>
+    </rectangle>
   </view>
 
   <view name="basic,detailed">

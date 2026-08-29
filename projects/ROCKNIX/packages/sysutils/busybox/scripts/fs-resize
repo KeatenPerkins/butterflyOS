@@ -56,7 +56,7 @@ if [ -e /storage/.please_resize_me ] ; then
 
     echo "PARTITION RESIZING IN PROGRESS"
     echo ""
-    echo "Please do not reboot or turn off your @DISTRONAME@ device!"
+    echo "Please do not reboot or turn off your ButterflyOS device!"
     echo ""
 
     StartProgressLog spinner "Resizing partition...   " "parted -s -f -m $DISK resizepart $PARTNUM 100% >>$LOG 2>&1"

@@ -913,7 +913,7 @@ check_update() {
   clear >/dev/console
   echo "UPDATE IN PROGRESS"
   echo ""
-  echo "Please do not reboot or turn off your device!"
+  echo "Please do not reboot or turn off your ButterflyOS device!"
   echo ""
 
   if [ -f "${UPDATE_TAR}" ]; then
