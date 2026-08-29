@@ -10,9 +10,9 @@ PKG_LONGDESC="ButterflyOS controller-first EmulationStation theme"
 PKG_TOOLCHAIN="manual"
 
 makeinstall_target() {
-  mkdir -p ${INSTALL}/usr/share/themes/${PKG_NAME}/assets
+  mkdir -p ${INSTALL}/usr/share/themes/${PKG_NAME}
   cp ${PKG_DIR}/files/theme.xml ${INSTALL}/usr/share/themes/${PKG_NAME}/
-  cp ${PKG_DIR}/files/assets/*.svg ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/
+  cp -R ${PKG_DIR}/files/assets ${INSTALL}/usr/share/themes/${PKG_NAME}/
   cp ${ROOT}/artwork/branding/master/butterflyos-logo-master-transparent.png \
     ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/butterflyos-logo.png
 }

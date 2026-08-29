@@ -55,10 +55,10 @@
     </text>
     <carousel name="systemcarousel">
       <origin>0 0</origin>
-      <pos>0.15 0.1475</pos>
-      <size>0.7 0.58</size>
+      <pos>0.035 0.1475</pos>
+      <size>0.64 0.58</size>
       <type>vertical</type>
-      <logoSize>0.62 0.105</logoSize>
+      <logoSize>0.55 0.105</logoSize>
       <logoScale>1</logoScale>
       <logoAlignment>center</logoAlignment>
       <maxLogoCount>4</maxLogoCount>
@@ -67,6 +67,10 @@
       <defaultTransition>instant</defaultTransition>
       <zIndex>5</zIndex>
     </carousel>
+    <!-- Use a compact icon-and-label logo when one exists for the system. -->
+    <image name="logo">
+      <path>./assets/menu/${system.theme}.svg</path>
+    </image>
     <text name="logoText">
       <fontPath>${fontBold}</fontPath>
       <fontSize>0.0479167</fontSize>
@@ -85,22 +89,22 @@
     </image>
     <!-- Four stationary row frames make the carousel read like a console menu. -->
     <rectangle name="menu-row-1" extra="true">
-      <pos>0.18 0.245</pos><size>0.64 0.105</size>
+      <pos>0.055 0.245</pos><size>0.60 0.105</size>
       <color>110b1fcc</color><borderColor>7c4dffff</borderColor>
       <borderSize>0.0046875</borderSize><roundCorners>0.018</roundCorners><zIndex>2</zIndex>
     </rectangle>
     <rectangle name="menu-row-2" extra="true">
-      <pos>0.18 0.385</pos><size>0.64 0.105</size>
+      <pos>0.055 0.385</pos><size>0.60 0.105</size>
       <color>102849ee</color><borderColor>159dffff</borderColor>
       <borderSize>0.00625</borderSize><roundCorners>0.018</roundCorners><zIndex>3</zIndex>
     </rectangle>
     <rectangle name="menu-row-3" extra="true">
-      <pos>0.18 0.525</pos><size>0.64 0.105</size>
+      <pos>0.055 0.525</pos><size>0.60 0.105</size>
       <color>110b1fcc</color><borderColor>7c4dffff</borderColor>
       <borderSize>0.0046875</borderSize><roundCorners>0.018</roundCorners><zIndex>2</zIndex>
     </rectangle>
     <rectangle name="menu-row-4" extra="true">
-      <pos>0.18 0.665</pos><size>0.64 0.105</size>
+      <pos>0.055 0.665</pos><size>0.60 0.105</size>
       <color>110b1fcc</color><borderColor>7c4dffff</borderColor>
       <borderSize>0.0046875</borderSize><roundCorners>0.018</roundCorners><zIndex>2</zIndex>
     </rectangle>
