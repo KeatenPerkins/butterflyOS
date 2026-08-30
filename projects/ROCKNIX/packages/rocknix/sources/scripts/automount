@@ -9,6 +9,7 @@
 UPDATE_ROOT="/storage/.update"
 MOUNT_GAMES=$(get_setting system.automount)
 GAMES_DEVICE=$(get_setting system.gamesdevice)
+DIRECT_ROMS=$(get_setting system.roms.direct)
 MS_PATH="/storage/roms"
 
 function unmount() {
@@ -228,6 +229,20 @@ function find_games() {
 }
 
 ## Main..
+
+# ButterflyOS uses the obvious on-card /roms directory as its library. The
+# upstream internal/external storage layer normally bind-mounts
+# games-internal/roms over this path, which makes files copied into /roms while
+# the SD card is attached to a computer disappear at runtime. Direct mode keeps
+# one user-visible location for EmulationStation, RetroArch, USB, and Samba.
+if [ "${DIRECT_ROMS}" = "1" ]
+then
+  unmount /storage/games-external
+  unmount /storage/roms
+  mkdir -p /storage/roms
+  create_game_dirs
+  exit 0
+fi
 
 load_modules
 
