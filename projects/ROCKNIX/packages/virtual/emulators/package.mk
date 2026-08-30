@@ -1675,6 +1675,25 @@ makeinstall_target() {
   ### Create es_systems
   mk_es_systems
 
+  # ButterflyOS presents playable systems inside one console-like Games entry.
+  # EmulationStation builds this group from systems compiled into the image and
+  # automatically omits members whose ROM directories contain no games.
+  xmlstarlet ed --inplace \
+    -s '/systemList/system[hardware!="System" and not(group)]' -t elem -n group -v games \
+    -s '/systemList' -t elem -n butterflyGames -v '' \
+    -s '/systemList/butterflyGames' -t elem -n name -v games \
+    -s '/systemList/butterflyGames' -t elem -n fullname -v Games \
+    -s '/systemList/butterflyGames' -t elem -n manufacturer -v ButterflyOS \
+    -s '/systemList/butterflyGames' -t elem -n release -v 2026 \
+    -s '/systemList/butterflyGames' -t elem -n hardware -v System \
+    -s '/systemList/butterflyGames' -t elem -n path -v /storage/.config/butterflyos-games \
+    -s '/systemList/butterflyGames' -t elem -n extension -v .butterfly \
+    -s '/systemList/butterflyGames' -t elem -n command -v /bin/false \
+    -s '/systemList/butterflyGames' -t elem -n platform -v ignore \
+    -s '/systemList/butterflyGames' -t elem -n theme -v games \
+    -r '/systemList/butterflyGames' -v system \
+    ${ESTMP}/es_systems.cfg
+
   ### Generate document
   mk_system_doc
 

@@ -67,8 +67,13 @@
       <defaultTransition>instant</defaultTransition>
       <zIndex>5</zIndex>
     </carousel>
-    <!-- Use a compact icon-and-label logo when one exists for the system. -->
+    <!--
+      Resolve in order: generic fallback, physical system art, then a compact
+      home-menu icon and label. Missing paths are ignored by ThemeData.
+    -->
     <image name="logo">
+      <path>./assets/systems/_default.png</path>
+      <path>./assets/systems/${system.theme}.png</path>
       <path>./assets/menu/${system.theme}.png</path>
     </image>
     <text name="logoText">

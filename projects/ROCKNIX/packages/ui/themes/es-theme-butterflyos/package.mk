@@ -17,6 +17,8 @@ makeinstall_target() {
   # installed separately so it can be shared by future system views.
   cp -R ${ROOT}/artwork/system-icons/runtime \
     ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/systems
+  ln -sf genesis.png \
+    ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/systems/megadrive.png
   cp ${ROOT}/artwork/branding/master/butterflyos-logo-master-transparent.png \
     ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/butterflyos-logo.png
 }
