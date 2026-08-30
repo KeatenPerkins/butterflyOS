@@ -13,6 +13,10 @@ makeinstall_target() {
   mkdir -p ${INSTALL}/usr/share/themes/${PKG_NAME}
   cp ${PKG_DIR}/files/theme.xml ${INSTALL}/usr/share/themes/${PKG_NAME}/
   cp -R ${PKG_DIR}/files/assets ${INSTALL}/usr/share/themes/${PKG_NAME}/
+  # System artwork is maintained as original ButterflyOS source art and
+  # installed separately so it can be shared by future system views.
+  cp -R ${ROOT}/artwork/system-icons/runtime \
+    ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/systems
   cp ${ROOT}/artwork/branding/master/butterflyos-logo-master-transparent.png \
     ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/butterflyos-logo.png
 }
