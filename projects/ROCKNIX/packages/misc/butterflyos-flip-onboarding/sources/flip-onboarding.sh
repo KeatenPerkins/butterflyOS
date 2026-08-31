@@ -19,14 +19,14 @@ CONTROLLER_PID=
 
 stop_controller_input() {
   if [[ -n "$CONTROLLER_PID" ]]; then
-    kill "$CONTROLLER_PID" 2>/dev/null || true
+    kill -9 "$CONTROLLER_PID" 2>/dev/null || true
     wait "$CONTROLLER_PID" 2>/dev/null || true
     CONTROLLER_PID=
   fi
 }
 
 start_controller_input() {
-  stop_controller_input
+  [[ -n "$CONTROLLER_PID" ]] && return 0
   /usr/bin/control-gen_init.sh >/dev/null 2>&1 || true
   if [[ -f /storage/.config/gptokeyb/control.ini && -f "$CONTROLLER_CONFIG" ]]; then
     # control.ini supplies the correct controller for this device. The mapping
@@ -41,26 +41,27 @@ start_controller_input() {
 }
 
 mkdir -p "$RECOVERY_DIR"
-: >"$SESSION_LOG"
-printf '%s boot setup started: action=%s uid=%s\n' "$(date '+%H:%M:%S')" \
-  "${ACTION:-unknown}" "$(id -u)" >>"$SESSION_LOG"
+touch "$SESSION_LOG"
+printf '\n%s boot setup started: action=%s uid=%s pid=%s\n' "$(date '+%F %T')" \
+  "${ACTION:-unknown}" "$(id -u)" "$$" >>"$SESSION_LOG"
 
 trap stop_controller_input EXIT INT TERM
+start_controller_input
 
 show_message() {
-  start_controller_input
+  printf '%s opening message dialog\n' "$(date '+%H:%M:%S')" >>"$SESSION_LOG"
   dialog --clear --title "$TITLE" --msgbox "$1" 18 64 < /dev/tty > /dev/tty 2> /dev/tty
   local rc=$?
-  stop_controller_input
+  printf '%s message dialog returned rc=%s\n' "$(date '+%H:%M:%S')" "$rc" >>"$SESSION_LOG"
   return "$rc"
 }
 
 ask_user() {
-  start_controller_input
+  printf '%s opening confirmation dialog\n' "$(date '+%H:%M:%S')" >>"$SESSION_LOG"
   dialog --clear --title "$TITLE" --yes-label "Continue" --no-label "Cancel" \
     --yesno "$1" 20 68 < /dev/tty > /dev/tty 2> /dev/tty
   local rc=$?
-  stop_controller_input
+  printf '%s confirmation dialog returned rc=%s\n' "$(date '+%H:%M:%S')" "$rc" >>"$SESSION_LOG"
   return "$rc"
 }
 
@@ -90,11 +91,10 @@ run_low_level() {
   fi
   cat "$output" >>"$display"
 
-  start_controller_input
+  printf '%s opening results dialog\n' "$(date '+%H:%M:%S')" >>"$SESSION_LOG"
   dialog --clear --title "$TITLE — Results" --exit-label "Done" \
     --textbox "$display" 22 70 < /dev/tty > /dev/tty 2> /dev/tty
   printf '%s results dialog closed\n' "$(date '+%H:%M:%S')" >>"$SESSION_LOG"
-  stop_controller_input
   rm -f "$display"
   return "$rc"
 }
