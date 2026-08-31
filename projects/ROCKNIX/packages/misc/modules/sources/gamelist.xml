@@ -13,9 +13,33 @@
         <image>./images/system-manager.svg</image>
     </game>
     <game>
+        <path>./Quick Start.sh</path>
+        <name>Quick Start</name>
+        <desc>A short beginner-friendly guide to adding games, refreshing the library, launching games, and shutting down safely.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <rating>5.0</rating>
+        <releasedate>2026</releasedate>
+        <genre>Guide</genre>
+        <players>1</players>
+        <image>./images/quick-start.svg</image>
+    </game>
+    <game>
+        <path>./Controls Guide.sh</path>
+        <name>Controls Guide</name>
+        <desc>Shows the ButterflyOS in-game shortcuts for exiting, save states, fast-forward, rewind, the RetroArch menu, and FPS display.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <rating>5.0</rating>
+        <releasedate>2026</releasedate>
+        <genre>Guide</genre>
+        <players>1</players>
+        <image>./images/controls-guide.svg</image>
+    </game>
+    <game>
         <path>./commander.sh</path>
         <name>File Manager</name>
-        <desc>Enables you to browse the ROCKNIX filesystem and manage files directly on your device. You can also use this tool to copy files from external drives to your ROCKNIX filesystem.</desc>
+        <desc>Browse the ButterflyOS filesystem and manage files directly on your device. You can also copy files from external drives into your game library.</desc>
         <developer>Tardigrade and ROCKNIX</developer>
         <publisher>ROCKNIX</publisher>
         <rating>5.0</rating>

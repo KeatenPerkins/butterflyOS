@@ -44,6 +44,15 @@ ROM folder: /storage/roms/snes
 BIOS: Not required
 
 Systems appear under Games after compatible game files are added.
+FC and nes refer to the same NES folder.
+SFC and snes refer to the same SNES folder.
+
+SAVE PROTECTION
+Clean exits create an automatic resume point.
+Reopening a game resumes from that point.
+Manual saves retain a rolling history of 10 states.
+
+See Controls Guide for the in-game shortcuts.
 Advanced emulator settings remain available from the game menu."
 
 text_viewer -w -t "ButterflyOS System Manager" -m "${MESSAGE}"

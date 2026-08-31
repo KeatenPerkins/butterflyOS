@@ -45,7 +45,7 @@
       <textColor>d9e7ffff</textColor>
       <iconColor>ffffffff</iconColor>
       <fontPath>${fontBold}</fontPath>
-      <fontSize>0.025</fontSize>
+      <fontSize>0.028125</fontSize>
     </helpsystem>
   </view>
 
