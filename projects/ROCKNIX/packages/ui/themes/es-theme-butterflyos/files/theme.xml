@@ -123,8 +123,8 @@
       <visible>false</visible>
     </image>
     <text name="logoText">
-      <origin>0 0.5</origin>
-      <pos>0.055 0.105</pos>
+      <origin>0.5 0.5</origin>
+      <pos>0.5 0.105</pos>
       <size>0.89 0.1</size>
       <fontPath>${fontBold}</fontPath>
       <fontSize>0.058333</fontSize>

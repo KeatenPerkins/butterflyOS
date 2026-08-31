@@ -373,7 +373,8 @@ function configure_hotkeys() {
                                input_menu_toggle_btn input_save_state_btn         \
                                input_load_state_btn input_toggle_fast_forward_btn \
                                input_toggle_fast_forward_axis input_rewind_axis   \
-                               input_rewind_btn
+                               input_rewind_btn input_state_slot_increase_btn     \
+                               input_state_slot_decrease_btn
             do
                 clear_setting "${HKEYSETTING}"
             done
@@ -384,7 +385,26 @@ function configure_hotkeys() {
             else
                 echo 'input_enable_hotkey_btn = '\"${input_enable_hotkey_btn}\" >>${RETROARCH_CONFIG}
             fi
-            cat <<EOF >>${RETROARCH_CONFIG}
+            if [ "${MY_CONTROLLER}" = "retrogame_joypad" ] && \
+               [ "${input_enable_hotkey_btn}" = "10" ]
+            then
+                # Miyoo Flip: mirror OnionOS's familiar in-game shortcuts.
+                cat <<EOF >>${RETROARCH_CONFIG}
+input_bind_hold = "${input_select_btn}"
+input_exit_emulator_btn = "${input_start_btn}"
+input_fps_toggle_btn = "${input_x_btn}"
+input_menu_toggle_btn = "${input_select_btn}"
+input_save_state_btn = "${input_r2_btn}"
+input_load_state_btn = "${input_l2_btn}"
+input_toggle_fast_forward_axis = "nul"
+input_toggle_fast_forward_btn = "${input_r_btn}"
+input_rewind_axis = "nul"
+input_rewind_btn = "${input_l_btn}"
+input_state_slot_increase_btn = "${input_right_btn}"
+input_state_slot_decrease_btn = "${input_left_btn}"
+EOF
+            else
+                cat <<EOF >>${RETROARCH_CONFIG}
 input_bind_hold = "${input_select_btn}"
 input_exit_emulator_btn = "${input_start_btn}"
 input_fps_toggle_btn = "${input_y_btn}"
@@ -392,7 +412,9 @@ input_menu_toggle_btn = "${input_x_btn}"
 input_save_state_btn = "${input_r_btn}"
 input_load_state_btn = "${input_l_btn}"
 EOF
-            if [ -n "${input_r2_btn}" ] && \
+            fi
+            if [ "${MY_CONTROLLER}" != "retrogame_joypad" ] && \
+               [ -n "${input_r2_btn}" ] && \
                [ -n "${input_l2_btn}" ]
             then
                 cat <<EOF >>${RETROARCH_CONFIG}
@@ -401,7 +423,8 @@ input_toggle_fast_forward_btn = "${input_r2_btn}"
 input_rewind_axis = "nul"
 input_rewind_btn = "${input_l2_btn}"
 EOF
-            elif [ -n "${input_r2_axis}" ] && \
+            elif [ "${MY_CONTROLLER}" != "retrogame_joypad" ] && \
+                 [ -n "${input_r2_axis}" ] && \
                  [ -n "${input_l2_axis}" ]
             then
                 cat <<EOF >>${RETROARCH_CONFIG}
