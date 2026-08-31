@@ -45,7 +45,7 @@
       <textColor>d9e7ffff</textColor>
       <iconColor>ffffffff</iconColor>
       <fontPath>${fontBold}</fontPath>
-      <fontSize>0.028125</fontSize>
+      <fontSize>0.032344</fontSize>
     </helpsystem>
   </view>
 
@@ -172,13 +172,13 @@
       <visible>false</visible>
     </image>
     <text name="logoText">
-      <origin>0.5 0.5</origin>
-      <pos>0.5 0.105</pos>
-      <size>0.89 0.1</size>
+      <origin>0 0.5</origin>
+      <pos>0 0.105</pos>
+      <size>1 0.1</size>
       <fontPath>${fontBold}</fontPath>
       <fontSize>0.058333</fontSize>
       <forceUppercase>true</forceUppercase>
-      <alignment>left</alignment>
+      <alignment>center</alignment>
       <verticalAlignment>center</verticalAlignment>
       <color>ffffffff</color>
       <zIndex>5</zIndex>
