@@ -10,6 +10,33 @@ WORK_DIR=/storage/.config/butterflyos/flip-preloader
 RECOVERY_DIR=/storage/butterflyos-recovery
 DEVICE_BACKUP="$RECOVERY_DIR/preloader-original.img"
 DEVICE_BACKUP_SUM="$DEVICE_BACKUP.sha256"
+CONTROLLER_CONFIG=/usr/share/butterflyos/flip-onboarding.gptk
+if [[ -f /storage/.config/butterflyos/flip-onboarding.gptk ]]; then
+  CONTROLLER_CONFIG=/storage/.config/butterflyos/flip-onboarding.gptk
+fi
+CONTROLLER_PID=
+
+stop_controller_input() {
+  if [[ -n "$CONTROLLER_PID" ]]; then
+    kill "$CONTROLLER_PID" 2>/dev/null || true
+    wait "$CONTROLLER_PID" 2>/dev/null || true
+  fi
+}
+
+start_controller_input() {
+  /usr/bin/control-gen_init.sh >/dev/null 2>&1 || true
+  if [[ -f /storage/.config/gptokeyb/control.ini && -f "$CONTROLLER_CONFIG" ]]; then
+    # control.ini supplies the correct controller for this device. The mapping
+    # turns the built-in controls into the keyboard input expected by dialog.
+    source /storage/.config/gptokeyb/control.ini
+    get_controls
+    ${GPTOKEYB} "butterflyos-boot-setup" -c "$CONTROLLER_CONFIG" &
+    CONTROLLER_PID=$!
+  fi
+}
+
+trap stop_controller_input EXIT INT TERM
+start_controller_input
 
 show_message() {
   dialog --clear --title "$TITLE" --msgbox "$1" 18 64 < /dev/tty > /dev/tty 2> /dev/tty
@@ -41,7 +68,10 @@ chmod 700 "$WORK_DIR/launch.sh"
 
 case "${ACTION:-}" in
   check)
-    show_message "This read-only check identifies the current boot preloader and verifies whether this device passes every safety gate.\n\nIt does not erase or write internal storage."
+    if ! ask_user "Run the ButterflyOS boot safety check?\n\nThis read-only check identifies the current boot preloader and verifies whether this device passes every safety gate.\n\nIt does not erase or write internal storage.\n\nA / Start: Continue\nB / Back: Cancel"; then
+      clear
+      exit 0
+    fi
     sh "$WORK_DIR/launch.sh" backup
     ;;
   install)

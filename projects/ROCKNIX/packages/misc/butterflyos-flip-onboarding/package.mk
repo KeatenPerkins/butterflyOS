@@ -37,11 +37,14 @@ makeinstall_target() {
         "${PKG_DIR}/sources/Enable ButterflyOS SD Boot.sh" \
         "${PKG_DIR}/sources/Restore Stock Miyoo Boot.sh" \
         "${INSTALL}/usr/config/modules/"
+  cp -a "${ROOT}/artwork/branding/icons/butterflyos-emblem-transparent-1024.png" \
+        "${INSTALL}/usr/config/modules/images/butterflyos-boot.png"
   cp -a "${PKG_DIR}/sources/images/butterflyos-boot.svg" \
         "${INSTALL}/usr/config/modules/images/"
 
   mkdir -p "${INSTALL}/usr/share/butterflyos"
   cp -a "${PKG_DIR}/sources/flip-onboarding.sh" \
+        "${PKG_DIR}/sources/flip-onboarding.gptk" \
         "${INSTALL}/usr/share/butterflyos/"
 
   mkdir -p "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS Setup"
