@@ -49,6 +49,55 @@
     </helpsystem>
   </view>
 
+  <!-- Carry the ButterflyOS palette through Start and nested settings menus. -->
+  <view name="menu">
+    <menuBackground name="menubg">
+      <color>110b1fff</color>
+      <centerColor>081426ff</centerColor>
+      <cornerSize>0.025 0.025</cornerSize>
+      <scrollbarColor>10d9ffff</scrollbarColor>
+      <scrollbarSize>0.0075</scrollbarSize>
+      <scrollbarCorner>0.004</scrollbarCorner>
+      <scrollbarAlignment>right</scrollbarAlignment>
+    </menuBackground>
+    <menuText name="menutitle">
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.058333</fontSize>
+      <color>ffffffff</color>
+    </menuText>
+    <menuText name="menutext">
+      <fontPath>${fontRegular}</fontPath>
+      <fontSize>0.041667</fontSize>
+      <color>d9e7ffff</color>
+      <selectedColor>ffffffff</selectedColor>
+      <selectorColor>5636aaff</selectorColor>
+      <selectorColorEnd>159dffff</selectorColorEnd>
+      <selectorGradientType>horizontal</selectorGradientType>
+      <separatorColor>304565ff</separatorColor>
+    </menuText>
+    <menuTextSmall name="menutextsmall">
+      <fontPath>${fontRegular}</fontPath>
+      <fontSize>0.03125</fontSize>
+      <color>b9c4d6ff</color>
+    </menuTextSmall>
+    <menuText name="menufooter">
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.029167</fontSize>
+      <color>b9c4d6ff</color>
+    </menuText>
+    <menuGroup name="menugroup">
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.029167</fontSize>
+      <alignment>left</alignment>
+      <backgroundColor>102849ff</backgroundColor>
+      <separatorColor>159dffff</separatorColor>
+      <color>10d9ffff</color>
+    </menuGroup>
+    <menuGrid name="menugrid">
+      <separatorColor>304565ff</separatorColor>
+    </menuGrid>
+  </view>
+
   <view name="system">
     <text name="systemInfo">
       <visible>false</visible>
