@@ -47,6 +47,10 @@ no SD card inserted, the tested device continued to boot its internal stock OS.
 Restoring the independently verified original 2 MiB preloader is the rollback
 path.
 
+The current guided, no-disassembly onboarding design and its exact-reversal
+limitations are documented in
+[`BUTTERFLYOS_INSTALL_AND_RECOVERY.md`](../BUTTERFLYOS_INSTALL_AND_RECOVERY.md).
+
 ## Image validation status
 
 First complete device-specific build:

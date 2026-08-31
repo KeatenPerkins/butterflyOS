@@ -16,6 +16,10 @@ case ${DEVICE} in
     ;;
 esac
 
+if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+  PKG_DEPENDS_TARGET+=" butterflyos-flip-onboarding"
+fi
+
 makeinstall_target() {
   mkdir -p ${INSTALL}/usr/config/modules
     cp -rf ${PKG_DIR}/sources/* ${INSTALL}/usr/config/modules
@@ -28,5 +32,17 @@ post_makeinstall_target() {
 
   if [[ "${INSTALLER_SUPPORT}" != "yes" || "${DISPLAYSERVER}" != "wl" ]]; then
     rm -f ${INSTALL}/usr/config/modules/Install*
+  fi
+
+  if [ "${IMAGE_SUBDEVICE}" != "Miyoo_Flip_V2" ]; then
+    rm -f "${INSTALL}/usr/config/modules/ButterflyOS Boot Check.sh" \
+          "${INSTALL}/usr/config/modules/Enable ButterflyOS SD Boot.sh" \
+          "${INSTALL}/usr/config/modules/Restore Stock Miyoo Boot.sh" \
+          "${INSTALL}/usr/config/modules/images/butterflyos-boot.svg"
+    xmlstarlet ed --inplace \
+      -d '/gameList/game[path="./ButterflyOS Boot Check.sh"]' \
+      -d '/gameList/game[path="./Enable ButterflyOS SD Boot.sh"]' \
+      -d '/gameList/game[path="./Restore Stock Miyoo Boot.sh"]' \
+      "${INSTALL}/usr/config/modules/gamelist.xml"
   fi
 }

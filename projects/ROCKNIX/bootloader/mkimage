@@ -111,3 +111,9 @@ mkimage_abl() {
 }
 
 mkimage_all
+
+if [ "${SUBDEVICE}" = "Miyoo_Flip_V2" ] && \
+   [ -d "${RELEASE_DIR}/3rdparty/butterflyos-stock-bootstrap/App" ]; then
+  echo "image: adding the ButterflyOS no-disassembly stock bootstrap..."
+  mcopy -s -o "${RELEASE_DIR}/3rdparty/butterflyos-stock-bootstrap/App" ::
+fi

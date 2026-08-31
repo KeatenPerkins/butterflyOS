@@ -1,0 +1,62 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 Keaten Perkins
+
+set -u
+
+TITLE="ButterflyOS Boot Setup"
+SOURCE_DIR=/usr/share/butterflyos/flip-preloader
+WORK_DIR=/storage/.config/butterflyos/flip-preloader
+
+show_message() {
+  dialog --clear --title "$TITLE" --msgbox "$1" 18 64 < /dev/tty > /dev/tty 2> /dev/tty
+}
+
+ask_user() {
+  dialog --clear --title "$TITLE" --yes-label "Continue" --no-label "Cancel" \
+    --yesno "$1" 20 68 < /dev/tty > /dev/tty 2> /dev/tty
+}
+
+model=$(tr -d '\000' </proc/device-tree/model 2>/dev/null || true)
+compatible=$(tr '\000' '\n' </proc/device-tree/compatible 2>/dev/null || true)
+if [[ "$model" != *Miyoo* || "$compatible" != *rk3566* ]]; then
+  show_message "This utility is only for the RK3566 Miyoo Flip.\n\nDetected model: ${model:-unknown}\n\nNothing was changed."
+  exit 1
+fi
+
+mkdir -p "$WORK_DIR"
+for file in launch.sh preloader-patched.img preloader-stock.img; do
+  if [[ ! -f "$SOURCE_DIR/$file" ]]; then
+    show_message "A required setup file is missing:\n\n$file\n\nNothing was changed."
+    exit 1
+  fi
+  if [[ ! -f "$WORK_DIR/$file" ]] || ! cmp -s "$SOURCE_DIR/$file" "$WORK_DIR/$file"; then
+    cp -f "$SOURCE_DIR/$file" "$WORK_DIR/$file"
+  fi
+done
+chmod 700 "$WORK_DIR/launch.sh"
+
+case "${ACTION:-}" in
+  check)
+    show_message "This read-only check identifies the current boot preloader and verifies whether this device passes every safety gate.\n\nIt does not erase or write internal storage."
+    sh "$WORK_DIR/launch.sh" backup
+    ;;
+  install)
+    if ! ask_user "Enable automatic SD boot on this Miyoo Flip?\n\nWITH a compatible ButterflyOS card: ButterflyOS boots.\nWITHOUT the card: the original Miyoo system boots.\n\nThis writes only the internal 2 MiB boot preloader. The tool checks the device, flash geometry, bad blocks, battery, and DRAM data; makes a backup; verifies the write; and attempts rollback if verification fails.\n\nDo not power off during this operation."; then
+      clear
+      exit 0
+    fi
+    sh "$WORK_DIR/launch.sh" install
+    ;;
+  restore)
+    if ! ask_user "Restore stock Miyoo boot behavior?\n\nButterflyOS SD multiboot will be disabled. The internal Miyoo system will boot normally, even with the ButterflyOS card inserted.\n\nThe known stock restoration image is validated, the current preloader is backed up, and the write is verified. On a device first bootstrapped from stock, this may not be the exact SPL revision originally installed on that unit.\n\nDo not power off during this operation."; then
+      clear
+      exit 0
+    fi
+    sh "$WORK_DIR/launch.sh" restore
+    ;;
+  *)
+    show_message "Unknown boot setup action. Nothing was changed."
+    exit 1
+    ;;
+esac

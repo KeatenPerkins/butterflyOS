@@ -293,6 +293,12 @@ if [ "${1}" = "release" ] || [ "${1}" = "mkimage" ] || [ "${1}" = "noobs" ]; the
   cp ${TARGET_IMG}/${IMAGE_NAME}.system ${RELEASE_DIR}/target/SYSTEM
   cp ${TARGET_IMG}/${IMAGE_NAME}.kernel ${RELEASE_DIR}/target/KERNEL
 
+  if [ -d "${INSTALL}/usr/share/butterflyos/stock-bootstrap" ]; then
+    mkdir -p "${RELEASE_DIR}/3rdparty/butterflyos-stock-bootstrap"
+    cp -a "${INSTALL}/usr/share/butterflyos/stock-bootstrap/." \
+      "${RELEASE_DIR}/3rdparty/butterflyos-stock-bootstrap/"
+  fi
+
   # Create md5sum's
   (
     cd ${RELEASE_DIR}

@@ -1,6 +1,42 @@
 <?xml version="1.0"?>
 <gameList>
     <game>
+        <path>./ButterflyOS Boot Check.sh</path>
+        <name>ButterflyOS Boot Check</name>
+        <desc>Safely check the Miyoo Flip boot setup and confirm that every multiboot safety gate passes. This check is read-only.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <rating>5.0</rating>
+        <releasedate>2026</releasedate>
+        <genre>System</genre>
+        <players>1</players>
+        <image>./images/butterflyos-boot.svg</image>
+    </game>
+    <game>
+        <path>./Enable ButterflyOS SD Boot.sh</path>
+        <name>Enable ButterflyOS SD Boot</name>
+        <desc>Enable reversible SD multiboot. ButterflyOS starts with its card inserted, while the original Miyoo system remains available without the card.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <rating>5.0</rating>
+        <releasedate>2026</releasedate>
+        <genre>System</genre>
+        <players>1</players>
+        <image>./images/butterflyos-boot.svg</image>
+    </game>
+    <game>
+        <path>./Restore Stock Miyoo Boot.sh</path>
+        <name>Restore Stock Miyoo Boot</name>
+        <desc>Disable ButterflyOS SD multiboot and restore stock Miyoo boot behavior using a validated and verified write.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <rating>5.0</rating>
+        <releasedate>2026</releasedate>
+        <genre>System</genre>
+        <players>1</players>
+        <image>./images/butterflyos-boot.svg</image>
+    </game>
+    <game>
         <path>./System Manager.sh</path>
         <name>System Manager</name>
         <desc>See which systems are ready, the recommended emulator settings, where to place games, and whether BIOS files are required. ButterflyOS handles the technical configuration for you.</desc>
