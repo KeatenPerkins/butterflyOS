@@ -7,6 +7,9 @@ set -u
 TITLE="ButterflyOS Boot Setup"
 SOURCE_DIR=/usr/share/butterflyos/flip-preloader
 WORK_DIR=/storage/.config/butterflyos/flip-preloader
+RECOVERY_DIR=/storage/butterflyos-recovery
+DEVICE_BACKUP="$RECOVERY_DIR/preloader-original.img"
+DEVICE_BACKUP_SUM="$DEVICE_BACKUP.sha256"
 
 show_message() {
   dialog --clear --title "$TITLE" --msgbox "$1" 18 64 < /dev/tty > /dev/tty 2> /dev/tty
@@ -49,11 +52,38 @@ case "${ACTION:-}" in
     sh "$WORK_DIR/launch.sh" install
     ;;
   restore)
-    if ! ask_user "Restore stock Miyoo boot behavior?\n\nButterflyOS SD multiboot will be disabled. The internal Miyoo system will boot normally, even with the ButterflyOS card inserted.\n\nThe known stock restoration image is validated, the current preloader is backed up, and the write is verified. On a device first bootstrapped from stock, this may not be the exact SPL revision originally installed on that unit.\n\nDo not power off during this operation."; then
+    restore_image=
+    restore_description="KNOWN STOCK IMAGE\nNo verified device-specific backup was found. This restores stock behavior, but may not reproduce the exact SPL revision originally installed on every unit."
+
+    if [[ -e "$DEVICE_BACKUP" || -e "$DEVICE_BACKUP_SUM" ]]; then
+      if [[ ! -f "$DEVICE_BACKUP" || ! -f "$DEVICE_BACKUP_SUM" ]]; then
+        show_message "The device-specific recovery backup is incomplete.\n\nExpected both:\n$DEVICE_BACKUP\n$DEVICE_BACKUP_SUM\n\nNothing was changed. Restore the missing file or remove the incomplete pair before trying again."
+        exit 1
+      fi
+
+      expected_sha=$(awk 'NR == 1 { print tolower($1) }' "$DEVICE_BACKUP_SUM")
+      actual_sha=$(sha256sum "$DEVICE_BACKUP" 2>/dev/null | awk '{ print tolower($1) }')
+      backup_size=$(wc -c <"$DEVICE_BACKUP" | tr -d ' ')
+      if [[ ! "$expected_sha" =~ ^[0-9a-f]{64}$ || \
+            "$actual_sha" != "$expected_sha" || \
+            "$backup_size" != 2097152 ]]; then
+        show_message "The device-specific recovery backup failed validation.\n\nExpected SHA-256:\n${expected_sha:-invalid manifest}\n\nActual SHA-256:\n${actual_sha:-unreadable}\n\nSize: ${backup_size:-unknown} bytes (expected 2097152)\n\nNothing was changed. The generic image will not be selected silently while a broken personal backup is present."
+        exit 1
+      fi
+
+      restore_image="$DEVICE_BACKUP"
+      restore_description="EXACT DEVICE BACKUP\nUsing preloader-original.img from the ButterflyOS recovery folder.\nVerified SHA-256: $actual_sha"
+    fi
+
+    if ! ask_user "Restore stock Miyoo boot behavior?\n\nRESTORE SOURCE:\n$restore_description\n\nButterflyOS SD multiboot will be disabled. The internal Miyoo system will boot normally, even with the ButterflyOS card inserted.\n\nThe image is validated again by the low-level utility, the current preloader is backed up, and the write is verified.\n\nDo not power off during this operation."; then
       clear
       exit 0
     fi
-    sh "$WORK_DIR/launch.sh" restore
+    if [[ -n "$restore_image" ]]; then
+      sh "$WORK_DIR/launch.sh" restore "$restore_image"
+    else
+      sh "$WORK_DIR/launch.sh" restore
+    fi
     ;;
   *)
     show_message "Unknown boot setup action. Nothing was changed."

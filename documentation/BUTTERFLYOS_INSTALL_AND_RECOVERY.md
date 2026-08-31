@@ -36,18 +36,37 @@ manual.
 
 ## Returning to stock boot
 
+For an exact device-specific restoration, place these two files on the
+ButterflyOS storage partition before opening the restore tool:
+
+```text
+butterflyos-recovery/preloader-original.img
+butterflyos-recovery/preloader-original.img.sha256
+```
+
+The image must be exactly 2 MiB. The checksum file begins with its 64-character
+SHA-256 value, in the same format produced by `sha256sum`. If both files are
+present and valid, ButterflyOS labels the restore source **EXACT DEVICE
+BACKUP**, displays its verified hash, and passes that explicit image to the
+low-level restoration utility.
+
+If either file is present but the pair is incomplete, the size is wrong, or
+the checksum differs, restoration stops without writing. It does not silently
+fall back to the generic stock image while a broken personal backup exists.
+
 While ButterflyOS still boots, open
 **Tools → Restore Stock Miyoo Boot** and confirm. The utility validates the
-known stock image, backs up the current contents, writes the stock preloader,
-and verifies its readback. ButterflyOS SD multiboot is then disabled and the
+selected image, backs up the current contents, writes the stock preloader, and
+verifies its readback. ButterflyOS SD multiboot is then disabled and the
 internal Miyoo system boots normally.
 
-This restores stock *behavior*. It is not yet guaranteed to restore the exact
-preloader bytes originally supplied on every unit. Stock does not expose the
-preloader through its Linux MTD layout, and the software bootstrap cannot
-currently save an exact per-unit copy before erasing it. The bundled stock
-image is byte-identical to the tested ButterflyOS unit and the maintained Flip
-reference image, but more than one stock SPL build is known to exist.
+Without a verified device-specific backup, this restores stock *behavior*. It
+is not guaranteed to restore the exact preloader bytes originally supplied on
+every unit. Stock does not expose the preloader through its Linux MTD layout,
+and the software bootstrap cannot currently save an exact per-unit copy before
+erasing it. The bundled stock image is byte-identical to the tested
+ButterflyOS unit and the maintained Flip reference image, but more than one
+stock SPL build is known to exist.
 
 Exact byte-for-byte reversal on an untested unit therefore remains a release
 qualification item. It requires either a safe stock-side preloader reader or a
