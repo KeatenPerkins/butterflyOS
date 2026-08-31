@@ -22,6 +22,9 @@ PKG_CMAKE_OPTS_TARGET+=" -DROCKNIX=1 \
 [ "${DEVICE}" = "S922X" ] && PKG_CMAKE_OPTS_TARGET+=" -DBATTERYPLUS=1"
 
 pre_configure_target() {
+  cp -a ${PKG_DIR}/sources/LibretroThumbnailScraper.{h,cpp} \
+    ${PKG_BUILD}/es-app/src/scrapers/
+
   for key in SCREENSCRAPER_DEV_LOGIN \
              GAMESDB_APIKEY \
              CHEEVOS_DEV_LOGIN; do

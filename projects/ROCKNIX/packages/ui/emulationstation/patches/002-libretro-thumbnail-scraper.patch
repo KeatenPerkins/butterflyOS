@@ -1,0 +1,60 @@
+diff --git a/es-app/CMakeLists.txt b/es-app/CMakeLists.txt
+index fef12fb..88ade37 100644
+--- a/es-app/CMakeLists.txt
++++ b/es-app/CMakeLists.txt
+@@ -115,6 +115,7 @@ set(ES_HEADERS
+ 	${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/HfsDBScraper.h
+ 	${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/IGDBScraper.h
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/ScreenScraper.h    
++    ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/LibretroThumbnailScraper.h
+ 
+     # Views
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/views/gamelist/BasicGameListView.h
+@@ -222,6 +223,7 @@ set(ES_SOURCES
+ 	${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/HfsDBScraper.cpp
+ 	${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/IGDBScraper.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/ScreenScraper.cpp	
++    ${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/LibretroThumbnailScraper.cpp
+ 
+     # Views
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/views/gamelist/BasicGameListView.cpp
+diff --git a/es-app/src/scrapers/Scraper.cpp b/es-app/src/scrapers/Scraper.cpp
+index 284f324..0b65d7a 100644
+--- a/es-app/src/scrapers/Scraper.cpp
++++ b/es-app/src/scrapers/Scraper.cpp
+@@ -5,5 +5,6 @@
+ #include "GamesDBJSONScraper.h"
+ #include "ScreenScraper.h"
++#include "LibretroThumbnailScraper.h"
+ #include "Log.h"
+ #include "Settings.h"
+ #include "SystemData.h"
+@@ -21,6 +22,8 @@
+ 
+ std::vector<std::pair<std::string, Scraper*>> Scraper::scrapers
+ {
++	{ "RetroArch Thumbnails", new LibretroThumbnailScraper() },
++
+ #ifdef SCREENSCRAPER_DEV_LOGIN
+ 	{ "ScreenScraper", new ScreenScraperScraper() },
+ #endif
+diff --git a/es-core/src/Settings.cpp b/es-core/src/Settings.cpp
+index cd3c8d1..783cb08 100644
+--- a/es-core/src/Settings.cpp
++++ b/es-core/src/Settings.cpp
+@@ -250,10 +250,10 @@ void Settings::setDefaults()
+ 	mStringMap["GamelistViewStyle"] = "automatic";
+ 
+-	mStringMap["Scraper"] = "ScreenScraper";
+-	mStringMap["ScrapperImageSrc"] = "ss";
+-	mStringMap["ScrapperThumbSrc"] = "box-2D";
+-	mStringMap["ScrapperLogoSrc"] = "wheel";
+-	mBoolMap["ScrapeVideos"] = true;
++	mStringMap["Scraper"] = "RetroArch Thumbnails";
++	mStringMap["ScrapperImageSrc"] = "box-2D";
++	mStringMap["ScrapperThumbSrc"] = "";
++	mStringMap["ScrapperLogoSrc"] = "";
++	mBoolMap["ScrapeVideos"] = false;
+ 	mBoolMap["ScrapeShortTitle"] = false;
+ 
+ 	mBoolMap["ScreenSaverDateTime"] = false;
