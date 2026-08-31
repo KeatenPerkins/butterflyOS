@@ -10,6 +10,7 @@ WORK_DIR=/storage/.config/butterflyos/flip-preloader
 RECOVERY_DIR=/storage/butterflyos-recovery
 DEVICE_BACKUP="$RECOVERY_DIR/preloader-original.img"
 DEVICE_BACKUP_SUM="$DEVICE_BACKUP.sha256"
+SESSION_LOG="$RECOVERY_DIR/boot-setup-last.log"
 CONTROLLER_CONFIG=/usr/share/butterflyos/flip-onboarding.gptk
 if [[ -f /storage/.config/butterflyos/flip-onboarding.gptk ]]; then
   CONTROLLER_CONFIG=/storage/.config/butterflyos/flip-onboarding.gptk
@@ -32,10 +33,17 @@ start_controller_input() {
     # turns the built-in controls into the keyboard input expected by dialog.
     source /storage/.config/gptokeyb/control.ini
     get_controls
-    ${GPTOKEYB} "dialog" -c "$CONTROLLER_CONFIG" &
+    /usr/bin/gptokeyb -c "$CONTROLLER_CONFIG" >>"$SESSION_LOG" 2>&1 &
     CONTROLLER_PID=$!
+    printf '%s controller mapper started (pid %s)\n' "$(date '+%H:%M:%S')" \
+      "$CONTROLLER_PID" >>"$SESSION_LOG"
   fi
 }
+
+mkdir -p "$RECOVERY_DIR"
+: >"$SESSION_LOG"
+printf '%s boot setup started: action=%s uid=%s\n' "$(date '+%H:%M:%S')" \
+  "${ACTION:-unknown}" "$(id -u)" >>"$SESSION_LOG"
 
 trap stop_controller_input EXIT INT TERM
 
@@ -59,13 +67,17 @@ ask_user() {
 run_low_level() {
   local action=$1
   shift
-  local output="/tmp/butterflyos-${action}-$$.log"
+  local output="$RECOVERY_DIR/${action}-last.log"
   local display="/tmp/butterflyos-${action}-$$.txt"
   local rc
 
   clear
-  sudo -n sh "$WORK_DIR/launch.sh" "$@" >"$output" 2>&1
+  printf '%s starting low-level action: %s\n' "$(date '+%H:%M:%S')" \
+    "$action" >>"$SESSION_LOG"
+  sh "$WORK_DIR/launch.sh" "$@" >"$output" 2>&1
   rc=$?
+  printf '%s low-level action finished: %s rc=%s\n' "$(date '+%H:%M:%S')" \
+    "$action" "$rc" >>"$SESSION_LOG"
 
   if [[ "$action" == check && "$rc" -eq 0 ]] && grep -q "CHECK PASSED" "$output"; then
     printf '%s\n\n' "BOOT CHECK PASSED" \
@@ -81,8 +93,9 @@ run_low_level() {
   start_controller_input
   dialog --clear --title "$TITLE — Results" --exit-label "Done" \
     --textbox "$display" 22 70 < /dev/tty > /dev/tty 2> /dev/tty
+  printf '%s results dialog closed\n' "$(date '+%H:%M:%S')" >>"$SESSION_LOG"
   stop_controller_input
-  rm -f "$output" "$display"
+  rm -f "$display"
   return "$rc"
 }
 
