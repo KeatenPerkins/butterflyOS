@@ -20,10 +20,12 @@ stop_controller_input() {
   if [[ -n "$CONTROLLER_PID" ]]; then
     kill "$CONTROLLER_PID" 2>/dev/null || true
     wait "$CONTROLLER_PID" 2>/dev/null || true
+    CONTROLLER_PID=
   fi
 }
 
 start_controller_input() {
+  stop_controller_input
   /usr/bin/control-gen_init.sh >/dev/null 2>&1 || true
   if [[ -f /storage/.config/gptokeyb/control.ini && -f "$CONTROLLER_CONFIG" ]]; then
     # control.ini supplies the correct controller for this device. The mapping
@@ -36,15 +38,52 @@ start_controller_input() {
 }
 
 trap stop_controller_input EXIT INT TERM
-start_controller_input
 
 show_message() {
+  start_controller_input
   dialog --clear --title "$TITLE" --msgbox "$1" 18 64 < /dev/tty > /dev/tty 2> /dev/tty
+  local rc=$?
+  stop_controller_input
+  return "$rc"
 }
 
 ask_user() {
+  start_controller_input
   dialog --clear --title "$TITLE" --yes-label "Continue" --no-label "Cancel" \
     --yesno "$1" 20 68 < /dev/tty > /dev/tty 2> /dev/tty
+  local rc=$?
+  stop_controller_input
+  return "$rc"
+}
+
+run_low_level() {
+  local action=$1
+  shift
+  local output="/tmp/butterflyos-${action}-$$.log"
+  local display="/tmp/butterflyos-${action}-$$.txt"
+  local rc
+
+  clear
+  sudo -n sh "$WORK_DIR/launch.sh" "$@" >"$output" 2>&1
+  rc=$?
+
+  if [[ "$action" == check && "$rc" -eq 0 ]] && grep -q "CHECK PASSED" "$output"; then
+    printf '%s\n\n' "BOOT CHECK PASSED" \
+      "Every safety gate passed. Nothing was written to internal storage." >"$display"
+  elif [[ "$rc" -eq 0 ]]; then
+    printf '%s\n\n' "${action^^} COMPLETED SUCCESSFULLY" >"$display"
+  else
+    printf '%s\n\n' "${action^^} FAILED (code $rc)" \
+      "Nothing else will be attempted. Review the details below." >"$display"
+  fi
+  cat "$output" >>"$display"
+
+  start_controller_input
+  dialog --clear --title "$TITLE — Results" --exit-label "Done" \
+    --textbox "$display" 22 70 < /dev/tty > /dev/tty 2> /dev/tty
+  stop_controller_input
+  rm -f "$output" "$display"
+  return "$rc"
 }
 
 model=$(tr -d '\000' </proc/device-tree/model 2>/dev/null || true)
@@ -72,14 +111,14 @@ case "${ACTION:-}" in
       clear
       exit 0
     fi
-    sh "$WORK_DIR/launch.sh" backup
+    run_low_level check backup || true
     ;;
   install)
     if ! ask_user "Enable automatic SD boot on this Miyoo Flip?\n\nWITH a compatible ButterflyOS card: ButterflyOS boots.\nWITHOUT the card: the original Miyoo system boots.\n\nThis writes only the internal 2 MiB boot preloader. The tool checks the device, flash geometry, bad blocks, battery, and DRAM data; makes a backup; verifies the write; and attempts rollback if verification fails.\n\nDo not power off during this operation."; then
       clear
       exit 0
     fi
-    sh "$WORK_DIR/launch.sh" install
+    run_low_level install install || true
     ;;
   restore)
     restore_image=
@@ -110,9 +149,9 @@ case "${ACTION:-}" in
       exit 0
     fi
     if [[ -n "$restore_image" ]]; then
-      sh "$WORK_DIR/launch.sh" restore "$restore_image"
+      run_low_level restore restore "$restore_image" || true
     else
-      sh "$WORK_DIR/launch.sh" restore
+      run_low_level restore restore || true
     fi
     ;;
   *)
