@@ -30,7 +30,7 @@ start_controller_input() {
     # turns the built-in controls into the keyboard input expected by dialog.
     source /storage/.config/gptokeyb/control.ini
     get_controls
-    ${GPTOKEYB} "butterflyos-boot-setup" -c "$CONTROLLER_CONFIG" &
+    ${GPTOKEYB} "dialog" -c "$CONTROLLER_CONFIG" &
     CONTROLLER_PID=$!
   fi
 }
