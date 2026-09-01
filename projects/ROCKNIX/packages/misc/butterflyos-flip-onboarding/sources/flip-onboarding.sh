@@ -11,6 +11,7 @@ RECOVERY_DIR=/storage/butterflyos-recovery
 DEVICE_BACKUP="$RECOVERY_DIR/preloader-original.img"
 DEVICE_BACKUP_SUM="$DEVICE_BACKUP.sha256"
 SESSION_LOG="$RECOVERY_DIR/boot-setup-last.log"
+CONTROLLER_LOG="$RECOVERY_DIR/controller-last.log"
 CONTROLLER_CONFIG=/usr/share/butterflyos/flip-onboarding.gptk
 if [[ -f /storage/.config/butterflyos/flip-onboarding.gptk ]]; then
   CONTROLLER_CONFIG=/storage/.config/butterflyos/flip-onboarding.gptk
@@ -33,7 +34,7 @@ start_controller_input() {
     # turns the built-in controls into the keyboard input expected by dialog.
     source /storage/.config/gptokeyb/control.ini
     get_controls
-    /usr/bin/gptokeyb -c "$CONTROLLER_CONFIG" >>"$SESSION_LOG" 2>&1 &
+    /usr/bin/gptokeyb -c "$CONTROLLER_CONFIG" >>"$CONTROLLER_LOG" 2>&1 &
     CONTROLLER_PID=$!
     printf '%s controller mapper started (pid %s)\n' "$(date '+%H:%M:%S')" \
       "$CONTROLLER_PID" >>"$SESSION_LOG"
@@ -72,13 +73,19 @@ run_low_level() {
   local display="/tmp/butterflyos-${action}-$$.txt"
   local rc
 
-  clear
+  dialog --clear --title "$TITLE" \
+    --infobox "Checking this Miyoo Flip now...\n\nPlease wait. Do not power off.\n\nThis read-only check may take several seconds." \
+    10 58 < /dev/tty > /dev/tty 2> /dev/tty
   printf '%s starting low-level action: %s\n' "$(date '+%H:%M:%S')" \
     "$action" >>"$SESSION_LOG"
+  # Persist the stage marker before touching MTD. If the kernel or power fails,
+  # the card will still tell us whether execution reached the low-level check.
+  sync
   sh "$WORK_DIR/launch.sh" "$@" >"$output" 2>&1
   rc=$?
   printf '%s low-level action finished: %s rc=%s\n' "$(date '+%H:%M:%S')" \
     "$action" "$rc" >>"$SESSION_LOG"
+  sync
 
   if [[ "$action" == check && "$rc" -eq 0 ]] && grep -q "CHECK PASSED" "$output"; then
     printf '%s\n\n' "BOOT CHECK PASSED" \
