@@ -6,6 +6,24 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 CARD_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
 CONFIRM_FILE="$SCRIPT_DIR/.erase-confirmation"
 CONFIRM_SECONDS=300
+LOG_FILE="$SCRIPT_DIR/setup-last.log"
+
+show_screen() {
+  image=$1
+  SCREEN_PID=
+  if [ -x /usr/bin/fbdisplay ] && [ -r "$image" ]; then
+    /usr/bin/fbdisplay "$image" >/dev/null 2>&1 &
+    SCREEN_PID=$!
+  fi
+}
+
+exec >>"$LOG_FILE" 2>&1
+echo
+echo "=== ButterflyOS Setup $(date 2>/dev/null || echo unknown-time) ==="
+echo "script=$0"
+echo "script_dir=$SCRIPT_DIR"
+echo "card_root=$CARD_ROOT"
+echo "uid=$(id -u 2>/dev/null || echo unknown)"
 
 clear 2>/dev/null || printf '\033[2J\033[H'
 echo "============================================================"
@@ -80,7 +98,10 @@ if [ "$confirmed" -ne 1 ]; then
   echo
   echo "$now" >"$CONFIRM_FILE"
   sync
+  show_screen "$SCRIPT_DIR/first-run.png"
   sleep 20
+  [ -n "$SCREEN_PID" ] && kill "$SCREEN_PID" 2>/dev/null
+  echo "FIRST STAGE COMPLETE: no internal storage was written."
   exit 0
 fi
 
@@ -89,10 +110,23 @@ sync
 
 echo "SECOND CONFIRMATION ACCEPTED."
 echo
-echo "Do not power off. The device will restart into ButterflyOS."
+echo "Do not power off. The device will shut down when preparation finishes."
 echo "If ButterflyOS does not start, connect the device to a PC for"
 echo "USB MASKROM recovery. The SoC bootrom itself is not modified."
 echo
+show_screen "$SCRIPT_DIR/second-run.png"
 sleep 5
 
-exec sh "$SCRIPT_DIR/erase-preloader.sh"
+# The upstream utility reboots immediately. Stock discovers this app in the
+# left slot, while the Flip boots ButterflyOS from the right slot, so finish by
+# powering off and give the user a safe opportunity to move the card.
+SAFE_ERASER=/tmp/butterflyos-erase-preloader.sh
+if ! sed \
+  -e 's/Rebooting in 15 seconds/Powering off in 15 seconds/' \
+  -e 's#echo b > /proc/sysrq-trigger#poweroff#' \
+  "$SCRIPT_DIR/erase-preloader.sh" >"$SAFE_ERASER"; then
+  echo "STOPPED: Could not prepare the stock preloader utility."
+  exit 1
+fi
+chmod 0700 "$SAFE_ERASER"
+exec sh "$SAFE_ERASER"

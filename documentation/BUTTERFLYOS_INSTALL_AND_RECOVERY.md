@@ -90,7 +90,7 @@ NAND region modified by ButterflyOS.
 Do not describe onboarding as generally supported until all of these have been
 tested on physical hardware:
 
-- The stock launcher discovers `App/ButterflyOS Setup` on the ButterflyOS boot
+- The stock launcher discovers `App/ButterflyOS_Setup` on the ButterflyOS boot
   partition.
 - Both confirmation launches behave correctly and a single launch writes
   nothing.

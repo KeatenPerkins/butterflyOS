@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#0b0a12"/>
+  <text x="320" y="145" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="34" font-weight="bold" fill="#f7f6ff">ButterflyOS Setup</text>
+  <rect x="74" y="176" width="492" height="3" fill="#38bdf8"/>
+  <text x="320" y="226" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="25" font-weight="bold" fill="#5eead4">Safety check passed</text>
+  <text x="320" y="270" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="22" fill="#f7f6ff">No changes were made to your device.</text>
+  <text x="320" y="318" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="20" fill="#d4d4dc">To continue, return to Apps and launch</text>
+  <text x="320" y="348" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="20" fill="#d4d4dc">ButterflyOS Setup again within five minutes.</text>
+  <text x="320" y="414" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="18" fill="#fbbf24">The second launch begins SD-boot preparation.</text>
+</svg>

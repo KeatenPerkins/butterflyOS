@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#0b0a12"/>
+  <text x="320" y="118" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="36" font-weight="bold" fill="#f7f6ff">Preparing ButterflyOS</text>
+  <rect x="74" y="151" width="492" height="3" fill="#38bdf8"/>
+  <text x="320" y="222" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="27" font-weight="bold" fill="#fbbf24">Do not power off</text>
+  <text x="320" y="278" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="21" fill="#f7f6ff">The device will power off when ready.</text>
+  <text x="320" y="318" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="21" fill="#f7f6ff">Keep the ButterflyOS SD card inserted.</text>
+  <text x="320" y="378" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="18" fill="#5eead4">After shutdown, move this card to the right slot.</text>
+  <text x="320" y="408" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="18" fill="#5eead4">Then power on to continue setup in ButterflyOS.</text>
+</svg>

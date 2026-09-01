@@ -47,18 +47,22 @@ makeinstall_target() {
         "${PKG_DIR}/sources/flip-onboarding.gptk" \
         "${INSTALL}/usr/share/butterflyos/"
 
-  mkdir -p "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS Setup"
+  mkdir -p "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup"
   cp -a "${PKG_DIR}/sources/stock-bootstrap/launch.sh" \
         "${PKG_DIR}/sources/stock-bootstrap/config.json" \
-        "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS Setup/"
+        "${PKG_DIR}/sources/stock-bootstrap/icon.png" \
+        "${PKG_DIR}/sources/stock-bootstrap/icon_sel.png" \
+        "${PKG_DIR}/sources/stock-bootstrap/first-run.png" \
+        "${PKG_DIR}/sources/stock-bootstrap/second-run.png" \
+        "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/"
   cp -a "${upstream}/erase-preloader.sh" \
-        "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS Setup/"
+        "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/"
 
   chmod 0755 "${INSTALL}/usr/config/modules/ButterflyOS Boot Check.sh" \
              "${INSTALL}/usr/config/modules/Enable ButterflyOS SD Boot.sh" \
              "${INSTALL}/usr/config/modules/Restore Stock Miyoo Boot.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-onboarding.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/launch.sh" \
-             "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS Setup/launch.sh" \
-             "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS Setup/erase-preloader.sh"
+             "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/launch.sh" \
+             "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/erase-preloader.sh"
 }

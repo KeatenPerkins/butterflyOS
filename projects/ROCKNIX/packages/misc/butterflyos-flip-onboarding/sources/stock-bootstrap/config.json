@@ -1,5 +1,7 @@
 {
   "label": "ButterflyOS Setup",
+  "icon": "icon.png",
+  "iconsel": "icon_sel.png",
   "launch": "launch.sh",
   "description": "Prepare this Miyoo Flip to boot ButterflyOS from the SD card without opening the device. Requires two separate confirmations."
 }
