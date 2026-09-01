@@ -274,6 +274,15 @@ elif [ "${BOOTLOADER}" = "qcom-abl" ]; then
 
 fi # bootloader
 
+# ButterflyOS ships a stock-Miyoo bootstrap app on the FAT partition. Keeping
+# this optional makes the generic image builder unchanged for releases that do
+# not provide the staged bundle.
+if [ -d "${RELEASE_DIR}/3rdparty/butterflyos-stock-bootstrap/App" ]; then
+  echo "image: copying ButterflyOS stock bootstrap to part1..."
+  mcopy -s "${RELEASE_DIR}/3rdparty/butterflyos-stock-bootstrap/App" :: \
+    >"${SAVE_ERROR}" 2>&1 || show_error
+fi
+
 # run fsck
 echo "image: checking filesystem on part1..."
 sync

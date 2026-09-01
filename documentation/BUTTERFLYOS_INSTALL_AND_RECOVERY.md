@@ -7,15 +7,17 @@ recovery method, not an onboarding step.
 ## Intended installation experience
 
 1. Write the device-specific ButterflyOS image to a microSD card.
-2. Leave the original Miyoo system installed internally and start it with the
-   ButterflyOS card in the right-hand slot.
+2. Leave the original Miyoo system installed internally. Put the ButterflyOS
+   card in the **left-hand slot**, then start the stock Miyoo system.
 3. Open **Apps**, then open **ButterflyOS Setup**.
 4. Read the no-write warning screen. Open **ButterflyOS Setup** a second time
    within five minutes to confirm.
-5. The bootstrap temporarily erases only the internal 2 MiB preloader and
-   restarts. The prepared card should then boot ButterflyOS.
-6. In ButterflyOS, open **Tools → ButterflyOS Boot Check**. This is read-only.
-7. If every safety gate passes, open
+5. The bootstrap temporarily erases only the internal 2 MiB preloader and then
+   powers the device off. Do not remove power or the card while it is working.
+6. After shutdown, move the ButterflyOS card from the left-hand slot to the
+   **right-hand slot**, then power on. The prepared card boots ButterflyOS.
+7. In ButterflyOS, open **Tools → ButterflyOS Boot Check**. This is read-only.
+8. If every safety gate passes, open
    **Tools → Enable ButterflyOS SD Boot** and confirm the write.
 
 The finished behavior is:
@@ -31,8 +33,16 @@ backs up the current preloader, verifies the write, retries, and attempts to
 roll back a failed verification.
 
 The bootstrap is deliberately not automatic. It requires two separately
-launched confirmations from stock. The second step inside ButterflyOS is also
-manual.
+launched confirmations from stock within five minutes. The first launch writes
+nothing internally. The persistent step inside ButterflyOS is also manual.
+
+## Slot summary
+
+| Part of setup | Slot |
+|---|---|
+| Run **ButterflyOS Setup** from stock Apps | Left-hand slot |
+| Boot and use ButterflyOS | Right-hand slot |
+| Boot the stock Miyoo system after setup | Remove the ButterflyOS card |
 
 ## Returning to stock boot
 
@@ -103,7 +113,9 @@ tested on physical hardware:
 - Stock and SurwishOS boot after restoration.
 - A second software-only ButterflyOS installation succeeds.
 
-Until this round trip passes, the workflow is experimental.
+The complete round trip passed on the primary ButterflyOS Flip V2 test unit on
+2026-09-01. A clean-image test and a second untouched Flip V2 remain Alpha 1
+release-qualification gates.
 
 ## Third-party release note
 
