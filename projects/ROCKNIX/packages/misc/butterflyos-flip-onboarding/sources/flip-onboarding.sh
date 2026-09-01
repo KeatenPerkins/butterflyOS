@@ -83,20 +83,68 @@ run_low_level() {
   sync
   sh "$WORK_DIR/launch.sh" "$@" >"$output" 2>&1
   rc=$?
+  case "$action" in
+    check) plain_log="$WORK_DIR/backup-log.txt" ;;
+    install) plain_log="$WORK_DIR/install-log.txt" ;;
+    restore) plain_log="$WORK_DIR/restore-log.txt" ;;
+  esac
+  if [[ -f "${plain_log:-}" ]]; then
+    cp -f "$plain_log" "$output"
+  fi
   printf '%s low-level action finished: %s rc=%s\n' "$(date '+%H:%M:%S')" \
     "$action" "$rc" >>"$SESSION_LOG"
   sync
 
   if [[ "$action" == check && "$rc" -eq 0 ]] && grep -q "CHECK PASSED" "$output"; then
-    printf '%s\n\n' "BOOT CHECK PASSED" \
-      "Every safety gate passed. Nothing was written to internal storage." >"$display"
+    current_state="Current preloader was read successfully."
+    if grep -q "patched preloader is already installed" "$output"; then
+      current_state="ButterflyOS SD boot is already enabled."
+    elif grep -q "currently the unmodified stock preloader" "$output"; then
+      current_state="The original stock preloader is installed."
+    fi
+
+    bad_block_note="Bad-block check passed."
+    if grep -q "bad-block check skipped" "$output"; then
+      bad_block_note="Warning: the optional bad-block query was unavailable and skipped."
+    fi
+
+    cat >"$display" <<EOF
+BOOT CHECK PASSED
+
+$current_state
+
+Preloader size and NAND geometry matched.
+The device DRAM initialization matched the bundled images.
+$bad_block_note
+
+Nothing was written to internal storage.
+
+Full details were saved to:
+/storage/butterflyos-recovery/check-last.log
+EOF
   elif [[ "$rc" -eq 0 ]]; then
-    printf '%s\n\n' "${action^^} COMPLETED SUCCESSFULLY" >"$display"
+    cat >"$display" <<EOF
+${action^^} COMPLETED SUCCESSFULLY
+
+The operation completed and its verification passed.
+
+Full details were saved to:
+$output
+EOF
   else
-    printf '%s\n\n' "${action^^} FAILED (code $rc)" \
-      "Nothing else will be attempted. Review the details below." >"$display"
+    cat >"$display" <<EOF
+${action^^} FAILED (code $rc)
+
+Nothing else was attempted. The most relevant details follow:
+
+EOF
+    if [[ -f "${plain_log:-}" ]]; then
+      tail -n 18 "$plain_log" >>"$display"
+    else
+      printf '%s\n' "No plain-text diagnostic log was produced." >>"$display"
+    fi
+    printf '\nFull output: %s\n' "$output" >>"$display"
   fi
-  cat "$output" >>"$display"
 
   printf '%s opening results dialog\n' "$(date '+%H:%M:%S')" >>"$SESSION_LOG"
   dialog --clear --title "$TITLE — Results" --exit-label "Done" \
