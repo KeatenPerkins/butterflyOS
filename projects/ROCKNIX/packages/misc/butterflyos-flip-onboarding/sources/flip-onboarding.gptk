@@ -1,7 +1,9 @@
 back = esc
 start = enter
-a = enter
-b = esc
+# The Flip's Nintendo-labelled face buttons are exposed with SDL's labels
+# reversed: physical B is SDL "a", and physical A is SDL "b".
+a = esc
+b = enter
 x = \\
 y = \\
 l1 = \\
