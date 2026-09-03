@@ -216,10 +216,28 @@ do_trust() {
             log_error "Invalid device address format"
             return 1
         fi
+    else
+        # BlueZ can retain devices discovered during an interrupted pairing
+        # attempt.  Those partial records do not emit a complete InterfacesAdded
+        # event on the next scan, so the agent cannot classify them as gamepads.
+        # Remove only unpaired records; bonded controllers are never touched.
+        bluetoothctl devices | while read -r _ DEV _; do
+            if validate_mac_address "${DEV}" && \
+               ! bluetoothctl info "${DEV}" | grep -q '^[[:space:]]*Paired: yes$'; then
+                bluetoothctl remove "${DEV}" >/dev/null 2>&1
+            fi
+        done
     fi
 
     # Write device to control file
     echo "${TRUSTDEV}" > "${BT_DEVICE_FILE}" || return 1
+
+    # Automatic controller pairing is also used without the live device-list
+    # screen, so it must own its discovery lifecycle instead of waiting for a
+    # separate GUI process to start scanning.
+    if [ "${TRUSTDEV}" = "input" ]; then
+        echo "start" > "${BT_CONTROL_FILE}"
+    fi
 
     local LAST_MSG=""
     local NEW_MSG=""
@@ -243,6 +261,10 @@ do_trust() {
         sleep 1
         N=$((N-1))
     done
+
+    if [ "${TRUSTDEV}" = "input" ]; then
+        echo "stop" > "${BT_CONTROL_FILE}"
+    fi
 
     do_save
 }

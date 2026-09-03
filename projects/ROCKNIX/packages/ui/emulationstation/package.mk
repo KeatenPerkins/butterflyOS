@@ -24,6 +24,8 @@ PKG_CMAKE_OPTS_TARGET+=" -DROCKNIX=1 \
 pre_configure_target() {
   cp -a ${PKG_DIR}/sources/LibretroThumbnailScraper.{h,cpp} \
     ${PKG_BUILD}/es-app/src/scrapers/
+  cp -a ${PKG_DIR}/sources/bluetooth.svg \
+    ${PKG_BUILD}/resources/
 
   for key in SCREENSCRAPER_DEV_LOGIN \
              GAMESDB_APIKEY \

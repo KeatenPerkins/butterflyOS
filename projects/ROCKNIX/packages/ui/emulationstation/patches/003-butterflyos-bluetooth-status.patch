@@ -1,0 +1,141 @@
+diff --git a/es-core/src/components/BatteryIndicatorComponent.cpp b/es-core/src/components/BatteryIndicatorComponent.cpp
+index 9125065..a20a82e 100644
+--- a/es-core/src/components/BatteryIndicatorComponent.cpp
++++ b/es-core/src/components/BatteryIndicatorComponent.cpp
+@@ -55,5 +55,11 @@ void BatteryIndicatorComponent::init()
+ 		mNetworkImage = TextureResource::get(ResourceManager::getInstance()->getResourcePath(":/network.svg"), false, true);
+ 	}
+ 
++	if (ResourceManager::getInstance()->fileExists(":/bluetooth.svg"))
++	{
++		mView |= ActivityView::BLUETOOTH;
++		mBluetoothImage = TextureResource::get(ResourceManager::getInstance()->getResourcePath(":/bluetooth.svg"), false, true);
++	}
++
+ 	updateBatteryInfo();
+ }
+diff --git a/es-core/src/components/ControllerActivityComponent.cpp b/es-core/src/components/ControllerActivityComponent.cpp
+index 0a78d05..15d1235 100644
+--- a/es-core/src/components/ControllerActivityComponent.cpp
++++ b/es-core/src/components/ControllerActivityComponent.cpp
+@@ -12,11 +12,13 @@
+ #include "watchers/BatteryLevelWatcher.h"
+ #include "watchers/NetworkStateWatcher.h"
+ 
++#include <fstream>
++
+ // #define DEVTEST
+ 
+ #define PLAYER_PAD_TIME_MS		 150
+ 
+-ControllerActivityComponent::ControllerActivityComponent(Window* window) : GuiComponent(window), mBatteryInfoChanged(false), mBatteryTextX(0), mNetworkConnected(false), mPlanemodeEnabled(false)
++ControllerActivityComponent::ControllerActivityComponent(Window* window) : GuiComponent(window), mBatteryInfoChanged(false), mBatteryTextX(0), mNetworkConnected(false), mPlanemodeEnabled(false), mBluetoothEnabled(false), mBluetoothPollTime(0)
+ {
+ 	WatchersManager::getInstance()->RegisterNotify(this);
+ 	init();
+@@ -67,6 +69,9 @@ void ControllerActivityComponent::init()
+ 	mNetworkConnected = false;
+ 	mPlanemodeEnabled = false;
+ 
++	mBluetoothEnabled = false;
++	mBluetoothPollTime = 0;
++
+ 	NetworkStateWatcher* networkWatcher = WatchersManager::GetComponent<NetworkStateWatcher>();
+ 	if (networkWatcher != nullptr)
+ 	{
+@@ -117,6 +122,13 @@ void ControllerActivityComponent::update(int deltaTime)
+ 	if (mBatteryInfoChanged)
+ 		updateBatteryInfo();
+ 	
++	mBluetoothPollTime -= deltaTime;
++	if (mBluetoothPollTime <= 0)
++	{
++		updateBluetoothInfo();
++		mBluetoothPollTime = 1000;
++	}
++
+ 	if (mView & CONTROLLERS)
+ 	{
+ 		for (int i = 0; i < MAX_PLAYERS; i++)
+@@ -193,6 +204,9 @@ void ControllerActivityComponent::render(const Transform4x4f& parentTrans)
+ 		}
+ 	}
+ 
++	if ((mView & BLUETOOTH) && mBluetoothEnabled && mBluetoothImage != nullptr)
++		itemsWidth += szW + mSpacing;
++
+ 	if (Settings::ShowNetworkIndicator())
+ 	{
+ 		if ((mView & PLANEMODE) && mPlanemodeEnabled && mPlanemodeImage != nullptr)
+@@ -296,6 +310,9 @@ void ControllerActivityComponent::render(const Transform4x4f& parentTrans)
+ 		}
+ 	}
+ 	
++	if ((mView & BLUETOOTH) && mBluetoothEnabled && mBluetoothImage != nullptr)
++		x += renderTexture(x, szW, mBluetoothImage, mColorShift);
++
+ 	if (Settings::ShowNetworkIndicator())
+ 	{
+ 		if ((mView & PLANEMODE) && mPlanemodeEnabled && mPlanemodeImage != nullptr)
+@@ -413,6 +430,33 @@ void ControllerActivityComponent::updateBatteryInfo()
+ 	}
+ }
+ 
++void ControllerActivityComponent::updateBluetoothInfo()
++{
++	mBluetoothEnabled = false;
++
++	if ((mView & BLUETOOTH) == 0)
++		return;
++
++	for (int index = 0; index < 16; index++)
++	{
++		const std::string base = "/sys/class/rfkill/rfkill" + std::to_string(index) + "/";
++		std::ifstream typeFile(base + "type");
++		std::string type;
++		std::getline(typeFile, type);
++		if (type != "bluetooth")
++			continue;
++
++		std::ifstream stateFile(base + "state");
++		std::string state;
++		std::getline(stateFile, state);
++		if (state == "1")
++		{
++			mBluetoothEnabled = true;
++			return;
++		}
++	}
++}
++
+ Vector2f ControllerActivityComponent::getTextureSize(std::shared_ptr<TextureResource> texture)
+ {
+ 	if (texture == nullptr)
+diff --git a/es-core/src/components/ControllerActivityComponent.h b/es-core/src/components/ControllerActivityComponent.h
+index 8031570..114752b 100644
+--- a/es-core/src/components/ControllerActivityComponent.h
++++ b/es-core/src/components/ControllerActivityComponent.h
+@@ -18,7 +18,8 @@ public:
+ 		CONTROLLERS = 1,
+ 		BATTERY = 2,
+ 		NETWORK = 4,
+-		PLANEMODE = 8
++		PLANEMODE = 8,
++		BLUETOOTH = 16
+ 	};
+ 
+ 	ControllerActivityComponent(Window* window);
+@@ -92,6 +93,13 @@ protected:
+ 	bool mNetworkConnected;
+   	bool mPlanemodeEnabled;
+ 
++protected:
++	// Bluetooth radio state
++	std::shared_ptr<TextureResource> mBluetoothImage;
++	bool mBluetoothEnabled;
++	int mBluetoothPollTime;
++	void updateBluetoothInfo();
++
+ protected:
+ 	// Battery info
+ 	int mBatteryTextX;
