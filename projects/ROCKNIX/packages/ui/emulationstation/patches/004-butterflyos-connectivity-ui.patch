@@ -1,0 +1,208 @@
+--- a/es-app/src/ApiSystem.h
++++ b/es-app/src/ApiSystem.h
+@@ -250,6 +250,7 @@
+     bool disableWifi();
+ 
+ 	virtual std::string getIpAddress();
++	virtual std::string getCurrentWifiSSID();
+ 	virtual bool isWifiAPModeSupported();
+ 
+ 	// BlueTooth methods
+--- a/es-app/src/ApiSystem.cpp
++++ b/es-app/src/ApiSystem.cpp
+@@ -573,6 +573,15 @@
+ 	return result;
+ }
+ 
++std::string ApiSystem::getCurrentWifiSSID()
++{
++	auto result = executeEnumerationScript("wifictl status");
++	if (result.empty() || result.front().empty())
++		return "NOT CONNECTED";
++
++	return result.front();
++}
++
+ bool ApiSystem::isWifiAPModeSupported()
+ {
+ 	LOG(LogDebug) << "ApiSystem::isWifiAPModeSupported";
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -5410,6 +5410,9 @@
+ 	auto ip = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getIpAddress(), font, color);
+ 	s->addWithLabel(_("IP ADDRESS"), ip);
+ 
++	auto activeWifi = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getCurrentWifiSSID(), font, color);
++	s->addWithLabel(_("CONNECTED WI-FI"), activeWifi);
++
+ 	auto status = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->ping() ? _("CONNECTED") : _("NOT CONNECTED"), font, color);
+ 	s->addWithLabel(_("INTERNET STATUS"), status);
+ 
+@@ -5545,17 +5548,17 @@
+ 			if (baseSSID != newSSID || baseKEY != newKey || baseCountry != newCountry || !baseWifiEnabled)
+ 			{
+ 				if (ApiSystem::getInstance()->enableWifi(newSSID, newKey, newCountry))
+-					window->pushGui(new GuiMsgBox(window, _("WI-FI ENABLED")));
++					window->pushGui(new GuiMsgBox(window, _("WI-FI CONNECTED SUCCESSFULLY.")));
+ 				else
+-					window->pushGui(new GuiMsgBox(window, _("WI-FI CONFIGURATION ERROR")));
++					window->pushGui(new GuiMsgBox(window, _("COULD NOT CONNECT TO WI-FI. CHECK THE NETWORK NAME, PASSWORD, AND SIGNAL, THEN TRY AGAIN.")));
+ 			}
+ #else
+ 			if (baseSSID != newSSID || baseKEY != newKey || !baseWifiEnabled)
+ 			{
+ 				if (ApiSystem::getInstance()->enableWifi(newSSID, newKey))
+-					window->pushGui(new GuiMsgBox(window, _("WI-FI ENABLED")));
++					window->pushGui(new GuiMsgBox(window, _("WI-FI CONNECTED SUCCESSFULLY.")));
+ 				else
+-					window->pushGui(new GuiMsgBox(window, _("WI-FI CONFIGURATION ERROR")));
++					window->pushGui(new GuiMsgBox(window, _("COULD NOT CONNECT TO WI-FI. CHECK THE NETWORK NAME, PASSWORD, AND SIGNAL, THEN TRY AGAIN.")));
+ 			}
+ #endif
+ 		}
+@@ -5617,13 +5620,19 @@
+ 		openNetworkSettings(false, true);
+ 	});
+ 
+-	// NETWORK SERVICES
+-	s->addGroup(_("NETWORK SERVICES"));
++	// ButterflyOS remote access
++	s->addGroup(_("BUTTERFLYOS REMOTE ACCESS"));
+ 
+        auto sshd_enabled = std::make_shared<SwitchComponent>(mWindow);
+ 	bool sshbaseEnabled = SystemConf::getInstance()->get("ssh.enabled") == "1";
+ 	sshd_enabled->setState(sshbaseEnabled);
+-	s->addWithLabel(_("ENABLE SSH"), sshd_enabled);
++	s->addWithDescription(_("ENABLE SSH"), _("Allow another computer on this network to open a command line on this device."), sshd_enabled);
+-	sshd_enabled->setOnChangedCallback([sshd_enabled] {
++	sshd_enabled->setOnChangedCallback([sshd_enabled, window] {
++		const std::string rootPassword = SystemConf::getInstance()->get("root.password");
++		if (sshd_enabled->getState() && (rootPassword.empty() || rootPassword == "rocknix")) {
++			sshd_enabled->setState(false);
++			window->pushGui(new GuiMsgBox(window, _("SET A NEW SSH PASSWORD, SAVE IT, THEN ENABLE SSH.")));
++			return;
++		}
+ 		if (sshd_enabled->getState() == false) {
+ 			Utils::Platform::runSystemCommand("systemctl stop sshd", "", nullptr);
+@@ -5639,6 +5648,23 @@
+ 			SystemConf::getInstance()->set("ssh.enabled", sshenabled ? "1" : "0");
+ 		});
+ 
++	const std::string baseRootPassword = SystemConf::getInstance()->get("root.password");
++	s->addInputTextConfigRow(_("SET SSH PASSWORD"), "root.password", true);
++	auto sshCommand = std::make_shared<TextComponent>(mWindow,
++		"ssh root@" + ApiSystem::getInstance()->getIpAddress(), font, color);
++	s->addWithDescription(_("HOW TO CONNECT"), _("Run this command on another computer. Password login works only while SSH is enabled."), sshCommand);
++	s->addSaveFunc([baseRootPassword, window]
++	{
++		const std::string newPassword = SystemConf::getInstance()->get("root.password");
++		if (newPassword != baseRootPassword && !newPassword.empty())
++		{
++			Utils::Platform::runSystemCommand("setrootpass " + Utils::String::shellQuote(newPassword), "", nullptr);
++			window->pushGui(new GuiMsgBox(window, _("SSH PASSWORD UPDATED.")));
++		}
++	});
++
++	s->addGroup(_("OTHER NETWORK SERVICES"));
++
+        auto samba_enabled = std::make_shared<SwitchComponent>(mWindow);
+ 	bool smbbaseEnabled = SystemConf::getInstance()->get("samba.enabled") == "1";
+ 	samba_enabled->setState(smbbaseEnabled);
+--- a/es-app/src/guis/GuiControllersSettings.cpp
++++ b/es-app/src/guis/GuiControllersSettings.cpp
+@@ -172,11 +172,11 @@
+ #endif
+ 
+ 		// PAIR A BLUETOOTH CONTROLLER
+-		addEntry(_("PAIR BLUETOOTH PADS AUTOMATICALLY"), false, [window] { ThreadedBluetooth::start(window); });
++		addEntry(_("PAIR NEW CONTROLLER"), false, [window] { ThreadedBluetooth::start(window); });
+ 
+ #if defined(BATOCERA) || defined(ROCKNIX) || defined(WIN32)
+ 		// PAIR A BLUETOOTH CONTROLLER OR BT AUDIO DEVICE
+-		addEntry(_("PAIR A BLUETOOTH DEVICE MANUALLY"), false, [window]
++		addEntry(_("PAIR OTHER BLUETOOTH DEVICE"), false, [window]
+ 		{
+ 			if (ThreadedBluetooth::isRunning())
+ 				window->pushGui(new GuiMsgBox(window, _("BLUETOOTH SCAN IS ALREADY RUNNING.")));
+@@ -185,7 +185,7 @@
+ 		});
+ #endif
+ 		// FORGET BLUETOOTH CONTROLLERS OR BT AUDIO DEVICES
+-		addEntry(_("BLUETOOTH DEVICE LIST"), false, [window] { window->pushGui(new GuiBluetoothDevices(window)); });
++		addEntry(_("SAVED & CONNECTED DEVICES"), false, [window] { window->pushGui(new GuiBluetoothDevices(window)); });
+ 
+ #if defined(BATOCERA) || defined(ROCKNIX)
+ 		}
+--- a/es-app/src/guis/GuiBluetoothPair.cpp
++++ b/es-app/src/guis/GuiBluetoothPair.cpp
+@@ -132,11 +132,16 @@
+ 	window->pushGui(new GuiLoading<bool>(window, _("PLEASE WAIT"), [this, window, macAddress](auto gui)
+ 	{
+ 		return ApiSystem::getInstance()->pairBluetoothDevice(macAddress);
+-	}, [this](bool ret)
++	}, [this, window](bool ret)
+ 	{
+ 		mIsPairing = false;
+ 
+ 		if (ret)
++		{
++			window->pushGui(new GuiMsgBox(window, _("BLUETOOTH DEVICE PAIRED SUCCESSFULLY."), _("OK")));
+ 			delete this;
++		}
++		else
++			window->pushGui(new GuiMsgBox(window, _("PAIRING FAILED. MAKE SURE THE DEVICE IS IN PAIRING MODE AND TRY AGAIN."), _("OK")));
+ 	}));
+ }
+--- a/es-app/src/guis/GuiBluetoothDeviceOptions.cpp
++++ b/es-app/src/guis/GuiBluetoothDeviceOptions.cpp
+@@ -65,8 +65,14 @@
+                 [this, window](bool ret)
+                 {
+                     mWaitingLoad = false;
+-                    if (mOnComplete) mOnComplete();
+-                    delete this;
++                    if (ret)
++                    {
++                        if (mOnComplete) mOnComplete();
++                        window->pushGui(new GuiMsgBox(window, _("DEVICE FORGOTTEN."), _("OK")));
++                        delete this;
++                    }
++                    else
++                        window->pushGui(new GuiMsgBox(window, _("COULD NOT FORGET THIS DEVICE."), _("OK")));
+                 }));
+         },
+         _("NO"), nullptr));
+@@ -90,8 +96,14 @@
+                 [this, window](bool ret)
+                 {
+                     mWaitingLoad = false;
+-                    if (mOnComplete) mOnComplete();
+-                    delete this;
++                    if (ret)
++                    {
++                        if (mOnComplete) mOnComplete();
++                        window->pushGui(new GuiMsgBox(window, _("DEVICE CONNECTED."), _("OK")));
++                        delete this;
++                    }
++                    else
++                        window->pushGui(new GuiMsgBox(window, _("CONNECTION FAILED. MAKE SURE THE DEVICE IS TURNED ON AND NEARBY."), _("OK")));
+                 }));
+         },
+         _("NO"), nullptr));
+@@ -115,8 +127,14 @@
+                 [this, window](bool ret)
+                 {
+                     mWaitingLoad = false;
+-                    if (mOnComplete) mOnComplete();
+-                    delete this;
++                    if (ret)
++                    {
++                        if (mOnComplete) mOnComplete();
++                        window->pushGui(new GuiMsgBox(window, _("DEVICE DISCONNECTED."), _("OK")));
++                        delete this;
++                    }
++                    else
++                        window->pushGui(new GuiMsgBox(window, _("COULD NOT DISCONNECT THIS DEVICE."), _("OK")));
+                 }));
+         },
+         _("NO"), nullptr));

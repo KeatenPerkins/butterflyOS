@@ -201,6 +201,12 @@ case "${1}" in
   list)
     list_wifi
     ;;
+  status)
+    # Report the connection NetworkManager is actually using.  This may differ
+    # from wifi.ssid when another saved network was selected automatically.
+    "${NMCLI}" -g GENERAL.CONNECTION device show "${WIFI_DEV}" 2>/dev/null |
+      sed -n '1{/^--$/d;p;}'
+    ;;
   channels)
     iw list | awk '/[0-9] MHz \[/ && ! /disabled|radar|no IR/ { gsub(/^.*\[/,""); gsub(/\].*$/,""); print}'
     ;;
