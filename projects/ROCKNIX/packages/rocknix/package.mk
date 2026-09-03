@@ -89,6 +89,14 @@ EOF
     sed -i "s#system.loglevel=none#system.loglevel=verbose#g" ${INSTALL}/usr/config/system/configs/system.cfg
   fi
 
+  # ButterflyOS must never expose the inherited, well-known root password on
+  # first boot.  The frontend requires the user to choose a new password before
+  # it will enable SSH, so keep remote access disabled in the shipped config.
+  if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]
+  then
+    sed -i "s#ssh.enabled=1#ssh.enabled=0#g" ${INSTALL}/usr/config/system/configs/system.cfg
+  fi
+
   ### Disable automount on AMD64
   if [ "${DEVICE}" = "AMD64" ]
   then
