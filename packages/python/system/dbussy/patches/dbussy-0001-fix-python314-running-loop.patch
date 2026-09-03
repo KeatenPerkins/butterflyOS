@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Keaten Perkins <keaten.perkins@gmail.com>
+Date: Thu, 3 Sep 2026 11:05:00 -0500
+Subject: [PATCH] Use asyncio namespace for get_running_loop
+
+Python 3.14 no longer leaves a bare get_running_loop name available to this
+module.  dbussy already imports asyncio and uses the qualified spelling in
+one call site, so make the remaining call sites consistent.
+---
+ dbussy.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/dbussy.py b/dbussy.py
+index 1111111..2222222 100644
+--- a/dbussy.py
++++ b/dbussy.py
+@@ -545,7 +545,7 @@ def call_async(func, funcargs = (), timeout = None, abort = None, loop = None) :
+     " func."
+ 
+     if loop == None :
+-        loop = get_running_loop()
++        loop = asyncio.get_running_loop()
+     #end if
+ 
+     timeout_task = None
+@@ -2116,7 +2116,7 @@ class Connection(object) :
+         # so I invoke it in a separate thread.
+ 
+         if loop == None :
+-            loop = get_running_loop()
++            loop = asyncio.get_running_loop()
+         #end if
+         error, my_error = _get_error(error)
+         if timeout == DBUS.TIMEOUT_USE_DEFAULT :
+@@ -2979,7 +2979,7 @@ class Connection(object) :
+         "async version of bus_get."
+ 
+         if loop == None :
+-            loop = get_running_loop()
++            loop = asyncio.get_running_loop()
+         #end if
+         result = await call_async \
+           (
+-- 
+2.51.0
