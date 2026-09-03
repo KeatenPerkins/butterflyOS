@@ -18,6 +18,12 @@ PKG_IS_KERNEL_PKG="yes"
 
 pre_make_target() {
   unset LDFLAGS
+
+  # The Flip has one physical RTL8733BU radio.  The vendor driver's concurrent
+  # mode creates a second station (wlan1) on the same wiphy; iwd then races the
+  # two stations during autoconnect and can crash.  Keep AP/P2P support, but
+  # expose only the primary wlan0 interface.
+  sed -i 's/ -DCONFIG_CONCURRENT_MODE / /' Makefile
 }
 
 # This fork replaces the upstream 2803-line multi-chip Makefile with a static
