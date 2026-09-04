@@ -349,7 +349,28 @@ function configure_hotkeys() {
     log "Configure hotkeys..."
     local MY_CONTROLLER
 
-    if grep -q "Sony Interactive Entertainment DualSense Wireless Controller" /proc/bus/input/devices; then
+    # On the Miyoo Flip, use the first external joystick profile whenever one
+    # is connected. The built-in controls are always js0, so reading js0 would
+    # otherwise apply the handheld M-button mapping to external Player 1.
+    if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null; then
+        MY_CONTROLLER=$(awk '
+            BEGIN { RS=""; FS="\n" }
+            !/N: Name="retrogame_joypad"/ && /js[0-9]+/ {
+                for (i = 1; i <= NF; i++) {
+                    if ($i ~ /^N: Name=/) {
+                        sub(/^N: Name="/, "", $i)
+                        sub(/"$/, "", $i)
+                        print $i
+                        exit
+                    }
+                }
+            }
+        ' /proc/bus/input/devices)
+    fi
+
+    if [ -n "${MY_CONTROLLER}" ]; then
+        log "ButterflyOS external hotkey controller: ${MY_CONTROLLER}"
+    elif grep -q "Sony Interactive Entertainment DualSense Wireless Controller" /proc/bus/input/devices; then
         # InputPlumber virtual DS5
         MY_CONTROLLER="Sony Interactive Entertainment DualSense Wireless Controller"
     elif grep -q "js0" /proc/bus/input/devices; then
@@ -379,7 +400,14 @@ function configure_hotkeys() {
                 clear_setting "${HKEYSETTING}"
             done
             flush_settings
-            if [ -z ${input_enable_hotkey_btn+x} ]
+            if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null && \
+               [ "${MY_CONTROLLER}" != "retrogame_joypad" ] && \
+               [ -n "${input_menu_toggle_btn}" ]
+            then
+                # Treat Home/Guide as the external equivalent of the Flip's M
+                # button. Modern Bluetooth profiles expose it as menu-toggle.
+                echo 'input_enable_hotkey_btn = '"${input_menu_toggle_btn}" >>${RETROARCH_CONFIG}
+            elif [ -z ${input_enable_hotkey_btn+x} ]
             then
                 echo 'input_enable_hotkey_btn = '\"${input_select_btn}\" >>${RETROARCH_CONFIG}
             else
