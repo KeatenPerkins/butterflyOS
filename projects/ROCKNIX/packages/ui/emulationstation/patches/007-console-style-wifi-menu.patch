@@ -1,0 +1,97 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -5487,25 +5487,59 @@ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+ 	{
+ 		if (!baseAdhocEnabled)
+ 		{
+-			s->addInputTextConfigRow(_("WI-FI SSID"), "wifi.ssid", false, false, &openWifiSettings);
+-			s->addInputTextConfigRow(_("WI-FI KEY"), "wifi.key", true);
++			s->addInputTextConfigRow(_("SELECT WI-FI NETWORK"), "wifi.ssid", false, false, &openWifiSettings);
++			s->addEntry(_("ADVANCED WI-FI SETTINGS"), true, [window]
++			{
++				auto advanced = new GuiSettings(window, _("ADVANCED WI-FI SETTINGS"));
++				const std::string advancedBaseSSID = SystemConf::getInstance()->get("wifi.ssid");
++				const std::string advancedBaseKey = SystemConf::getInstance()->get("wifi.key");
++				const std::string advancedBaseCountry = SystemConf::getInstance()->get("wifi.country");
++
++				advanced->addGroup(_("HIDDEN OR MANUAL NETWORK"));
++				advanced->addInputTextConfigRow(_("NETWORK NAME"), "wifi.ssid", false);
++				advanced->addInputTextConfigRow(_("PASSWORD"), "wifi.key", true);
+ 
+ #if !WIN32
+-		        // Batocera-specific WI-FI COUNTRY option
+-		        auto country_codes = getCountryCodes();
+-		        auto country = std::make_shared<OptionListComponent<std::string>>(mWindow, _("WI-FI COUNTRY"), false);
+-
+-		        country->add(_("N/A"), "", baseCountry.empty());
+-
+-		        for (auto it = country_codes.cbegin(); it != country_codes.cend(); ++it)
+-		            country->add(it->second, it->first, baseCountry == it->first);
+-
+-		        if (country->getSelectedObjects().size() == 0)
+-		            country->selectFirstItem();
+-
+-		        s->addWithLabel(_("WI-FI COUNTRY"), country);
+-		        s->addSaveFunc([country] { SystemConf::getInstance()->set("wifi.country", country->getSelected()); });
++				advanced->addGroup(_("REGION"));
++				auto countryCodes = getCountryCodes();
++				auto country = std::make_shared<OptionListComponent<std::string>>(window, _("WI-FI REGION"), false);
++				country->add(_("N/A"), "", advancedBaseCountry.empty());
++				for (auto it = countryCodes.cbegin(); it != countryCodes.cend(); ++it)
++					country->add(it->second, it->first, advancedBaseCountry == it->first);
++				if (country->getSelectedObjects().empty())
++					country->selectFirstItem();
++				advanced->addWithLabel(_("WI-FI REGION"), country);
+ #endif
++
++				advanced->addSaveFunc([window, advancedBaseSSID, advancedBaseKey, advancedBaseCountry
++#if !WIN32
++					, country
++#endif
++				]
++				{
++#if !WIN32
++					SystemConf::getInstance()->set("wifi.country", country->getSelected());
++#endif
++					const std::string ssid = SystemConf::getInstance()->get("wifi.ssid");
++					const std::string key = SystemConf::getInstance()->get("wifi.key");
++					const std::string region = SystemConf::getInstance()->get("wifi.country");
++					if (ssid.empty() || (ssid == advancedBaseSSID && key == advancedBaseKey && region == advancedBaseCountry))
++						return;
++
++					SystemConf::getInstance()->setBool("wifi.enabled", true);
++#if !WIN32
++					const bool connected = ApiSystem::getInstance()->enableWifi(ssid, key, region);
++#else
++					const bool connected = ApiSystem::getInstance()->enableWifi(ssid, key);
++#endif
++					if (connected)
++						window->pushGui(new GuiMsgBox(window, std::string(_("CONNECTED TO")) + " " + ssid + "."));
++					else
++						window->pushGui(new GuiMsgBox(window, _("COULD NOT CONNECT. CHECK THE NETWORK NAME, PASSWORD, REGION, AND SIGNAL.")));
++				});
++
++				window->pushGui(advanced);
++			});
+ 		}
+ 
+ 		if (ApiSystem::getInstance()->isWifiAPModeSupported())
+@@ -5550,7 +5584,8 @@ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+ #if !WIN32
+ 			std::string newCountry = SystemConf::getInstance()->get("wifi.country");
+ 
+-			if (baseSSID != newSSID || baseKEY != newKey || baseCountry != newCountry || !baseWifiEnabled)
++			if ((baseSSID != newSSID || baseKEY != newKey || baseCountry != newCountry || !baseWifiEnabled) &&
++				ApiSystem::getInstance()->getCurrentWifiSSID() != newSSID)
+ 			{
+ 				if (ApiSystem::getInstance()->enableWifi(newSSID, newKey, newCountry))
+ 					window->pushGui(new GuiMsgBox(window, _("WI-FI CONNECTED SUCCESSFULLY.")));
+@@ -5560,7 +5595,8 @@ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+ 			}
+ #else
+-			if (baseSSID != newSSID || baseKEY != newKey || !baseWifiEnabled)
++			if ((baseSSID != newSSID || baseKEY != newKey || !baseWifiEnabled) &&
++				ApiSystem::getInstance()->getCurrentWifiSSID() != newSSID)
+ 			{
+ 				if (ApiSystem::getInstance()->enableWifi(newSSID, newKey))
+ 					window->pushGui(new GuiMsgBox(window, _("WI-FI CONNECTED SUCCESSFULLY.")));
