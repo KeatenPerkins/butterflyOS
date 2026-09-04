@@ -1128,6 +1128,38 @@ function set_gambatte() {
 }
 
 function setup_controllers() {
+    local BUTTERFLY_BUILTIN_INDEX=""
+    local -a BUTTERFLY_EXTERNAL_INDEXES=()
+
+    # EmulationStation numbers SDL controllers, while RetroArch's udev driver
+    # numbers /dev/input/js* devices.  On the Miyoo Flip those orders differ:
+    # SDL puts the external controller first, but udev reserves js0 for the
+    # built-in controls.  Resolve the actual js numbers so an attached gamepad
+    # can reliably be Player 1 without disabling the handheld controls.
+    if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null && \
+       [[ -r /proc/bus/input/devices ]]
+    then
+        BUTTERFLY_BUILTIN_INDEX=$(awk '
+            BEGIN { RS="" }
+            /N: Name="retrogame_joypad"/ && match($0, /js[0-9]+/) {
+                print substr($0, RSTART + 2, RLENGTH - 2)
+                exit
+            }
+        ' /proc/bus/input/devices)
+
+        mapfile -t BUTTERFLY_EXTERNAL_INDEXES < <(awk '
+            BEGIN { RS="" }
+            !/N: Name="retrogame_joypad"/ && match($0, /js[0-9]+/) {
+                print substr($0, RSTART + 2, RLENGTH - 2)
+            }
+        ' /proc/bus/input/devices)
+
+        if (( ${#BUTTERFLY_EXTERNAL_INDEXES[@]} > 0 ))
+        then
+            log "ButterflyOS controller order: external js${BUTTERFLY_EXTERNAL_INDEXES[*]} first, built-in js${BUTTERFLY_BUILTIN_INDEX} last"
+        fi
+    fi
+
     for i in $(seq 1 1 5)
     do
         log "Controller setup (${i})"
@@ -1135,6 +1167,19 @@ function setup_controllers() {
         then
             PINDEX="${CONTROLLERS#*-p${i}index }"
             PINDEX="${PINDEX%% -p${i}guid*}"
+
+            if (( ${#BUTTERFLY_EXTERNAL_INDEXES[@]} > 0 ))
+            then
+                if (( i <= ${#BUTTERFLY_EXTERNAL_INDEXES[@]} ))
+                then
+                    PINDEX="${BUTTERFLY_EXTERNAL_INDEXES[$((i - 1))]}"
+                elif [[ -n "${BUTTERFLY_BUILTIN_INDEX}" ]] && \
+                     (( i == ${#BUTTERFLY_EXTERNAL_INDEXES[@]} + 1 ))
+                then
+                    PINDEX="${BUTTERFLY_BUILTIN_INDEX}"
+                fi
+            fi
+
             log "Set up controller ($i) (${PINDEX})"
             add_setting "none" "input_player${i}_joypad_index" "${PINDEX}"
             case ${PLATFORM} in
