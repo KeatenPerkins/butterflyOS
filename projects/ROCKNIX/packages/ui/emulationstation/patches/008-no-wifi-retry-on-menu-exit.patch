@@ -1,0 +1,62 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -5499,11 +5499,6 @@ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+ #endif
+ 
+ 	// window, title, settingstring,
+-	const std::string baseSSID = SystemConf::getInstance()->get("wifi.ssid");
+-	const std::string baseKEY = SystemConf::getInstance()->get("wifi.key");
+-#if !WIN32
+-	const std::string baseCountry = SystemConf::getInstance()->get("wifi.country");
+-#endif
+ 
+ 	// Adhoc mode options
+ 	auto enable_adhoc = std::make_shared<SwitchComponent>(mWindow);
+@@ -5609,42 +5604,14 @@ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+ 	}
+ 
+ 
+-	s->addSaveFunc([baseWifiEnabled, baseSSID, baseKEY,
+-#if !WIN32
+-	baseCountry,
+-#endif
+-	enable_wifi, window]
++	s->addSaveFunc([baseWifiEnabled, enable_wifi]
+ 	{
+ 		bool wifienabled = enable_wifi->getState();
+ 
+ 		SystemConf::getInstance()->setBool("wifi.enabled", wifienabled);
+ 
+-		if (wifienabled)
+-		{
+-			std::string newSSID = SystemConf::getInstance()->get("wifi.ssid");
+-			std::string newKey = SystemConf::getInstance()->get("wifi.key");
+-#if !WIN32
+-			std::string newCountry = SystemConf::getInstance()->get("wifi.country");
+-
+-			if ((baseSSID != newSSID || baseKEY != newKey || baseCountry != newCountry || !baseWifiEnabled) &&
+-				ApiSystem::getInstance()->getCurrentWifiSSID() != newSSID)
+-			{
+-				if (ApiSystem::getInstance()->enableWifi(newSSID, newKey, newCountry))
+-					window->pushGui(new GuiMsgBox(window, _("WI-FI CONNECTED SUCCESSFULLY.")));
+-				else
+-					window->pushGui(new GuiMsgBox(window, _("COULD NOT CONNECT TO WI-FI. CHECK THE NETWORK NAME, PASSWORD, AND SIGNAL, THEN TRY AGAIN.")));
+-			}
+-#else
+-			if ((baseSSID != newSSID || baseKEY != newKey || !baseWifiEnabled) &&
+-				ApiSystem::getInstance()->getCurrentWifiSSID() != newSSID)
+-			{
+-				if (ApiSystem::getInstance()->enableWifi(newSSID, newKey))
+-					window->pushGui(new GuiMsgBox(window, _("WI-FI CONNECTED SUCCESSFULLY.")));
+-				else
+-					window->pushGui(new GuiMsgBox(window, _("COULD NOT CONNECT TO WI-FI. CHECK THE NETWORK NAME, PASSWORD, AND SIGNAL, THEN TRY AGAIN.")));
+-			}
+-#endif
+-		}
+-		else if (baseWifiEnabled)
++		// Network selection and the advanced editor connect immediately. Leaving
++		// this menu must not retry a failed connection with the same credentials.
++		if (!wifienabled && baseWifiEnabled)
+ 			ApiSystem::getInstance()->disableWifi();
+ 	});
+ 
