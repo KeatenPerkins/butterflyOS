@@ -348,6 +348,7 @@ EOF
 function configure_hotkeys() {
     log "Configure hotkeys..."
     local MY_CONTROLLER
+    local BUTTERFLY_MENU_BTN=""
 
     # On the Miyoo Flip, use the first external joystick profile whenever one
     # is connected. The built-in controls are always js0, so reading js0 would
@@ -401,16 +402,18 @@ function configure_hotkeys() {
             done
             flush_settings
             if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null && \
-               [ "${MY_CONTROLLER}" != "retrogame_joypad" ] && \
-               [ -n "${input_menu_toggle_btn}" ]
+               [ "${MY_CONTROLLER}" != "retrogame_joypad" ]
             then
-                # Treat Home/Guide as the external equivalent of the Flip's M
-                # button. Modern Bluetooth profiles expose it as menu-toggle.
-                echo 'input_enable_hotkey_btn = '"${input_menu_toggle_btn}" >>${RETROARCH_CONFIG}
+                # Prefer the physical Home/Guide mapping reported by control-gen.
+                # Generic profiles can describe a different controller revision.
+                BUTTERFLY_MENU_BTN="${DEVICE_BTN_MODE:-${input_menu_toggle_btn}}"
+                echo 'input_enable_hotkey_btn = '"${BUTTERFLY_MENU_BTN}" >>${RETROARCH_CONFIG}
             elif [ -z ${input_enable_hotkey_btn+x} ]
             then
+                BUTTERFLY_MENU_BTN="${input_select_btn}"
                 echo 'input_enable_hotkey_btn = '\"${input_select_btn}\" >>${RETROARCH_CONFIG}
             else
+                BUTTERFLY_MENU_BTN="${input_enable_hotkey_btn}"
                 echo 'input_enable_hotkey_btn = '\"${input_enable_hotkey_btn}\" >>${RETROARCH_CONFIG}
             fi
             if [ "${MY_CONTROLLER}" = "retrogame_joypad" ] && \
@@ -421,7 +424,7 @@ function configure_hotkeys() {
 input_bind_hold = "${input_select_btn}"
 input_exit_emulator_btn = "${input_start_btn}"
 input_fps_toggle_btn = "${input_x_btn}"
-input_menu_toggle_btn = "${input_select_btn}"
+input_menu_toggle_btn = "${BUTTERFLY_MENU_BTN}"
 input_save_state_btn = "${input_r2_btn}"
 input_load_state_btn = "${input_l2_btn}"
 input_toggle_fast_forward_axis = "nul"
@@ -436,7 +439,7 @@ EOF
 input_bind_hold = "${input_select_btn}"
 input_exit_emulator_btn = "${input_start_btn}"
 input_fps_toggle_btn = "${input_y_btn}"
-input_menu_toggle_btn = "${input_x_btn}"
+input_menu_toggle_btn = "${BUTTERFLY_MENU_BTN}"
 input_save_state_btn = "${input_r_btn}"
 input_load_state_btn = "${input_l_btn}"
 EOF
