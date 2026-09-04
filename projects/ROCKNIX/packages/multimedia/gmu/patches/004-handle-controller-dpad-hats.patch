@@ -1,0 +1,37 @@
+--- a/src/frontends/sdl/sdl.c
++++ b/src/frontends/sdl/sdl.c
+@@ -850,6 +850,10 @@ static void *sdl_thread(void *arg)
+ 			}
+ 			case SDL_JOYHATMOTION:
+ 				wdprintf(V_DEBUG, "sdl_frontend", "Joy Hat motion\n");
++				if (event.jhat.value == SDL_HAT_CENTERED)
++					button_repeat_timer = -1;
++				else
++					button_repeat_timer = 5;
+ 				break;
+ 			case SDL_QUIT:
+ 				gmu_core_quit();
+@@ -886,5 +890,6 @@ static void *sdl_thread(void *arg)
+ 		if (event.type == SDL_KEYDOWN || event.type == SDL_JOYBUTTONDOWN ||
+ 		    event.type == SDL_KEYUP   || event.type == SDL_JOYBUTTONUP   ||
+-		    event.type == SDL_JOYAXISMOTION ||
++		    event.type == SDL_JOYAXISMOTION ||
++		    event.type == SDL_JOYHATMOTION ||
+ 		    (button_repeat_timer == 0 && user_key_action > 0)) {
+ 			ActivateMethod amethod = ACTIVATE_PRESS;
+@@ -906,5 +911,15 @@ static void *sdl_thread(void *arg)
+ 					}
+ 					break;
+ 				}
++				case SDL_JOYHATMOTION:
++					amethod = ACTIVATE_JOYAXIS_MOVE;
++					switch (event.jhat.value) {
++						case SDL_HAT_LEFT:  button = -1; break;
++						case SDL_HAT_RIGHT: button =  1; break;
++						case SDL_HAT_UP:    button = -2; break;
++						case SDL_HAT_DOWN:  button =  2; break;
++						default:             button =  0; break;
++					}
++					break;
+ 				default: break;
+ 			}

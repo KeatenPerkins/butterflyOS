@@ -32,8 +32,9 @@ sed -i "s~SDL.Width=.*\$~SDL.Width=${FBWIDTH}~g" ${GMUCONFIG}
 
 if (( ${FBWIDTH} <= 1024 ))
 then
-  sed -i "s~default-modern-large~default-modern~g" ${GMUCONFIG}
-  sed -i "s~SDL.Fullscreen=.*\$~SDL.Fullscreen=no~g" ${GMUCONFIG}
+  # The large bitmap font is the readable choice on the Flip's 640x480 LCD.
+  sed -i "s~default-modern.*\$~default-modern-large~g" ${GMUCONFIG}
+  sed -i "s~SDL.Fullscreen=.*\$~SDL.Fullscreen=yes~g" ${GMUCONFIG}
 else
   sed -i "s~default-modern.*\$~default-modern-large~g" ${GMUCONFIG}
   sed -i "s~SDL.Fullscreen=.*\$~SDL.Fullscreen=yes~g" ${GMUCONFIG}
