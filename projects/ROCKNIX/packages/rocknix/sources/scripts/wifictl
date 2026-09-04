@@ -78,23 +78,46 @@ list_wifi() {
 
 connect_wifi() {
   wait_for_wifi
+  local active_ssid attempt
+  local log_file="/storage/.config/system/logs/wifi-connect.log"
+  mkdir -p "$(dirname "${log_file}")"
+  {
+    printf '\n[%s] requested SSID: %s\n' "$(date -Iseconds)" "${SSID}"
+    printf 'interface: %s, country: %s\n' "${WIFI_DEV}" "${COUNTRY:-unset}"
+  } >>"${log_file}"
+
   # Ensure NM has the device ready and has scanned
   for i in $(seq 1 10); do
     "${NMCLI}" -t -f DEVICE,STATE dev status 2>/dev/null | grep -q "^${WIFI_DEV}:disconnected" && break
-    "${NMCLI}" -t -f DEVICE,STATE dev status 2>/dev/null | grep -q "^${WIFI_DEV}:connected" && return 0
+    if "${NMCLI}" -t -f DEVICE,STATE dev status 2>/dev/null | grep -q "^${WIFI_DEV}:connected"; then
+      active_ssid=$("${NMCLI}" -g GENERAL.CONNECTION device show "${WIFI_DEV}" 2>/dev/null)
+      [ "${active_ssid}" = "${SSID}" ] && return 0
+      "${NMCLI}" device disconnect "${WIFI_DEV}" >>"${log_file}" 2>&1 || true
+      break
+    fi
     sleep 1
   done
-  "${NMCLI}" dev wifi rescan ifname "${WIFI_DEV}" 2>/dev/null
-  sleep 2
-  # If a keyfile profile for this SSID already exists but is incomplete (e.g. missing
-  # 802-11-wireless-security.key-mgmt), NM fails connection-update with "key-mgmt: property is missing".
-  # Drop the stale profile so "device wifi connect" creates a clean one.
-  "${NMCLI}" connection delete id "${SSID}" >/dev/null 2>&1 || true
-  if [ -n "${PSK}" ]; then
-    "${NMCLI}" -w 90 device wifi connect "${SSID}" password "${PSK}" ifname "${WIFI_DEV}" >/dev/null 2>&1
-  else
-    "${NMCLI}" -w 90 device wifi connect "${SSID}" ifname "${WIFI_DEV}" >/dev/null 2>&1
-  fi
+
+  # The Flip V2 adapter can finish its first scan before authentication is
+  # ready. Retry once after a fresh scan instead of making the user leave and
+  # re-enter the network menu. Keep nmcli's diagnostics, but never log the key.
+  for attempt in 1 2; do
+    printf 'attempt %s\n' "${attempt}" >>"${log_file}"
+    "${NMCLI}" dev wifi rescan ifname "${WIFI_DEV}" >>"${log_file}" 2>&1 || true
+    sleep 2
+
+    # Drop incomplete/stale NetworkManager state before recreating the profile.
+    "${NMCLI}" connection delete id "${SSID}" >>"${log_file}" 2>&1 || true
+    if [ -n "${PSK}" ]; then
+      "${NMCLI}" -w 45 device wifi connect "${SSID}" password "${PSK}" ifname "${WIFI_DEV}" >>"${log_file}" 2>&1 && return 0
+    else
+      "${NMCLI}" -w 45 device wifi connect "${SSID}" ifname "${WIFI_DEV}" >>"${log_file}" 2>&1 && return 0
+    fi
+    sleep 2
+  done
+
+  printf 'connection failed after retries\n' >>"${log_file}"
+  return 1
 }
 
 create_adhoc() {

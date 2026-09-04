@@ -1,0 +1,23 @@
+--- a/es-core/src/components/TextEditComponent.cpp
++++ b/es-core/src/components/TextEditComponent.cpp
+@@ -273,6 +273,9 @@ void TextEditComponent::onTextChanged()
+ {
+ 	std::string wrappedText = (isMultiline() ? mFont->wrapText(mText, getTextAreaSize().x()) : mText);
+-	mTextCache = std::unique_ptr<TextCache>(mFont->buildTextCache(wrappedText, 0, 0, (ThemeData::getMenuTheme()->Text.color & 0xFFFFFF00) | getOpacity()));
++	// Text-entry boxes use a pale built-in nine-patch. A menu theme with pale
++	// text makes passwords nearly invisible, so use an explicit ink colour for
++	// every editable value regardless of the surrounding menu palette.
++	mTextCache = std::unique_ptr<TextCache>(mFont->buildTextCache(wrappedText, 0, 0, 0x10182700 | getOpacity()));
+ 	
+ 	if(mCursor > (int)mText.length())
+ 		mCursor = (unsigned int)mText.length();
+@@ -350,8 +353,8 @@ void TextEditComponent::render(const Transform4x4f& parentTrans)
+		if (!mEditing || mBlinkTime < BLINKTIME / 2 || mCursorRepeatDir != 0)
+		{
+			float cursorHeight = mFont->getHeight() * 0.8f;
+ 
+-			auto cursorColor = (ThemeData::getMenuTheme()->Text.color & 0xFFFFFF00) | getOpacity();
++			auto cursorColor = 0x10182700 | getOpacity();
+			if (!mEditing)
+				cursorColor = (ThemeData::getMenuTheme()->Text.color & 0xFFFFFF00) | (unsigned char) (getOpacity() * 0.25f);
+ 
