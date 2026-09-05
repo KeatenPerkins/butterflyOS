@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="528" height="84" viewBox="0 0 528 84">
+  <defs><linearGradient id="label" x1="92" y1="0" x2="300" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#159dff"/><stop offset=".34" stop-color="#7c4dff"/><stop offset=".68" stop-color="#ef476f"/><stop offset="1" stop-color="#ffd166"/></linearGradient></defs>
+  <path fill="#fff" d="M51 10h7v39c0 9-7 17-17 19-10 3-19-1-21-9-1-8 6-15 16-18 5-1 11-1 15 1Zm7 1c15 3 23 11 21 24-5-6-12-10-21-11Z"/>
+  <text x="92" y="57" fill="url(#label)" font-family="Liberation Sans, sans-serif" font-size="39" font-weight="700">Media</text>
+</svg>

@@ -23,8 +23,8 @@ case $(get_setting system.loglevel) in
 esac
 
 ### Set up match variables
-PAUSE_EVENT='*(BTN_SOUTH), value 1'
-CHANGE_AUDIO_EVENT='*(BTN_EAST), value 1'
+PAUSE_EVENT='*(BTN_EAST), value 1'
+QUIT_BACK_EVENT='*(BTN_SOUTH), value 1'
 CHANGE_SUB_EVENT='*(BTN_WEST), value 1'
 SHOW_OSD_EVENT='*(BTN_NORTH), value 1'
 BACK_5S_DPAD_EVENT='*DPAD_LEFT), value 1'
@@ -35,8 +35,7 @@ BACK_60S_DPAD_EVENT='*DPAD_DOWN), value 1'
 BACK_60S_HAT_EVENT='*(ABS_HAT0Y), value 1*'
 SKIP_60S_DPAD_EVENT='*DPAD_UP), value 1'
 SKIP_60S_HAT_EVENT='*(ABS_HAT0Y), value -1*'
-QUIT_HOTKEY_EVENT='*(BTN_SELECT), value 1'
-QUIT_SELECT_EVENT='*(BTN_START), value 1'
+QUIT_MENU_EVENT='*(BTN_MODE), value 1'
 
 ### Search the system for useful devices to monitor for inputs.
 get_devices() {
@@ -110,8 +109,8 @@ get_devices
         (${PAUSE_EVENT})
             send_key "p"
         ;;
-        (${CHANGE_AUDIO_EVENT})
-            send_key "#"
+        (${QUIT_BACK_EVENT}|${QUIT_MENU_EVENT})
+            send_key "Q"
         ;;
         (${CHANGE_SUB_EVENT})
             send_key "j"
@@ -130,23 +129,6 @@ get_devices
         ;;
         (${SKIP_60S_DPAD_EVENT}|${SKIP_60S_HAT_EVENT})
             send_key "UP"
-        ;;
-        (${QUIT_HOTKEY_EVENT})
-           if [[ "${line}" =~ ${PRESS} ]]
-           then
-              ${DEBUG} && log $0 "HOTKEY: Pressed"
-              HOTKEY_PRESSED=true
-           elif [[ "${line}" =~ ${RELEASE} ]]
-           then
-              ${DEBUG} && log $0 "HOTKEY: Released"
-              HOTKEY_PRESSED=false
-           fi
-        ;;
-        (${QUIT_SELECT_EVENT})
-            if [ "${HOTKEY_PRESSED}" = true ]
-            then
-                send_key "Q"
-            fi
         ;;
     esac
 done

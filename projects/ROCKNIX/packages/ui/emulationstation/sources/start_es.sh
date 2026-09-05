@@ -41,4 +41,8 @@ done
 # highest operating point. Emulator launch profiles may override this.
 ondemand
 
+# One console-style media library. EmulationStation supplies folder browsing;
+# MPV selects its audio or video playback path from the file extension.
+mkdir -p /storage/media/Music /storage/media/Videos
+
 emulationstation --log-path /var/log --no-splash

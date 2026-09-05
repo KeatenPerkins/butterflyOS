@@ -1694,6 +1694,16 @@ makeinstall_target() {
     -r '/systemList/butterflyGames' -v system \
     ${ESTMP}/es_systems.cfg
 
+  # Replace the separate Gmu launcher with a unified, folder-aware Media
+  # library backed by MPV. The mplayer theme name is retained for compatibility
+  # with existing themes while ButterflyOS supplies its own presentation.
+  xmlstarlet ed --inplace \
+    -u '/systemList/system[name="mplayer"]/fullname' -v Media \
+    -u '/systemList/system[name="mplayer"]/path' -v /storage/media \
+    -u '/systemList/system[name="mplayer"]/theme' -v media \
+    -d '/systemList/system[name="music"]' \
+    ${ESTMP}/es_systems.cfg
+
   ### Generate document
   mk_system_doc
 
