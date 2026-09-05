@@ -87,6 +87,8 @@ fi
 ### Define static values for dpad buttons and as a hat.
 FUNCTION_HOTKEY_DPAD_UP_EVENT="*(BTN_DPAD_UP), value 1*"
 FUNCTION_HOTKEY_DPAD_DOWN_EVENT="*(BTN_DPAD_DOWN), value 1*"
+FUNCTION_HOTKEY_DPAD_UP_RELEASE_EVENT="*(BTN_DPAD_UP), value 0*"
+FUNCTION_HOTKEY_DPAD_DOWN_RELEASE_EVENT="*(BTN_DPAD_DOWN), value 0*"
 FUNCTION_HOTKEY_DPAD_RIGHT_EVENT="*(BTN_DPAD_RIGHT), value 1*"
 FUNCTION_HOTKEY_DPAD_LEFT_EVENT="*(BTN_DPAD_LEFT), value 1*"
 
@@ -96,7 +98,18 @@ FUNCTION_HOTKEY_HAT_RIGHT_EVENT="*(ABS_HAT0X), value 1*"
 FUNCTION_HOTKEY_HAT_LEFT_EVENT="*(ABS_HAT0X), value -1*"
 
 DPAD_EVENTS=$(get_setting key.dpad.events)
-if [ -z "${DPAD_EVENTS}" ] || [ "${DPAD_EVENTS}" = "0" ]; then
+MENU_BRIGHTNESS_LAYOUT=false
+MENU_BRIGHTNESS_UP_PRESSED=false
+MENU_BRIGHTNESS_DOWN_PRESSED=false
+if [ "${KEYA_MODIFIER}" = "BTN_MODE" ]; then
+  MENU_BRIGHTNESS_LAYOUT=true
+fi
+
+if [ -z "${DPAD_EVENTS}" ]; then
+  # Handhelds with a dedicated Menu function key get useful on-the-fly
+  # brightness controls by default. Other devices retain ROCKNIX behavior.
+  DPAD_EVENTS="${MENU_BRIGHTNESS_LAYOUT}"
+elif [ "${DPAD_EVENTS}" = "0" ]; then
   DPAD_EVENTS=false
 else
   DPAD_EVENTS=true
@@ -437,18 +450,44 @@ set +e
       ;;
       (${FUNCTION_HOTKEY_DPAD_UP_EVENT}|${FUNCTION_HOTKEY_HAT_UP_EVENT})
         if [ "${FN_A_PRESSED}" = true ] && [ "${DPAD_EVENTS}" = true ]; then
-          ${DEBUG} && log $0 "${FUNCTION_HOTKEY_DPAD_UP_EVENT}${FUNCTION_HOTKEY_HAT_UP_EVENT}: Volume Up"
-          volume up
+          if [ "${MENU_BRIGHTNESS_LAYOUT}" = true ]; then
+            if [ "${MENU_BRIGHTNESS_UP_PRESSED}" = false ]; then
+              MENU_BRIGHTNESS_UP_PRESSED=true
+              ${DEBUG} && log $0 "Menu + Up: Brightness Up"
+              brightness up
+              CUR_BRIGHTNESS=$(get_setting "display.brightness")
+              /usr/bin/mako-notify "Brightness: ${CUR_BRIGHTNESS}%"
+            fi
+          else
+            ${DEBUG} && log $0 "${FUNCTION_HOTKEY_DPAD_UP_EVENT}${FUNCTION_HOTKEY_HAT_UP_EVENT}: Volume Up"
+            volume up
+          fi
         fi
+      ;;
+      (${FUNCTION_HOTKEY_DPAD_UP_RELEASE_EVENT})
+        MENU_BRIGHTNESS_UP_PRESSED=false
       ;;
       (${FUNCTION_HOTKEY_DPAD_DOWN_EVENT}|${FUNCTION_HOTKEY_HAT_DOWN_EVENT})
         if [ "${FN_A_PRESSED}" = true ] && [ "${DPAD_EVENTS}" = true ]; then
-          ${DEBUG} && log $0 "${FUNCTION_HOTKEY_DPAD_DOWN_EVENT}${FUNCTION_HOTKEY_HAT_DOWN_EVENT}: Volume Down"
-          volume down
+          if [ "${MENU_BRIGHTNESS_LAYOUT}" = true ]; then
+            if [ "${MENU_BRIGHTNESS_DOWN_PRESSED}" = false ]; then
+              MENU_BRIGHTNESS_DOWN_PRESSED=true
+              ${DEBUG} && log $0 "Menu + Down: Brightness Down"
+              brightness down
+              CUR_BRIGHTNESS=$(get_setting "display.brightness")
+              /usr/bin/mako-notify "Brightness: ${CUR_BRIGHTNESS}%"
+            fi
+          else
+            ${DEBUG} && log $0 "${FUNCTION_HOTKEY_DPAD_DOWN_EVENT}${FUNCTION_HOTKEY_HAT_DOWN_EVENT}: Volume Down"
+            volume down
+          fi
         fi
       ;;
+      (${FUNCTION_HOTKEY_DPAD_DOWN_RELEASE_EVENT})
+        MENU_BRIGHTNESS_DOWN_PRESSED=false
+      ;;
       (${FUNCTION_HOTKEY_DPAD_RIGHT_EVENT}|${FUNCTION_HOTKEY_HAT_RIGHT_EVENT})
-        if [ "${FN_A_PRESSED}" = true ] && [ "${DPAD_EVENTS}" = true ]; then
+        if [ "${FN_A_PRESSED}" = true ] && [ "${DPAD_EVENTS}" = true ] && [ "${MENU_BRIGHTNESS_LAYOUT}" = false ]; then
           ${DEBUG} && log $0 "${FUNCTION_HOTKEY_DPAD_RIGHT_EVENT}${FUNCTION_HOTKEY_HAT_RIGHT_EVENT}: Brightness Up"
           brightness up
           CUR_BRIGHTNESS=$(get_setting "display.brightness")
@@ -456,7 +495,7 @@ set +e
         fi
       ;;
       (${FUNCTION_HOTKEY_DPAD_LEFT_EVENT}|${FUNCTION_HOTKEY_HAT_LEFT_EVENT})
-        if [ "${FN_A_PRESSED}" = true ] && [ "${DPAD_EVENTS}" = true ]; then
+        if [ "${FN_A_PRESSED}" = true ] && [ "${DPAD_EVENTS}" = true ] && [ "${MENU_BRIGHTNESS_LAYOUT}" = false ]; then
           ${DEBUG} && log $0 "${FUNCTION_HOTKEY_DPAD_LEFT_EVENT}${FUNCTION_HOTKEY_HAT_LEFT_EVENT}: Brightness Down"
           brightness down
           CUR_BRIGHTNESS=$(get_setting "display.brightness")
