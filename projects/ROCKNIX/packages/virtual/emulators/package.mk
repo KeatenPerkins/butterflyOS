@@ -1658,10 +1658,6 @@ makeinstall_target() {
   add_emu_core mplayer retroarch ffmpeg false
   add_es_system mplayer
 
-  ### Music Player
-  add_emu_core music gmu gmu true
-  add_es_system music
-
   ### Moonlight
   add_emu_core moonlight moonlight moonlight true
   add_es_system moonlight
@@ -1701,7 +1697,6 @@ makeinstall_target() {
     -u '/systemList/system[name="mplayer"]/fullname' -v Media \
     -u '/systemList/system[name="mplayer"]/path' -v /storage/media \
     -u '/systemList/system[name="mplayer"]/theme' -v media \
-    -d '/systemList/system[name="music"]' \
     ${ESTMP}/es_systems.cfg
 
   ### Generate document
