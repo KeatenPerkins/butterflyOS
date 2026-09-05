@@ -1,0 +1,32 @@
+--- a/src/frontends/sdl/inputconfig.c
++++ b/src/frontends/sdl/inputconfig.c
+@@ -85,14 +85,13 @@ int input_config_init(char *inputconf_file)
+ 				}
+ 			}
+ 		}
+-		if (e > 0) e--;
+ 
+ 		/* Load joystick configuration... */
+ 		sprintf(key, "JoyButton-0");
+ 		for (j = e; cfg_is_key_available(inputconf, key) && j < MAX_BUTTONS; j++) {
+ 			char *val, *name;
+ 			int   val_int, namelen;
+ 
+-			snprintf(key, 127, "JoyButton-%d", j-e+1);
++			snprintf(key, 127, "JoyButton-%d", j-e);
+ 			val = cfg_get_key_value(inputconf, key);
+ 			if (val) {
+ 				/* split val into keycode and name */
+@@ -116,11 +115,10 @@ int input_config_init(char *inputconf_file)
+ 				}
+ 			}
+ 		}
+-		if (j > 0) j--;
+ 
+ 		/* Load joystick axis configuration... */
+ 		sprintf(key, "JoyAxis-0");
+-		for (ja = j; cfg_is_key_available(inputconf, key) && j < MAX_BUTTONS; ja++) {
++		for (ja = j; cfg_is_key_available(inputconf, key) && ja < MAX_BUTTONS; ja++) {
+ 			char *val, *name;
+ 			int   val_int, namelen;
+ 
