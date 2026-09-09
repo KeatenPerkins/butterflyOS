@@ -28,7 +28,7 @@
 +#include <future>
  
  #define gettext_controllers_settings				_("CONTROLLER SETTINGS")
-@@ -187,6 +191,92 @@
+@@ -187,6 +191,95 @@
  		// FORGET BLUETOOTH CONTROLLERS OR BT AUDIO DEVICES
  		addEntry(_("SAVED & CONNECTED DEVICES"), false, [window] { window->pushGui(new GuiBluetoothDevices(window)); });
  
@@ -42,7 +42,7 @@
 +			addEntry(_("SET CONTROLLER MENU BUTTON"), false, [window]
 +			{
 +				window->pushGui(new GuiLoading<bool>(window,
-+					_("PRESS MENU BUTTON\rPRESSES: 0 / 3\rTIME LEFT: 30 SECONDS"),
++					_("SET MENU BUTTON\rPRESS THE SAME BUTTON\rTHREE TIMES\rPROGRESS\r0 / 3\r30 SECONDS LEFT"),
 +					[](auto gui)
 +					{
 +						auto task = std::async(std::launch::async, []
@@ -59,9 +59,12 @@
 +							int elapsed = std::chrono::duration_cast<std::chrono::seconds>(
 +								std::chrono::steady_clock::now() - started).count();
 +							int remaining = std::max(0, 30 - elapsed);
-+							gui->setText(std::string(_("PRESS MENU BUTTON")) +
-+								"\r" + _("PRESSES:") + " " + std::to_string(presses) + " / 3" +
-+								"\r" + _("TIME LEFT:") + " " + std::to_string(remaining) + " " + _("SECONDS"));
++							gui->setText(std::string(_("SET MENU BUTTON")) +
++								"\r" + _("PRESS THE SAME BUTTON") +
++								"\r" + _("THREE TIMES") +
++								"\r" + _("PROGRESS") +
++								"\r" + std::to_string(presses) + " / 3" +
++								"\r" + std::to_string(remaining) + " " + _("SECONDS LEFT"));
 +						}
 +						return task.get();
 +					},
@@ -76,7 +79,7 @@
 +			addEntry(_("TEST CONTROLLER MENU BUTTON"), false, [window]
 +			{
 +				window->pushGui(new GuiLoading<bool>(window,
-+					_("PRESS SAVED MENU\rTIME LEFT: 15 SECONDS"),
++					_("TEST MENU BUTTON\rPRESS SAVED BUTTON\r15 SECONDS LEFT"),
 +					[](auto gui)
 +					{
 +						auto task = std::async(std::launch::async, []
@@ -90,9 +93,9 @@
 +							int elapsed = std::chrono::duration_cast<std::chrono::seconds>(
 +								std::chrono::steady_clock::now() - started).count();
 +							int remaining = std::max(0, 15 - elapsed);
-+							gui->setText(std::string(_("PRESS SAVED MENU")) +
-+								"\r" + _("TIME LEFT:") + " " + std::to_string(remaining) +
-+								" " + _("SECONDS"));
++							gui->setText(std::string(_("TEST MENU BUTTON")) +
++								"\r" + _("PRESS SAVED BUTTON") +
++								"\r" + std::to_string(remaining) + " " + _("SECONDS LEFT"));
 +						}
 +						return task.get();
 +					},
