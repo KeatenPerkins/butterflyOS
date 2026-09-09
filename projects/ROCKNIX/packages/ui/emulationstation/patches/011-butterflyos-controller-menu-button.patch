@@ -42,7 +42,7 @@
 +			addEntry(_("SET CONTROLLER MENU BUTTON"), false, [window]
 +			{
 +				window->pushGui(new GuiLoading<bool>(window,
-+					_("SET MENU BUTTON\rPRESS THE SAME BUTTON\rTHREE TIMES\rPROGRESS\r0 / 3\r30 SECONDS LEFT"),
++					_("SET MENU BUTTON\rPRESS THE SAME BUTTON\rTHREE TIMES\rPROGRESS\r0 / 3\r8 SECONDS LEFT"),
 +					[](auto gui)
 +					{
 +						auto task = std::async(std::launch::async, []
@@ -58,7 +58,7 @@
 +							progress >> presses;
 +							int elapsed = std::chrono::duration_cast<std::chrono::seconds>(
 +								std::chrono::steady_clock::now() - started).count();
-+							int remaining = std::max(0, 30 - elapsed);
++							int remaining = std::max(0, 8 - elapsed);
 +							gui->setText(std::string(_("SET MENU BUTTON")) +
 +								"\r" + _("PRESS THE SAME BUTTON") +
 +								"\r" + _("THREE TIMES") +

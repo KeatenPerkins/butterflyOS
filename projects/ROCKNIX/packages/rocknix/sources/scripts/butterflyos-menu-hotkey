@@ -64,7 +64,7 @@ capture() {
   name=${details#*|}
 
   printf '0\n' >"${PROGRESS_FILE}"
-  code=$(timeout 30 evtest "${event}" 2>/dev/null | awk -v progress="${PROGRESS_FILE}" '
+  code=$(timeout 8 evtest "${event}" 2>/dev/null | awk -v progress="${PROGRESS_FILE}" '
     /type 1 \(EV_KEY\).*value 1/ {
       if (match($0, /code [0-9]+/)) {
         current = substr($0, RSTART + 5, RLENGTH - 5)
