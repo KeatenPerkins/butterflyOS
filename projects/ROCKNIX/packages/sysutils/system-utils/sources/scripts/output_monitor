@@ -82,6 +82,11 @@ _apply() {
         # Stop USB gadget: its data lanes conflict with DP Alt Mode on RK3576
         systemctl is-active --quiet usbgadget && systemctl stop usbgadget
         _switch_audio external
+        # Moving an existing 640x480 SDL surface to HDMI only scales that
+        # surface and looks pixelated. Restart the frontend after a real
+        # hotplug so SDL creates its surface at the newly selected mode. A
+        # display present at boot already has the correct render size.
+        [ "$prev" != "init" ] && killall emulationstation 2>/dev/null || true
     else
         # Only re-enable internal panels on actual disconnect, not first-boot
         if [ "$prev" != "init" ]; then
@@ -89,6 +94,7 @@ _apply() {
                 wlr-randr --output "$out" --preferred --on 2>/dev/null
             done < <(_get_all_internals)
             _switch_audio internal
+            killall emulationstation 2>/dev/null || true
         fi
     fi
 

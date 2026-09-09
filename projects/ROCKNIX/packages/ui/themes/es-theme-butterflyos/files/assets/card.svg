@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="520" height="210" viewBox="0 0 520 210">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
   <defs>
-    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="edge" x1="0" y1="0" x2="320" y2="320" gradientUnits="userSpaceOnUse">
       <stop stop-color="#10d9ff"/>
       <stop offset=".48" stop-color="#775cff"/>
       <stop offset="1" stop-color="#ff3fa4"/>
     </linearGradient>
   </defs>
-  <rect x="2" y="2" width="516" height="206" rx="28" fill="#080a12" fill-opacity=".94" stroke="url(#edge)" stroke-width="4"/>
-  <rect x="14" y="14" width="492" height="182" rx="20" fill="none" stroke="#fff" stroke-opacity=".08"/>
+  <rect x="4" y="4" width="312" height="312" rx="22" fill="#090d20" fill-opacity=".96" stroke="url(#edge)" stroke-width="8"/>
+  <rect x="17" y="17" width="286" height="286" rx="15" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"/>
 </svg>

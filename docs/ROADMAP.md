@@ -23,6 +23,8 @@ Status: **bootable baseline complete; hardware validation in progress**
   Applications, and Settings
 - Hide unused systems and advanced entries by default
 - Establish consistent button prompts, confirmation dialogs, and terminology
+- Add a controller-friendly Menu/hotkey capture and test workflow that supports
+  joystick buttons as well as Guide/Menu keys exposed through evdev
 - Provide a deliberate switch into and out of Advanced mode
 - Test the complete normal workflow without a keyboard
 
@@ -45,6 +47,8 @@ what is ready, what is missing, and how to correct it.
 
 - Define the supported core and default configuration for each visible system
 - Validate controls, aspect ratio, scaling, latency, save behavior, and exit flow
+- Keep the built-in controls available as player 1 when a Bluetooth controller
+  disconnects during a game, with automatic and visible player reassignment
 - Separate verified systems from experimental systems
 - Record known limitations and game-specific exceptions
 - Keep emulator versions pinned to the image release
@@ -85,6 +89,58 @@ can recover from common problems without a shell.
 
 Acceptance: another owner can independently install, use, update, and recover
 ButterflyOS on the supported Miyoo Flip V2 revision.
+
+## Flagship feature: Butterfly Link
+
+Create a game-focused application that recreates the handheld link-cable
+experience between two Miyoo Flip V2 systems over a direct or local wireless
+connection. The initial target is legitimate user-provided copies of the
+mainline GB/GBC monster-trading games, followed by compatible GBA titles.
+
+### Alpha-era feasibility work
+
+- Identify an emulator/core whose serial-link implementation can be bridged
+  reliably between two separate devices
+- Prototype discovery, pairing, connection health, and synchronized launch on
+  two Flip V2 test units
+- Determine which game regions, revisions, ROM hacks, save formats, and core
+  versions can interoperate safely
+- Verify that failed connections never corrupt or overwrite either player's
+  save; make automatic pre-session save backups mandatory
+- Keep the prototype behind an Experimental or Advanced switch and exclude it
+  from the Alpha 1 acceptance criteria
+
+### GB/GBC release scope
+
+- Provide a controller-only **Butterfly Link** application with **Host** and
+  **Join** choices and plain-language status messages
+- Discover nearby ButterflyOS devices on the same network, with an IP/manual
+  connection fallback
+- Match compatible games and emulator versions before launch; explain a
+  mismatch instead of attempting an unsafe session
+- Support trading and battling in Red, Blue, Yellow, Gold, and Silver first,
+  then test Crystal and regional/revision variants separately
+- Launch both games into a synchronized link session and return cleanly to the
+  normal game library afterward
+- Preserve each user's normal saves and create recoverable backups before and
+  after every session
+- Document that ButterflyOS supplies no games, copyrighted firmware, or
+  online matchmaking service
+
+Acceptance: two clean ButterflyOS devices can discover one another, establish
+a stable session, trade and battle using supported user-provided games, retain
+valid saves after disconnects, and recover the pre-session saves after an
+interrupted or failed transfer.
+
+### Later GBA scope
+
+- Investigate link support and performance for Ruby, Sapphire, Emerald,
+  FireRed, and LeafGreen
+- Add GBA only after GB/GBC sessions are reliable; do not assume the GB/GBC
+  transport, timing, save handling, or emulator architecture will transfer
+  unchanged
+- Explore direct device-to-device setup only after local-network operation is
+  dependable and easy to diagnose
 
 ## Deferred until after the first stable release
 

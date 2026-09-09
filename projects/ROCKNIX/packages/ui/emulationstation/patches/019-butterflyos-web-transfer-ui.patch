@@ -1,0 +1,22 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -5769,8 +5769,17 @@
+ 	auto simple_http_enabled = std::make_shared<SwitchComponent>(mWindow);
+ 	bool simplehttpEnabled = SystemConf::getInstance()->get("simplehttp.enabled") == "1";
+ 	simple_http_enabled->setState(simplehttpEnabled);
+-	s->addWithLabel(_("ENABLE SIMPLE HTTP SERVER"), simple_http_enabled);
+-	simple_http_enabled->setOnChangedCallback([simple_http_enabled] {
++	s->addWithDescription(_("WEB FILE TRANSFER"), _("Browse and upload games or media from a web browser on your local network."), simple_http_enabled);
++	auto webAddress = std::make_shared<TextComponent>(mWindow,
++		"http://" + ApiSystem::getInstance()->getIpAddress(), font, color);
++	s->addWithDescription(_("WEB ADDRESS"), _("Open this address on a computer or phone connected to the same network."), webAddress);
++	simple_http_enabled->setOnChangedCallback([simple_http_enabled, window] {
++		const std::string rootPassword = SystemConf::getInstance()->get("root.password");
++		if (simple_http_enabled->getState() && (rootPassword.empty() || rootPassword == "rocknix")) {
++			simple_http_enabled->setState(false);
++			window->pushGui(new GuiMsgBox(window, _("SET A DEVICE PASSWORD BEFORE ENABLING WEB FILE TRANSFER.")));
++			return;
++		}
+ 		if(simple_http_enabled->getState() == false) {
+ 			Utils::Platform::runSystemCommand("systemctl disable --now simple-http-server", "", nullptr);
+ 		} else {

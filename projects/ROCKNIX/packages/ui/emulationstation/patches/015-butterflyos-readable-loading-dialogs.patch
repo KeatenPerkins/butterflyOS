@@ -1,0 +1,24 @@
+diff --git a/es-core/src/components/BusyComponent.cpp b/es-core/src/components/BusyComponent.cpp
+index eb1a788..576202a 100644
+--- a/es-core/src/components/BusyComponent.cpp
++++ b/es-core/src/components/BusyComponent.cpp
+@@ -39,5 +39,7 @@ BusyComponent::BusyComponent(Window* window, const std::string& text) : GuiCompo
+ 
+ 	mText = std::make_shared<TextComponent>(mWindow, text == "__default__" ? _("WORKING...") : text, ThemeData::getMenuTheme()->Text.font, ThemeData::getMenuTheme()->Text.color); 	
+ 	mText->setLineSpacing(1.2f);
++	mText->setHorizontalAlignment(ALIGN_CENTER);
++	mText->setVerticalAlignment(ALIGN_CENTER);
+ 
+ 	// col 0 = animation, col 1 = spacer, col 2 = text
+@@ -122,8 +124,10 @@ void BusyComponent::onSizeChanged()
+ 	mGrid.setRowHeight(1, textHeight);
+ 	mGrid.setSize(mSize);
+ 	
++	const float paddingX = Renderer::getScreenWidth() * 0.08f;
++	const float paddingY = Renderer::getScreenHeight() * 0.06f;
+ 	mBackground.fitTo(
+ 		Vector2f(mGrid.getColWidth(1) + mGrid.getColWidth(2) + mGrid.getColWidth(3), textHeight + 2),
+-		mAnimation->getPosition(), Vector2f(0, 0));
++		mAnimation->getPosition(), Vector2f(paddingX, paddingY));
+ 		
+ }

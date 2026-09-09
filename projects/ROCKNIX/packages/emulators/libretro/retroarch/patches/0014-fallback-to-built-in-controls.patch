@@ -1,0 +1,35 @@
+diff --git a/tasks/task_autodetect.c b/tasks/task_autodetect.c
+index ec9a181..388a0f7 100644
+--- a/tasks/task_autodetect.c
++++ b/tasks/task_autodetect.c
+@@ -1027,6 +1027,30 @@ static void cb_input_autoconfigure_disconnect(
+    /* Use local copy of port index for brevity... */
+    port = autoconfig_handle->port;
+ 
++   /* ButterflyOS starts a game with external controllers first and the
++    * Miyoo Flip's built-in pad last. If Player 1's external pad disappears,
++    * move the always-present built-in udev pad (index 0) to Player 1. Swap
++    * its previous player slot to the disconnected index to avoid sending
++    * one physical pad to two players. */
++   if (getenv("BUTTERFLYOS_LOCAL_NETCMD"))
++   {
++      settings_t *settings = config_get_ptr();
++      if (settings && settings->uints.input_joypad_index[0] == port)
++      {
++         unsigned player;
++         for (player = 1; player < MAX_USERS; player++)
++         {
++            if (settings->uints.input_joypad_index[player] == 0)
++            {
++               settings->uints.input_joypad_index[player] = port;
++               break;
++            }
++         }
++         settings->uints.input_joypad_index[0] = 0;
++         RARCH_LOG("[ButterflyOS] Built-in controls moved to Player 1 after controller disconnect.\n");
++      }
++   }
++
+    /* We perform the actual 'disconnect' in this
+     * callback, to ensure it occurs on the main thread */
+    input_config_clear_device_name(port);

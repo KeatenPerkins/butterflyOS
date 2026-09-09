@@ -1,0 +1,23 @@
+--- a/es-core/src/components/ControllerActivityComponent.cpp
++++ b/es-core/src/components/ControllerActivityComponent.cpp
+@@ -285,7 +285,8 @@
+ 			itemsWidth += szW + mSpacing; // getTextureSize(mNetworkImage).x()
+ 	}
+ 
+-	auto batteryText = std::to_string(mBatteryInfo.level) + "%";
++	// The battery texture conveys status; keep text limited to supported glyphs.
++	auto batteryText = std::to_string(mBatteryInfo.level) + "%";
+ 	
+ 	if ((mView & BATTERY) && mBatteryInfo.hasBattery && mBatteryImage != nullptr && !Settings::getInstance()->getString("ShowBattery").empty())
+ 	{
+@@ -541,9 +543,7 @@
+ 	{
+ 		std::string txName = mIncharge;
+ 
+-		if (mBatteryInfo.isCharging && !mIncharge.empty())
+-			txName = mIncharge;
+-		else if (mBatteryInfo.level > 75 && !mFull.empty())
++		if (mBatteryInfo.level > 75 && !mFull.empty())
+ 			txName = mFull;
+ 		else if (mBatteryInfo.level > 50 && !mAt75.empty())
+ 			txName = mAt75;

@@ -1,0 +1,77 @@
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+index 95c875a..ab38c63 100644
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -1593,7 +1593,10 @@ void GuiMenu::openSystemSettings()
+ 
+ 	std::string kbHelpText = _("Select the physical keyboard layout. A reboot may be required for changes to take full effect.");
+ 	
+-	s->addWithDescription(_("KEYBOARD LAYOUT"), kbHelpText, keyboard_layout);
+-	s->addWithDescription(_("KEYBOARD VARIANT"), kbHelpText, keyboard_variant);
++	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	{
++		s->addWithDescription(_("KEYBOARD LAYOUT"), kbHelpText, keyboard_layout);
++		s->addWithDescription(_("KEYBOARD VARIANT"), kbHelpText, keyboard_variant);
++	}
+ 
+ 	s->addSaveFunc([keyboard_layout, keyboard_variant, s] {
+@@ -1694,5 +1697,6 @@ void GuiMenu::openSystemSettings()
+ 	for (auto it = UImodes.cbegin(); it != UImodes.cend(); it++)
+ 		UImodeSelection->add(_(it->c_str()), *it, Settings::getInstance()->getString("UIMode") == *it);
+ 
+-	s->addWithDescription(_("USER INTERFACE MODE"), _("Lock down certain config menus for use with guest users/kids."), UImodeSelection);
++	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++		s->addWithDescription(_("USER INTERFACE MODE"), _("Lock down certain config menus for use with guest users/kids."), UImodeSelection);
+ 	s->addSaveFunc([UImodeSelection, window]
+@@ -1758,1 +1762,1 @@ void GuiMenu::openSystemSettings()
+-      s->addWithLabel(_("ENABLE ROCKNIX SCREENSHOT"), rocknix_screenshot_enabled);
++      s->addWithLabel(_("ENABLE SCREENSHOTS"), rocknix_screenshot_enabled);
+@@ -3810,4 +3815,6 @@ void GuiMenu::openGamesSettings()
+ 	// Game List Update
+ 	s->addEntry(_("UPDATE GAMELISTS"), false, [this, window] { updateGameLists(window); });
+ 
++	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	{
+ 	s->addEntry(_("MOONLIGHT GAME STREAMING"), false, [this, window] { GuiMoonlight::show(mWindow); });
+@@ -3833,4 +3840,5 @@ void GuiMenu::openGamesSettings()
+ 	if (SystemData::isNetplayActivated() && ApiSystem::getInstance()->isScriptingSupported(ApiSystem::NETPLAY))
+ 		s->addEntry(_("NETPLAY SETTINGS"), true, [this] { openNetplaySettings(); }, "iconNetplay");
++	}
+ 
+ 	// Missing Bios
+@@ -3887,4 +3895,5 @@ void GuiMenu::openGamesSettings()
+ 	{
+ 		auto videoModeOptionList = createVideoResolutionModeOptionList(mWindow, "global");
+-		s->addWithDescription(_("VIDEO MODE"), _("Sets the display's resolution. Does not affect the rendering resolution."), videoModeOptionList);
++		if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++			s->addWithDescription(_("VIDEO MODE"), _("Sets the display's resolution. Does not affect the rendering resolution."), videoModeOptionList);
+ 		s->addSaveFunc([this, videoModeOptionList] { SystemConf::getInstance()->set("global.videomode", videoModeOptionList->getSelected()); });
+@@ -3919,3 +3928,5 @@ void GuiMenu::openGamesSettings()
+ 	}
+ 
++	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	{
+ 	// Shaders preset
+@@ -4137,5 +4148,7 @@ void GuiMenu::openGamesSettings()
+ 		});
+ 	}
++	}
+ 	
+ 	// Load global custom features
+-	addFeatures(CustomFeatures::GlobalFeatures, window, s, "global", "", "", "", _("DEFAULT GLOBAL SETTINGS"));
++	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++		addFeatures(CustomFeatures::GlobalFeatures, window, s, "global", "", "", "", _("DEFAULT GLOBAL SETTINGS"));
+@@ -4150,4 +4163,6 @@ void GuiMenu::openGamesSettings()
+ 		s->addSaveFunc([autoControllers] { SystemConf::getInstance()->set("global.disableautocontrollers", autoControllers->getState() ? "" : "1"); });
+ 	}
+ 
++	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	{
+ 	s->addGroup(_("SYSTEM SETTINGS"));
+@@ -4177,5 +4192,6 @@ void GuiMenu::openGamesSettings()
+ 
+ 			window->pushGui(configuration);
+ 		});
++	}
+ 
+ 	mWindow->pushGui(s);

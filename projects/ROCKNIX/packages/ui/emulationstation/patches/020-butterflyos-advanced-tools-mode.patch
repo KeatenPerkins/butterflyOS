@@ -1,0 +1,68 @@
+diff --git a/es-app/src/FileData.cpp b/es-app/src/FileData.cpp
+index 6ece911..9ad149f 100644
+--- a/es-app/src/FileData.cpp
++++ b/es-app/src/FileData.cpp
+@@ -1077,6 +1077,15 @@ const std::vector<FileData*> FolderData::getChildrenListToDisplay()
+ 
+ 	for (auto it = items->cbegin(); it != items->cend(); it++)
+ 	{
++		// Keep recovery and technical launchers out of the normal ButterflyOS
++		// Tools view. Their metadata remains loaded, so toggling Advanced Mode
++		// can reveal them without moving files or rescanning storage.
++		if (mSystem->getName() == "tools" &&
++			!Settings::getInstance()->getBool("ButterflyAdvancedMode") &&
++			((*it)->getMetadata(MetaDataId::Genre) == "Advanced" ||
++			 (*it)->getMetadata(MetaDataId::Genre) == "Recovery"))
++			continue;
++
+ 		if (!showHiddenFiles && (*it)->getHidden())
+ 			continue;
+ 
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+index 217c944..76a0047 100644
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -174,7 +174,8 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
+ 		addEntry(_("GAME SETTINGS").c_str(), true, [this] { openGamesSettings(); }, "iconGames");
+ 		addEntry(GuiControllersSettings::getControllersSettingsLabel(), true, [window] { GuiControllersSettings::openControllersSettings(window); }, "iconControllers");
+ 		addEntry(_("USER INTERFACE SETTINGS").c_str(), true, [this] { openUISettings(); }, "iconUI");
+-		addEntry(_("GAME COLLECTION SETTINGS").c_str(), true, [this] { openCollectionSystemSettings(); }, "iconAdvanced");
++		if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++			addEntry(_("GAME COLLECTION SETTINGS").c_str(), true, [this] { openCollectionSystemSettings(); }, "iconAdvanced");
+ 		addEntry(_("SOUND SETTINGS").c_str(), true, [this] { openSoundSettings(); }, "iconSound");
+ 
+ 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::WIFI))
+@@ -206,7 +207,8 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
+ 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::BATOCERASTORE) || ApiSystem::getInstance()->isScriptingSupported(ApiSystem::THEMESDOWNLOADER) ||
+ 			(ApiSystem::getInstance()->isScriptingSupported(ApiSystem::THEBEZELPROJECT) && ApiSystem::getInstance()->isScriptingSupported(ApiSystem::DECORATIONS)) ||
+ 			ApiSystem::getInstance()->isScriptingSupported(ApiSystem::UPGRADE))
+-			addEntry(_("UPDATES & DOWNLOADS"), true, [this] { openUpdatesSettings(); }, "iconUpdates");
++			if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++				addEntry(_("UPDATES & DOWNLOADS"), true, [this] { openUpdatesSettings(); }, "iconUpdates");
+ 
+ 		// ButterflyOS presents Settings as a first-class home destination. The
+ 		// underlying tools system remains available here without occupying its
+@@ -5011,6 +5011,11 @@ void GuiMenu::openUISettings()
+ 
+ 	auto s = new GuiSettings(mWindow, _("USER INTERFACE SETTINGS").c_str());
+ 
++	s->addGroup(_("BUTTERFLYOS"));
++	s->addSwitch(_("ADVANCED MODE"), _("Show recovery, emulator, network, and maintenance tools."),
++		"ButterflyAdvancedMode", false,
++		[s] { s->setVariable("reloadAll", true); });
++
+ 	// theme set
+ 	auto theme = ThemeData::getMenuTheme();
+ 	auto themeSets = ThemeData::getThemeSets();
+diff --git a/es-core/src/Settings.cpp b/es-core/src/Settings.cpp
+index 2851c56..ccf45d1 100644
+--- a/es-core/src/Settings.cpp
++++ b/es-core/src/Settings.cpp
+@@ -337,6 +337,7 @@ void Settings::setDefaults()
+ 	mStringMap["UIMode_passkey"] = "aaaba"; 
+ 	mBoolMap["ForceKiosk"] = false;
+ 	mBoolMap["ForceKid"] = false;
++	mBoolMap["ButterflyAdvancedMode"] = false;
+ 	mBoolMap["ForceDisableFilters"] = false;
+ 
+ 	mStringMap["ThemeColorSet"] = "";

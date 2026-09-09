@@ -22,10 +22,20 @@ PKG_CMAKE_OPTS_TARGET+=" -DROCKNIX=1 \
 [ "${DEVICE}" = "S922X" ] && PKG_CMAKE_OPTS_TARGET+=" -DBATTERYPLUS=1"
 
 pre_configure_target() {
+  cp -a ${PKG_DIR}/sources/ButterflyFavorites.h \
+    ${PKG_BUILD}/es-app/src/
   cp -a ${PKG_DIR}/sources/LibretroThumbnailScraper.{h,cpp} \
     ${PKG_BUILD}/es-app/src/scrapers/
   cp -a ${PKG_DIR}/sources/bluetooth.svg \
     ${PKG_BUILD}/resources/
+  # EmulationStation displays these resources while stopping/restarting. Keep
+  # upstream Batocera artwork out of every ButterflyOS shutdown path.
+  cp -a ${PKG_DIR}/sources/butterflyos-splash.svg \
+    ${PKG_BUILD}/resources/splash.svg
+  cp -a ${PKG_DIR}/sources/butterflyos-splash.svg \
+    ${PKG_BUILD}/resources/splash_batocera.svg
+  cp -a ${PKG_DIR}/sources/butterflyos-splash.png \
+    ${PKG_BUILD}/resources/butterflyos-splash.png
 
   for key in SCREENSCRAPER_DEV_LOGIN \
              GAMESDB_APIKEY \

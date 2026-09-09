@@ -60,10 +60,10 @@ get_storage_size_kb() {
   echo "$total_kb"
 }
 
-# 1) Check for existing ROCKNIX or STORAGE partitions
+# 1) Check for an existing ButterflyOS/legacy ROCKNIX or STORAGE partition
 mapfile -t part_names < <(parted -m -s "$DEVICE" print | tail -n +2 | cut -d: -f6)
 for name in "${part_names[@]}"; do
-  if [[ "$name" == "ROCKNIX" || "$name" == "STORAGE" ]]; then
+  if [[ "$name" == "BUTTERFLYOS" || "$name" == "ROCKNIX" || "$name" == "STORAGE" ]]; then
     echo "An installation already exists (found partition named '$name'). Exiting."
     exit 0
   fi
@@ -144,22 +144,22 @@ parted -s "$DEVICE" name "$UD_NUM" userdata
 echo "Zeroing first 8 MiB of ${UD_PART_DEV}..."
 dd if=/dev/zero of="${UD_PART_DEV}" bs=1M count=8 &>/dev/null
 
-# 6) Create ROCKNIX partition
+# 6) Create ButterflyOS system partition
 RK_START_MB=$NEW_UD_END_MB
 RK_END_MB=$(( RK_START_MB + 2048 ))  # 2 GiB
-echo "Creating ROCKNIX partition #$RK_NUM (${RK_START_MB}MiB–${RK_END_MB}MiB)..."
+echo "Creating ButterflyOS partition #$RK_NUM (${RK_START_MB}MiB–${RK_END_MB}MiB)..."
 parted -a optimal -s "$DEVICE" \
   mkpart primary fat32 "${RK_START_MB}MiB" "${RK_END_MB}MiB"
-parted -s "$DEVICE" name "$RK_NUM" ROCKNIX
+parted -s "$DEVICE" name "$RK_NUM" BUTTERFLYOS
 parted -s "$DEVICE" set "$RK_NUM" msftdata on
 parted -s "$DEVICE" set "$RK_NUM" boot on
 
-# 7) Format ROCKNIX partition
+# 7) Format ButterflyOS partition
 if mount | grep -q "^${RK_PART_DEV} "; then
   echo "Auto-unmounting ${RK_PART_DEV}..."
   umount "${RK_PART_DEV}"
 fi
-mkfs.vfat -F 32 -n ROCKNIX "${RK_PART_DEV}" &>/dev/null
+mkfs.vfat -F 32 -n BUTTERFLYOS "${RK_PART_DEV}" &>/dev/null
 
 # 8) Create STORAGE partition
 echo "Creating STORAGE partition #$ST_NUM (from ${RK_END_MB}MiB to end)..."
@@ -185,8 +185,8 @@ mkdir -p "$TMP_ROCKNIX" "$TMP_STORAGE"
 mount "${RK_PART_DEV}" "$TMP_ROCKNIX"
 mount "${ST_PART_DEV}" "$TMP_STORAGE"
 
-# 11) Copy files to ROCKNIX partition, then sync
-echo "Copying flash files to ROCKNIX..."
+# 11) Copy files to ButterflyOS partition, then sync
+echo "Copying flash files to ButterflyOS..."
 cp -a "$FLASH_DIR"/. "$TMP_ROCKNIX"/
 sync
 
@@ -228,7 +228,7 @@ st_sz=$(get_gb "${ST_PART_DEV}")
 
 echo "Done. New partitions:"
 echo "  Android userdata: ${UD_PART_DEV} (${ud_sz} GB)"
-echo "  ROCKNIX : ${RK_PART_DEV} (${rk_sz} GB)"
+echo "  ButterflyOS: ${RK_PART_DEV} (${rk_sz} GB)"
 echo "  STORAGE : ${ST_PART_DEV} (${st_sz} GB)"
 echo
-echo "ROCKNIX Installation to internal UFS was successful. You can now reboot and remove your SD card."
+echo "ButterflyOS installation to internal UFS was successful. You can now reboot and remove your SD card."

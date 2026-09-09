@@ -1,0 +1,96 @@
+diff --git a/es-app/src/CollectionSystemManager.h b/es-app/src/CollectionSystemManager.h
+index 19dc9ab..9e23074 100644
+--- a/es-app/src/CollectionSystemManager.h
++++ b/es-app/src/CollectionSystemManager.h
+@@ -88,6 +88,7 @@ public:
+ 	std::string getValidNewCollectionName(const std::string& name, int index = 0);
+ 			
+ 	bool toggleGameInCollection(FileData* file, const std::string& collectionName = "");
++	void syncFavoriteFromRetroArch(FileData* file);
+ 
+ 	SystemData* getSystemToView(SystemData* sys);
+ 	void updateCollectionFolderMetadata(SystemData* sys);
+diff --git a/es-app/src/CollectionSystemManager.cpp b/es-app/src/CollectionSystemManager.cpp
+index ffc46ca..eefc8f3 100644
+--- a/es-app/src/CollectionSystemManager.cpp
++++ b/es-app/src/CollectionSystemManager.cpp
+@@ -1,5 +1,6 @@
+ #include "CollectionSystemManager.h"
+ 
++#include "ButterflyFavorites.h"
+ #include "guis/GuiInfoPopup.h"
+ #include "utils/FileSystemUtil.h"
+ #include "utils/StringUtil.h"
+@@ -695,6 +696,7 @@ bool CollectionSystemManager::toggleGameInCollection(FileData* file, const std:
+ 		}
+ 
+ 		sourceSystem->addToIndex(sourceFile);
++		ButterflyFavorites::update(sourceFile->getFullPath(), sourceFile->getName(), adding);
+ 		saveToGamelistRecovery(sourceFile);
+ 		refreshCollectionSystems(sourceFile);
+ 
+@@ -760,6 +762,32 @@ bool CollectionSystemManager::toggleGameInCollection(FileData* file, const std:
+ 	return adding;
+ }
+ 
++void CollectionSystemManager::syncFavoriteFromRetroArch(FileData* file)
++{
++	if (file == nullptr || file->getType() != GAME)
++		return;
++
++	auto sourceFile = file->getSourceFileData();
++	auto sourceSystem = sourceFile->getSystem();
++	if (sourceSystem == nullptr)
++		return;
++
++	bool favorite = ButterflyFavorites::contains(sourceFile->getFullPath());
++	bool wasFavorite = sourceFile->getMetadata(MetaDataId::Favorite) == "true";
++	if (favorite == wasFavorite)
++		return;
++
++	sourceSystem->removeFromIndex(sourceFile);
++	sourceFile->setMetadata(MetaDataId::Favorite, favorite ? "true" : "false");
++	sourceSystem->addToIndex(sourceFile);
++	saveToGamelistRecovery(sourceFile);
++	refreshCollectionSystems(sourceFile);
++
++	auto view = ViewController::get()->getGameListView(sourceSystem, false);
++	if (view != nullptr && view->hasFileDataEntry(sourceFile))
++		view->onFileChanged(sourceFile, FILE_METADATA_CHANGED);
++}
++
+ bool CollectionSystemManager::isCustomCollection(const std::string& collectionName)
+ {
+ 	auto it = mCustomCollectionSystemsData.find(collectionName);
+diff --git a/es-app/src/FileData.cpp b/es-app/src/FileData.cpp
+index 9ecaa55..e04c2ce 100644
+--- a/es-app/src/FileData.cpp
++++ b/es-app/src/FileData.cpp
+@@ -1,5 +1,6 @@
+ #include "FileData.h"
+ 
++#include "ButterflyFavorites.h"
+ #include "utils/FileSystemUtil.h"
+ #include "utils/StringUtil.h"
+ #include "utils/TimeUtil.h"
+@@ -727,6 +728,7 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
+ 
+ 	mRunningGame = gameToUpdate;
+ 
++	bool retroFavoriteBefore = ButterflyFavorites::contains(gameToUpdate->getFullPath());
+ 	ProcessStartInfo process(command);
+ 	process.window = hideWindow ? NULL : window;
+ 	
+@@ -742,6 +744,12 @@ bool FileData::launchGame(Window* window, LaunchGameOptions options)
+ 
+ 	Utils::FileSystem::FileSystemCache::reset();
+ 
++	// RetroArch can change the favorite state from its quick menu. Import the
++	// state only if it changed during this session, preserving favorites made
++	// by older ButterflyOS builds that predate the shared playlist.
++	if (retroFavoriteBefore != ButterflyFavorites::contains(gameToUpdate->getFullPath()))
++		CollectionSystemManager::get()->syncFavoriteFromRetroArch(gameToUpdate);
++
+ 	if (SaveStateRepository::isEnabled(this))
+ 	{
+ 		if (options.saveStateInfo != nullptr)

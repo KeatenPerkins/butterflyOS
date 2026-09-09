@@ -1,0 +1,38 @@
+diff --git a/es-core/src/Window.cpp b/es-core/src/Window.cpp
+index 86f4384..72abcc7 100644
+--- a/es-core/src/Window.cpp
++++ b/es-core/src/Window.cpp
+@@ -939,7 +939,11 @@ std::string Window::getCustomSplashScreenImage() {
+   std::string alternateSplashScreen = Settings::getInstance()->getString("AlternateSplashScreen");
+   if(alternateSplashScreen != "" && Utils::FileSystem::exists(alternateSplashScreen))
+     return alternateSplashScreen;
++#ifdef ROCKNIX
++  return "/usr/config/emulationstation/resources/butterflyos-splash.png";
++#else
+   return DEFAULT_SPLASH_IMAGE;
++#endif
+ }
+ 
+ void Window::setCustomSplashScreen(std::string imagePath, std::string customText, IBindable* bindable)
+diff --git a/es-core/src/Splash.cpp b/es-core/src/Splash.cpp
+index a12f169..57bd7a2 100644
+--- a/es-core/src/Splash.cpp
++++ b/es-core/src/Splash.cpp
+@@ -54,10 +54,17 @@ Splash::Splash(Window* window, const std::string image, bool fullScreenBackGroun
+ 	// Background image
+ 	std::string imagePath = image;
+ 
++	// ButterflyOS owns full-screen frontend transitions. Do not allow an old
++	// writable resource or an upstream theme's splash artwork to replace the
++	// packaged ButterflyOS image during library reload or shutdown.
+ 	auto backGroundImageTheme = theme->getElement("splash", "background", "image");
+-	if (backGroundImageTheme && backGroundImageTheme->has("path"))
++#ifdef ROCKNIX
++	if (!fullScreenBackGround && backGroundImageTheme && backGroundImageTheme->has("path"))
++#else
++	if (backGroundImageTheme && backGroundImageTheme->has("path"))
++#endif
+ 	{
+ 		std::string tmp = backGroundImageTheme->get<std::string>("path");
+ 		if (ResourceManager::getInstance()->fileExists(backGroundImageTheme->get<std::string>("path")) || tmp.find("{game:") != std::string::npos || tmp.find("{system:") != std::string::npos || tmp.find("{binding:") != std::string::npos)
+ 			imagePath = tmp;

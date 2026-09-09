@@ -74,15 +74,20 @@ Verified on physical Miyoo Flip V2 hardware:
 - First boot completes storage initialization successfully
 - A subsequent cold boot is substantially faster and reaches the UI normally
 
-Deferred until the test unit's replacement hinge and shell are installed:
+Also verified after installing the replacement shell:
 
 - Full button, shoulder, trigger, and analog-stick mapping
-- Lid-close and lid-open behavior
 - Speaker, headphones, and volume controls
-- Rumble
 - Wi-Fi and Bluetooth
-- Charging, battery percentage, and suspend/resume
 - Emulator launch, hotkeys, performance, and thermal behavior
+- Bluetooth controller reconnection and built-in Player 1 fallback
+- HDMI output and return to the handheld display
+- Music and compatible H.264 video playback
+- Web-based file transfer and SSH access
 
-Avoid powered testing with a loose LCD or partially assembled spring-contact
-components.
+Still requiring dedicated Alpha validation:
+
+- Lid-close, lid-open, suspend, and resume behavior
+- Rumble
+- Charging, low-battery warnings, and battery-runtime measurement
+- Fresh-image regression of every item in the Alpha 1 checklist

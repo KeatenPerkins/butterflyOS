@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="wordmark" x1="580" y1="0" x2="1340" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#159dff"/>
+      <stop offset=".34" stop-color="#7c4dff"/>
+      <stop offset=".68" stop-color="#ef476f"/>
+      <stop offset="1" stop-color="#ffd166"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="#000"/>
+  <g transform="translate(760 218) scale(1.56)">
+    <path d="M126 119C105 72 57 55 43 77c-12 20 8 60 62 65-42 17-53 57-34 70 18 12 47-10 57-49 10 39 39 61 57 49 19-13 8-53-34-70 54-5 74-45 62-65-14-22-62-5-83 42z" fill="#f5f4ff"/>
+    <path d="M128 105v62" stroke="#30b8ff" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="128" cy="97" r="8" fill="#ff4e8a"/>
+    <path d="M119 90l-18-18M137 90l18-18" stroke="#ffc857" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <text x="960" y="760" text-anchor="middle" fill="url(#wordmark)"
+        font-family="Liberation Sans,DejaVu Sans,sans-serif" font-size="126" font-weight="700">ButterflyOS</text>
+</svg>

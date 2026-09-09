@@ -1,0 +1,15 @@
+diff --git a/command.c b/command.c
+index ee402d6..8d05aca 100644
+--- a/command.c
++++ b/command.c
+@@ -263,7 +263,9 @@ command_t* command_network_new(uint16_t port)
+    if (!(netcmd = (command_network_t*)calloc(1, sizeof(command_network_t))))
+       goto error;
+ 
+-   fd = socket_init((void**)&res, port, NULL,
++   /* ButterflyOS uses NetCMD as a local controller-key bridge. Never expose
++    * that session to other machines on the Wi-Fi network. */
++   fd = socket_init((void**)&res, port, getenv("BUTTERFLYOS_LOCAL_NETCMD") ? "127.0.0.1" : NULL,
+          SOCKET_TYPE_DATAGRAM, AF_INET);
+ 
+    RARCH_LOG("[NetCMD] %s %hu.\n",

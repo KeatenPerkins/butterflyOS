@@ -1,42 +1,37 @@
-<img src="https://github.com/ROCKNIX/distribution/blob/next/distributions/ROCKNIX/logos/rocknix-logo.png?raw=yes" width=192>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Latest Version](https://img.shields.io/github/release/ROCKNIX/distribution.svg?color=FF5555&label=latest%20version&style=flat-square)](https://github.com/ROCKNIX/distribution/releases/latest) [![Activity](https://img.shields.io/github/commit-activity/m/ROCKNIX/distribution?color=FF5555&style=flat-square)](https://github.com/ROCKNIX/distribution/commits) [![Pull Requests](https://img.shields.io/github/issues-pr-closed/ROCKNIX/distribution?color=FF5555&style=flat-square)](https://github.com/ROCKNIX/distribution/pulls) [![Discord Server](https://img.shields.io/discord/948029830325235753?color=FF5555&label=chat&style=flat-square)](https://discord.gg/seTxckZjJy)
+# ButterflyOS
 
-> This branch is the development home of **ButterflyOS**, a controller-first
-> ROCKNIX derivative for the Miyoo Flip V2. See the [ButterflyOS vision](docs/VISION.md)
-> and [roadmap](docs/ROADMAP.md).
+<p align="center"><img src="artwork/branding/icons/butterflyos-emblem-transparent-1024.png" width="192" alt="ButterflyOS butterfly emblem"></p>
 
----
-
-ROCKNIX is an immutable Linux distribution for handheld gaming devices developed by a small community of enthusiasts.  Our goal is to produce an operating system that has the features and capabilities that we need, and to have fun as we develop it.
+ButterflyOS is a fast, friendly, controller-first operating system for the
+Miyoo Flip V2. It is currently in development and is not yet a stable public
+release. See the [vision](docs/VISION.md), [roadmap](docs/ROADMAP.md), and
+[Alpha 1 checklist](documentation/ALPHA1_RELEASE_CHECKLIST.md).
 
 ## Features
 
-* ROCKNIX has a very active community of developers and users.
-* Integrated cross-device local and remote network play.
-* In-game touch support on supported devices.
-* Fine grain control for battery life or performance.
-* Includes support for playing Music and Video.
-* Bluetooth audio and controller support.
-* Support for HDMI audio and video out, and USB audio.
-* Device to device and device to cloud sync with Syncthing and rclone.
-* VPN support with Wireguard, Tailscale, and ZeroTier.
-* Includes built-in support for scraping and retroachievements.
+- Console-style ButterflyOS interface designed for a 640×480 handheld screen
+- Tested defaults and Menu-button shortcuts for classic game systems
+- Wi-Fi, Bluetooth controllers and audio, SSH, and themed web file transfer
+- Music and compatible video playback
+- HDMI video and audio output
+- Reversible SD-card boot setup that preserves the internal Miyoo OS
+- Beginner-facing settings with optional Advanced Mode
 
-## Screenshots
+### Media compatibility on Miyoo Flip V2
 
-<table>
-  <tr>
-    <td><img src="https://rocknix.org/_inc/images/screenshots/system-view.png"/></td>
-    <td><img src="https://rocknix.org/_inc/images/screenshots/menu.png"/></td>
-  </tr>
-  <tr>
-    <td><img src="https://rocknix.org/_inc/images/screenshots/gamelist-view-metadata-immersive.png"/></td>
-    <td><img src="https://rocknix.org/_inc/images/screenshots/gamelist-view-no-metadata-immersive.png"/></td>
-  </tr>
-</table>
+The RK3566 hardware decoder supports H.264, H.265/HEVC, and VP9. H.264 is the
+recommended format for the widest compatibility. AV1 is decoded in software on
+this device; low-resolution AV1 may work, but high-resolution or 10-bit AV1 can
+skip frames and consume substantially more battery. Container extensions such
+as `.mov` do not guarantee smooth playback: high-bitrate or unusually encoded
+H.264 files may also skip. Moderate-bitrate H.264/AAC at 480p or 720p is the
+current safe target while hardware-decoding coverage is still being validated.
 
-## Community
+## Project status
 
-The ROCKNIX community utilizes Discord for discussion, if you would like to join us please use this link: [https://discord.gg/seTxckZjJy](https://discord.gg/seTxckZjJy)
+Development currently targets only the Miyoo Flip V2. Images do not include
+commercial games or proprietary console BIOS files. Users must supply content
+they are legally entitled to use.
 
 ## Licenses
 

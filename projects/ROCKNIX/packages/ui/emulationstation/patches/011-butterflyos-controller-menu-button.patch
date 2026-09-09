@@ -1,0 +1,154 @@
+--- a/es-app/src/guis/GuiControllersSettings.h
++++ b/es-app/src/guis/GuiControllersSettings.h
+@@ -28,6 +28,7 @@
+ 	
+ 	GuiControllersSettings(Window* wnd, int autosel = 0);
+ 	~GuiControllersSettings();
++	void update(int deltaTime) override;
+ 
+ private:
+ 	void openControllersSpecificSettings_sindengun();
+@@ -41,4 +42,6 @@
+ 
+ 	std::vector<InputConfigInfo*> mLoadedInput;
+ 	void clearLoadedInput();
++	bool mExternalControllerConnected = false;
++	int mControllerRefreshTimer = 0;
+ };
+--- a/es-app/src/guis/GuiControllersSettings.cpp
++++ b/es-app/src/guis/GuiControllersSettings.cpp
+@@ -14,6 +14,10 @@
+ #include "InputManager.h"
+ #include "SystemConf.h"
+ 
++#include "utils/FileSystemUtil.h"
+ #include "utils/Platform.h"
++#include <chrono>
++#include <fstream>
++#include <future>
+ 
+ #define gettext_controllers_settings				_("CONTROLLER SETTINGS")
+@@ -187,6 +191,92 @@
+ 		// FORGET BLUETOOTH CONTROLLERS OR BT AUDIO DEVICES
+ 		addEntry(_("SAVED & CONNECTED DEVICES"), false, [window] { window->pushGui(new GuiBluetoothDevices(window)); });
+ 
++		for (auto controller : InputManager::getInstance()->getInputConfigs())
++			if (controller->getDeviceName() != "retrogame_joypad")
++				mExternalControllerConnected = true;
++
++		if (mExternalControllerConnected &&
++			Utils::FileSystem::exists("/usr/bin/butterflyos-menu-hotkey"))
++		{
++			addEntry(_("SET CONTROLLER MENU BUTTON"), false, [window]
++			{
++				window->pushGui(new GuiLoading<bool>(window,
++					_("PRESS MENU BUTTON\rPRESSES: 0 / 3\rTIME LEFT: 30 SECONDS"),
++					[](auto gui)
++					{
++						auto task = std::async(std::launch::async, []
++						{
++							return Utils::Platform::runSystemCommand(
++								"/usr/bin/butterflyos-menu-hotkey capture", "", nullptr) == 0;
++						});
++						auto started = std::chrono::steady_clock::now();
++						while (task.wait_for(std::chrono::milliseconds(250)) != std::future_status::ready)
++						{
++							int presses = 0;
++							std::ifstream progress("/tmp/butterflyos-menu-hotkey-progress");
++							progress >> presses;
++							int elapsed = std::chrono::duration_cast<std::chrono::seconds>(
++								std::chrono::steady_clock::now() - started).count();
++							int remaining = std::max(0, 30 - elapsed);
++							gui->setText(std::string(_("PRESS MENU BUTTON")) +
++								"\r" + _("PRESSES:") + " " + std::to_string(presses) + " / 3" +
++								"\r" + _("TIME LEFT:") + " " + std::to_string(remaining) + " " + _("SECONDS"));
++						}
++						return task.get();
++					},
++					[window](bool success)
++					{
++						window->pushGui(new GuiMsgBox(window, success ?
++							_("MENU BUTTON SAVED. IT WILL OPEN THE RETROARCH QUICK MENU DURING A GAME.") :
++							_("NO BUTTON WAS DETECTED. KEEP ONE CONTROLLER CONNECTED AND TRY AGAIN.")));
++					}));
++			});
++
++			addEntry(_("TEST CONTROLLER MENU BUTTON"), false, [window]
++			{
++				window->pushGui(new GuiLoading<bool>(window,
++					_("PRESS SAVED MENU\rTIME LEFT: 15 SECONDS"),
++					[](auto gui)
++					{
++						auto task = std::async(std::launch::async, []
++						{
++							return Utils::Platform::runSystemCommand(
++								"/usr/bin/butterflyos-menu-hotkey test", "", nullptr) == 0;
++						});
++						auto started = std::chrono::steady_clock::now();
++						while (task.wait_for(std::chrono::milliseconds(250)) != std::future_status::ready)
++						{
++							int elapsed = std::chrono::duration_cast<std::chrono::seconds>(
++								std::chrono::steady_clock::now() - started).count();
++							int remaining = std::max(0, 15 - elapsed);
++							gui->setText(std::string(_("PRESS SAVED MENU")) +
++								"\r" + _("TIME LEFT:") + " " + std::to_string(remaining) +
++								" " + _("SECONDS"));
++						}
++						return task.get();
++					},
++					[window](bool success)
++					{
++						window->pushGui(new GuiMsgBox(window, success ?
++							_("MENU BUTTON TEST PASSED.") :
++							_("MENU BUTTON NOT DETECTED. SET IT AGAIN OR CHECK THE CONTROLLER CONNECTION.")));
++					}));
++			});
++
++			addEntry(_("RESET CONTROLLER MENU BUTTON"), false, [window]
++			{
++				window->pushGui(new GuiMsgBox(window,
++					_("REMOVE THE SAVED MENU BUTTON FOR THE CONNECTED CONTROLLER?"),
++					_("RESET"), [window]
++					{
++						bool success = Utils::Platform::runSystemCommand(
++							"/usr/bin/butterflyos-menu-hotkey reset", "", nullptr) == 0;
++						window->pushGui(new GuiMsgBox(window, success ?
++							_("MENU BUTTON RESET.") : _("NO SAVED MENU BUTTON WAS FOUND.")));
++					}, _("CANCEL"), nullptr));
++			});
++		}
++
+ #if defined(BATOCERA) || defined(ROCKNIX)
+ 		}
+ #endif
+@@ -840,6 +930,30 @@
+ 	mLoadedInput.clear();
+ }
+ 
++void GuiControllersSettings::update(int deltaTime)
++{
++	GuiSettings::update(deltaTime);
++
++	mControllerRefreshTimer += deltaTime;
++	if (mControllerRefreshTimer < 500)
++		return;
++	mControllerRefreshTimer = 0;
++
++	bool connected = false;
++	for (auto controller : InputManager::getInstance()->getInputConfigs())
++		if (controller->getDeviceName() != "retrogame_joypad")
++			connected = true;
++
++	if (connected != mExternalControllerConnected)
++	{
++		Window* parent = mWindow;
++		setSave(false);
++		delete this;
++		openControllersSettings(parent);
++		return;
++	}
++}
++
+ GuiControllersSettings::~GuiControllersSettings() 
+ {
+ 	clearLoadedInput();

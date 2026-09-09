@@ -350,6 +350,11 @@ function configure_hotkeys() {
     local MY_CONTROLLER
     local BUTTERFLY_MENU_BTN=""
 
+    # This is a per-game-session marker.  The Menu helper watches it before
+    # sending commands for the built-in pad, so native RetroArch hotkeys remain
+    # in charge when no external controller was selected for Player 1.
+    rm -f /tmp/butterflyos-external-hotkeys
+
     # On the Miyoo Flip, use the first external joystick profile whenever one
     # is connected. The built-in controls are always js0, so reading js0 would
     # otherwise apply the handheld M-button mapping to external Player 1.
@@ -467,6 +472,40 @@ EOF
             fi
             rm -f /tmp/"${MY_CONTROLLER}.cfg"
         fi
+    fi
+
+    # RetroArch can identify controllers by USB/Bluetooth IDs even when the
+    # kernel device name does not exactly match a joypad profile filename.
+    # Do not make activation of the ButterflyOS helper depend on that fragile
+    # filename match: an external Player 1 always uses the command bridge.
+    if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null && \
+       [ -n "${MY_CONTROLLER}" ] && \
+       [ "${MY_CONTROLLER}" != "retrogame_joypad" ] && \
+       [ -x /usr/bin/butterflyos-menu-hotkey ]
+    then
+        cat <<EOF >>${RETROARCH_CONFIG}
+input_enable_hotkey_axis = "nul"
+input_enable_hotkey_btn = "nul"
+input_exit_emulator_axis = "nul"
+input_exit_emulator_btn = "nul"
+input_fps_toggle_axis = "nul"
+input_fps_toggle_btn = "nul"
+input_load_state_axis = "nul"
+input_load_state_btn = "nul"
+input_menu_toggle_axis = "nul"
+input_menu_toggle_btn = "nul"
+input_rewind_axis = "nul"
+input_rewind_btn = "nul"
+input_save_state_axis = "nul"
+input_save_state_btn = "nul"
+input_state_slot_decrease_axis = "nul"
+input_state_slot_decrease_btn = "nul"
+input_state_slot_increase_axis = "nul"
+input_state_slot_increase_btn = "nul"
+input_toggle_fast_forward_axis = "nul"
+input_toggle_fast_forward_btn = "nul"
+EOF
+        touch /tmp/butterflyos-external-hotkeys
     fi
 }
 

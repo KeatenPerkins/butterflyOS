@@ -52,6 +52,15 @@ case "${DEVICE}" in
     PKG_DEPENDS_TARGET+=" common-shaders glsl-shaders"
     PKG_EMUS+=" aethersx2-sa azahar-sa dolphin-sa drastic-sa mednafen melonds-sa vita3k-sa"
     LIBRETRO_CORES+=" dolphin-lr"
+    # These standalone systems are beyond the practical performance envelope
+    # of the Miyoo Flip V2 and add substantial size and confusing launchers.
+    if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+      PKG_EMUS="${PKG_EMUS// aethersx2-sa/}"
+      PKG_EMUS="${PKG_EMUS// azahar-sa/}"
+      PKG_EMUS="${PKG_EMUS// dolphin-sa/}"
+      PKG_EMUS="${PKG_EMUS// vita3k-sa/}"
+      LIBRETRO_CORES="${LIBRETRO_CORES// dolphin-lr/}"
+    fi
     ;;
   RK3588)
     [ "${ENABLE_32BIT}" == "true" ] && EMUS_32BIT="box86 desmume-lr gpsp-lr pcsx_rearmed-lr"
@@ -166,9 +175,13 @@ makeinstall_target() {
   ### Nintendo 3DS
   case ${DEVICE} in
     RK3576|RK3566|SM8250|SM8550|SM8650|SM8750|S922X|RK3588|SM6115|AMD64)
+      if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+        :
+      else
       add_emu_core 3ds azahar azahar-sa true
       add_es_system 3ds
       install_script "Start Azahar.sh"
+      fi
     ;;
   esac
 
@@ -637,11 +650,15 @@ makeinstall_target() {
   ### Nintendo GameCube
   case ${DEVICE} in
     RK3399|RK3576|RK3566|RK3588|SM6115|SM8250|SM8550|SM8650|SM8750|S922X|AMD64)
+      if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+        :
+      else
       add_emu_core gamecube dolphin dolphin-sa-gc true
       add_emu_core gamecube dolphin dolphin-qt-gc false
       add_emu_core gamecube retroarch dolphin false
       install_script "Start Dolphin.sh"
       add_es_system gamecube
+      fi
       ;;
   esac
 
@@ -658,6 +675,9 @@ makeinstall_target() {
   ### Nintendo Wii/ware
   case ${DEVICE} in
     RK3399|RK3576|RK3566|RK3588|SM6115|SM8250|SM8550|SM8650|SM8750|S922X|AMD64)
+      if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+        :
+      else
       add_emu_core wii dolphin dolphin-sa-wii true
       add_emu_core wiiware dolphin dolphin-sa-wii true
       add_emu_core wii dolphin dolphin-qt-wii false
@@ -666,6 +686,7 @@ makeinstall_target() {
       add_emu_core wiiware retroarch dolphin false
       add_es_system wii
       add_es_system wiiware
+      fi
       ;;
   esac
 
@@ -1162,6 +1183,9 @@ makeinstall_target() {
     add_es_system ps2
     ;;
   RK3399|RK3576|RK3566|RK3588|SM6115|SM8250|SM8550|SM8650|SM8750|S922X)
+    if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+      :
+    else
     add_emu_core ps2 aethersx2 aethersx2-sa true
     case ${DEVICE} in
       S922X|SM6115|SM8250|SM8550|SM8650|SM8750)
@@ -1171,6 +1195,7 @@ makeinstall_target() {
     esac
     add_es_system ps2
     install_script "Start AetherSX2.sh"
+    fi
     ;;
   esac
 
@@ -1197,9 +1222,13 @@ makeinstall_target() {
   ### Sony Playstation Vita
   case ${DEVICE} in
     RK3566|RK3576|RK3588|SM6115|SM8250|SM8550|SM8650|SM8750|S922X|AMD64)
+      if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+        :
+      else
       add_emu_core psvita vita3k vita3k-sa true
       add_es_system psvita
       install_script "Start Vita3K.sh"
+      fi
       ;;
   esac
 

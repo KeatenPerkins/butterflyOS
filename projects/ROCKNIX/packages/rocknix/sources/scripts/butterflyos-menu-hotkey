@@ -1,0 +1,258 @@
+#!/bin/bash
+
+CONFIG_DIR="/storage/.config/butterflyos/menu-buttons"
+PROGRESS_FILE="/tmp/butterflyos-menu-hotkey-progress"
+EXTERNAL_SESSION_MARKER="/tmp/butterflyos-external-hotkeys"
+
+event_name() {
+  cat "/sys/class/input/${1##*/}/device/name" 2>/dev/null
+}
+
+is_joystick_event() {
+  local event_device joy_device event_path
+  event_device=$(readlink -f "/sys/class/input/${1##*/}/device") || return 1
+  for joy_device in /sys/class/input/js*/device; do
+    [ -e "${joy_device}" ] || continue
+    event_path=$(readlink -f "${joy_device}")
+    [ "${event_device}" = "${event_path}" ] && return 0
+  done
+  return 1
+}
+
+first_external_event() {
+  local event name
+  for event in /dev/input/event*; do
+    [ -e "${event}" ] || continue
+    is_joystick_event "${event}" || continue
+    name=$(event_name "${event}")
+    [ -n "${name}" ] || continue
+    [ "${name}" = "retrogame_joypad" ] && continue
+    [ "${name}" = "ButterflyOS Menu Hotkey" ] && continue
+    printf '%s\n' "${event}"
+    return 0
+  done
+  return 1
+}
+
+event_for_name() {
+  local wanted="$1" event
+  for event in /dev/input/event*; do
+    [ -e "${event}" ] || continue
+    [ "$(event_name "${event}")" = "${wanted}" ] || continue
+    printf '%s\n' "${event}"
+    return 0
+  done
+  return 1
+}
+
+config_for_event() {
+  local event name encoded identifier
+  event="$1"
+  name=$(event_name "${event}") || return 1
+  encoded=$(printf '%s' "${name}" | base64 | tr -d '\n')
+  identifier=$(printf '%s' "${name}" | sha256sum | cut -d' ' -f1)
+  printf '%s|%s|%s\n' "${CONFIG_DIR}/${identifier}.conf" "${encoded}" "${name}"
+}
+
+capture() {
+  local event details config encoded name code temporary
+  event=$(first_external_event) || return 2
+  details=$(config_for_event "${event}") || return 2
+  config=${details%%|*}
+  details=${details#*|}
+  encoded=${details%%|*}
+  name=${details#*|}
+
+  printf '0\n' >"${PROGRESS_FILE}"
+  code=$(timeout 30 evtest "${event}" 2>/dev/null | awk -v progress="${PROGRESS_FILE}" '
+    /type 1 \(EV_KEY\).*value 1/ {
+      if (match($0, /code [0-9]+/)) {
+        current = substr($0, RSTART + 5, RLENGTH - 5)
+        if (current == previous) count++; else { previous = current; count = 1 }
+        print count > progress; close(progress)
+        if (count == 3) { print current; fflush(); exit }
+      }
+    }')
+  rm -f "${PROGRESS_FILE}"
+  [ -n "${code}" ] || return 3
+
+  mkdir -p "${CONFIG_DIR}"
+  temporary="${config}.tmp"
+  {
+    printf 'DEVICE_NAME_B64=%s\n' "${encoded}"
+    printf 'KEY_CODE=%s\n' "${code}"
+  } >"${temporary}"
+  mv "${temporary}" "${config}"
+  printf '%s\n' "${name}"
+}
+
+find_connected_config() {
+  local event details config
+  event=$(first_external_event) || return 1
+  details=$(config_for_event "${event}") || return 1
+  config=${details%%|*}
+  [ -f "${config}" ] || return 1
+  printf '%s|%s\n' "${event}" "${config}"
+}
+
+test_mapping() {
+  local details event config code
+  details=$(find_connected_config) || return 2
+  event=${details%%|*}
+  config=${details#*|}
+  code=$(sed -n 's/^KEY_CODE=//p' "${config}")
+  [ -n "${code}" ] || return 2
+  printf '0\n' >"${PROGRESS_FILE}"
+  timeout 15 evtest "${event}" 2>/dev/null | awk -v wanted="${code}" -v progress="${PROGRESS_FILE}" '
+    /type 1 \(EV_KEY\).*value 1/ {
+      if (match($0, /code [0-9]+/)) {
+        current = substr($0, RSTART + 5, RLENGTH - 5)
+        if (current == wanted) { print 1 > progress; close(progress); found = 1; exit }
+      }
+    }
+    END { exit found ? 0 : 1 }'
+  local result=$?
+  rm -f "${PROGRESS_FILE}"
+  return ${result}
+}
+
+reset_mapping() {
+  local details config
+  details=$(find_connected_config) || return 2
+  config=${details#*|}
+  rm -f "${config}"
+}
+
+watch_mapping() {
+  local details event config code
+  details=$(find_connected_config) || return 1
+  event=${details%%|*}
+  config=${details#*|}
+  code=$(sed -n 's/^KEY_CODE=//p' "${config}")
+  [ -n "${code}" ] || return 1
+
+  # Translate the captured Menu key and the connected controller's physical
+  # controls into the same shortcuts as the Flip's built-in M key. This first
+  # mapping is intentionally based on the live SN30 Pro+ event capture; the
+  # eventual controller setup flow will persist these per-controller codes.
+  # Releasing Menu without a chord opens the Quick Menu. Menu+Start must be
+  # pressed twice within two seconds to avoid an accidental game exit.
+  evtest "${event}" 2>/dev/null | awk -v menu="${code}" -v marker="${EXTERNAL_SESSION_MARKER}" '
+    function command(name) {
+      # Use the supported RetroArch command client. This still talks only to the
+      # localhost-bound ButterflyOS command socket, but avoids BusyBox nc
+      # packet/timeout differences that made chords unreliable.
+      system("test -e \"" marker "\" && /usr/bin/retroarch --command \"" name "\" >/dev/null 2>&1")
+    }
+    function chord(name) { command(name); used = 1 }
+    /type 1 \(EV_KEY\)/ {
+      if (!match($0, /code [0-9]+/)) next
+      key = substr($0, RSTART + 5, RLENGTH - 5)
+      if (!match($0, /value [012]/)) next
+      value = substr($0, RSTART + 6, 1)
+
+      if (key == menu) {
+        if (value == 1) { armed = 1; used = 0 }
+        else if (value == 0 && armed) {
+          if (!used) command("MENU_TOGGLE")
+          armed = 0
+        }
+        next
+      }
+      if (!armed || value != 1) next
+
+      if      (key == 309) chord("SAVE_STATE")
+      else if (key == 308) chord("LOAD_STATE")
+      else if (key == 310) chord("REWIND")
+      else if (key == 547) chord("STATE_SLOT_PLUS")
+      else if (key == 546) chord("STATE_SLOT_MINUS")
+      else if (key == 311) {
+        now = systime()
+        if (now - exit_press <= 2) { chord("QUIT"); exit_press = 0 }
+        else { used = 1; exit_press = now }
+      }
+    }
+    /type 3 \(EV_ABS\), code 5 \(ABS_RZ\)/ && armed {
+      if (match($0, /value [0-9]+/)) {
+        axis = substr($0, RSTART + 6, RLENGTH - 6) + 0
+        if (axis >= 900 && !r2_down) { chord("FAST_FORWARD"); r2_down = 1 }
+        else if (axis <= 100) r2_down = 0
+      }
+    }
+    /type 3 \(EV_ABS\), code 16 \(ABS_HAT0X\)/ && armed {
+      if ($0 ~ /value -1/) chord("STATE_SLOT_MINUS")
+      else if ($0 ~ /value 1/) chord("STATE_SLOT_PLUS")
+    }
+  '
+}
+
+watch_builtin_mapping() {
+  local event
+  event=$(event_for_name "retrogame_joypad") || return 1
+
+  # During an externally controlled game, RetroArch's native global hotkeys
+  # are disabled to prevent double actions. Keep watching the handheld pad so
+  # it immediately regains the same M shortcuts if Bluetooth disappears.
+  evtest "${event}" 2>/dev/null | awk -v marker="${EXTERNAL_SESSION_MARKER}" '
+    function command(name) {
+      system("test -e \"" marker "\" && /usr/bin/retroarch --command \"" name "\" >/dev/null 2>&1")
+    }
+    function chord(name) { command(name); used = 1 }
+    /type 1 \(EV_KEY\)/ {
+      if (!match($0, /code [0-9]+/)) next
+      key = substr($0, RSTART + 5, RLENGTH - 5)
+      if (!match($0, /value [012]/)) next
+      value = substr($0, RSTART + 6, 1)
+
+      if (key == 316) {
+        if (value == 1) { armed = 1; used = 0 }
+        else if (value == 0 && armed) {
+          if (!used) command("MENU_TOGGLE")
+          armed = 0
+        }
+        next
+      }
+      if (!armed || value != 1) next
+
+      if      (key == 311) chord("SAVE_STATE")
+      else if (key == 310) chord("LOAD_STATE")
+      else if (key == 313) chord("FAST_FORWARD")
+      else if (key == 312) chord("REWIND")
+      else if (key == 547) chord("STATE_SLOT_PLUS")
+      else if (key == 546) chord("STATE_SLOT_MINUS")
+      else if (key == 315) {
+        now = systime()
+        if (now - exit_press <= 2) { chord("QUIT"); exit_press = 0 }
+        else { used = 1; exit_press = now }
+      }
+    }
+  '
+}
+
+builtin_daemon() {
+  while true; do
+    watch_builtin_mapping || true
+    sleep 1
+  done
+}
+
+daemon() {
+  local builtin_pid
+  builtin_daemon &
+  builtin_pid=$!
+  trap 'kill "${builtin_pid}" 2>/dev/null; wait "${builtin_pid}" 2>/dev/null' EXIT INT TERM
+  while true; do
+    if [ -d "${CONFIG_DIR}" ]; then
+      watch_mapping || true
+    fi
+    sleep 2
+  done
+}
+
+case "$1" in
+  capture) capture ;;
+  test) test_mapping ;;
+  reset) reset_mapping ;;
+  daemon) daemon ;;
+  *) exit 64 ;;
+esac

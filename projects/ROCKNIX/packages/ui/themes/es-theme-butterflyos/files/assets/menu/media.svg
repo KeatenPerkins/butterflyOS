@@ -1,5 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="528" height="84" viewBox="0 0 528 84">
-  <defs><linearGradient id="label" x1="92" y1="0" x2="300" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#159dff"/><stop offset=".34" stop-color="#7c4dff"/><stop offset=".68" stop-color="#ef476f"/><stop offset="1" stop-color="#ffd166"/></linearGradient></defs>
-  <path fill="#fff" d="M51 10h7v39c0 9-7 17-17 19-10 3-19-1-21-9-1-8 6-15 16-18 5-1 11-1 15 1Zm7 1c15 3 23 11 21 24-5-6-12-10-21-11Z"/>
-  <text x="92" y="57" fill="url(#label)" font-family="Liberation Sans, sans-serif" font-size="39" font-weight="700">Media</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="240" viewBox="0 0 160 240" shape-rendering="crispEdges">
+  <defs><linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#10d9ff"/><stop offset=".52" stop-color="#7c4dff"/><stop offset="1" stop-color="#ff3fa4"/></linearGradient></defs>
+  <rect x="4" y="4" width="152" height="232" rx="12" fill="#090d20" stroke="url(#edge)" stroke-width="4"/>
+  <g fill="#159dff" opacity=".35"><rect x="22" y="143" width="8" height="24"/><rect x="34" y="132" width="8" height="35"/><rect x="46" y="150" width="8" height="17"/><rect x="106" y="138" width="8" height="29"/><rect x="118" y="126" width="8" height="41"/><rect x="130" y="146" width="8" height="21"/></g>
+  <rect x="25" y="58" width="110" height="79" rx="5" fill="#d9e7ff"/><rect x="34" y="68" width="92" height="35" fill="#102849"/>
+  <circle cx="55" cy="85" r="13" fill="#5636aa"/><circle cx="105" cy="85" r="13" fill="#ef476f"/><circle cx="55" cy="85" r="5" fill="#090d20"/><circle cx="105" cy="85" r="5" fill="#090d20"/>
+  <path fill="#159dff" d="M49 111h62l10 18H39Z"/><rect x="61" y="116" width="38" height="7" fill="#090d20"/>
+  <rect x="14" y="181" width="132" height="43" rx="7" fill="#121a36" stroke="#304565" stroke-width="2"/>
+  <text x="80" y="209" text-anchor="middle" fill="#fff" font-family="Liberation Sans, sans-serif" font-size="22" font-weight="700">Media</text>
 </svg>

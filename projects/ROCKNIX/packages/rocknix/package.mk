@@ -95,6 +95,10 @@ EOF
   if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]
   then
     sed -i "s#ssh.enabled=1#ssh.enabled=0#g" ${INSTALL}/usr/config/system/configs/system.cfg
+    sed -i "s#^system.hostname=.*#system.hostname=butterflyos#g" ${INSTALL}/usr/config/system/configs/system.cfg
+    enable_service butterflyos-menu-hotkey.service
+  else
+    rm -f ${INSTALL}/usr/bin/butterflyos-menu-hotkey
   fi
 
   ### Disable automount on AMD64

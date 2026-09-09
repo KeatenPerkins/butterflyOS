@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ButterflyOS Files</title>
+<style>
+:root{color-scheme:dark;--ink:#edf5ff;--muted:#9cadd0;--violet:#7c4dff}*{box-sizing:border-box}html,body{height:100%;margin:0}body{display:flex;flex-direction:column;background:#050714;color:var(--ink);font:15px system-ui,sans-serif}
+header{height:66px;flex:none;display:flex;align-items:center;gap:13px;padding:9px clamp(14px,4vw,34px);background:#090d20;border-bottom:2px solid var(--violet);box-shadow:0 4px 20px #7c4dff44}header img{width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 0 6px #7c4dff)}header strong{font-size:20px}header span{display:block;color:var(--muted);font-size:13px}header a{margin-left:auto;padding:9px 14px;border:1px solid #405078;border-radius:9px;color:var(--ink);text-decoration:none;background:#111831}iframe{width:100%;flex:1;border:0;background:#070a18}
+</style></head><body>
+<header><img id="logo" alt=""><div><strong>ButterflyOS Files</strong><span id="place">Storage</span></div><a id="home">Home</a></header>
+<iframe id="files" title="File browser"></iframe>
+<script>
+const landing=location.protocol+'//'+location.hostname;
+document.getElementById('logo').src=landing+'/butterfly.png?v=3';
+document.getElementById('home').href=landing+'/?v=4';
+const frame=document.getElementById('files');let path=new URLSearchParams(location.search).get('path')||'/';if(!path.startsWith('/'))path='/'+path;frame.src=path+(path.includes('?')?'&':'?')+'_butterfly='+Date.now();
+frame.addEventListener('load',function(){try{const d=frame.contentDocument;document.getElementById('place').textContent=decodeURIComponent(frame.contentWindow.location.pathname)||'Storage';const style=d.createElement('style');style.textContent=`
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;padding:clamp(18px,4vw,42px);background:radial-gradient(circle at 50% -20%,#242052,#080b1d 42%,#050714 100%);color:#edf5ff;font:16px system-ui,sans-serif;min-height:100vh}a{color:#35dcff!important;text-decoration:none!important}a:hover{text-decoration:underline!important}hr{border:0;border-top:1px solid #33426a;margin:18px 0}table{width:100%;border-collapse:separate;border-spacing:0;background:#090d20dd;border:1px solid #3c4d78;border-radius:13px;overflow:hidden;box-shadow:0 12px 28px #0008}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid #263454}th{background:#121936;color:#ff83c1}tr:last-child td{border-bottom:0}tr:hover td{background:#131b39}form{display:flex!important;flex-wrap:wrap;align-items:center;gap:12px;padding:18px!important;margin:0 0 20px!important;background:linear-gradient(#0c1229,#0c1229) padding-box,linear-gradient(120deg,#10d9ff,#7c4dff,#ff3fa4) border-box;border:2px solid transparent;border-radius:13px}input[type=file]{flex:1;min-width:220px;padding:10px;background:#121936;color:#edf5ff;border:1px dashed #6577a5;border-radius:8px}input[type=file]::file-selector-button,input[type=submit]{padding:10px 16px;margin-right:10px;border:0;border-radius:8px;background:linear-gradient(90deg,#159dff,#7c4dff,#ef476f);color:white;font-weight:700;cursor:pointer}@media(max-width:600px){body{padding:12px;font-size:14px}th,td{padding:10px 8px}th:nth-child(2),td:nth-child(2){display:none}form{align-items:stretch}input[type=file],input[type=submit]{width:100%}}`;d.head.appendChild(style)}catch(e){}});
+</script></body></html>

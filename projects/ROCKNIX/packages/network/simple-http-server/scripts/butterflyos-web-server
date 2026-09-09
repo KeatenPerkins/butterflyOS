@@ -1,0 +1,35 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+. /etc/profile.d/001-functions
+
+PASSWORD="$(get_setting root.password)"
+LANDING_PID=""
+FILES_PID=""
+
+stop_servers() {
+  [ -n "${LANDING_PID}" ] && kill "${LANDING_PID}" 2>/dev/null || true
+  [ -n "${FILES_PID}" ] && kill "${FILES_PID}" 2>/dev/null || true
+}
+trap stop_servers EXIT INT TERM
+
+# Serve the browser shell from inside /storage so it can safely style the
+# authenticated server's same-origin directory and upload pages.
+mkdir -p /storage/.config/butterflyos/web
+cp /usr/share/butterflyos-web/browser.html /storage/.config/butterflyos/web/browser.html
+
+# Early development builds placed the landing page at /storage/index.html.
+# That masks the root directory listing used by "All Storage". Preserve only
+# that recognizable ButterflyOS-generated file away from the root index path.
+if [ -f /storage/index.html ] && grep -q '<title>ButterflyOS File Transfer</title>' /storage/index.html; then
+  mv /storage/index.html /storage/.config/butterflyos/web/legacy-storage-index.html
+fi
+
+# The landing page contains no private data. File access remains authenticated
+# on port 8080 and uploads are streamed directly to storage.
+/usr/bin/simple-http-server -i --nocache -p 80 -s /usr/share/butterflyos-web &
+LANDING_PID=$!
+/usr/bin/simple-http-server -i --nocache -p 8080 -a "root:${PASSWORD}" -s -u -l 4G /storage &
+FILES_PID=$!
+
+wait -n "${LANDING_PID}" "${FILES_PID}"

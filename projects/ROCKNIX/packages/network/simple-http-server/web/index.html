@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ButterflyOS File Transfer</title>
+  <style>
+    :root{color-scheme:dark;--ink:#edf5ff;--muted:#91a4c6;--panel:#0b1024;--cyan:#10d9ff;--violet:#7c4dff;--pink:#ff3fa4}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#27215c 0,#0a0e22 42%,#040610 100%);color:var(--ink);font:16px system-ui,sans-serif}
+    body:after{content:"";position:fixed;inset:55% 0 0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 23px,#10d9ff22 24px),repeating-linear-gradient(90deg,transparent 0 39px,#ff3fa422 40px);transform:perspective(280px) rotateX(58deg);transform-origin:bottom}
+    main{position:relative;z-index:1;width:min(920px,92%);margin:auto;padding:48px 0 64px}header{text-align:center;margin-bottom:32px}
+    .mark{display:block;width:86px;height:64px;margin:auto;filter:drop-shadow(0 0 4px #7c4dff) drop-shadow(0 0 10px #7c4dff66)}
+    h1{margin:12px 0 6px;font-size:clamp(30px,7vw,54px);letter-spacing:.02em;background:linear-gradient(90deg,var(--cyan),#fff,var(--pink));color:transparent;background-clip:text}
+    header p,.note{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+    a.card{min-height:118px;padding:22px;text-decoration:none;color:var(--ink);background:linear-gradient(var(--panel),var(--panel)) padding-box,linear-gradient(135deg,var(--cyan),var(--violet),var(--pink)) border-box;border:2px solid transparent;border-radius:16px;box-shadow:0 12px 30px #0008;transition:.15s}
+    a.card:hover,a.card:focus{transform:translateY(-3px);box-shadow:0 0 24px #10d9ff55;outline:none}.icon{font-size:28px}.card strong{display:block;font-size:20px;margin:8px 0 3px}.card span{color:var(--muted);font-size:14px}
+    .signin{margin:28px auto 0;padding:20px 24px;max-width:720px;background:#080c1ce8;border:1px solid #405078;border-left:4px solid var(--pink);border-radius:10px;line-height:1.55;box-shadow:0 12px 28px #0007}.signin h2{margin:0 0 10px;font-size:21px;color:#fff}.signin ol{margin:8px 0;padding-left:22px}.signin li{margin:7px 0}.signin code{padding:2px 7px;background:#171e3c;border-radius:5px;color:#35dcff;font:600 15px ui-monospace,monospace}.note{margin:16px auto 0;padding:13px 18px;max-width:720px;background:#080c1cdd;border-left:4px solid var(--violet);border-radius:8px;line-height:1.5;color:var(--muted)}
+  </style>
+</head>
+<body><main>
+  <header><img class="mark" src="butterfly.png?v=3" alt=""><h1>ButterflyOS</h1><p>Move files to and from your handheld</p></header>
+  <section class="grid">
+    <a class="card" data-path="roms/"><span class="icon">🎮</span><strong>Games</strong><span>Add ROMs to their system folders</span></a>
+    <a class="card" data-path="roms/bios/"><span class="icon">▣</span><strong>BIOS</strong><span>Firmware required by some systems</span></a>
+    <a class="card" data-path="media/Music/"><span class="icon">♫</span><strong>Music</strong><span>MP3, FLAC and other audio</span></a>
+    <a class="card" data-path="media/Videos/"><span class="icon">▶</span><strong>Videos</strong><span>Video files for the Media library</span></a>
+    <a class="card" data-path="roms/savestates/"><span class="icon">★</span><strong>Saves</strong><span>Browse save and state storage</span></a>
+    <a class="card" data-path=""><span class="icon">▦</span><strong>All Storage</strong><span>Browse the complete storage partition</span></a>
+  </section>
+  <section class="signin">
+    <h2>How to sign in</h2>
+    <ol>
+      <li>On your ButterflyOS device, open <b>Settings</b>, then <b>Network Settings</b>.</li>
+      <li>Select <b>Set SSH Password</b>. Enter a password you will remember and save it.</li>
+      <li>Turn on <b>Web File Transfer</b>.</li>
+      <li>When your browser asks, enter <code>root</code> as the username and your new password as the password.</li>
+    </ol>
+    <p><b>What is root?</b> It is the built-in administrator account name used by ButterflyOS. You do not need to create a separate account.</p>
+  </section>
+  <p class="note">Choose a folder, then use the upload control on that page. For your security, enable Web File Transfer only on a trusted local network.</p>
+</main><script>
+  document.querySelectorAll('[data-path]').forEach(function(a){
+    a.href=location.protocol+'//'+location.hostname+':8080/.config/butterflyos/web/browser.html?v=7&path='+encodeURIComponent('/'+a.dataset.path);
+  });
+</script></body></html>

@@ -15,6 +15,20 @@ logos or wordmarks.
 | `genesis.png` | `genesis`, `megadrive` |
 | `psx.png` | `psx` |
 | `dreamcast.png` | `dreamcast` |
+| `atari7800.png` | `atari7800` |
+| `atarilynx.png` | `atarilynx` |
+| `gamegear.png` | `gamegear` |
+| `gbc.png` | `gbc` |
+| `mastersystem.png` | `mastersystem` |
+| `msx.png` | `msx` |
+| `n64.png` | `n64` |
+| `nds.png` | `nds` |
+| `neogeo.png` | `neogeo` |
+| `ngp.png`, `ngpc.png` | `ngp`, `ngpc` |
+| `pcengine.png` | `pcengine` |
+| `psp.png` | `psp` |
+| `saturn.png` | `saturn` |
+| `wonderswan.png`, `wonderswancolor.png` | `wonderswan`, `wonderswancolor` |
 
 `source/` contains the full-resolution generated originals. `runtime/`
 contains reduced RGBA copies intended for the 640x480 Miyoo Flip V2 display.

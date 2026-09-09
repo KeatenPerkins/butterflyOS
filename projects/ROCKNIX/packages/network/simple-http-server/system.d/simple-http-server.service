@@ -4,9 +4,8 @@ Wants=network-pre.target
 After=network-pre.target
 
 [Service]
-ExecStart=/usr/bin/bash -c "source /etc/profile.d/001-functions && /usr/bin/simple-http-server -i -p 80 -a root:$(get_setting root.password) -s -u /storage"
-Restart=always
-KillMode=process
+ExecStart=/usr/bin/butterflyos-web-server
+KillMode=control-group
 Restart=on-failure
 RestartSec=10
 

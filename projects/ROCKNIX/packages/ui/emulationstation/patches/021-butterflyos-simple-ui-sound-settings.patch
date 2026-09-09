@@ -1,0 +1,46 @@
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+index 76a0047..95c875a 100644
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -5159,9 +5159,12 @@ void GuiMenu::openUISettings()
+ #endif
+ 	s->addGroup(_("DISPLAY OPTIONS"));
+-	s->addEntry(_("SCREENSAVER SETTINGS"), true, std::bind(&GuiMenu::openScreensaverOptions, this));
+-	s->addOptionList(_("LIST TRANSITION"), { { _("auto"), "auto" },{ _("fade"), "fade" },{ _("slide"), "slide" },{ _("fade & slide"), "fade & slide" },{ _("instant"), "instant" } }, "TransitionStyle", true);
+-	s->addOptionList(_("GAME LAUNCH TRANSITION"), { { _("auto"), "auto" },{ _("fade"), "fade" },{ _("fast fade"), "fast fade" },{ _("slide"), "slide" },{ _("fast slide"), "fast slide" },{ _("instant"), "instant" } }, "GameTransitionStyle", true);
++	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	{
++		s->addEntry(_("SCREENSAVER SETTINGS"), true, std::bind(&GuiMenu::openScreensaverOptions, this));
++		s->addOptionList(_("LIST TRANSITION"), { { _("auto"), "auto" },{ _("fade"), "fade" },{ _("slide"), "slide" },{ _("fade & slide"), "fade & slide" },{ _("instant"), "instant" } }, "TransitionStyle", true);
++		s->addOptionList(_("GAME LAUNCH TRANSITION"), { { _("auto"), "auto" },{ _("fade"), "fade" },{ _("fast fade"), "fast fade" },{ _("slide"), "slide" },{ _("fast slide"), "fast slide" },{ _("instant"), "instant" } }, "GameTransitionStyle", true);
++		s->addSwitch(_("GAME MEDIAS DURING FAST SCROLLING"), "ScrollLoadMedias", false);
++	}
+ 
+-	s->addSwitch(_("GAME MEDIAS DURING FAST SCROLLING"), "ScrollLoadMedias", false); 
+ 
+ 	s->addSwitch(_("SHOW CLOCK"), "DrawClock", true);
+@@ -5175,3 +5178,5 @@ void GuiMenu::openUISettings()
+ 	s->addSwitch(_("SHOW FAVORITES ON TOP"), "FavoritesFirst", true, [s] { s->setVariable("reloadAll", true); });
++	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	{
+ 	s->addSwitch(_("SHOW HIDDEN FILES"), "ShowHiddenFiles", true, [s] { s->setVariable("reloadAll", true); });
+ 	s->addOptionList(_("SHOW FOLDERS"), { { _("always"), "always" },{ _("never") , "never" },{ _("having multiple games"), "having multiple games" } }, "FolderViewMode", true, [s] { s->setVariable("reloadAll", true); });
+@@ -5200,4 +5206,5 @@ void GuiMenu::openUISettings()
+ 	s->addSwitch(_("SHOW TRACKBALL ICON"), "ShowTrackballIconOnGames", true, [s] { s->setVariable("reloadAll", true); });
+ 	s->addSwitch(_("SHOW SPINNER ICON"), "ShowSpinnerIconOnGames", true, [s] { s->setVariable("reloadAll", true); });
++	}
+ 
+ 	mWindow->pushGui(s);
+@@ -5248,1 +5255,2 @@ void GuiMenu::openSoundSettings()
+-		s->addWithLabel(_("MUSIC VOLUME"), musicVolume);
++		if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++			s->addWithLabel(_("MUSIC VOLUME"), musicVolume);
+@@ -5253,1 +5261,3 @@ void GuiMenu::openSoundSettings()
+-	s->addGroup(_("MUSIC"));
++	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	{
++		s->addGroup(_("MUSIC"));
+@@ -5310,1 +5319,2 @@ void GuiMenu::openSoundSettings()
+-	s->addGroup(_("SOUNDS"));
++	}
++	s->addGroup(_("SOUNDS"));

@@ -1,0 +1,29 @@
+diff --git a/es-core/src/components/ControllerActivityComponent.cpp b/es-core/src/components/ControllerActivityComponent.cpp
+index 6a62426..985c749 100644
+--- a/es-core/src/components/ControllerActivityComponent.cpp
++++ b/es-core/src/components/ControllerActivityComponent.cpp
+@@ -234,6 +234,24 @@ void ControllerActivityComponent::render(const Transform4x4f& parentTrans)
+ 			if (it == playerJoysticks.cend() || it->second.index < 0 || it->second.index >= MAX_PLAYERS)
+ 				continue;
+ 
++			// ButterflyOS has a permanent built-in pad. Do not present it as an
++			// attached controller in the status bar; only external pads belong
++			// there. The Flip input driver consistently identifies itself using
++			// the retrogame name, while USB/Bluetooth controllers do not.
++			bool builtInPad = false;
++			for (auto inputConfig : InputManager::getInstance()->getInputConfigs())
++			{
++				if (inputConfig != nullptr &&
++					inputConfig->getDeviceIndex() == it->second.index &&
++					inputConfig->getDeviceName().find("retrogame") != std::string::npos)
++				{
++					builtInPad = true;
++					break;
++				}
++			}
++			if (builtInPad)
++				continue;
++
+ 			pad.index = it->second.index;
+ 			pad.batteryLevel = it->second.batteryLevel;
+ 			pad.isWheel = it->second.isWheel;

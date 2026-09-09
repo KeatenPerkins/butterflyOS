@@ -46,7 +46,12 @@ makeinstall_target() {
   cp cloud_sync.conf.defaults ${INSTALL}/usr/config/
   cp cloud_sync-rules.txt.defaults ${INSTALL}/usr/config/
   chmod 755 ${INSTALL}/usr/bin/rclone
-  mkdir -p ${INSTALL}/usr/config/modules
-  ln -sf /usr/bin/cloud_backup ${INSTALL}/usr/config/modules/cloud_backup.sh
-  ln -sf /usr/bin/cloud_restore ${INSTALL}/usr/config/modules/cloud_restore.sh
+  # The Flip V2 has no controller-friendly rclone setup flow. Keep the backend
+  # available when another feature depends on it, but do not expose launchers
+  # that send ordinary users into an incomplete configuration workflow.
+  if [ "${IMAGE_SUBDEVICE}" != "Miyoo_Flip_V2" ]; then
+    mkdir -p ${INSTALL}/usr/config/modules
+    ln -sf /usr/bin/cloud_backup ${INSTALL}/usr/config/modules/cloud_backup.sh
+    ln -sf /usr/bin/cloud_restore ${INSTALL}/usr/config/modules/cloud_restore.sh
+  fi
 }

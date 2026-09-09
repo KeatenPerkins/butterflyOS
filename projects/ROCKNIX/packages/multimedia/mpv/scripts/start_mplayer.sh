@@ -25,6 +25,10 @@ else
   RES="${FBHEIGHT}x${FBWIDTH}"
 fi
 
-/usr/bin/mpv --fullscreen --geometry=${RES} --hwdec=auto-safe --input-gamepad=yes --input-ipc-server=/tmp/mpvsocket "${1}"
+# The Mali Wayland stack can accept gpu-next while producing an entirely black
+# surface.  wlshm is the reliable presentation path on the Flip V2; copy-safe
+# hardware decoding still lets supported codecs use the VPU before frames are
+# handed to the compositor.
+/usr/bin/mpv --vo=wlshm --fullscreen --geometry=${RES} --hwdec=auto-copy-safe --input-gamepad=yes --input-ipc-server=/tmp/mpvsocket "${1}"
 systemctl stop mpv
 exit 0

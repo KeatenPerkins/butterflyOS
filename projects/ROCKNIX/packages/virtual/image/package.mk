@@ -25,6 +25,10 @@ PKG_FONTS="corefonts"
 
 PKG_MULTIMEDIA="ffmpeg vlc mpv m8c"
 
+# M8C is a client for the specialist Dirtywave M8 music tracker, not a general
+# media player.  Keep the ButterflyOS Flip image focused and use MPV for media.
+[ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ] && PKG_MULTIMEDIA="ffmpeg vlc mpv"
+
 PKG_SOUND="espeak libao"
 
 PKG_SYNC="synctools"

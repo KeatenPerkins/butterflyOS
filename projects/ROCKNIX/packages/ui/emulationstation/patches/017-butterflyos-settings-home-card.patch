@@ -1,0 +1,57 @@
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+index 9e52506..217c944 100644
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -211,6 +211,18 @@ GuiMenu::GuiMenu(Window *window, bool animate) : GuiComponent(window), mMenu(win
+ 			ApiSystem::getInstance()->isScriptingSupported(ApiSystem::UPGRADE))
+ 			addEntry(_("UPDATES & DOWNLOADS"), true, [this] { openUpdatesSettings(); }, "iconUpdates");
+ 
++		// ButterflyOS presents Settings as a first-class home destination. The
++		// underlying tools system remains available here without occupying its
++		// own top-level card.
++		addEntry(_("TOOLS").c_str(), true, [this] {
++			SystemData* tools = SystemData::getSystem("tools");
++			if (tools != nullptr)
++			{
++				delete this;
++				ViewController::get()->goToGameList(tools);
++			}
++		}, "iconAdvanced");
++
+ 		addEntry(_("SYSTEM SETTINGS").c_str(), true, [this] { openSystemSettings(); }, "iconSystem");
+ 	}
+ 	else
+diff --git a/es-app/src/views/SystemView.cpp b/es-app/src/views/SystemView.cpp
+index 2cc2a32..b750c62 100644
+--- a/es-app/src/views/SystemView.cpp
++++ b/es-app/src/views/SystemView.cpp
+@@ -478,6 +478,15 @@ bool SystemView::input(InputConfig* config, Input input)
+ 
+ 		if (config->isMappedTo(BUTTON_OK, input))
+ 		{
++			// The tools system is represented by ButterflyOS's Settings card.
++			// Open the same native menu as Start; its Tools entry provides access
++			// to the scripts stored in the underlying system.
++			if (getSelected() != nullptr && getSelected()->getName() == "tools")
++			{
++				mWindow->pushGui(new GuiMenu(mWindow));
++				return true;
++			}
++
+ 			mCarousel.stopScrolling();
+ 			ViewController::get()->goToGameList(getSelected());
+ 			return true;
+diff --git a/es-core/src/components/HelpComponent.cpp b/es-core/src/components/HelpComponent.cpp
+index df9bbee..e99fba1 100644
+--- a/es-core/src/components/HelpComponent.cpp
++++ b/es-core/src/components/HelpComponent.cpp
+@@ -197,6 +197,9 @@ void HelpComponent::setOpacity(unsigned char opacity)
+ 
+ void HelpComponent::render(const Transform4x4f& parentTrans)
+ {
++	if (!Settings::getInstance()->getBool("ShowHelpPrompts"))
++		return;
++
+ 	if (mGrid)
+ 	{		
+ 		// Optimize Help rendering by splitting texts & images rendering ( TextComponents use the same shaders programs ) // mGrid->render(trans);

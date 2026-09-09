@@ -86,7 +86,7 @@
  			{
  				if (ApiSystem::getInstance()->enableWifi(newSSID, newKey, newCountry))
  					window->pushGui(new GuiMsgBox(window, _("WI-FI CONNECTED SUCCESSFULLY.")));
-@@ -5560,7 +5595,8 @@ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+@@ -5560,6 +5595,7 @@ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
  			}
  #else
 -			if (baseSSID != newSSID || baseKEY != newKey || !baseWifiEnabled)

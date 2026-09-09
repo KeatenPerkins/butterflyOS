@@ -8,7 +8,7 @@
         <publisher>ButterflyOS</publisher>
         <rating>5.0</rating>
         <releasedate>2026</releasedate>
-        <genre>System</genre>
+        <genre>Recovery</genre>
         <players>1</players>
         <image>./images/butterflyos-boot.png</image>
     </game>
@@ -20,7 +20,7 @@
         <publisher>ButterflyOS</publisher>
         <rating>5.0</rating>
         <releasedate>2026</releasedate>
-        <genre>System</genre>
+        <genre>Recovery</genre>
         <players>1</players>
         <image>./images/butterflyos-boot.png</image>
     </game>
@@ -32,7 +32,7 @@
         <publisher>ButterflyOS</publisher>
         <rating>5.0</rating>
         <releasedate>2026</releasedate>
-        <genre>System</genre>
+        <genre>Recovery</genre>
         <players>1</players>
         <image>./images/butterflyos-boot.png</image>
     </game>
@@ -128,7 +128,7 @@
         <publisher>Portmaster</publisher>
         <rating>5.0</rating>
         <releasedate>2022</releasedate>         
-        <genre>Tool</genre>
+        <genre>Advanced</genre>
         <players>1</players>
         <image>./images/portmaster.svg</image>
     </game>
@@ -164,7 +164,7 @@
         <publisher>ROCKNIX</publisher>
         <rating>5.0</rating>
         <releasedate>2021</releasedate>
-        <genre>Script</genre>
+        <genre>Advanced</genre>
         <players>1</players>
         <image>./images/remove-mac-files.svg</image>
     </game>
@@ -430,7 +430,7 @@ it's recommended to have a mouse and keyboard to modify settings.</desc>
         <publisher>ROCKNIX</publisher>
         <rating>5.0</rating>
         <releasedate>2021</releasedate>
-        <genre>Emulator</genre>
+        <genre>Advanced</genre>
         <players>1</players>
         <image>./images/retroarch-64.svg</image>
     </game>
@@ -526,7 +526,7 @@ it's recommended to have a mouse and keyboard to modify settings.</desc>
         <publisher>ROCKNIX</publisher>
         <rating>5.0</rating>
         <releasedate>2024</releasedate>
-        <genre>tool</genre>
+        <genre>Advanced</genre>
         <players>1</players>
         <image>./images/test-gamepad.svg</image>
     </game>
@@ -562,7 +562,7 @@ it's recommended to have a mouse and keyboard to modify settings.</desc>
         <publisher>ROCKNIX</publisher>
         <rating>5.0</rating>
         <releasedate>2026</releasedate>
-        <genre>Tool</genre>
+        <genre>Advanced</genre>
         <players>1</players>
         <image>./images/calibrate-gamepad.svg</image>
     </game>
@@ -574,7 +574,7 @@ it's recommended to have a mouse and keyboard to modify settings.</desc>
         <publisher>ROCKNIX</publisher>
         <rating>5.0</rating>
         <releasedate>2024</releasedate>
-        <genre>tool</genre>
+        <genre>Advanced</genre>
         <players>1</players>
         <image>./images/nfs.svg</image>
      </game>

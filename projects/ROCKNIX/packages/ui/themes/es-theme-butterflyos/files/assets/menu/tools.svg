@@ -1,5 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="528" height="84" viewBox="0 0 528 84">
-  <defs><linearGradient id="label" x1="92" y1="0" x2="300" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#159dff"/><stop offset=".34" stop-color="#7c4dff"/><stop offset=".68" stop-color="#ef476f"/><stop offset="1" stop-color="#ffd166"/></linearGradient></defs>
-  <path fill="#fff" fill-rule="evenodd" d="m39 5 5-5 9 3 1 8 7 4 8-3 6 8-5 7 2 8 7 5-3 9-8 1-4 7 3 8-8 6-7-5-8 2-5 7-9-3-1-8-7-4-8 3-6-8 5-7-2-8-7-5 3-9 8-1 4-7-3-8 8-6 7 5 8-2Zm4 17a16 16 0 1 0 0 32 16 16 0 0 0 0-32Zm0 7a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/>
-  <text x="92" y="57" fill="url(#label)" font-family="Liberation Sans, sans-serif" font-size="39" font-weight="700">Tools</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="240" viewBox="0 0 160 240" shape-rendering="crispEdges">
+  <defs><linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#10d9ff"/><stop offset=".52" stop-color="#7c4dff"/><stop offset="1" stop-color="#ff3fa4"/></linearGradient></defs>
+  <rect x="4" y="4" width="152" height="232" rx="12" fill="#090d20" stroke="url(#edge)" stroke-width="4"/>
+  <path d="M12 170h136M18 160h124M26 150h108M38 140h84" stroke="#ff3fa4" stroke-opacity=".27" stroke-width="2"/>
+  <path fill="#7c4dff" d="m80 44 11 7 13-2 7 12 13 5v14l8 11-8 11v14l-13 5-7 12-13-2-11 7-11-7-13 2-7-12-13-5v-14l-8-11 8-11V66l13-5 7-12 13 2Z"/>
+  <circle cx="80" cy="91" r="29" fill="#000000"/>
+  <image href="butterflyos-emblem.png" x="56" y="67" width="48" height="48" preserveAspectRatio="xMidYMid meet"/>
+  <rect x="14" y="181" width="132" height="43" rx="7" fill="#121a36" stroke="#304565" stroke-width="2"/>
+  <text x="80" y="209" text-anchor="middle" fill="#fff" font-family="Liberation Sans, sans-serif" font-size="20" font-weight="700">Settings</text>
 </svg>

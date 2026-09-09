@@ -7,7 +7,7 @@ index 9e52506..cb10fa4 100644
  	{
  		if (ApiSystem::getInstance()->getApplicationName() == "ROCKNIX")
 -			label = "ROCKNIX " + ApiSystem::getInstance()->getVersion() + " (" + ApiSystem::getInstance()->getVersion(true) + ")";
-+			label = "ButterflyOS " + ApiSystem::getInstance()->getVersion() + " (based on ROCKNIX)";
++			label = "ButterflyOS " + ApiSystem::getInstance()->getVersion();
  		else
  		{
  			std::string aboutInfo = ApiSystem::getInstance()->getApplicationName() + " V" + ApiSystem::getInstance()->getVersion();

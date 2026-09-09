@@ -1,0 +1,68 @@
+diff --git a/es-core/src/AudioManager.cpp b/es-core/src/AudioManager.cpp
+index 6ce320e..ddce78d 100644
+--- a/es-core/src/AudioManager.cpp
++++ b/es-core/src/AudioManager.cpp
+@@ -75,7 +75,8 @@ void AudioManager::init()
+ 	}
+ 
+ 	// Open the audio device and pause
+-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
++	// PipeWire and the RK817 path run natively at 48 kHz.
++	if (Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
+ 	{
+ 		mMusicVolume = 0;
+ 		LOG(LogError) << "MUSIC Error - Unable to open SDLMixer audio: " << SDL_GetError() << std::endl;
+@@ -92,6 +93,9 @@ void AudioManager::init()
+ 		mMusicVolume = getMaxMusicVolume();
+ 		Mix_VolumeMusic(mMusicVolume);
+ 	}
++
++	// Do not keep PipeWire, the codec and audio DMA active for silence.
++	Mix_PauseAudio(1);
+ }
+ 
+ 
+@@ -409,6 +413,7 @@ void AudioManager::playMusic(const std::string& path)
+ 	if (!Settings::BackgroundMusic())
+ 		return;
+ 
++	Mix_PauseAudio(0);
+ 	// load a new music
+ 	mCurrentMusic = Mix_LoadMUS(path.c_str());
+ 	if (mCurrentMusic == NULL)
+@@ -710,9 +715,22 @@ int AudioManager::getMaxMusicVolume()
+ 
+ void AudioManager::update(int deltaTime)
+ {
+-	if (sInstance == nullptr || !sInstance->mInitialized || !Settings::BackgroundMusic())
++	if (sInstance == nullptr || !sInstance->mInitialized)
+ 		return;
+ 
++	// SDL_mixer otherwise submits silence forever. Pause the device once all
++	// short UI sounds and music have ended, then wake it at the next play.
++	static bool audioPaused = true;
++	const bool audioActive = Mix_PlayingMusic() || Mix_Playing(-1) > 0;
++	if (audioActive == audioPaused)
++	{
++		Mix_PauseAudio(audioActive ? 0 : 1);
++		audioPaused = !audioActive;
++	}
++
++	if (!Settings::BackgroundMusic())
++		return;
++
+ 	float deltaVol = deltaTime / 8.0f;
+ 
+ //	#define MINVOL 5
+diff --git a/es-core/src/Sound.cpp b/es-core/src/Sound.cpp
+index e5409cc..31c79c7 100644
+--- a/es-core/src/Sound.cpp
++++ b/es-core/src/Sound.cpp
+@@ -96,6 +96,7 @@ void Sound::play()
+ 	if (!Settings::getInstance()->getBool("EnableSounds"))
+ 		return;
+ 
++	Mix_PauseAudio(0);
+ 	mPlayingChannel = Mix_PlayChannel(-1, mSampleData, 0);
+ }
+ 

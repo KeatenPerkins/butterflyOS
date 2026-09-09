@@ -1,0 +1,70 @@
+--- a/es-core/src/guis/GuiInfoPopup.cpp
++++ b/es-core/src/guis/GuiInfoPopup.cpp
+@@ -16,11 +16,11 @@ GuiInfoPopup::GuiInfoPopup(Window* window, std::string message, int duration) :
+ 
+ 	mFrame = new NinePatchComponent(window);
+ 	float maxWidth = Renderer::getScreenWidth() * 0.9f;
+-	float maxHeight = Renderer::getScreenHeight() * 0.2f;
++	float maxHeight = Renderer::getScreenHeight() * 0.28f;
+ 
+ 	std::shared_ptr<TextComponent> s = std::make_shared<TextComponent>(mWindow,
+ 		"",
+-		Font::get(FONT_SIZE_MINI),
++		Font::get((int)(FONT_SIZE_MINI * 1.55f)),
+ 		theme->Text.color,
+ 		ALIGN_CENTER);
+ 
+@@ -40,19 +40,20 @@ GuiInfoPopup::GuiInfoPopup(Window* window, std::string message, int duration) :
+ 	}
+ 
+ 	// add a padding to the box
+-	int paddingX = (int) (Renderer::getScreenWidth() * 0.03f);
+-	int paddingY = (int) (Renderer::getScreenHeight() * 0.02f);
++	int paddingX = (int) (Renderer::getScreenWidth() * 0.06f);
++	int paddingY = (int) (Renderer::getScreenHeight() * 0.035f);
+ 	mSize[0] = mSize.x() + paddingX;
+ 	mSize[1] = mSize.y() + paddingY;
+ 
+ 	float posX = Renderer::getScreenWidth()*0.5f - mSize.x()*0.5f;
+-	float posY = Renderer::getScreenHeight() * 0.02f;
++	float posY = Renderer::getScreenHeight() * 0.96f - mSize.y();
+ 
+ 	setPosition(posX, posY, 0);
+ 
+ 	mFrame->setImagePath(theme->Background.path);
+-	mFrame->setEdgeColor(theme->Background.color);
+-	mFrame->setCenterColor(theme->Background.centerColor);
++	// Match ButterflyOS confirmation dialogs while remaining opaque over games.
++	mFrame->setEdgeColor(theme->Background.color);
++	mFrame->setCenterColor(theme->Background.centerColor);
+ 	mFrame->setCornerSize(theme->Background.cornerSize);
+ 	mFrame->setPostProcessShader(theme->Background.menuShader, false);
+ 	mFrame->fitTo(mSize, Vector3f::Zero(), Vector2f(-32, -32));
+--- a/es-core/src/Window.cpp
++++ b/es-core/src/Window.cpp
+@@ -378,8 +378,8 @@ void Window::updateNotificationPopups(int deltaTime)
+ 
+ void Window::layoutNotificationPopups()
+ {
+-	float posY = Renderer::getScreenHeight() * 0.02f;
+-	int paddingY = (int)posY;
++	float posY = Renderer::getScreenHeight() * 0.96f;
++	int paddingY = (int)(Renderer::getScreenHeight() * 0.02f);
+ 
+ 	for (auto popup : mNotificationPopups)
+ 	{
+@@ -390,10 +390,11 @@ void Window::layoutNotificationPopups()
+ 			fadingOut = fadingOut - 1;
+ 			fadingOut = Math::lerp(0, 1, fadingOut*fadingOut*fadingOut + 1);
+ 
+-			posY -= (popup->getSize().y() + paddingY) * fadingOut;
++			posY += (popup->getSize().y() + paddingY) * fadingOut;
+ 		}
+ 
+-		popup->setPosition(popup->getPosition().x(), posY, 0);
+-		posY += popup->getSize().y() + paddingY;
++		posY -= popup->getSize().y();
++		popup->setPosition(popup->getPosition().x(), posY, 0);
++		posY -= paddingY;
+ 	}
+ }

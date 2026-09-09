@@ -1,0 +1,24 @@
+diff --git a/es-app/src/SystemData.cpp b/es-app/src/SystemData.cpp
+index 4b39cb0..3ad1148 100644
+--- a/es-app/src/SystemData.cpp
++++ b/es-app/src/SystemData.cpp
+@@ -381,6 +381,7 @@ void SystemData::populateFolder(FolderData* folder, std::unordered_map<std::stri
+ 
+ 				// List files in folder, just to get OS build filesystem cache 
+-				if (fn == "manuals" || fn == "images" || fn == "videos" || Utils::String::startsWith(fn, "downloaded_"))
++				if (fn == "manuals" || fn == "images" || (fn == "videos" && mMetadata.name != "mplayer") ||
++					Utils::String::startsWith(fn, "downloaded_"))
+ 				{
+ 					Utils::FileSystem::getDirectoryFiles(filePath);
+ 					continue;
+@@ -390,7 +391,9 @@ void SystemData::populateFolder(FolderData* folder, std::unordered_map<std::stri
+ 			static std::set<std::string> excludedFolders = { "media", "medias", "images", "manuals", "videos", "assets", "html_arrm", "bezels", "fonts", "logs", "screenshots" };
+ 
+ 			// Don't loose time looking in downloaded_images, downloaded_videos & media folders
+-			if (fn[0] == '.' || excludedFolders.find(fn) != excludedFolders.cend() || Utils::String::startsWith(fn, "downloaded_"))
++			bool excludedFolder = excludedFolders.find(fn) != excludedFolders.cend();
++			if (mMetadata.name == "mplayer" && fn == "videos") excludedFolder = false;
++			if (fn[0] == '.' || excludedFolder || Utils::String::startsWith(fn, "downloaded_"))
+ 				continue;
+ 			
+ 			// Hardcoded optimisation : WiiU has so many files in content & meta directories

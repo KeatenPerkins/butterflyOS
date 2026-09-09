@@ -199,7 +199,8 @@
   GET_HANDLER_SUPPORT="${GET_HANDLER_SUPPORT:-archive git file}"
 
 # Partition labels for USB/SD installation media
-  DISTRO_BOOTLABEL="ROCKNIX"
+  # FAT volume labels are limited to 11 characters. BUTTERFLYOS fits exactly.
+  DISTRO_BOOTLABEL="BUTTERFLYOS"
   DISTRO_DISKLABEL="STORAGE"
 
 # Settings package name - blank if not required

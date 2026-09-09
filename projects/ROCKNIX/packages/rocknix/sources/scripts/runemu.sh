@@ -262,6 +262,15 @@ case ${EMULATOR} in
     ${VERBOSE} && log $0 "Execute setsettings (${PLATFORM} ${ROMNAME} ${CORE} --controllers=${CONTROLLERCONFIG} --autosave=${AUTOSAVE} --snapshot=${SNAPSHOT})"
     (/usr/bin/setsettings.sh "${PLATFORM}" "${ROMNAME}" "${CORE}" --controllers="${CONTROLLERCONFIG}" --autosave="${AUTOSAVE}" --snapshot="${SNAPSHOT}" >${SET_SETTINGS_TMP})
 
+    # A configured Bluetooth Guide/Menu key may arrive as a raw evdev key
+    # rather than a joystick button. The ButterflyOS bridge forwards it to
+    # RetroArch's local command socket without changing normal game controls.
+    if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null; then
+      export BUTTERFLYOS_LOCAL_NETCMD=1
+      echo 'network_cmd_enable = "true"' >> "${RETROARCH_APPEND_CONFIG}"
+      echo 'network_cmd_port = "55355"' >> "${RETROARCH_APPEND_CONFIG}"
+    fi
+
     ### Enable RetroArch Network Control for this session on dual-screen devices
     ### so the bottom-screen UI can forward save-state / load-state / resume commands.
     if [ "${DEVICE_HAS_DUAL_SCREEN}" = "true" ]; then

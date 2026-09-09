@@ -6,7 +6,7 @@ PKG_VERSION="1.0"
 PKG_LICENSE="custom"
 PKG_SITE=""
 PKG_URL=""
-PKG_DEPENDS_TARGET="toolchain rclone commander"
+PKG_DEPENDS_TARGET="toolchain"
 PKG_LONGDESC="OS Modules Package"
 PKG_TOOLCHAIN="manual"
 
@@ -18,6 +18,8 @@ esac
 
 if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
   PKG_DEPENDS_TARGET+=" butterflyos-flip-onboarding"
+else
+  PKG_DEPENDS_TARGET+=" rclone commander"
 fi
 
 makeinstall_target() {
@@ -44,5 +46,23 @@ post_makeinstall_target() {
       -d '/gameList/game[path="./Enable ButterflyOS SD Boot.sh"]' \
       -d '/gameList/game[path="./Restore Stock Miyoo Boot.sh"]' \
       "${INSTALL}/usr/config/modules/gamelist.xml"
+  else
+    # Hide generic ROCKNIX utilities that do not apply to the non-touchscreen,
+    # low-power Flip V2. Their heavy runtime packages are excluded separately.
+    for module in \
+      "Start M8C.sh" "Test Touchscreen.sh" "GPcal.sh" \
+      "commander.sh" "cloud_backup.sh" "cloud_restore.sh" \
+      "Start 32bit Retroarch.sh" \
+      "Install ROCKNIX.sh" "Start AetherSX2.sh" "Start Azahar.sh" \
+      "Start CEMU.sh" "Start Dolphin.sh" "Start RPCS3.sh" \
+      "Start Vita3K.sh" "Start Xemu.sh" \
+      "Install Steam.sh" "Uninstall Steam.sh" \
+      "Install Heroic Games Launcher.sh" "Uninstall Heroic Games Launcher.sh" \
+      "Scan Heroic Games.sh"; do
+      rm -f "${INSTALL}/usr/config/modules/${module}"
+      xmlstarlet ed --inplace \
+        -d "/gameList/game[path='./${module}']" \
+        "${INSTALL}/usr/config/modules/gamelist.xml"
+    done
   fi
 }

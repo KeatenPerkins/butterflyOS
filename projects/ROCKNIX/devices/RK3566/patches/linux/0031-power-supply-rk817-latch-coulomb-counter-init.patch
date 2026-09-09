@@ -1,0 +1,124 @@
+From: Keaten Perkins <keaten.perkins@gmail.com>
+Subject: [PATCH] power: supply: rk817: latch coulomb counter initialization
+
+The RK817 does not transfer Q_INIT into the live Q_PRES counter when
+Q_INIT is written while the gas gauge is already enabled. This can leave
+Q_PRES near unsigned wraparound; the driver then interprets it as negative
+and reports zero capacity indefinitely.
+
+The hardware was verified on the Miyoo Flip V2 to latch Q_INIT when GG_EN
+is cleared for the write and restored immediately afterwards. If an old
+counter is already invalid, recover the initial estimate from battery
+voltage. Charging remains enabled throughout.
+
+--- a/drivers/power/supply/rk817_charger.c
++++ b/drivers/power/supply/rk817_charger.c
+@@ -237,10 +237,34 @@
+ 	return 0;
+ }
+ 
++static int rk817_set_charge_counter(struct rk817_charger *charger,
++				    int charge_mah)
++{
++	struct rk808 *rk808 = charger->rk808;
++	u8 bulk_reg[4];
++	int charge_adc, ret, enable_ret;
++
++	charge_adc = CHARGE_TO_ADC(charge_mah, charger->res_div);
++	put_unaligned_be32(charge_adc, bulk_reg);
++
++	ret = regmap_write_bits(rk808->regmap,
++				RK817_GAS_GAUGE_ADC_CONFIG0, RK817_GG_EN, 0);
++	if (ret < 0)
++		return ret;
++
++	ret = regmap_bulk_write(rk808->regmap, RK817_GAS_GAUGE_Q_INIT_H3,
++				bulk_reg, 4);
++	enable_ret = regmap_write_bits(rk808->regmap,
++				RK817_GAS_GAUGE_ADC_CONFIG0,
++				RK817_GG_EN, RK817_GG_EN);
++
++	return ret < 0 ? ret : enable_ret;
++}
++
+ static int rk817_bat_calib_cap(struct rk817_charger *charger)
+ {
+ 	struct rk808 *rk808 = charger->rk808;
+-	int charge_now, charge_now_adc;
++	int charge_now, charge_now_adc, ret;
+ 	u8 bulk_reg[4];
+ 
+ 	/* Don't do anything if there's no battery. */
+@@ -281,11 +305,9 @@
+ 		 */
+ 
+ 		charger->soc = 100000;
+-		charge_now_adc = CHARGE_TO_ADC(charger->fcc_mah,
+-					       charger->res_div);
+-		put_unaligned_be32(charge_now_adc, bulk_reg);
+-		regmap_bulk_write(rk808->regmap, RK817_GAS_GAUGE_Q_INIT_H3,
+-				  bulk_reg, 4);
++		ret = rk817_set_charge_counter(charger, charger->fcc_mah);
++		if (ret < 0)
++			return ret;
+ 
+ 		charger->soc_cal = 1;
+ 		dev_dbg(charger->dev,
+@@ -318,12 +340,9 @@
+ 			 * enough precision until the last step to keep from
+ 			 * making needless updates to columb counter.
+ 			 */
+-			charge_now_adc = CHARGE_TO_ADC(charger->fcc_mah,
+-					 charger->res_div);
+-			put_unaligned_be32(charge_now_adc, bulk_reg);
+-			regmap_bulk_write(rk808->regmap,
+-					  RK817_GAS_GAUGE_Q_INIT_H3,
+-					  bulk_reg, 4);
++			ret = rk817_set_charge_counter(charger, charger->fcc_mah);
++			if (ret < 0)
++				return ret;
+ 		}
+ 	}
+ 
+@@ -754,7 +773,7 @@
+ 	u8 bulk_reg[4];
+ 	u32 boot_voltage, boot_charge_mah;
+ 	int ret, reg, off_time, tmp;
+-	bool first_boot;
++	bool first_boot, counter_invalid = false;
+ 
+ 	/*
+ 	 * Check if the battery is uninitalized. If it is, the columb counter
+@@ -806,8 +825,10 @@
+ 		regmap_bulk_read(rk808->regmap, RK817_GAS_GAUGE_Q_PRES_H3,
+ 				 bulk_reg, 4);
+ 		tmp = get_unaligned_be32(bulk_reg);
+-		if (tmp < 0)
++		if (tmp < 0) {
++			counter_invalid = true;
+ 			tmp = 0;
++		}
+ 		boot_charge_mah = ADC_TO_CHARGE_UAH(tmp,
+ 						    charger->res_div) / 1000;
+ 		/*
+@@ -822,7 +843,7 @@
+ 		 * than 0 on a reboot anyway.
+ 		 */
+ 		regmap_read(rk808->regmap, RK817_GAS_GAUGE_OFF_CNT, &off_time);
+-		if (off_time >= 3) {
++		if (off_time >= 3 || counter_invalid) {
+ 			regmap_bulk_read(rk808->regmap,
+ 					 RK817_GAS_GAUGE_PWRON_VOL_H,
+ 					 bulk_reg, 2);
+@@ -846,10 +867,7 @@
+ 	boot_charge_mah = charger->soc * charger->fcc_mah / 100 / 1000;
+ 	if (boot_charge_mah > charger->fcc_mah)
+ 		boot_charge_mah = charger->fcc_mah;
+-	tmp = CHARGE_TO_ADC(boot_charge_mah, charger->res_div);
+-	put_unaligned_be32(tmp, bulk_reg);
+-	ret = regmap_bulk_write(rk808->regmap, RK817_GAS_GAUGE_Q_INIT_H3,
+-			  bulk_reg, 4);
++	ret = rk817_set_charge_counter(charger, boot_charge_mah);
+ 	if (ret < 0)
+ 		return ret;
+ 
