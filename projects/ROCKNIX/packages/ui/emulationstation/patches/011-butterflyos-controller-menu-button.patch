@@ -28,7 +28,7 @@
 +#include <future>
  
  #define gettext_controllers_settings				_("CONTROLLER SETTINGS")
-@@ -187,6 +191,95 @@
+@@ -187,6 +191,94 @@
  		// FORGET BLUETOOTH CONTROLLERS OR BT AUDIO DEVICES
  		addEntry(_("SAVED & CONNECTED DEVICES"), false, [window] { window->pushGui(new GuiBluetoothDevices(window)); });
  
@@ -42,7 +42,7 @@
 +			addEntry(_("SET CONTROLLER MENU BUTTON"), false, [window]
 +			{
 +				window->pushGui(new GuiLoading<bool>(window,
-+					_("SET MENU BUTTON\rPRESS THE SAME BUTTON\rTHREE TIMES\rPROGRESS\r0 / 3\r8 SECONDS LEFT"),
++					_("SET MENU BUTTON\rPRESS THE SAME BUTTON\rTHREE TIMES\rPRESSES: 0 / 3\rTIME: 8 SEC"),
 +					[](auto gui)
 +					{
 +						auto task = std::async(std::launch::async, []
@@ -62,9 +62,8 @@
 +							gui->setText(std::string(_("SET MENU BUTTON")) +
 +								"\r" + _("PRESS THE SAME BUTTON") +
 +								"\r" + _("THREE TIMES") +
-+								"\r" + _("PROGRESS") +
-+								"\r" + std::to_string(presses) + " / 3" +
-+								"\r" + std::to_string(remaining) + " " + _("SECONDS LEFT"));
++								"\r" + _("PRESSES:") + " " + std::to_string(presses) + " / 3" +
++								"\r" + _("TIME:") + " " + std::to_string(remaining) + " " + _("SEC"));
 +						}
 +						return task.get();
 +					},
@@ -79,7 +78,7 @@
 +			addEntry(_("TEST CONTROLLER MENU BUTTON"), false, [window]
 +			{
 +				window->pushGui(new GuiLoading<bool>(window,
-+					_("TEST MENU BUTTON\rPRESS SAVED BUTTON\r15 SECONDS LEFT"),
++					_("TEST MENU BUTTON\rPRESS SAVED BUTTON\rTIME: 8 SEC"),
 +					[](auto gui)
 +					{
 +						auto task = std::async(std::launch::async, []
@@ -92,10 +91,10 @@
 +						{
 +							int elapsed = std::chrono::duration_cast<std::chrono::seconds>(
 +								std::chrono::steady_clock::now() - started).count();
-+							int remaining = std::max(0, 15 - elapsed);
++							int remaining = std::max(0, 8 - elapsed);
 +							gui->setText(std::string(_("TEST MENU BUTTON")) +
 +								"\r" + _("PRESS SAVED BUTTON") +
-+								"\r" + std::to_string(remaining) + " " + _("SECONDS LEFT"));
++								"\r" + _("TIME:") + " " + std::to_string(remaining) + " " + _("SEC"));
 +						}
 +						return task.get();
 +					},
@@ -124,7 +123,7 @@
  #if defined(BATOCERA) || defined(ROCKNIX)
  		}
  #endif
-@@ -840,6 +930,30 @@
+@@ -840,6 +929,30 @@
  	mLoadedInput.clear();
  }
  

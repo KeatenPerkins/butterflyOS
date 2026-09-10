@@ -109,4 +109,10 @@ else
 fi
 
 echo "Command: yabasanshiro -r 2 -i "${1}" ${BIOS}" >>/var/log/exec.log 2>&1
-${EMUPERF} yabasanshiro -r 2 -i "${1}" ${BIOS} >>/var/log/exec.log 2>&1 ||:
+${EMUPERF} yabasanshiro -r 2 -i "${1}" ${BIOS} >>/var/log/exec.log 2>&1 &
+emulator_pid=$!
+printf '%s\n' "${emulator_pid}" > /tmp/butterflyos-standalone-hotkeys
+trap 'rm -f /tmp/butterflyos-standalone-hotkeys; kill "${emulator_pid}" 2>/dev/null' EXIT INT TERM
+wait "${emulator_pid}" ||:
+rm -f /tmp/butterflyos-standalone-hotkeys
+trap - EXIT INT TERM

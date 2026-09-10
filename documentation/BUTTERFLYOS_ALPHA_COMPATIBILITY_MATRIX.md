@@ -25,7 +25,7 @@ controls, Menu, save/load state, exit, sleep/wake, and ten minutes of play.
 | A | Saturn | SS/NiGHTS into Dreams... (USA, Brazil).chd | SS/Panzer Dragoon II Zwei (USA).chd | Required/recommended | YabaSanshiro | Untested |
 | A | PSP | PSP/Final Fantasy IV - The Complete Collection (USA) (En,Ja,Fr).iso | PSP/God of War - Chains of Olympis.cso | None | PPSSPP | Untested |
 | A | Neo Geo | NEOGEO/mslug.zip | NEOGEO/garou.zip | neogeo.zip set dependency | FBNeo | Untested |
-| A | Arcade/FBNeo | FBNEO/tetris.zip | ARCADE/aliencha.zip | Set-dependent | FBNeo | Untested |
+| A | Arcade/FBNeo | FBNEO/tetris.zip | FBNEO/aliencha.zip | Set-dependent | FBNeo | Partial: Tetris passed; Alien Challenge must be placed in FBNEO or assigned an FBNeo per-game override |
 | B | Atari 7800 | ATARI7800/Food Fight (1987) (Atari).zip | ATARI7800/Ballblazer (1987) (Atari-Lucasfilm).zip | None | ProSystem | Untested |
 | B | Atari Lynx | LYNX/Chip's Challenge (USA, Europe).zip | LYNX/Raiden (USA) (v3.0).zip | Core-dependent | Handy | Untested |
 | B | Neo Geo Pocket Color | NGP/Sonic the Hedgehog - Pocket Adventure (World).ngc | NGP/Metal Slug - 2nd Mission (World) (En,Ja).ngc | None | Beetle NGP | Untested |

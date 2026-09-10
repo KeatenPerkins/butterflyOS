@@ -3,6 +3,24 @@
 CONFIG_DIR="/storage/.config/butterflyos/menu-buttons"
 PROGRESS_FILE="/tmp/butterflyos-menu-hotkey-progress"
 EXTERNAL_SESSION_MARKER="/tmp/butterflyos-external-hotkeys"
+STANDALONE_SESSION_MARKER="/tmp/butterflyos-standalone-hotkeys"
+
+command_action() {
+  local action="$1" pid
+  # Standalone launchers take precedence in case a stale RetroArch session
+  # marker remains after changing emulators.
+  if [ "${action}" = "QUIT" ] && [ -r "${STANDALONE_SESSION_MARKER}" ]; then
+    read -r pid <"${STANDALONE_SESSION_MARKER}"
+    case "${pid}" in
+      ''|*[!0-9]*) return 1 ;;
+    esac
+    kill -TERM "${pid}" 2>/dev/null
+    return
+  fi
+  if [ -e "${EXTERNAL_SESSION_MARKER}" ]; then
+    /usr/bin/retroarch --command "${action}" >/dev/null 2>&1
+  fi
+}
 
 event_name() {
   cat "/sys/class/input/${1##*/}/device/name" 2>/dev/null
@@ -103,7 +121,7 @@ test_mapping() {
   code=$(sed -n 's/^KEY_CODE=//p' "${config}")
   [ -n "${code}" ] || return 2
   printf '0\n' >"${PROGRESS_FILE}"
-  timeout 15 evtest "${event}" 2>/dev/null | awk -v wanted="${code}" -v progress="${PROGRESS_FILE}" '
+  timeout 8 evtest "${event}" 2>/dev/null | awk -v wanted="${code}" -v progress="${PROGRESS_FILE}" '
     /type 1 \(EV_KEY\).*value 1/ {
       if (match($0, /code [0-9]+/)) {
         current = substr($0, RSTART + 5, RLENGTH - 5)
@@ -142,7 +160,7 @@ watch_mapping() {
       # Use the supported RetroArch command client. This still talks only to the
       # localhost-bound ButterflyOS command socket, but avoids BusyBox nc
       # packet/timeout differences that made chords unreliable.
-      system("test -e \"" marker "\" && /usr/bin/retroarch --command \"" name "\" >/dev/null 2>&1")
+      system("/usr/bin/butterflyos-menu-hotkey command \"" name "\" >/dev/null 2>&1")
     }
     function chord(name) { command(name); used = 1 }
     /type 1 \(EV_KEY\)/ {
@@ -195,7 +213,7 @@ watch_builtin_mapping() {
   # it immediately regains the same M shortcuts if Bluetooth disappears.
   evtest "${event}" 2>/dev/null | awk -v marker="${EXTERNAL_SESSION_MARKER}" '
     function command(name) {
-      system("test -e \"" marker "\" && /usr/bin/retroarch --command \"" name "\" >/dev/null 2>&1")
+      system("/usr/bin/butterflyos-menu-hotkey command \"" name "\" >/dev/null 2>&1")
     }
     function chord(name) { command(name); used = 1 }
     /type 1 \(EV_KEY\)/ {
@@ -250,6 +268,7 @@ daemon() {
 }
 
 case "$1" in
+  command) command_action "$2" ;;
   capture) capture ;;
   test) test_mapping ;;
   reset) reset_mapping ;;

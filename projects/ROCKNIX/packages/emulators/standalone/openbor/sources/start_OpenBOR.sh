@@ -37,9 +37,16 @@ SAVES="${CONFIGDIR}/Saves"
 # We start the fake keyboard
   gptokeyb openbor &
 
-# Run OpenBOR in the config folder
+# Run OpenBOR in the config folder. The marker lets ButterflyOS apply its
+# normal Menu+Start-twice exit gesture to this standalone emulator.
   cd "${CONFIGDIR}"
-  OpenBOR
+  OpenBOR &
+  emulator_pid=$!
+  printf '%s\n' "${emulator_pid}" > /tmp/butterflyos-standalone-hotkeys
+  trap 'rm -f /tmp/butterflyos-standalone-hotkeys; kill "${emulator_pid}" 2>/dev/null' EXIT INT TERM
+  wait "${emulator_pid}"
+  rm -f /tmp/butterflyos-standalone-hotkeys
+  trap - EXIT INT TERM
 
 # We stop the fake keyboard
   killall gptokeyb &
