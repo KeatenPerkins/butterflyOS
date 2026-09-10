@@ -48,12 +48,21 @@ they are legally entitled to use.
 Alpha images are device-specific. Do not use the Miyoo Flip V2 image on a
 Miyoo Flip V1, Miyoo Mini, Miyoo Mini Plus, or another RK3566 handheld.
 
+ButterflyOS is an independent community project. It is not affiliated with or
+endorsed by Miyoo, ROCKNIX, Nintendo, Sega, Sony, or any other platform owner.
+
 ## Distribution status
 
 The Alpha 1 source baseline is tagged `v0.1.0-alpha.1`. Public binary
 distribution is pending confirmation that the bundled Miyoo Flip preloader
 utilities and reference images may legally be redistributed. See
 [Known Issues](documentation/KNOWN_ISSUES.md#distribution-licensing-gate).
+
+Release compliance status is tracked in
+[Third-Party Notices](THIRD_PARTY_NOTICES.md) and the
+[source and license compliance guide](documentation/SOURCE_AND_LICENSE_COMPLIANCE.md).
+The generated [Alpha 1 package manifest](documentation/ALPHA1_PACKAGE_LICENSE_MANIFEST.md)
+records all 554 target packages from the completed build.
 
 ## Licenses
 
