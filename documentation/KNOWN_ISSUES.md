@@ -7,9 +7,16 @@ games, saves, BIOS files, and any device-specific recovery data.
 
 The guided Flip V2 boot setup currently bundles low-level preloader utilities
 and reference images pinned from the maintained Miyoo Flip reference project.
-That project does not declare a top-level software license. Public distribution
-of the Alpha 1 binary image is on hold until explicit permission or a clearly
-compatible license is established, or those components are replaced.
+That project licenses its documentation and scripts under GPLv2, but identifies
+third-party components as separately licensed. That does not establish
+redistribution rights for the stock and patched vendor preloader binaries.
+Public distribution of the Alpha 1 binary image is therefore on hold until
+those binaries are replaced or their redistribution rights are established.
+
+Alpha 2 will replace both bundled preloader images with device-local patching:
+ButterflyOS will read, validate, back up, patch, and verify the preloader from
+the user's own device. This is intended to remove the binary redistribution
+question and provide exact device-specific restoration.
 
 ## Installation and recovery
 

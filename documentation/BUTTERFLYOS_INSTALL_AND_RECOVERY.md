@@ -122,8 +122,9 @@ an Alpha follow-up item.
 
 The low-level preloader utilities are pinned to revision
 `4f32de5bae58cad07c54b5fb8450fc00385f4260` of the maintained Miyoo Flip
-reference project and checksum-verified during the build. That repository does
-not currently declare a top-level software license. Permission or a clearly
-compatible license must be established before distributing those utility files
-and bundled preloader images in a public ButterflyOS release. Until then, the
-Alpha 1 binary is an internal testing artifact rather than a public download.
+reference project and checksum-verified during the build. That repository
+licenses its documentation and scripts under GPLv2, while third-party
+components retain their own licenses. This does not establish redistribution
+rights for the stock and patched vendor preloader binaries. Those binaries must
+be replaced or their rights established before distributing the Alpha 1 image.
+Until then, it is an internal testing artifact rather than a public download.

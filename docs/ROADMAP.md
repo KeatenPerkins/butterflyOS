@@ -37,6 +37,33 @@ settings, and shut down without encountering Linux or RetroArch terminology.
 
 ## Milestone 2: Guided setup and system management
 
+### Alpha 2 release gate: device-local preloader patching
+
+Replace the Alpha 1 bundled stock and patched preloader images with a workflow
+that derives everything from the preloader already installed on the user's own
+Miyoo Flip V2:
+
+- Read the device's original 2 MiB preloader without distributing a vendor
+  preloader image.
+- Recognize and validate supported preloader structures before modifying data.
+- Save an exact device-specific backup and SHA-256 manifest to the SD card
+  before any internal write.
+- Reread and verify the saved backup independently.
+- Apply only the documented SD-multiboot patch locally on the device.
+- Validate the generated image structurally and refuse unknown revisions.
+- Check model, SoC, flash geometry, bad blocks, and battery/external power.
+- Write, read back, and compare the patched preloader byte-for-byte.
+- Attempt automatic rollback if patched-image verification fails.
+- Make Restore Stock Miyoo Boot use only the verified backup from that same
+  device; never substitute a generic stock image silently.
+- Attribute and comply with the license of any adapted patching implementation.
+- Complete install, card/no-card boot, restore, and reinstall testing on both
+  the primary device and a second untouched Miyoo Flip V2.
+
+Acceptance: the public image contains no stock or prepatched vendor preloader
+binary, installation produces a verified personal recovery copy before any
+write, and restoration returns the exact original bytes.
+
 - Add a controller-friendly first-boot guide
 - Let users enable or hide supported game systems
 - Create the expected ROM folders automatically
