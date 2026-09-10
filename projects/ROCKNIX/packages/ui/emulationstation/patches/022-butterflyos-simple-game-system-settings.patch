@@ -8,7 +8,7 @@ index 95c875a..ab38c63 100644
  	
 -	s->addWithDescription(_("KEYBOARD LAYOUT"), kbHelpText, keyboard_layout);
 -	s->addWithDescription(_("KEYBOARD VARIANT"), kbHelpText, keyboard_variant);
-+	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1")
 +	{
 +		s->addWithDescription(_("KEYBOARD LAYOUT"), kbHelpText, keyboard_layout);
 +		s->addWithDescription(_("KEYBOARD VARIANT"), kbHelpText, keyboard_variant);
@@ -20,7 +20,7 @@ index 95c875a..ab38c63 100644
  		UImodeSelection->add(_(it->c_str()), *it, Settings::getInstance()->getString("UIMode") == *it);
  
 -	s->addWithDescription(_("USER INTERFACE MODE"), _("Lock down certain config menus for use with guest users/kids."), UImodeSelection);
-+	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1")
 +		s->addWithDescription(_("USER INTERFACE MODE"), _("Lock down certain config menus for use with guest users/kids."), UImodeSelection);
  	s->addSaveFunc([UImodeSelection, window]
 @@ -1758,1 +1762,1 @@ void GuiMenu::openSystemSettings()
@@ -30,7 +30,7 @@ index 95c875a..ab38c63 100644
  	// Game List Update
  	s->addEntry(_("UPDATE GAMELISTS"), false, [this, window] { updateGameLists(window); });
  
-+	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1")
 +	{
  	s->addEntry(_("MOONLIGHT GAME STREAMING"), false, [this, window] { GuiMoonlight::show(mWindow); });
 @@ -3833,4 +3840,5 @@ void GuiMenu::openGamesSettings()
@@ -43,13 +43,13 @@ index 95c875a..ab38c63 100644
  	{
  		auto videoModeOptionList = createVideoResolutionModeOptionList(mWindow, "global");
 -		s->addWithDescription(_("VIDEO MODE"), _("Sets the display's resolution. Does not affect the rendering resolution."), videoModeOptionList);
-+		if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++		if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1")
 +			s->addWithDescription(_("VIDEO MODE"), _("Sets the display's resolution. Does not affect the rendering resolution."), videoModeOptionList);
  		s->addSaveFunc([this, videoModeOptionList] { SystemConf::getInstance()->set("global.videomode", videoModeOptionList->getSelected()); });
 @@ -3919,3 +3928,5 @@ void GuiMenu::openGamesSettings()
  	}
  
-+	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1")
 +	{
  	// Shaders preset
 @@ -4137,5 +4148,7 @@ void GuiMenu::openGamesSettings()
@@ -59,13 +59,13 @@ index 95c875a..ab38c63 100644
  	
  	// Load global custom features
 -	addFeatures(CustomFeatures::GlobalFeatures, window, s, "global", "", "", "", _("DEFAULT GLOBAL SETTINGS"));
-+	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1")
 +		addFeatures(CustomFeatures::GlobalFeatures, window, s, "global", "", "", "", _("DEFAULT GLOBAL SETTINGS"));
 @@ -4150,4 +4163,6 @@ void GuiMenu::openGamesSettings()
  		s->addSaveFunc([autoControllers] { SystemConf::getInstance()->set("global.disableautocontrollers", autoControllers->getState() ? "" : "1"); });
  	}
  
-+	if (Settings::getInstance()->getBool("ButterflyAdvancedMode"))
++	if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1")
 +	{
  	s->addGroup(_("SYSTEM SETTINGS"));
 @@ -4177,5 +4192,6 @@ void GuiMenu::openGamesSettings()

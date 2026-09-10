@@ -28,7 +28,7 @@
 +#include <future>
  
  #define gettext_controllers_settings				_("CONTROLLER SETTINGS")
-@@ -187,6 +191,90 @@
+@@ -187,6 +191,92 @@
  		// FORGET BLUETOOTH CONTROLLERS OR BT AUDIO DEVICES
  		addEntry(_("SAVED & CONNECTED DEVICES"), false, [window] { window->pushGui(new GuiBluetoothDevices(window)); });
  
@@ -121,7 +121,7 @@
  #if defined(BATOCERA) || defined(ROCKNIX)
  		}
  #endif
-@@ -840,6 +925,30 @@
+@@ -840,6 +930,30 @@
  	mLoadedInput.clear();
  }
  
