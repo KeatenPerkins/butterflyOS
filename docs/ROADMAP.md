@@ -5,7 +5,7 @@ is performed on a Miyoo Flip V2 before a milestone is considered complete.
 
 ## Milestone 0: Bootable foundation
 
-Status: **bootable baseline complete; hardware validation in progress**
+Status: **Alpha 1 baseline complete; remaining hardware qualification tracked**
 
 - Reproducible Miyoo Flip V2 ROCKNIX build
 - Working SD-card boot path and display initialization
@@ -15,6 +15,10 @@ Status: **bootable baseline complete; hardware validation in progress**
 - Validate every built-in button, analog control, audio output, rumble, battery
   reporting, charging, Wi-Fi, Bluetooth, both card slots, lid behavior, suspend,
   resume, and shutdown after the replacement shell is installed
+
+Alpha 1 established the bootable and controller-tested baseline. Rumble,
+dedicated lid/suspend regression, controlled battery-runtime measurement, and
+qualification on a second untouched device remain open.
 
 ## Milestone 1: Console shell prototype
 

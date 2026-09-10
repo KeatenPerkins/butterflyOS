@@ -20,7 +20,7 @@ Choose Games, select a system, then select a game.
 ButterflyOS uses tested, preconfigured cores where available.
 
 LEAVE A GAME
-Hold Menu and press Start for a clean exit.
+Hold Menu and press Start twice for a clean exit.
 A clean exit creates an automatic resume point.
 
 POWER OFF

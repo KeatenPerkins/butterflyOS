@@ -53,6 +53,17 @@ limitations are documented in
 
 ## Image validation status
 
+Alpha 1 tested baseline:
+
+- Release: `v0.1.0-alpha.1`
+- Accepted: 2026-09-10
+- Git commit: `2fe9d6daa0fe4a0b58db5bbee3a3c75d08b85060`
+- Image: `ButterflyOS-v0.1.0-alpha.1-Miyoo-Flip-V2.img.gz`
+- Image SHA-256:
+  `56b1721c09a6ac22a8b24f43a6f3b4fb812d86c0bb4c0f48be4328fa13ff9c7a`
+- All build steps completed with zero failures; both filesystems passed
+  read-only checks after the image was written to the test card.
+
 First complete device-specific build:
 
 - Build date: 2026-08-28
@@ -85,9 +96,9 @@ Also verified after installing the replacement shell:
 - Music and compatible H.264 video playback
 - Web-based file transfer and SSH access
 
-Still requiring dedicated Alpha validation:
+Still requiring dedicated Alpha follow-up validation:
 
 - Lid-close, lid-open, suspend, and resume behavior
 - Rumble
-- Charging, low-battery warnings, and battery-runtime measurement
-- Fresh-image regression of every item in the Alpha 1 checklist
+- Controlled battery-runtime and low-battery-warning measurement
+- Onboarding and restoration qualification on a second untouched Flip V2

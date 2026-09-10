@@ -3,9 +3,21 @@
 <p align="center"><img src="artwork/branding/icons/butterflyos-emblem-transparent-1024.png" width="192" alt="ButterflyOS butterfly emblem"></p>
 
 ButterflyOS is a fast, friendly, controller-first operating system for the
-Miyoo Flip V2. It is currently in development and is not yet a stable public
-release. See the [vision](docs/VISION.md), [roadmap](docs/ROADMAP.md), and
-[Alpha 1 checklist](documentation/ALPHA1_RELEASE_CHECKLIST.md).
+Miyoo Flip V2. Version 0.1.0 Alpha 1 is the first hardware-tested baseline. It
+is intended for careful testers and is not yet a stable release.
+
+Start here:
+
+- [Quick Start](documentation/QUICK_START.md)
+- [Installation and recovery](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md)
+- [Controls and hotkeys](documentation/HOTKEYS.md)
+- [Alpha 1 features](documentation/FEATURES.md)
+- [Compatibility matrix](documentation/BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md)
+- [Known issues](documentation/KNOWN_ISSUES.md)
+- [Alpha 1 release notes](documentation/RELEASE_NOTES_v0.1.0-alpha.1.md)
+
+Project direction is documented in the [vision](docs/VISION.md) and
+[roadmap](docs/ROADMAP.md).
 
 ## Features
 
@@ -32,6 +44,16 @@ current safe target while hardware-decoding coverage is still being validated.
 Development currently targets only the Miyoo Flip V2. Images do not include
 commercial games or proprietary console BIOS files. Users must supply content
 they are legally entitled to use.
+
+Alpha images are device-specific. Do not use the Miyoo Flip V2 image on a
+Miyoo Flip V1, Miyoo Mini, Miyoo Mini Plus, or another RK3566 handheld.
+
+## Distribution status
+
+The Alpha 1 source baseline is tagged `v0.1.0-alpha.1`. Public binary
+distribution is pending confirmation that the bundled Miyoo Flip preloader
+utilities and reference images may legally be redistributed. See
+[Known Issues](documentation/KNOWN_ISSUES.md#distribution-licensing-gate).
 
 ## Licenses
 

@@ -114,8 +114,9 @@ tested on physical hardware:
 - A second software-only ButterflyOS installation succeeds.
 
 The complete round trip passed on the primary ButterflyOS Flip V2 test unit on
-2026-09-01. A clean-image test and a second untouched Flip V2 remain Alpha 1
-release-qualification gates.
+2026-09-01. The final Alpha 1 image was written, filesystem-checked, and booted
+successfully on 2026-09-10. Qualification on a second untouched Flip V2 remains
+an Alpha follow-up item.
 
 ## Third-party release note
 
@@ -124,4 +125,5 @@ The low-level preloader utilities are pinned to revision
 reference project and checksum-verified during the build. That repository does
 not currently declare a top-level software license. Permission or a clearly
 compatible license must be established before distributing those utility files
-and bundled preloader images in a public ButterflyOS release.
+and bundled preloader images in a public ButterflyOS release. Until then, the
+Alpha 1 binary is an internal testing artifact rather than a public download.
