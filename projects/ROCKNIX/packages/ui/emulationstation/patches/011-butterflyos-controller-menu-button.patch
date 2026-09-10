@@ -28,7 +28,7 @@
 +#include <future>
  
  #define gettext_controllers_settings				_("CONTROLLER SETTINGS")
-@@ -187,6 +191,94 @@
+@@ -187,6 +191,90 @@
  		// FORGET BLUETOOTH CONTROLLERS OR BT AUDIO DEVICES
  		addEntry(_("SAVED & CONNECTED DEVICES"), false, [window] { window->pushGui(new GuiBluetoothDevices(window)); });
  
@@ -42,7 +42,7 @@
 +			addEntry(_("SET CONTROLLER MENU BUTTON"), false, [window]
 +			{
 +				window->pushGui(new GuiLoading<bool>(window,
-+					_("SET MENU BUTTON\rPRESS THE SAME BUTTON\rTHREE TIMES\rPRESSES: 0 / 3\rTIME: 8 SEC"),
++					_("PRESS 0/3 TIMES - 8 SEC"),
 +					[](auto gui)
 +					{
 +						auto task = std::async(std::launch::async, []
@@ -51,7 +51,7 @@
 +								"/usr/bin/butterflyos-menu-hotkey capture", "", nullptr) == 0;
 +						});
 +						auto started = std::chrono::steady_clock::now();
-+						while (task.wait_for(std::chrono::milliseconds(250)) != std::future_status::ready)
++						while (task.wait_for(std::chrono::seconds(1)) != std::future_status::ready)
 +						{
 +							int presses = 0;
 +							std::ifstream progress("/tmp/butterflyos-menu-hotkey-progress");
@@ -59,11 +59,9 @@
 +							int elapsed = std::chrono::duration_cast<std::chrono::seconds>(
 +								std::chrono::steady_clock::now() - started).count();
 +							int remaining = std::max(0, 8 - elapsed);
-+							gui->setText(std::string(_("SET MENU BUTTON")) +
-+								"\r" + _("PRESS THE SAME BUTTON") +
-+								"\r" + _("THREE TIMES") +
-+								"\r" + _("PRESSES:") + " " + std::to_string(presses) + " / 3" +
-+								"\r" + _("TIME:") + " " + std::to_string(remaining) + " " + _("SEC"));
++							gui->setText(std::string(_("PRESS")) + " " +
++								std::to_string(presses) + "/3 " + _("TIMES") + " - " +
++								std::to_string(remaining) + " " + _("SEC"));
 +						}
 +						return task.get();
 +					},
@@ -78,7 +76,7 @@
 +			addEntry(_("TEST CONTROLLER MENU BUTTON"), false, [window]
 +			{
 +				window->pushGui(new GuiLoading<bool>(window,
-+					_("TEST MENU BUTTON\rPRESS SAVED BUTTON\rTIME: 8 SEC"),
++					_("TEST MENU BUTTON\rPRESS BUTTON\r8 SEC"),
 +					[](auto gui)
 +					{
 +						auto task = std::async(std::launch::async, []
@@ -87,14 +85,14 @@
 +								"/usr/bin/butterflyos-menu-hotkey test", "", nullptr) == 0;
 +						});
 +						auto started = std::chrono::steady_clock::now();
-+						while (task.wait_for(std::chrono::milliseconds(250)) != std::future_status::ready)
++						while (task.wait_for(std::chrono::seconds(1)) != std::future_status::ready)
 +						{
 +							int elapsed = std::chrono::duration_cast<std::chrono::seconds>(
 +								std::chrono::steady_clock::now() - started).count();
 +							int remaining = std::max(0, 8 - elapsed);
 +							gui->setText(std::string(_("TEST MENU BUTTON")) +
-+								"\r" + _("PRESS SAVED BUTTON") +
-+								"\r" + _("TIME:") + " " + std::to_string(remaining) + " " + _("SEC"));
++								"\r" + _("PRESS BUTTON") +
++								"\r" + std::to_string(remaining) + " " + _("SEC"));
 +						}
 +						return task.get();
 +					},
@@ -123,7 +121,7 @@
  #if defined(BATOCERA) || defined(ROCKNIX)
  		}
  #endif
-@@ -840,6 +929,30 @@
+@@ -840,6 +925,30 @@
  	mLoadedInput.clear();
  }
  
