@@ -1,6 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <rect width="256" height="256" rx="48" fill="#10121a"/>
-  <circle cx="128" cy="128" r="52" fill="none" stroke="#159dff" stroke-width="20"/>
-  <path fill="#7c4dff" d="M116 24h24l7 27a81 81 0 0 1 18 8l25-14 17 17-14 25a81 81 0 0 1 8 18l27 7v24l-27 7a81 81 0 0 1-8 18l14 25-17 17-25-14a81 81 0 0 1-18 8l-7 27h-24l-7-27a81 81 0 0 1-18-8l-25 14-17-17 14-25a81 81 0 0 1-8-18l-27-7v-24l27-7a81 81 0 0 1 8-18L49 62l17-17 25 14a81 81 0 0 1 18-8z" opacity=".85"/>
-  <circle cx="128" cy="128" r="28" fill="#ffd166"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" shape-rendering="crispEdges">
+  <rect width="256" height="256" rx="36" fill="#090914"/>
+  <rect x="28" y="38" width="200" height="148" rx="12" fill="#17132b" stroke="#b857ff" stroke-width="8"/>
+  <rect x="42" y="52" width="172" height="120" fill="#0d1830"/>
+  <rect x="56" y="70" width="62" height="14" fill="#2dd9ff"/>
+  <rect x="56" y="96" width="98" height="12" fill="#ff4fa3"/>
+  <rect x="56" y="120" width="78" height="12" fill="#ffd166"/>
+  <rect x="56" y="144" width="116" height="12" fill="#7d5cff"/>
+  <rect x="172" y="68" width="24" height="24" fill="#2dd9ff"/>
+  <rect x="180" y="76" width="8" height="8" fill="#090914"/>
+  <rect x="112" y="186" width="32" height="18" fill="#b857ff"/>
+  <rect x="78" y="204" width="100" height="14" rx="4" fill="#ff4fa3"/>
 </svg>

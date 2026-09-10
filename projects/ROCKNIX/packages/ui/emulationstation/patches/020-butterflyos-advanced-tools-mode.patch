@@ -11,7 +11,7 @@ index 6ece911..9ad149f 100644
 +		// can reveal them without moving files or rescanning storage.
 +		if (mSystem->getName() == "tools" &&
 +			SystemConf::getInstance()->get("ButterflyAdvancedMode") != "1" &&
-+			(*it)->getMetadata(MetaDataId::Genre) == "Advanced")
++			((*it)->getMetadata(MetaDataId::Genre) == "Advanced" || (*it)->getMetadata(MetaDataId::Genre) == "Emulator"))
 +			continue;
 +
  		if (!showHiddenFiles && (*it)->getHidden())
