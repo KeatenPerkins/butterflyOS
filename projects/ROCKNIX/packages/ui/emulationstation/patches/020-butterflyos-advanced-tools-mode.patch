@@ -2,7 +2,7 @@ diff --git a/es-app/src/FileData.cpp b/es-app/src/FileData.cpp
 index 6ece911..9ad149f 100644
 --- a/es-app/src/FileData.cpp
 +++ b/es-app/src/FileData.cpp
-@@ -1077,6 +1077,14 @@ const std::vector<FileData*> FolderData::getChildrenListToDisplay()
+@@ -1077,6 +1077,17 @@ const std::vector<FileData*> FolderData::getChildrenListToDisplay()
  
  	for (auto it = items->cbegin(); it != items->cend(); it++)
  	{
@@ -11,7 +11,10 @@ index 6ece911..9ad149f 100644
 +		// can reveal them without moving files or rescanning storage.
 +		if (mSystem->getName() == "tools" &&
 +			SystemConf::getInstance()->get("ButterflyAdvancedMode") != "1" &&
-+			((*it)->getMetadata(MetaDataId::Genre) == "Advanced" || (*it)->getMetadata(MetaDataId::Genre) == "Emulator"))
++			(*it)->getMetadata(MetaDataId::Genre) != "Recovery" &&
++			(*it)->getName() != "System Manager" &&
++			(*it)->getName() != "Quick Start" &&
++			(*it)->getName() != "Controls Guide")
 +			continue;
 +
  		if (!showHiddenFiles && (*it)->getHidden())
