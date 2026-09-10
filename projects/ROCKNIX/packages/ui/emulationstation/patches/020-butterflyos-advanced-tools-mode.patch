@@ -48,7 +48,7 @@ index 217c944..76a0047 100644
 +	s->addGroup(_("BUTTERFLYOS"));
 +	s->addSwitch(_("ADVANCED MODE"), _("Show recovery, emulator, network, and maintenance tools."),
 +		"ButterflyAdvancedMode", false,
-+		[s] { s->setVariable("reloadAll", true); });
++		[s] { s->setVariable("reloadAll", true); s->setVariable("reloadGuiMenu", true); });
 +
  	// theme set
  	auto theme = ThemeData::getMenuTheme();
