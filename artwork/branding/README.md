@@ -1,5 +1,14 @@
 # ButterflyOS branding assets
 
+Copyright (C) 2026 Keaten Perkins
+
+The official ButterflyOS name, butterfly emblem, combined wordmark, and the
+production files listed below are governed by the official-identity policy in
+`../../BUTTERFLYOS_LICENSE.md`. They are not part of the general CC BY-SA
+artwork grant. The policy permits unmodified use for official releases,
+screenshots, reviews, documentation, and truthful identification while
+preventing modified builds from presenting themselves as official.
+
 The approved ButterflyOS identity uses a geometric white butterfly above a
 cyan-to-blue-to-violet-to-magenta wordmark on a pure black background.
 

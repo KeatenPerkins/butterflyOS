@@ -66,6 +66,12 @@ records all 554 target packages from the completed build.
 
 ## Licenses
 
+Original ButterflyOS software, artwork, documentation, and official identity
+are covered by the scoped [ButterflyOS licensing policy](BUTTERFLYOS_LICENSE.md).
+In summary, original code is GPL-2.0-or-later, general original artwork and
+documentation are CC BY-SA 4.0, and the official name/logo use a separate
+identity policy. Inherited and third-party works retain their own licenses.
+
 **ROCKNIX** is a fork of [JELOS](https://github.com/JustEnoughLinuxOS/distribution/), all licenses apply and credit to the JELOS team. 
 
 You are free to:

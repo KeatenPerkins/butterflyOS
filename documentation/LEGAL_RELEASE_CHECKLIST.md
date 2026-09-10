@@ -28,7 +28,8 @@
 
 ## Branding
 
-- [ ] ButterflyOS logo/artwork license selected by its copyright holder
+- [x] ButterflyOS code, artwork, documentation, and identity policy selected by
+      its copyright holder and recorded in `BUTTERFLYOS_LICENSE.md`
 - [ ] ROCKNIX branding removed or used in compliance with CC BY-NC-SA 4.0
 - [x] Upstream ROCKNIX/JELOS/LibreELEC attribution retained
 - [x] Independent-project/non-endorsement disclaimer added

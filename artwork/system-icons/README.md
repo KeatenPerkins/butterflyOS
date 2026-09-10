@@ -43,4 +43,4 @@ Screenshots, streaming, and media utilities) remain outside the Games group.
 
 Copyright (C) 2026 Keaten Perkins
 
-SPDX-License-Identifier: GPL-2.0-only
+SPDX-License-Identifier: CC-BY-SA-4.0

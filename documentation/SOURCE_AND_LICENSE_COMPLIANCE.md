@@ -44,22 +44,17 @@ Before publishing:
 ## ButterflyOS-owned material
 
 New ButterflyOS scripts currently use GPL-2.0-or-later identifiers where they
-interact with the GPL-derived distribution. Original system artwork currently
-identifies Keaten Perkins as copyright holder and uses GPL-2.0-only in its
-artwork README.
+interact with the GPL-derived distribution. Original system artwork identifies
+Keaten Perkins as copyright holder and uses CC-BY-SA-4.0 in its artwork README.
 
-The primary ButterflyOS logo and branding directory does not yet state an
-explicit license. The copyright holder must choose one before public release.
-Good options include:
+The copyright holder selected the following policy in
+`BUTTERFLYOS_LICENSE.md`:
 
-- CC BY-SA 4.0: allows reuse, including commercial reuse, with attribution and
-  ShareAlike.
-- CC BY-NC-SA 4.0: restricts primarily commercial use but makes donation and
-  commercial-support boundaries less clear.
-- All rights reserved with an explicit permission allowing unmodified logo use
-  to identify official ButterflyOS builds.
-
-Do not apply a license to artwork without the copyright holder's decision.
+- Original ButterflyOS software: GPL-2.0-or-later
+- General original artwork and documentation: CC BY-SA 4.0
+- Official ButterflyOS name, emblem, and wordmark: rights retained with
+  explicit permission for unmodified official releases, reviews, screenshots,
+  documentation, and truthful identification
 
 ## Project identity
 
@@ -78,7 +73,6 @@ attribution. Do not use their logos to suggest an official relationship.
   device-local patching, or establish their redistribution rights.
 - Complete the Rockchip `rkbin` binary-notice review.
 - Complete the Mali `g29p1` userspace binary-notice review.
-- Choose and record a license for original ButterflyOS branding.
 - Generate and review the complete final-image package/license manifest.
 
 The Alpha 1 manifest has now been generated and resolves all 554 target package
