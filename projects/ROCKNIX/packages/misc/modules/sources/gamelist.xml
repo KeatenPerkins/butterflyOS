@@ -85,42 +85,6 @@
         <image>./images/file-manager.svg</image>
     </game>
     <game>
-        <path>./Start M8C.sh</path>
-        <name>M8C</name>
-        <desc>Cross-platform M8 tracker headless client.</desc>
-        <developer>ROCKNIX</developer>
-        <publisher>ROCKNIX</publisher>
-        <rating>5.0</rating>
-        <releasedate>2022</releasedate>
-        <genre>Tool</genre>
-        <players>1</players>
-        <image>./images/m8c.svg</image>
-    </game>
-    <game>
-        <path>./Start FEXConfig.sh</path>
-        <name>FEXConfig</name>
-        <desc>FEX: Emulate x86 Programs on ARM64.</desc>
-        <developer>FEX-Emu</developer>
-        <publisher>FEX-Emu</publisher>
-        <rating>5.0</rating>
-        <releasedate>2026</releasedate>
-        <genre>Tool</genre>
-        <players>1</players>
-        <image>./images/fexemu.svg</image>
-    </game>
-    <game>
-        <path>./Install ROCKNIX.sh</path>
-        <name>Install ROCKNIX</name>
-        <desc>Use this utility to install ROCKNIX to the local storage on your device. Note: This process will wipe the drive that you choose to install ROCKNIX on.</desc>
-        <developer>ROCKNIX</developer>
-        <publisher>ROCKNIX</publisher>
-        <rating>5.0</rating>
-        <releasedate>2022</releasedate>
-        <genre>Tool</genre>
-        <players>1</players>
-        <image>./images/install-rocknix.svg</image>
-    </game>
-    <game>
         <path>./Start PortMaster.sh</path>
         <name>PortMaster</name>
         <desc>PortMaster is a simple tool that allows you to download various game ports that are available for ROCKNIX and other ARM based devices. You can find details at portmaster.games</desc>
@@ -179,66 +143,6 @@
         <genre>Tool</genre>
         <players>1</players>
         <image>./images/qterminal.svg</image>
-    </game>
-    <game>
-        <path>./Install Steam.sh</path>
-        <name>Install Steam</name>
-        <desc>This tool is to install/update Steam.</desc>
-        <developer>Valve</developer>
-        <publisher>Valve</publisher>
-        <rating>5.0</rating>
-        <releasedate>2026</releasedate>
-        <genre>Tool</genre>
-        <players>1</players>
-        <image>./images/steam.svg</image>
-    </game>
-    <game>
-        <path>./Uninstall Steam.sh</path>
-        <name>Uninstall Steam</name>
-        <desc>Removes the Steam client and runtime. Keeps installed games (steamapps), saves (userdata), and depot download cache.</desc>
-        <developer>ROCKNIX</developer>
-        <publisher>ROCKNIX</publisher>
-        <rating>5.0</rating>
-        <releasedate>2026</releasedate>
-        <genre>Tool</genre>
-        <players>1</players>
-        <image>./images/steam.svg</image>
-    </game>
-    <game>
-        <path>./Install Heroic Games Launcher.sh</path>
-        <name>Install Heroic</name>
-        <desc>Downloads and installs the Heroic Games Launcher. Launch Heroic from the EmulationStation Heroic section after installing.</desc>
-        <developer>Heroic Games Launcher</developer>
-        <publisher>Heroic Games Launcher</publisher>
-        <rating>5.0</rating>
-        <releasedate>2026</releasedate>
-        <genre>Tool</genre>
-        <players>1</players>
-        <image>./images/heroic.svg</image>
-    </game>
-    <game>
-        <path>./Uninstall Heroic Games Launcher.sh</path>
-        <name>Uninstall Heroic</name>
-        <desc>Removes the Heroic app install. Keeps Heroic config under /storage/.config/heroic and per-game scripts in roms (delete manually if desired).</desc>
-        <developer>ROCKNIX</developer>
-        <publisher>ROCKNIX</publisher>
-        <rating>5.0</rating>
-        <releasedate>2026</releasedate>
-        <genre>Tool</genre>
-        <players>1</players>
-        <image>./images/heroic.svg</image>
-    </game>
-    <game>
-        <path>./Scan Heroic Games.sh</path>
-        <name>Scan Heroic Games</name>
-        <desc>Creates launchers for installed Heroic games in the Heroic EmulationStation section.</desc>
-        <developer>ROCKNIX</developer>
-        <publisher>ROCKNIX</publisher>
-        <rating>5.0</rating>
-        <releasedate>2026</releasedate>
-        <genre>Script</genre>
-        <players>1</players>
-        <image>./images/heroic.svg</image>
     </game>
     <game>
         <path>./Start AetherSX2.sh</path>
@@ -529,18 +433,6 @@ it's recommended to have a mouse and keyboard to modify settings.</desc>
         <genre>Advanced</genre>
         <players>1</players>
         <image>./images/test-gamepad.svg</image>
-    </game>
-    <game>
-        <path>./Test Touchscreen.sh</path>
-        <name>Test Touchscreen</name>
-        <desc>A simple SDL GUI touchscreen tester to help validate touchscreen inputs.</desc>
-        <developer>ROCKNIX</developer>
-        <publisher>ROCKNIX</publisher>
-        <rating>5.0</rating>
-        <releasedate>2024</releasedate>
-        <genre>tool</genre>
-        <players>1</players>
-        <image>./images/test-touchscreen.svg</image>
     </game>
     <game>
         <path>./GPcal.sh</path>
