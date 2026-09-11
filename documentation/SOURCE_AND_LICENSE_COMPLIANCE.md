@@ -69,8 +69,9 @@ attribution. Do not use their logos to suggest an official relationship.
 
 ## Current release blockers
 
-- Replace Alpha 1's bundled stock and patched preloader images with Alpha 2
-  device-local patching, or establish their redistribution rights.
+- Physically qualify Alpha 2's device-local preloader patching and exact restore
+  workflow on the second untouched Miyoo Flip V2. The development package no
+  longer contains the Alpha 1 stock or prepatched images.
 - Complete the Rockchip `rkbin` binary-notice review.
 - Complete the Mali `g29p1` userspace binary-notice review.
 - Generate and review the complete final-image package/license manifest.

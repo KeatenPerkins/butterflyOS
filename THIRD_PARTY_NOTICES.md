@@ -34,10 +34,11 @@ third-party components retain their own licenses. This covers the referenced
 shell scripts but does not establish rights to redistribute the vendor-derived
 `preloader-stock.img` and `preloader-patched.img` binaries.
 
-**Release status:** unresolved for Alpha 1 binary distribution. Alpha 2 will
-remove both images and patch a verified copy read from the user's own device.
+**Release status:** Alpha 1 remains unsuitable for public binary distribution.
+The Alpha 2 development package no longer fetches or installs either image; it
+patches a verified copy read from the user's own device.
 
-The multiboot technique credits apommel's BaseOS work:
+The Alpha 2 device-local patch algorithm is derived from apommel's BaseOS work:
 https://github.com/apommel/baseos-my355. BaseOS is MIT licensed. Any ButterflyOS
 adaptation must preserve its copyright and MIT permission notice.
 

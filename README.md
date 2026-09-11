@@ -53,9 +53,11 @@ endorsed by Miyoo, ROCKNIX, Nintendo, Sega, Sony, or any other platform owner.
 
 ## Distribution status
 
-The Alpha 1 source baseline is tagged `v0.1.0-alpha.1`. Public binary
-distribution is pending confirmation that the bundled Miyoo Flip preloader
-utilities and reference images may legally be redistributed. See
+The Alpha 1 source baseline is tagged `v0.1.0-alpha.1` and remains an internal
+test artifact because it bundled vendor-derived preloader images. Alpha 2
+development has removed those images and now derives the SD-boot patch from
+each user's own preloader. Public distribution remains pending physical
+qualification of that workflow and completion of the final binary audit. See
 [Known Issues](documentation/KNOWN_ISSUES.md#distribution-licensing-gate).
 
 Release compliance status is tracked in

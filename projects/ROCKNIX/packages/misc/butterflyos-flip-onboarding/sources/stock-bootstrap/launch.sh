@@ -4,7 +4,7 @@
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 CARD_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
-CONFIRM_FILE="$SCRIPT_DIR/.erase-confirmation"
+CONFIRM_FILE="$SCRIPT_DIR/.install-confirmation"
 CONFIRM_SECONDS=300
 LOG_FILE="$SCRIPT_DIR/setup-last.log"
 
@@ -80,28 +80,35 @@ fi
 if [ "$confirmed" -ne 1 ]; then
   echo "NO CHANGES WILL BE MADE ON THIS SCREEN."
   echo
-  echo "ButterflyOS must temporarily disable the internal boot"
-  echo "preloader so this prepared SD card can start once."
+  echo "ButterflyOS will inspect this device's own boot preloader,"
+  echo "save an exact verified backup, and prepare a patched copy."
   echo
-  echo "After ButterflyOS starts, open Tools and choose:"
-  echo "  Enable ButterflyOS SD Boot"
-  echo
-  echo "That finishes reversible multiboot setup:"
+  echo "The second launch installs the device-local patch:"
   echo "  card inserted  -> ButterflyOS"
   echo "  card removed   -> original Miyoo system"
   echo
-  echo "Recovery remains available through USB MASKROM. Opening the"
-  echo "case and pressing the recovery button is a last resort only."
+  echo "Unknown or modified preloaders are refused. The DDR firmware,"
+  echo "SPL program, and stock OS remain exactly as this unit shipped."
   echo
   echo "To confirm, wait for this screen to close, then launch"
   echo "ButterflyOS Setup a SECOND time within five minutes."
   echo
+  echo "Running the read-only compatibility check now..."
+  if ! BUTTERFLYOS_DRY_RUN=1 CARD="$CARD_ROOT" \
+      sh "$SCRIPT_DIR/install.sh"; then
+    echo
+    echo "STOPPED: This device did not pass the compatibility check."
+    echo "Nothing was written to internal storage. See:"
+    echo "  butterflyos-recovery/install-last.log"
+    sleep 20
+    exit 1
+  fi
   echo "$now" >"$CONFIRM_FILE"
   sync
   show_screen "$SCRIPT_DIR/first-run.png"
   sleep 20
   [ -n "$SCREEN_PID" ] && kill "$SCREEN_PID" 2>/dev/null
-  echo "FIRST STAGE COMPLETE: no internal storage was written."
+  echo "CHECK PASSED: exact backup saved; internal storage unchanged."
   exit 0
 fi
 
@@ -110,23 +117,24 @@ sync
 
 echo "SECOND CONFIRMATION ACCEPTED."
 echo
-echo "Do not power off. The device will shut down when preparation finishes."
-echo "If ButterflyOS does not start, connect the device to a PC for"
-echo "USB MASKROM recovery. The SoC bootrom itself is not modified."
+echo "Do not power off. The device will shut down after the patched"
+echo "preloader has been written and read back successfully."
 echo
 show_screen "$SCRIPT_DIR/second-run.png"
 sleep 5
 
-# The upstream utility reboots immediately. Stock discovers this app in the
-# left slot, while the Flip boots ButterflyOS from the right slot, so finish by
-# powering off and give the user a safe opportunity to move the card.
-SAFE_ERASER=/tmp/butterflyos-erase-preloader.sh
-if ! sed \
-  -e 's/Rebooting in 15 seconds/Powering off in 15 seconds/' \
-  -e 's#echo b > /proc/sysrq-trigger#poweroff#' \
-  "$SCRIPT_DIR/erase-preloader.sh" >"$SAFE_ERASER"; then
-  echo "STOPPED: Could not prepare the stock preloader utility."
-  exit 1
+if CARD="$CARD_ROOT" sh "$SCRIPT_DIR/install.sh"; then
+  echo
+  echo "SUCCESS: exact backup and patched readback both verified."
+  echo "After shutdown, move the card to the RIGHT slot and power on."
+  sync
+  sleep 8
+  poweroff
+  exit 0
 fi
-chmod 0700 "$SAFE_ERASER"
-exec sh "$SAFE_ERASER"
+
+echo
+echo "INSTALLATION STOPPED. Do not remove power until you have read:"
+echo "  butterflyos-recovery/install-last.log"
+sleep 30
+exit 1

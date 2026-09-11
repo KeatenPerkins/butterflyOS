@@ -43,6 +43,11 @@ Replace the Alpha 1 bundled stock and patched preloader images with a workflow
 that derives everything from the preloader already installed on the user's own
 Miyoo Flip V2:
 
+Implementation status: the device-local patcher, exact backup, verifier, and
+exact-only restore path are implemented in the Alpha 2 development tree. The
+gate remains open until the complete physical round trip passes on the second
+untouched Flip V2 and the resulting release image is audited.
+
 - Read the device's original 2 MiB preloader without distributing a vendor
   preloader image.
 - Recognize and validate supported preloader structures before modifying data.

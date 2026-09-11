@@ -8,7 +8,7 @@ TITLE="ButterflyOS Boot Setup"
 SOURCE_DIR=/usr/share/butterflyos/flip-preloader
 WORK_DIR=/storage/.config/butterflyos/flip-preloader
 RECOVERY_DIR=/storage/butterflyos-recovery
-DEVICE_BACKUP="$RECOVERY_DIR/preloader-original.img"
+DEVICE_BACKUP=/flash/butterflyos-recovery/preloader-original.img
 DEVICE_BACKUP_SUM="$DEVICE_BACKUP.sha256"
 SESSION_LOG="$RECOVERY_DIR/boot-setup-last.log"
 CONTROLLER_LOG="$RECOVERY_DIR/controller-last.log"
@@ -81,41 +81,28 @@ run_low_level() {
   # Persist the stage marker before touching MTD. If the kernel or power fails,
   # the card will still tell us whether execution reached the low-level check.
   sync
-  sh "$WORK_DIR/launch.sh" "$@" >"$output" 2>&1
+  sh "$WORK_DIR/manage.sh" "$@" >"/tmp/butterflyos-${action}-output.log" 2>&1
   rc=$?
-  case "$action" in
-    check) plain_log="$WORK_DIR/backup-log.txt" ;;
-    install) plain_log="$WORK_DIR/install-log.txt" ;;
-    restore) plain_log="$WORK_DIR/restore-log.txt" ;;
-  esac
+  plain_log="$RECOVERY_DIR/${action}-last.log"
   if [[ -f "${plain_log:-}" ]]; then
-    cp -f "$plain_log" "$output"
+    :
+  else
+    cp -f "/tmp/butterflyos-${action}-output.log" "$output"
   fi
   printf '%s low-level action finished: %s rc=%s\n' "$(date '+%H:%M:%S')" \
     "$action" "$rc" >>"$SESSION_LOG"
   sync
 
   if [[ "$action" == check && "$rc" -eq 0 ]] && grep -q "CHECK PASSED" "$output"; then
-    current_state="Current preloader was read successfully."
-    if grep -q "patched preloader is already installed" "$output"; then
-      current_state="ButterflyOS SD boot is already enabled."
-    elif grep -q "currently the unmodified stock preloader" "$output"; then
-      current_state="The original stock preloader is installed."
-    fi
-
-    bad_block_note="Bad-block check passed."
-    if grep -q "bad-block check skipped" "$output"; then
-      bad_block_note="Warning: the optional bad-block query was unavailable and skipped."
-    fi
+    current_state="ButterflyOS SD boot is enabled and verified."
 
     cat >"$display" <<EOF
 BOOT CHECK PASSED
 
 $current_state
 
-Preloader size and NAND geometry matched.
-The device DRAM initialization matched the bundled images.
-$bad_block_note
+The installed preloader exactly matches the patch derived from
+this device's verified original backup.
 
 Nothing was written to internal storage.
 
@@ -162,7 +149,7 @@ if [[ "$model" != *Miyoo* || "$compatible" != *rk3566* ]]; then
 fi
 
 mkdir -p "$WORK_DIR"
-for file in launch.sh preloader-patched.img preloader-stock.img; do
+for file in manage.sh patch-preloader.sh fdtpatch.awk BASEOS_LICENSE; do
   if [[ ! -f "$SOURCE_DIR/$file" ]]; then
     show_message "A required setup file is missing:\n\n$file\n\nNothing was changed."
     exit 1
@@ -171,7 +158,7 @@ for file in launch.sh preloader-patched.img preloader-stock.img; do
     cp -f "$SOURCE_DIR/$file" "$WORK_DIR/$file"
   fi
 done
-chmod 700 "$WORK_DIR/launch.sh"
+chmod 700 "$WORK_DIR/manage.sh" "$WORK_DIR/patch-preloader.sh"
 
 case "${ACTION:-}" in
   check)
@@ -179,24 +166,17 @@ case "${ACTION:-}" in
       clear
       exit 0
     fi
-    run_low_level check backup || true
+    run_low_level check check || true
     ;;
   install)
-    if ! ask_user "Enable automatic SD boot on this Miyoo Flip?\n\nWITH a compatible ButterflyOS card: ButterflyOS boots.\nWITHOUT the card: the original Miyoo system boots.\n\nThis writes only the internal 2 MiB boot preloader. The tool checks the device, flash geometry, bad blocks, battery, and DRAM data; makes a backup; verifies the write; and attempts rollback if verification fails.\n\nDo not power off during this operation."; then
-      clear
-      exit 0
-    fi
-    run_low_level install install || true
+    show_message "SD boot is now enabled by ButterflyOS Setup in the stock Miyoo Apps menu.\n\nThis separate action is no longer required. Run ButterflyOS Boot Check to verify the installed device-local patch."
     ;;
   restore)
     restore_image=
-    restore_description="KNOWN STOCK IMAGE\nNo verified device-specific backup was found. This restores stock behavior, but may not reproduce the exact SPL revision originally installed on every unit."
-
-    if [[ -e "$DEVICE_BACKUP" || -e "$DEVICE_BACKUP_SUM" ]]; then
-      if [[ ! -f "$DEVICE_BACKUP" || ! -f "$DEVICE_BACKUP_SUM" ]]; then
+    if [[ ! -f "$DEVICE_BACKUP" || ! -f "$DEVICE_BACKUP_SUM" ]]; then
         show_message "The device-specific recovery backup is incomplete.\n\nExpected both:\n$DEVICE_BACKUP\n$DEVICE_BACKUP_SUM\n\nNothing was changed. Restore the missing file or remove the incomplete pair before trying again."
         exit 1
-      fi
+    fi
 
       expected_sha=$(awk 'NR == 1 { print tolower($1) }' "$DEVICE_BACKUP_SUM")
       actual_sha=$(sha256sum "$DEVICE_BACKUP" 2>/dev/null | awk '{ print tolower($1) }')
@@ -204,23 +184,18 @@ case "${ACTION:-}" in
       if [[ ! "$expected_sha" =~ ^[0-9a-f]{64}$ || \
             "$actual_sha" != "$expected_sha" || \
             "$backup_size" != 2097152 ]]; then
-        show_message "The device-specific recovery backup failed validation.\n\nExpected SHA-256:\n${expected_sha:-invalid manifest}\n\nActual SHA-256:\n${actual_sha:-unreadable}\n\nSize: ${backup_size:-unknown} bytes (expected 2097152)\n\nNothing was changed. The generic image will not be selected silently while a broken personal backup is present."
+        show_message "The device-specific recovery backup failed validation.\n\nExpected SHA-256:\n${expected_sha:-invalid manifest}\n\nActual SHA-256:\n${actual_sha:-unreadable}\n\nSize: ${backup_size:-unknown} bytes (expected 2097152)\n\nNothing was changed. ButterflyOS never substitutes a generic preloader image."
         exit 1
       fi
 
-      restore_image="$DEVICE_BACKUP"
-      restore_description="EXACT DEVICE BACKUP\nUsing preloader-original.img from the ButterflyOS recovery folder.\nVerified SHA-256: $actual_sha"
-    fi
+    restore_image="$DEVICE_BACKUP"
+    restore_description="EXACT DEVICE BACKUP\nUsing preloader-original.img from the ButterflyOS recovery folder.\nVerified SHA-256: $actual_sha"
 
     if ! ask_user "Restore stock Miyoo boot behavior?\n\nRESTORE SOURCE:\n$restore_description\n\nButterflyOS SD multiboot will be disabled. The internal Miyoo system will boot normally, even with the ButterflyOS card inserted.\n\nThe image is validated again by the low-level utility, the current preloader is backed up, and the write is verified.\n\nDo not power off during this operation."; then
       clear
       exit 0
     fi
-    if [[ -n "$restore_image" ]]; then
-      run_low_level restore restore "$restore_image" || true
-    else
-      run_low_level restore restore || true
-    fi
+    run_low_level restore restore "$restore_image" || true
     ;;
   *)
     show_message "Unknown boot setup action. Nothing was changed."
