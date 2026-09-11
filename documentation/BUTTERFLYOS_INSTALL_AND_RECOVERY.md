@@ -111,9 +111,16 @@ tested on physical hardware:
 - A second software-only ButterflyOS installation succeeds.
 
 The complete round trip passed on the primary ButterflyOS Flip V2 test unit on
-2026-09-01. The final Alpha 1 image was written, filesystem-checked, and booted
-successfully on 2026-09-10. Qualification on a second untouched Flip V2 remains
-an Alpha follow-up item.
+2026-09-01. On 2026-09-10, a second previously untouched Flip V2 completed the
+device-local install, ButterflyOS/card boot, stock/no-card boot, exact restore,
+and stock/card boot sequence. Independent readback after restoration matched
+that unit's archived factory backup byte-for-byte. See
+[`ALPHA2_ONBOARDING_QUALIFICATION.md`](ALPHA2_ONBOARDING_QUALIFICATION.md).
+
+Qualification exposed two missing runtime interfaces. Both operations refused
+before writing, and permanent fixes were package-tested. A clean rebuilt image
+containing those fixes must complete the same sequence without live
+intervention before public release.
 
 ## Third-party release note
 
@@ -121,4 +128,5 @@ The device-tree patch algorithm is derived from apommel's BaseOS implementation
 and retains its MIT copyright and permission notice. ButterflyOS ships the
 patch description and safety scripts, but no stock or prepatched Miyoo
 preloader image. The Alpha 1 image remains an internal artifact; this workflow
-must pass the physical Alpha 2 qualification above before public release.
+has passed physical Alpha 2 qualification, with one clean-image regression
+remaining before public release.

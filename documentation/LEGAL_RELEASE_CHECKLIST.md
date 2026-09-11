@@ -10,8 +10,8 @@
 
 ## Binary and firmware audit
 
-- [ ] Bundled stock and prepatched vendor preloaders removed
-- [ ] Device-local preloader patcher license and attribution retained
+- [x] Bundled stock and prepatched vendor preloaders removed
+- [x] Device-local preloader patcher license and attribution retained
 - [ ] Rockchip `rkbin` redistribution terms reviewed and notices included
 - [ ] Mali `g29p1` redistribution terms reviewed and notices included
 - [ ] DraStic redistribution-grant records retained

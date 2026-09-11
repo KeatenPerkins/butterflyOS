@@ -5,26 +5,24 @@ games, saves, BIOS files, and any device-specific recovery data.
 
 ## Distribution licensing gate
 
-The guided Flip V2 boot setup currently bundles low-level preloader utilities
-and reference images pinned from the maintained Miyoo Flip reference project.
-That project licenses its documentation and scripts under GPLv2, but identifies
-third-party components as separately licensed. That does not establish
-redistribution rights for the stock and patched vendor preloader binaries.
-Public distribution of the Alpha 1 binary image is therefore on hold until
-those binaries are replaced or their redistribution rights are established.
+Alpha 1 bundled vendor-derived stock and patched preloader images and therefore
+remains an internal artifact. Alpha 2 removes both images. It reads, validates,
+backs up, patches, and verifies the preloader from the user's own device and
+retains the BaseOS-derived patcher's MIT notice.
 
-Alpha 2 will replace both bundled preloader images with device-local patching:
-ButterflyOS will read, validate, back up, patch, and verify the preloader from
-the user's own device. This is intended to remove the binary redistribution
-question and provide exact device-specific restoration.
+The full device-local install and byte-exact restore round trip passed on a
+second untouched Flip V2. Public distribution remains on hold until the new
+runtime-dependency fixes pass once more from a clean image and the final binary
+and license audit is complete.
 
 ## Installation and recovery
 
-- The complete setup/restore round trip passed on the primary test unit, but a
-  second untouched Miyoo Flip V2 has not completed qualification.
-- The bundled stock preloader restores tested stock boot behavior, but exact
-  byte-for-byte restoration is not guaranteed for every unknown factory
-  preloader revision.
+- The complete device-local setup/restore round trip passed on the primary test
+  unit and on a second previously untouched Flip V2.
+- Restore uses only the exact backup captured from that specific device. It has
+  no bundled or generic fallback image.
+- The clean image containing commits `8e09035` and `075b3f0` still needs the
+  final no-intervention install/check/restore regression.
 - Interrupted low-level setup may require RK3566 USB MASKROM recovery and, as a
   last resort, opening the shell to use the internal MASKROM button.
 - Miyoo Flip V1 and other handheld models are unsupported.

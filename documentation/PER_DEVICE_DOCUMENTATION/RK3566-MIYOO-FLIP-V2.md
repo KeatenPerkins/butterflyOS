@@ -96,9 +96,18 @@ Also verified after installing the replacement shell:
 - Music and compatible H.264 video playback
 - Web-based file transfer and SSH access
 
+Alpha 2 onboarding qualification:
+
+- On 2026-09-10, a second previously untouched Flip V2 completed the full
+  device-local installation and exact factory-preloader restoration round trip.
+- After restoration, an independent 2 MiB readback matched the archived
+  original byte-for-byte, and stock booted with the ButterflyOS card inserted.
+- The clean image containing the two runtime-dependency fixes still requires a
+  final no-intervention regression. See
+  [`ALPHA2_ONBOARDING_QUALIFICATION.md`](../ALPHA2_ONBOARDING_QUALIFICATION.md).
+
 Still requiring dedicated Alpha follow-up validation:
 
 - Lid-close, lid-open, suspend, and resume behavior
 - Rumble
 - Controlled battery-runtime and low-battery-warning measurement
-- Onboarding and restoration qualification on a second untouched Flip V2
