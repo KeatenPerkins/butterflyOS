@@ -14,7 +14,8 @@ Start here:
 - [Alpha 1 features](documentation/FEATURES.md)
 - [Compatibility matrix](documentation/BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md)
 - [Known issues](documentation/KNOWN_ISSUES.md)
-- [Alpha 1 release notes](documentation/RELEASE_NOTES_v0.1.0-alpha.1.md)
+- [Alpha 2 release notes](documentation/RELEASE_NOTES_v0.1.0-alpha.2.md)
+- [Building from source](documentation/BUILDING.md)
 
 Project direction is documented in the [vision](docs/VISION.md) and
 [roadmap](docs/ROADMAP.md).
@@ -53,20 +54,20 @@ endorsed by Miyoo, ROCKNIX, Nintendo, Sega, Sony, or any other platform owner.
 
 ## Distribution status
 
-The Alpha 1 source baseline is tagged `v0.1.0-alpha.1` and remains an internal
-test artifact because it bundled vendor-derived preloader images. Alpha 2
-development has removed those images and now derives the SD-boot patch from
-each user's own preloader. A complete install and exact-restore round trip has
-passed on a second untouched Flip V2, and the clean rebuilt image repeated the
-full workflow without live intervention. Public distribution remains pending
-completion of the final binary and license audit. See
+The Alpha 1 source baseline remains an internal test artifact because it
+bundled vendor-derived preloader images. The Alpha 2 release candidate removes
+those images and derives the SD-boot patch from each user's own preloader. It
+also uses Mesa/Panfrost and excludes the proprietary DraStic package. A complete
+install and exact-restore round trip passed on a second untouched Flip V2.
+Public distribution remains pending completion of the final Alpha 2 build,
+hardware smoke test, and remaining package-license review. See
 [Known Issues](documentation/KNOWN_ISSUES.md#distribution-licensing-gate).
 
 Release compliance status is tracked in
 [Third-Party Notices](THIRD_PARTY_NOTICES.md) and the
 [source and license compliance guide](documentation/SOURCE_AND_LICENSE_COMPLIANCE.md).
-The generated [Alpha 1 package manifest](documentation/ALPHA1_PACKAGE_LICENSE_MANIFEST.md)
-records all 554 target packages from the completed build.
+The generated Alpha 2 package manifest will be refreshed from the final clean
+build before publication.
 
 ## Licenses
 

@@ -8,6 +8,7 @@
 
 # prebuild target binarys to provide
 /target/
+/releases/
 
 # mkpkg temp
 mkpkg-temp

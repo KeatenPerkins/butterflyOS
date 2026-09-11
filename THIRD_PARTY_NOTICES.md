@@ -44,12 +44,11 @@ adaptation must preserve its copyright and MIT permission notice.
 
 ## DraStic
 
-DraStic is proprietary software. The package includes `LICENSE.txt` and
-`LICENSE.pdf`, which archive a redistribution grant from its creator, Exophase.
-Those records must remain in the image and corresponding release archive.
-
-- Package source record: `projects/ROCKNIX/packages/emulators/standalone/drastic-sa/package.mk`
-- Installed notices: `/usr/config/drastic/LICENSE.txt` and `LICENSE.pdf`
+DraStic is proprietary software. Although it is available in the inherited
+ROCKNIX source tree, ButterflyOS excludes it from Miyoo Flip V2 public images
+because the project does not currently retain independently verified evidence
+that the redistribution grant covers this release. Open-source melonDS cores
+and the standalone melonDS emulator remain available.
 
 ## Rockchip boot firmware (`rkbin`)
 
@@ -84,8 +83,8 @@ excludes these libraries for the Miyoo Flip V2 and uses Mesa/Panfrost instead.
 
 **Audit status:** the Miyoo Flip V2 Panfrost-only image was rebuilt and scanned;
 no `libmali` package tree, proprietary Mali userspace filename, or `libmali`
-SONAME reference was found. Device performance testing is still required before
-this issue can be closed.
+SONAME reference was found. Device performance testing identified Saturn as a
+known regression; other tested systems remained usable.
 
 ## Linux firmware
 
@@ -113,9 +112,8 @@ The Alpha 1 build metadata marks 11 included emulator cores as
 paid-access model, or other commercial distribution requires a separate review
 or replacement/removal of affected cores.
 
-See `documentation/ALPHA1_PACKAGE_LICENSE_MANIFEST.md` for all 554 target
-packages recorded from the completed Alpha 1 build. The manifest also flags 37
-packages with incomplete metadata, three marked unknown, one nonfree package,
-one proprietary package, and two custom declarations for manual review. These
-labels are leads for review; package metadata can itself be incomplete or
-incorrect and does not supersede an upstream license.
+The generated Alpha 2 package manifest will be refreshed from its clean build.
+Metadata marked unknown, nonfree, proprietary, custom, noncommercial, or not
+declared remains queued for manual review. These labels are audit leads;
+package metadata can itself be incomplete or incorrect and does not supersede
+an upstream license.

@@ -19,11 +19,10 @@ For every published image:
 6. Verify that a clean checkout plus documented prerequisites can reproduce the
    device-specific build.
 
-The Alpha 1 image was built from commit
-`2fe9d6daa0fe4a0b58db5bbee3a3c75d08b85060` and has SHA-256
-`56b1721c09a6ac22a8b24f43a6f3b4fb812d86c0bb4c0f48be4328fa13ff9c7a`.
-Documentation commits after that baseline must not be represented as the exact
-binary source revision.
+Alpha 1 was an internal artifact. The exact Alpha 2 source commit and image
+SHA-256 will be inserted into its release notes after the clean build. Later
+documentation commits must not be represented as the exact binary source
+revision.
 
 ## Release contents
 
@@ -31,7 +30,7 @@ Before publishing:
 
 - Include the project license, component licenses, copyright notices, and
   `THIRD_PARTY_NOTICES.md`.
-- Include DraStic's archived redistribution grant if DraStic remains present.
+- Confirm DraStic remains absent from the Miyoo Flip V2 public image.
 - Complete review of every package labeled `unknown`, `nonfree`, `proprietary`,
   `custom`, or `Non-commercial`.
 - Scan the final filesystem and boot partition, not only source package files.
@@ -69,11 +68,12 @@ attribution. Do not use their logos to suggest an official relationship.
 
 ## Current release blockers
 
-- Complete the Rockchip `rkbin` binary-notice review.
-- Complete the Mali `g29p1` userspace binary-notice review.
-- Generate and review the complete final-image package/license manifest.
+- Generate and inspect the clean Alpha 2 image and package/license manifest.
+- Complete manual upstream-license review for entries flagged noncommercial,
+  unknown, nonfree, proprietary, custom, or not declared.
+- Requalify Nintendo DS with the open-source default and repeat the release
+  smoke test.
 
-The Alpha 1 manifest has now been generated and resolves all 554 target package
-names to source definitions. Manual upstream-license review remains necessary
-for the entries it flags as noncommercial, unknown, nonfree, proprietary,
-custom, or not declared.
+The exact Rockchip `rkbin` license has been retained. Proprietary Mali
+userspace libraries and DraStic are excluded from the public Miyoo Flip V2
+configuration while their separate redistribution status remains unresolved.

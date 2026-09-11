@@ -58,6 +58,7 @@ case "${DEVICE}" in
       PKG_EMUS="${PKG_EMUS// aethersx2-sa/}"
       PKG_EMUS="${PKG_EMUS// azahar-sa/}"
       PKG_EMUS="${PKG_EMUS// dolphin-sa/}"
+      PKG_EMUS="${PKG_EMUS// drastic-sa/}"
       PKG_EMUS="${PKG_EMUS// vita3k-sa/}"
       LIBRETRO_CORES="${LIBRETRO_CORES// dolphin-lr/}"
     fi
@@ -973,7 +974,27 @@ makeinstall_target() {
       add_emu_core nds retroarch desmume false
       add_emu_core nds retroarch skyemu false
       ;;
-    RK3399|RK3576|RK3566|RK3588|SM6115)
+    RK3566)
+      if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+        # DraStic is proprietary and its redistribution grant is not present
+        # in the source package. Public ButterflyOS images use open-source
+        # Nintendo DS emulators instead.
+        add_emu_core nds retroarch melondsds true
+        add_emu_core nds retroarch melonds false
+        add_emu_core nds melonds melonds-sa false
+        add_emu_core nds retroarch desmume false
+        add_emu_core nds retroarch skyemu false
+      else
+        add_emu_core nds drastic drastic-sa true
+        add_emu_core nds retroarch melonds false
+        add_emu_core nds retroarch melondsds false
+        add_emu_core nds melonds melonds-sa false
+        add_emu_core nds retroarch desmume false
+        add_emu_core nds retroarch skyemu false
+      fi
+      install_script "Start MelonDS.sh"
+      ;;
+    RK3399|RK3576|RK3588|SM6115)
       add_emu_core nds drastic drastic-sa true
       add_emu_core nds retroarch melonds false
       add_emu_core nds retroarch melondsds false

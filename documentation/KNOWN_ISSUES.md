@@ -1,4 +1,4 @@
-# ButterflyOS v0.1.0 Alpha 1 known issues
+# ButterflyOS v0.1.0 Alpha 2 known issues
 
 Alpha software may contain defects and can change incompatibly. Keep backups of
 games, saves, BIOS files, and any device-specific recovery data.
@@ -13,8 +13,9 @@ retains the BaseOS-derived patcher's MIT notice.
 The full device-local install and byte-exact restore round trip passed on a
 second untouched Flip V2. The clean image containing the runtime-dependency
 fixes then repeated the full workflow without live intervention. Public
-distribution remains on hold until the final binary and license audit is
-complete.
+The Alpha 2 public candidate also excludes proprietary Mali userspace libraries
+and DraStic. Distribution remains on hold until the final clean image,
+package-license audit, and post-build hardware smoke test are complete.
 
 ## Installation and recovery
 
@@ -52,6 +53,8 @@ complete.
   resolution, disabled compute shaders, frameskip, and CPU tessellation did not
   correct it. Test a genuinely different Saturn core/backend before treating
   the open GPU migration as fully qualified.
+- Alpha 2 replaces DraStic with open-source melonDS for Nintendo DS. Nintendo
+  DS performance and controls must be requalified on the final image.
 - Arcade games require ROM sets compatible with the selected core. A game that
   does not launch is not necessarily an emulator failure.
 - Standalone emulators do not all provide RetroArch hotkeys. YabaSanshiro and

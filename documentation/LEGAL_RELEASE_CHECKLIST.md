@@ -14,16 +14,16 @@
 - [x] Device-local preloader patcher license and attribution retained
 - [x] Rockchip `rkbin` redistribution terms reviewed and notices included
 - [x] Miyoo Flip V2 rebuilt and scanned without Mali `g29p1` userspace blobs
-- [ ] DraStic redistribution-grant records retained
+- [x] DraStic excluded from the ButterflyOS Miyoo Flip V2 public configuration
 - [ ] Every `unknown`, `nonfree`, `proprietary`, `custom`, and
       `Non-commercial` package reviewed
 - [ ] Final boot and system filesystems scanned for untracked binaries
 
 ## Content and privacy
 
-- [ ] No games, proprietary user BIOS files, or test media included
-- [ ] No Wi-Fi credentials, SSH host keys, passwords, logs, or personal data
-- [ ] No device-specific preloader backup or recovery data included
+- [x] No games, proprietary user BIOS files, or test media included
+- [x] No Wi-Fi credentials, SSH host keys, passwords, logs, or personal data
+- [x] No device-specific preloader backup or recovery data included
 - [ ] Required firmware and font notices retained
 
 ## Branding
