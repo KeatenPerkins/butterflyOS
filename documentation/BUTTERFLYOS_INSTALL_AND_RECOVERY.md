@@ -21,6 +21,21 @@ recovery method, not an onboarding step.
    **right-hand slot**, then power on. The prepared card boots ButterflyOS.
 7. In ButterflyOS, open **Tools → ButterflyOS Boot Check**. This is read-only.
 
+### If the card or Setup app is not detected
+
+Both qualification devices occasionally failed to detect a correctly prepared
+card on the first stock-OS boot, or did not show **ButterflyOS Setup** during
+the first Apps scan. This did not indicate a bad image. If it happens:
+
+1. Shut down normally through the stock OS and wait until the device is fully
+   off. Never remove or reseat the card while the device is powered on.
+2. Remove and firmly reseat the card in the **left-hand slot**.
+3. Power on again and reopen **Apps**.
+4. If Setup remains absent, repeat one normal shutdown, reseat, and cold boot.
+
+Do not proceed if the card remains intermittent after reseating. Test the card
+and use a known-good microSD card before allowing Setup to write the preloader.
+
 The finished behavior is:
 
 | State at power-on | Result |

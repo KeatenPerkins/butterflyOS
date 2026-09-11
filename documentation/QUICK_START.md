@@ -54,7 +54,12 @@ installed internally.
 5. After the device powers off, move the card to the **right-hand slot**.
 6. Boot ButterflyOS and allow first-boot initialization to finish.
 7. Open **Tools → ButterflyOS Boot Check**.
-8. If the check passes, run **Tools → Enable ButterflyOS SD Boot**.
+
+If the stock OS does not detect the card or does not initially show
+**ButterflyOS Setup**, shut down normally, wait until fully powered off, reseat
+the card in the left slot, and cold boot again. This was occasionally necessary
+on both qualification devices. Never reseat the card while powered on. If it
+remains intermittent, stop and test or replace the card before running Setup.
 
 Afterward, the device boots ButterflyOS when its card is inserted and boots the
 stock Miyoo OS when the card is removed. Read the complete

@@ -24,6 +24,9 @@ Tested on a second, previously untouched Miyoo Flip V2 on 2026-09-10:
   byte-for-byte.
 - With the ButterflyOS card still in the right slot after restoration, the
   device ignored it and booted the stock OS as expected.
+- Both qualification devices occasionally required a powered-off card reseat
+  and cold reboot before the stock OS detected the card or refreshed the Setup
+  app. The end-user recovery procedure is documented in the installation guide.
 
 The device's backup, checksum, and setup logs were also archived off-card under
 `~/Documents/ButterflyOS-device-backups/flip-v2-dfdd7d20/` on the development
