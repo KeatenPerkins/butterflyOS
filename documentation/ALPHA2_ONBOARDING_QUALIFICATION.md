@@ -45,6 +45,20 @@ completed successfully.
 
 ## Remaining clean-image regression
 
+Clean regression candidate built successfully from source commit
+`2464bffbf7b6b4096d201aa1a9850ee72737f4d9`:
+
+- Image: `ROCKNIX-RK3566.aarch64-20260911-Miyoo_Flip_V2.img.gz`
+- SHA-256:
+  `e1331546bbebd9b00225059307f14383f3054f14806434dd41a2085b26af4483`
+- All 675 main-system steps and all 255 compatibility-root steps completed
+  with zero failures.
+- The compressed image passed both `gzip -t` and its generated SHA-256
+  manifest.
+- The staged system contains the ARM64 `xxd` binary and the recovery script's
+  `flash_eraseall` fallback. It contains no bundled stock or patched preloader
+  image.
+
 Before calling the Alpha 2 onboarding package release-qualified, repeat the
 following using a freshly rebuilt image containing both fixes, with no SSH or
 live file changes:
