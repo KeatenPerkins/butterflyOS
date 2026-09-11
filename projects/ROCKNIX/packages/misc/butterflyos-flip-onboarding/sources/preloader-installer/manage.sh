@@ -72,13 +72,19 @@ for p in /sys/class/power_supply/*/capacity; do [ -r "$p" ] && capacity=$(cat "$
 case "$capacity" in ''|*[!0-9]*) capacity=0 ;; esac
 for p in /sys/class/power_supply/*/online; do [ -r "$p" ] && [ "$(cat "$p" 2>/dev/null)" = 1 ] && online=1; done
 [ "$capacity" -ge 50 ] || [ "$online" = 1 ] || die "battery is ${capacity}% and charger is offline"
-command -v flash_erase >/dev/null 2>&1 || die "flash_erase is unavailable"
 command -v nandwrite >/dev/null 2>&1 || die "nandwrite is unavailable"
+if command -v flash_erase >/dev/null 2>&1; then
+  erase_preloader() { flash_erase "$MTD" 0 0; }
+elif command -v flash_eraseall >/dev/null 2>&1; then
+  erase_preloader() { flash_eraseall "$MTD"; }
+else
+  die "no supported NAND erase utility is available"
+fi
 
 n=1
 while [ "$n" -le 3 ]; do
   log "restore attempt $n"
-  flash_erase "$MTD" 0 0 >>"$LOG" 2>&1
+  erase_preloader >>"$LOG" 2>&1
   nandwrite -p "$MTD" "$BACKUP" >>"$LOG" 2>&1
   rm -f "$current"
   dd if="$reader" of="$current" bs=2048 count=1024 2>>"$LOG"
