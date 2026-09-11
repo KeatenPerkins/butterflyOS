@@ -6,6 +6,7 @@ PKG_VERSION="$(get_pkg_version vim)"
 PKG_LICENSE="Vim"
 PKG_URL=""
 PKG_DEPENDS_HOST="toolchain:host"
+PKG_DEPENDS_TARGET="toolchain"
 PKG_DEPENDS_UNPACK+=" vim"
 PKG_LONGDESC="make a hexdump or do the reverse"
 PKG_BUILD_FLAGS="-sysroot"
@@ -20,7 +21,16 @@ make_host() {
   ${HOST_CXX} -x c -std=c11 -O3 -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion ../src/xxd/xxd.c -o xxd
 }
 
+make_target() {
+  ${CC} -x c -std=c11 -Os -Wall -Wextra ../src/xxd/xxd.c -o xxd
+}
+
 makeinstall_host() {
   mkdir -p ${TOOLCHAIN}/bin
   cp -p xxd ${TOOLCHAIN}/bin
+}
+
+makeinstall_target() {
+  mkdir -p ${INSTALL}/usr/bin
+  cp -p xxd ${INSTALL}/usr/bin
 }

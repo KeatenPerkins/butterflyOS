@@ -2,11 +2,11 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.0.0"
+PKG_VERSION="2.0.1"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
-PKG_DEPENDS_TARGET="toolchain dialog"
+PKG_DEPENDS_TARGET="toolchain dialog xxd"
 PKG_LONGDESC="ButterflyOS guided Miyoo Flip multiboot setup and recovery tools"
 PKG_TOOLCHAIN="manual"
 
