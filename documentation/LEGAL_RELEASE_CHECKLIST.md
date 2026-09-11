@@ -15,8 +15,9 @@
 - [x] Rockchip `rkbin` redistribution terms reviewed and notices included
 - [x] Miyoo Flip V2 rebuilt and scanned without Mali `g29p1` userspace blobs
 - [x] DraStic excluded from the ButterflyOS Miyoo Flip V2 public configuration
-- [ ] Every `unknown`, `nonfree`, `proprietary`, `custom`, and
-      `Non-commercial` package reviewed
+- [x] Every Alpha 2 package flagged `unknown`, `nonfree`, `proprietary`,
+      `custom`, `Not declared`, or `Non-commercial` reviewed; findings and
+      impacts recorded in `PACKAGE_LICENSE_REVIEW_ALPHA2.md`
 - [x] Final boot and system filesystems scanned for unintended binaries and
       private content
 

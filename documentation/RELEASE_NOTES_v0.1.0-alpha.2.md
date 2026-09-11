@@ -18,6 +18,10 @@ test software and is not a stable release.
   preloader; exact restoration was tested on a second untouched Flip V2.
 - Replaced proprietary Mali userspace libraries with Mesa/Panfrost.
 - Excluded proprietary DraStic and selected open-source melonDS DS emulation.
+- Excluded the unused Art Book Next theme and ZeroTier service from the Flip
+  V2 image after package-license review.
+- Added an embedded ButterflyOS policy, third-party notice, common-license,
+  and exact non-commercial emulator-license bundle.
 - Preserved the exact Rockchip `rkbin` license and firmware-input record.
 - Added public build, recovery, controls, compatibility, licensing, and known
   issue documentation.

@@ -116,6 +116,7 @@ controller-facing rclone tools are already hidden on the Flip V2.
 ## Actions required before publication
 
 1. Remove Art Book Next and ZeroTier for the Miyoo Flip V2 configuration.
+   **Implemented after the first Alpha 2 candidate; final rebuild pending.**
 2. Correct inaccurate/missing package-license metadata where exact source
    establishes the terms.
 3. Install the relevant license and attribution texts into the release notices.

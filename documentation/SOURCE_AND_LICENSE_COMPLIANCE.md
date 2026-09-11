@@ -69,11 +69,15 @@ attribution. Do not use their logos to suggest an official relationship.
 ## Current release blockers
 
 - Generate and inspect the clean Alpha 2 image and package/license manifest.
-- Complete manual upstream-license review for entries flagged noncommercial,
-  unknown, nonfree, proprietary, custom, or not declared.
-- Requalify Nintendo DS with the open-source default and repeat the release
-  smoke test.
+- Rebuild after the reviewed package exclusions and embedded-notice changes,
+  then repeat the clean-image audit and focused hardware smoke test.
+- Publish the exact corresponding source and immutable release tag beside the
+  final binary and checksum.
 
 The exact Rockchip `rkbin` license has been retained. Proprietary Mali
 userspace libraries and DraStic are excluded from the public Miyoo Flip V2
 configuration while their separate redistribution status remains unresolved.
+The flagged-package review is recorded in
+`PACKAGE_LICENSE_REVIEW_ALPHA2.md`; Art Book Next and ZeroTier are excluded
+from the post-review Flip V2 candidate. Nintendo DS was requalified using the
+open-source melonDS DS default on physical hardware.

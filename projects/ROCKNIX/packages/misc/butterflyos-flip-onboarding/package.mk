@@ -2,15 +2,47 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.0.2"
+PKG_VERSION="2.0.3"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
-PKG_DEPENDS_TARGET="toolchain dialog xxd"
+PKG_DEPENDS_TARGET="toolchain dialog xxd fbalpha2012-lr fbalpha2019-lr \
+                    fbneo-lr genesis-plus-gx-lr genesis-plus-gx-wide-lr \
+                    snes9x-lr snes9x2002-lr snes9x2005_plus-lr \
+                    snes9x2010-lr supersnes9x-lr"
 PKG_LONGDESC="ButterflyOS guided Miyoo Flip multiboot setup and recovery tools"
 PKG_TOOLCHAIN="manual"
 
 makeinstall_target() {
+  # Keep the project policy, audit notice, common license texts, and the exact
+  # non-commercial emulator licenses beside the binaries they govern.
+  mkdir -p "${INSTALL}/usr/share/butterflyos/licenses/components"
+  cp -a "${ROOT}/BUTTERFLYOS_LICENSE.md" \
+        "${ROOT}/THIRD_PARTY_NOTICES.md" \
+        "${INSTALL}/usr/share/butterflyos/licenses/"
+  cp -a "${ROOT}"/licenses/*.txt \
+        "${INSTALL}/usr/share/butterflyos/licenses/"
+  cp -a "$(get_build_dir fbalpha2012-lr)/docs/license.txt" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/fbalpha2012.txt"
+  cp -a "$(get_build_dir fbalpha2019-lr)/src/license.txt" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/fbalpha2019.txt"
+  cp -a "$(get_build_dir fbneo-lr)/src/license.txt" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/fbneo.txt"
+  cp -a "$(get_build_dir genesis-plus-gx-lr)/LICENSE.txt" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/genesis-plus-gx.txt"
+  cp -a "$(get_build_dir genesis-plus-gx-wide-lr)/LICENSE.txt" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/genesis-plus-gx-wide.txt"
+  cp -a "$(get_build_dir snes9x-lr)/LICENSE" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/snes9x.txt"
+  cp -a "$(get_build_dir snes9x2002-lr)/src/copyright.h" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/snes9x2002.txt"
+  cp -a "$(get_build_dir snes9x2005_plus-lr)/copyright" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/snes9x2005-plus.txt"
+  cp -a "$(get_build_dir snes9x2010-lr)/LICENSE.txt" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/snes9x2010.txt"
+  cp -a "$(get_build_dir supersnes9x-lr)/LICENSE" \
+        "${INSTALL}/usr/share/butterflyos/licenses/components/supersnes9x.txt"
+
   mkdir -p "${INSTALL}/usr/share/butterflyos/flip-preloader"
   cp -a "${PKG_DIR}/sources/preloader-installer/manage.sh" \
         "${PKG_DIR}/sources/preloader-installer/patch-preloader.sh" \

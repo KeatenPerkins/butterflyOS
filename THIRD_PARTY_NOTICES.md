@@ -2,7 +2,7 @@
 
 ButterflyOS is a Linux distribution assembled from independently licensed
 components. This document records important notices for the Miyoo Flip V2
-Alpha 1 image. It is a release-audit aid, not a replacement for the license
+Alpha 2 image. It is a release-audit aid, not a replacement for the license
 text shipped with each component.
 
 ## ROCKNIX, JELOS, and LibreELEC
@@ -104,16 +104,19 @@ the public image; this preliminary notice does not replace it.
 ButterflyOS distributes no commercial games and no proprietary console BIOS
 collection. Users supply content they are legally entitled to use.
 
-The Alpha 1 build metadata marks 11 included emulator cores as
-`Non-commercial`: `fbalpha2012-lr`, `fbalpha2019-lr`, `fbneo-lr`,
-`genesis-plus-gx-lr`, `genesis-plus-gx-wide-lr`, `smsplus-gx-lr`, `snes9x-lr`,
+The Alpha 2 source review found 10 included emulator cores with genuine
+non-commercial terms: `fbalpha2012-lr`, `fbalpha2019-lr`, `fbneo-lr`,
+`genesis-plus-gx-lr`, `genesis-plus-gx-wide-lr`, `snes9x-lr`,
 `snes9x2002-lr`, `snes9x2005_plus-lr`, `snes9x2010-lr`, and
 `supersnes9x-lr`. A free release must retain their notices. Any later sale,
 paid-access model, or other commercial distribution requires a separate review
 or replacement/removal of affected cores.
 
-The generated Alpha 2 package manifest will be refreshed from its clean build.
-Metadata marked unknown, nonfree, proprietary, custom, noncommercial, or not
-declared remains queued for manual review. These labels are audit leads;
-package metadata can itself be incomplete or incorrect and does not supersede
-an upstream license.
+`smsplus-gx-lr`, `px68k-lr`, and `xmil-lr` were previously mislabeled; their
+exact source contains GPLv2, GPLv2, and BSD-style licenses respectively. The
+full technical review is recorded in
+`documentation/PACKAGE_LICENSE_REVIEW_ALPHA2.md`.
+
+ButterflyOS is freely downloadable and is not conditioned on payment or a
+donation. Art Book Next and ZeroTier are excluded from the public Flip V2
+configuration beginning with the post-review Alpha 2 candidate.

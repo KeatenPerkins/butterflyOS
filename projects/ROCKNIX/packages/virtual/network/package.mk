@@ -31,7 +31,9 @@ if [ "${WIREGUARD_SUPPORT}" = "yes" ]; then
   PKG_DEPENDS_TARGET="${PKG_DEPENDS_TARGET} wireguard-tools"
 fi
 
-if [ "${ZEROTIER_SUPPORT}" = "yes" ]; then
+if [ "${ZEROTIER_SUPPORT}" = "yes" ] && [ "${IMAGE_SUBDEVICE}" != "Miyoo_Flip_V2" ]; then
+  # ButterflyOS does not expose or test ZeroTier on the Flip V2. Excluding it
+  # also avoids shipping an unnecessary network daemon and mixed-license tree.
   PKG_DEPENDS_TARGET="${PKG_DEPENDS_TARGET} zerotier-one"
 fi
 

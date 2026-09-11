@@ -4,10 +4,12 @@
 PKG_NAME="es-themes"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://rocknix.org"
-PKG_DEPENDS_TARGET="es-theme-art-book-next"
-
 if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
-  PKG_DEPENDS_TARGET+=" es-theme-butterflyos"
+  # ButterflyOS ships only its own audited theme on the Flip V2. Art Book Next
+  # remains available to other ROCKNIX targets.
+  PKG_DEPENDS_TARGET="es-theme-butterflyos"
+else
+  PKG_DEPENDS_TARGET="es-theme-art-book-next"
 fi
 PKG_SECTION="virtual"
 PKG_LONGDESC="EmulationStation themes package."
