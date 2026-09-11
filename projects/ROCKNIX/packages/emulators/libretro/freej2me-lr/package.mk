@@ -4,6 +4,7 @@
 
 PKG_NAME="freej2me-lr"
 PKG_VERSION="1.52"
+PKG_LICENSE="GPL-3.0-only AND BSD-3-Clause"
 PKG_SITE="https://github.com/TASEmulators/freej2me-plus"
 PKG_URL="${PKG_SITE}/archive/refs/tags/${PKG_VERSION}.tar.gz"
 PKG_DEPENDS_TARGET="toolchain apache-ant:host libXtst"

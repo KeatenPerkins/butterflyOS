@@ -3,6 +3,7 @@
 
 PKG_NAME="emuscv-lr"
 PKG_VERSION="dfce10df090ce3f5eb23bdbee289702ec1478246"
+PKG_LICENSE="GPL-3.0-only"
 #PKG_ARCH="aarch64"
 PKG_SITE="https://gitlab.com/MaaaX-EmuSCV/libretro-emuscv"
 PKG_URL="${PKG_SITE}.git"

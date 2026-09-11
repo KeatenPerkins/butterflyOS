@@ -20,6 +20,7 @@
 
 PKG_NAME="opusfile"
 PKG_VERSION="9d718345ce03b2fad5d7d28e0bcd1cc69ab2b166"
+PKG_LICENSE="BSD-3-Clause"
 PKG_SITE="https://github.com/xiph/opusfile"
 PKG_URL="${PKG_SITE}/archive/${PKG_VERSION}.zip"
 PKG_DEPENDS_TARGET="toolchain opus openssl"

@@ -20,6 +20,7 @@
 
 PKG_NAME="wildmidi"
 PKG_VERSION="405ca73"
+PKG_LICENSE="GPL-3.0-only AND LGPL-3.0-only"
 PKG_SITE="https://github.com/Mindwerks/wildmidi"
 PKG_URL="${PKG_SITE}/archive/${PKG_VERSION}.tar.gz"
 PKG_DEPENDS_TARGET="toolchain"

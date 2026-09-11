@@ -5,6 +5,7 @@
 
 PKG_NAME="openbor"
 PKG_VERSION="b8303cce992a0db93c3a465df3c943942fe322f8"
+PKG_LICENSE="BSD-3-Clause"
 PKG_SITE="https://github.com/DCurrent/openbor"
 PKG_URL="${PKG_SITE}.git"
 PKG_DEPENDS_TARGET="toolchain SDL2 libogg libvorbisidec libvpx libpng"

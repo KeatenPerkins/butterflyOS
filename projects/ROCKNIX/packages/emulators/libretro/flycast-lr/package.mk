@@ -4,6 +4,7 @@
 
 PKG_NAME="flycast-lr"
 PKG_VERSION="5aa091fde632fb332c8d8c34e280d62dc951954c"
+PKG_LICENSE="GPL-2.0-only"
 PKG_SITE="https://github.com/flyinghead/flycast"
 PKG_URL="${PKG_SITE}.git"
 PKG_DEPENDS_TARGET="toolchain zlib libzip"

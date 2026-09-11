@@ -3,7 +3,7 @@
 
 PKG_NAME="xmil-lr"
 PKG_VERSION="6a52dc21a5ff106137670bb600ab2ce3fcebeb1b"
-PKG_LICENSE="Unknown"
+PKG_LICENSE="BSD-3-Clause"
 PKG_SITE="https://github.com/libretro/xmil-libretro"
 PKG_URL="${PKG_SITE}.git"
 PKG_DEPENDS_TARGET="toolchain"

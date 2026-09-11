@@ -3,6 +3,7 @@
 
 PKG_NAME="mojozork-lr"
 PKG_VERSION="5c8d81f8db53c206ace6952472e7a7e68bd8e752"
+PKG_LICENSE="Zlib"
 PKG_SITE="https://github.com/icculus/mojozork"
 PKG_URL="${PKG_SITE}/archive/${PKG_VERSION}.tar.gz"
 PKG_DEPENDS_TARGET="toolchain sqlite"

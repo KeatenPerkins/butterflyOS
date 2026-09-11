@@ -3,6 +3,7 @@
 
 PKG_NAME="jaxe-lr"
 PKG_VERSION="4825aad24716f67924cd949354aae490a14b4d2d"
+PKG_LICENSE="MIT"
 PKG_ARCH="aarch64"
 PKG_SITE="https://github.com/kurtjd/jaxe"
 PKG_URL="${PKG_SITE}.git"

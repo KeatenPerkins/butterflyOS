@@ -3,7 +3,7 @@
 
 PKG_NAME="modules"
 PKG_VERSION="1.0"
-PKG_LICENSE="custom"
+PKG_LICENSE="GPL-2.0-only"
 PKG_SITE=""
 PKG_URL=""
 PKG_DEPENDS_TARGET="toolchain"

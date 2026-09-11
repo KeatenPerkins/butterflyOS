@@ -5,6 +5,7 @@
 
 PKG_NAME="rclone"
 PKG_VERSION="1.71.0"
+PKG_LICENSE="MIT"
 PKG_DEPENDS_TARGET="toolchain fuse rsync"
 PKG_LONGDESC="rsync for cloud storage"
 PKG_TOOLCHAIN="manual"
