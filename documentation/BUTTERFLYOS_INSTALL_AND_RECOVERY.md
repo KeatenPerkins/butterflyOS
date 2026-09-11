@@ -133,15 +133,14 @@ that unit's archived factory backup byte-for-byte. See
 [`ALPHA2_ONBOARDING_QUALIFICATION.md`](ALPHA2_ONBOARDING_QUALIFICATION.md).
 
 Qualification exposed two missing runtime interfaces. Both operations refused
-before writing, and permanent fixes were package-tested. A clean rebuilt image
-containing those fixes must complete the same sequence without live
-intervention before public release.
+before writing, and permanent fixes were package-tested. The clean rebuilt
+image containing those fixes subsequently completed the same sequence without
+live intervention.
 
 ## Third-party release note
 
 The device-tree patch algorithm is derived from apommel's BaseOS implementation
 and retains its MIT copyright and permission notice. ButterflyOS ships the
 patch description and safety scripts, but no stock or prepatched Miyoo
-preloader image. The Alpha 1 image remains an internal artifact; this workflow
-has passed physical Alpha 2 qualification, with one clean-image regression
-remaining before public release.
+preloader image. The Alpha 1 image remains an internal artifact; the clean
+device-local workflow has passed physical Alpha 2 qualification.

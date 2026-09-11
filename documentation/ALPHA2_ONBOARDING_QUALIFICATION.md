@@ -46,7 +46,7 @@ preloader was independently hashed after each refusal and remained unchanged.
 The permanent fixes are commits `8e09035` and `075b3f0`; each package build
 completed successfully.
 
-## Remaining clean-image regression
+## Clean-image regression
 
 Clean regression candidate built successfully from source commit
 `2464bffbf7b6b4096d201aa1a9850ee72737f4d9`:
@@ -62,14 +62,16 @@ Clean regression candidate built successfully from source commit
   `flash_eraseall` fallback. It contains no bundled stock or patched preloader
   image.
 
-Before calling the Alpha 2 onboarding package release-qualified, repeat the
-following using a freshly rebuilt image containing both fixes, with no SSH or
-live file changes:
+The freshly rebuilt image containing both fixes completed the following on
+physical hardware with no SSH or live file changes:
 
 - install from stock;
 - run ButterflyOS Boot Check successfully;
 - verify ButterflyOS/card and stock/no-card boot behavior;
 - restore the exact device backup successfully;
-- verify stock boot with the card still inserted;
-- optionally verify SurwishOS after restoration;
-- perform one additional software-only ButterflyOS reinstall.
+- stock boot with the ButterflyOS card still inserted after restoration.
+
+The Alpha 2 onboarding and exact-restore workflow is therefore qualified on the
+tested Miyoo Flip V2 preloader revision. SurwishOS regression and one additional
+software-only reinstall remain useful compatibility checks, but are not needed
+to establish that the clean installer and exact restore work as designed.

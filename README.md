@@ -57,9 +57,9 @@ The Alpha 1 source baseline is tagged `v0.1.0-alpha.1` and remains an internal
 test artifact because it bundled vendor-derived preloader images. Alpha 2
 development has removed those images and now derives the SD-boot patch from
 each user's own preloader. A complete install and exact-restore round trip has
-passed on a second untouched Flip V2. Public distribution remains pending a
-clean-image regression containing the two fail-closed dependency fixes and
-completion of the final binary audit. See
+passed on a second untouched Flip V2, and the clean rebuilt image repeated the
+full workflow without live intervention. Public distribution remains pending
+completion of the final binary and license audit. See
 [Known Issues](documentation/KNOWN_ISSUES.md#distribution-licensing-gate).
 
 Release compliance status is tracked in

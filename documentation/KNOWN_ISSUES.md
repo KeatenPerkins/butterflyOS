@@ -11,9 +11,10 @@ backs up, patches, and verifies the preloader from the user's own device and
 retains the BaseOS-derived patcher's MIT notice.
 
 The full device-local install and byte-exact restore round trip passed on a
-second untouched Flip V2. Public distribution remains on hold until the new
-runtime-dependency fixes pass once more from a clean image and the final binary
-and license audit is complete.
+second untouched Flip V2. The clean image containing the runtime-dependency
+fixes then repeated the full workflow without live intervention. Public
+distribution remains on hold until the final binary and license audit is
+complete.
 
 ## Installation and recovery
 
@@ -21,8 +22,8 @@ and license audit is complete.
   unit and on a second previously untouched Flip V2.
 - Restore uses only the exact backup captured from that specific device. It has
   no bundled or generic fallback image.
-- The clean image containing commits `8e09035` and `075b3f0` still needs the
-  final no-intervention install/check/restore regression.
+- The clean image containing commits `8e09035` and `075b3f0` passed the final
+  no-intervention install/check/restore regression.
 - Interrupted low-level setup may require RK3566 USB MASKROM recovery and, as a
   last resort, opening the shell to use the internal MASKROM button.
 - Miyoo Flip V1 and other handheld models are unsupported.

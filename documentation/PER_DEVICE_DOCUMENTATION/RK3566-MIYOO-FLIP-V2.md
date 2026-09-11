@@ -102,8 +102,9 @@ Alpha 2 onboarding qualification:
   device-local installation and exact factory-preloader restoration round trip.
 - After restoration, an independent 2 MiB readback matched the archived
   original byte-for-byte, and stock booted with the ButterflyOS card inserted.
-- The clean image containing the two runtime-dependency fixes still requires a
-  final no-intervention regression. See
+- The clean image containing the two runtime-dependency fixes passed the full
+  no-intervention install, check, boot-behavior, and exact-restore regression.
+  See
   [`ALPHA2_ONBOARDING_QUALIFICATION.md`](../ALPHA2_ONBOARDING_QUALIFICATION.md).
 
 Still requiring dedicated Alpha follow-up validation:

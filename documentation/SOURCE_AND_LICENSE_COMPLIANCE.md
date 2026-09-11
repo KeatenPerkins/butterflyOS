@@ -69,10 +69,6 @@ attribution. Do not use their logos to suggest an official relationship.
 
 ## Current release blockers
 
-- Repeat Alpha 2's now-passing device-local install and exact-restore workflow
-  from a clean image containing commits `8e09035` and `075b3f0`, without live
-  intervention. The development package contains neither Alpha 1 preloader
-  image.
 - Complete the Rockchip `rkbin` binary-notice review.
 - Complete the Mali `g29p1` userspace binary-notice review.
 - Generate and review the complete final-image package/license manifest.
