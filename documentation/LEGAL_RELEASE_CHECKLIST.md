@@ -2,7 +2,7 @@
 
 ## Project and source
 
-- [ ] Exact binary source commit and immutable release tag recorded
+- [x] Exact binary source commit recorded (`c9d2f0b`); immutable tag pending
 - [ ] Corresponding source and build instructions published beside the image
 - [ ] Source dependency URLs, revisions, hashes, and licenses recorded
 - [ ] GPL/LGPL license texts and copyright notices retained
@@ -17,7 +17,8 @@
 - [x] DraStic excluded from the ButterflyOS Miyoo Flip V2 public configuration
 - [ ] Every `unknown`, `nonfree`, `proprietary`, `custom`, and
       `Non-commercial` package reviewed
-- [ ] Final boot and system filesystems scanned for untracked binaries
+- [x] Final boot and system filesystems scanned for unintended binaries and
+      private content
 
 ## Content and privacy
 

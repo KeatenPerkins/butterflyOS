@@ -6,9 +6,9 @@ test software and is not a stable release.
 ## Release record
 
 - Source tag: `v0.1.0-alpha.2` (create only after qualification)
-- Git commit: to be recorded after the release-candidate source commit
+- Exact image source commit: `c9d2f0b`
 - Image: `ButterflyOS-v0.1.0-alpha.2-Miyoo-Flip-V2.img.gz`
-- SHA-256: to be recorded after the clean build
+- SHA-256: `ff793369e77b7c41de57a1b53003494a8304ec6a1c64871a6478db21a6e294f1`
 - Target: Miyoo Flip V2 (`RK3566` / `Miyoo_Flip_V2`)
 
 ## Changes from the internal Alpha 1 baseline

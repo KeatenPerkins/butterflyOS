@@ -29,8 +29,25 @@ inspected before preparation of the final clean Alpha 2 build.
 - No proprietary `libmali` userspace library or SONAME was found. Panfrost
   Mesa libraries and the open kernel driver/firmware were present.
 
-The final Alpha 2 image must repeat these checks after DraStic exclusion and
-must receive a hardware smoke test before publication.
+## September 11, 2026 final Alpha 2 image inspection
+
+The exact image built from commit `c9d2f0b` was decompressed and audited:
+
+- Image SHA-256: `ff793369e77b7c41de57a1b53003494a8304ec6a1c64871a6478db21a6e294f1`.
+- FAT and ext4 filesystem checks completed without errors.
+- The storage filesystem contained only `lost+found` and
+  `.please_resize_me`, as expected for first-boot expansion.
+- No user games, test media, Wi-Fi credentials, SSH private/host keys,
+  personal identifiers, test IP addresses, or device backups were found.
+- No `libmali` file or linkage was found.
+- DraStic is absent from the package manifest and emulator configuration.
+  Two generic ROCKNIX suspend-helper filenames for the unrelated Anbernic RG
+  DS mention DraStic, but contain no DraStic program or library.
+- The generated package-license inventory resolved all 549 target packages to
+  build metadata; this does not replace the manual license review below.
+
+The image still requires a Miyoo Flip V2 hardware smoke test, particularly
+Nintendo DS with the new melonDS DS default, before publication.
 
 ## Manual license review still required
 
