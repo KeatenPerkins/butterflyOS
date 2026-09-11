@@ -47,8 +47,11 @@ complete.
 - Saturn via standalone YabaSanshiro remains a Panfrost qualification
   exception. During the September 11, 2026 Sonic R test it did not accept game
   controls and produced Panfrost GPU page faults followed by a scheduler
-  timeout. Test an alternate Saturn core/backend before treating the open GPU
-  migration as fully qualified.
+  timeout. YabaSanshiro-libretro restored controls but ran severely slowly and
+  produced continuous GPU scheduler timeouts. A real Saturn BIOS, native
+  resolution, disabled compute shaders, frameskip, and CPU tessellation did not
+  correct it. Test a genuinely different Saturn core/backend before treating
+  the open GPU migration as fully qualified.
 - Arcade games require ROM sets compatible with the selected core. A game that
   does not launch is not necessarily an emulator failure.
 - Standalone emulators do not all provide RetroArch hotkeys. YabaSanshiro and
