@@ -54,26 +54,38 @@ Those records must remain in the image and corresponding release archive.
 ## Rockchip boot firmware (`rkbin`)
 
 The RK3566 bootloader build uses binary firmware from Rockchip's `rkbin`
-repository and labels it `nonfree`. Before a public image is published, retain
-the upstream notices and document the exact revision and binary files included
-in the generated Miyoo Flip V2 U-Boot image.
+repository. Rockchip's license grants rights to use, copy, and distribute the
+software, subject to its restrictions and preservation of its notices. The
+exact upstream license is retained as
+`licenses/LicenseRef-Rockchip-rkbin.txt` and is copied into the release license
+bundle by the image build.
 
 - Source: https://github.com/rockchip-linux/rkbin
 - ButterflyOS package revision: `74213af1e952c4683d2e35952507133b61394862`
+- Source archive SHA-256:
+  `b565faeab846950262c07e6debbd6519ea9e7f34943dbb305b9cea6b1026e11a`
+- BL31 input: `bin/rk35/rk3568_bl31_v1.45.elf`
+  (`76634f10e535bbe981fb9132fd6815a71586cc1b96aae1159bec6797579e5b9f`)
+- DDR/TPL input: `bin/rk35/rk3568_ddr_1056MHz_v1.23.bin`
+  (`20e4bb076847bd019fcdeb7bdc15bd249890f07ecc76e9937101f22e50950982`)
 
-**Audit status:** redistribution terms and required notices need final review.
+**Audit status:** redistribution terms reviewed and exact license retained.
+The precise firmware inputs incorporated into the final U-Boot artifact are
+listed above and must also remain in each per-release binary manifest.
 
 ## Arm Mali userspace libraries
 
-The RK3566 image includes proprietary/nonfree Mali-G52 userspace libraries from
-the JeffyCN mirror used by ROCKNIX. They are necessary for the selected GPU
-stack and are separate from the open-source wrapper/build scripts.
+The inherited RK3566 configuration can include proprietary/nonfree Mali-G52
+userspace libraries from the JeffyCN mirror used by ROCKNIX. ButterflyOS
+excludes these libraries for the Miyoo Flip V2 and uses Mesa/Panfrost instead.
 
 - Source: https://github.com/JeffyCN/mirrors
 - ButterflyOS package revision: `4233031d818e97a19e8a9cdbbd5c15795ededd93`
 
-**Audit status:** locate, preserve, and review the vendor redistribution terms
-for the exact `g29p1` binaries before public release.
+**Audit status:** the Miyoo Flip V2 Panfrost-only image was rebuilt and scanned;
+no `libmali` package tree, proprietary Mali userspace filename, or `libmali`
+SONAME reference was found. Device performance testing is still required before
+this issue can be closed.
 
 ## Linux firmware
 

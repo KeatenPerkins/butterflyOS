@@ -73,6 +73,16 @@
     ADDITIONAL_PACKAGES="libmali"
     ADDITIONAL_PACKAGES_32BIT="libmali"
 
+  # ButterflyOS uses Mesa/Panfrost on the Miyoo Flip V2. Keep the inherited
+  # proprietary Mali stack available to other RK3566 targets until each is
+  # tested independently.
+    if [ "${IMAGE_SUBDEVICE:-}" = "Miyoo_Flip_V2" ]; then
+      GRAPHIC_DRIVERS="panfrost"
+      ADDITIONAL_DRIVERS="RTL8733BU RTL8733BU-POWER"
+      ADDITIONAL_PACKAGES=""
+      ADDITIONAL_PACKAGES_32BIT=""
+    fi
+
   # Debug tty path
     DEBUG_TTY="/dev/ttyS2"
 
