@@ -46,13 +46,35 @@ The exact image built from commit `c9d2f0b` was decompressed and audited:
 - The generated package-license inventory resolved all 549 target packages to
   build metadata; this does not replace the manual license review below.
 
-The image still requires a Miyoo Flip V2 hardware smoke test, particularly
-Nintendo DS with the new melonDS DS default, before publication.
+That candidate passed a Miyoo Flip V2 hardware smoke test, including Nintendo
+DS gameplay, built-in and Bluetooth controls, audio, quick menu, save/load
+state, exit hotkey, and relaunch using the open-source melonDS DS default.
 
-## Manual license review still required
+## September 11, 2026 post-review Alpha 2 image inspection
+
+The exact image built from commit `2a294a9` incorporates the package review,
+removals, and embedded notices:
+
+- Compressed image SHA-256:
+  `a3304b1925e277ddde990bdc652f05ec6bcdc8dc80cd9244ccb0328f39696927`.
+- All 251 compatibility-build and 666 main-image steps completed with zero
+  failures.
+- FAT and ext4 filesystem checks passed, `SYSTEM.md5` matched, the FAT label
+  remained `BUTTERFLYOS`, and storage remained pristine.
+- Art Book Next, ZeroTier, libmali, DraStic, private keys, Wi-Fi profiles, and
+  user content were absent from the exact filesystem inventory.
+- The image contains the ButterflyOS theme and 86 release policy, common
+  license, and exact component-notice files under
+  `/usr/share/butterflyos/licenses`.
+- The refreshed manifest contains 546 target packages and resolves every one
+  to build metadata.
+
+This exact post-review image requires one final focused hardware smoke test
+before tagging and publication.
+
+## Manual license review
 
 The generated package manifest is an inventory, not a legal conclusion.
-Entries declared `Non-commercial`, `Unknown`, `Not declared`, `CUSTOM`,
-`proprietary`, or `nonfree` require review against their upstream source and
-the actual files installed in the final image. ButterflyOS being free resolves
-neither missing license declarations nor all definitions of commercial use.
+The flagged entries were reviewed against their exact build sources. Findings,
+corrections, removal impacts, and the free-release policy are recorded in
+`PACKAGE_LICENSE_REVIEW_ALPHA2.md`. This technical review is not legal advice.

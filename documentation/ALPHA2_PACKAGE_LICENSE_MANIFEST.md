@@ -4,7 +4,7 @@ Generated from the completed target build job log and `package.mk` metadata.
 A declaration is an audit starting point, not proof that every bundled file has
 been licensed correctly. Dynamic shell expressions may require manual review.
 
-- Target packages recorded: 549
+- Target packages recorded: 546
 - Package definitions not resolved automatically: 0
 
 | Package | Version/revision | Declared license | Upstream site | Definition |
@@ -65,7 +65,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `btop` | `v1.4.0` | Apache-2.0 | https://github.com/aristocratos/btop | `projects/ROCKNIX/packages/sysutils/btop/package.mk` |
 | `btrfs-progs` | `7.1` | GPL-2.0-only | https://btrfs.readthedocs.io/ | `packages/addons/tools/btrfs-progs/package.mk` |
 | `busybox` | `1.38.0` | GPL-2.0-only | http://www.busybox.net | `packages/sysutils/busybox/package.mk` |
-| `butterflyos-flip-onboarding` | `2.0.2` | GPL-2.0-or-later AND MIT | https://github.com/apommel/baseos-my355 | `projects/ROCKNIX/packages/misc/butterflyos-flip-onboarding/package.mk` |
+| `butterflyos-flip-onboarding` | `2.0.3` | GPL-2.0-or-later AND MIT | https://github.com/apommel/baseos-my355 | `projects/ROCKNIX/packages/misc/butterflyos-flip-onboarding/package.mk` |
 | `bzip2` | `1.0.8` | bzip2-1.0.6 | https://sourceware.org/bzip2/ | `packages/compress/bzip2/package.mk` |
 | `cabextract` | `1.11` | GPLv3 | https://www.cabextract.org.uk | `projects/ROCKNIX/packages/compress/cabextract/package.mk` |
 | `cairo` | `1.18.4` | LGPL-2.1-or-later OR MPL-1.1 | https://cairographics.org/ | `packages/graphics/cairo/package.mk` |
@@ -104,10 +104,9 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `empty` | `0.6.23c` | GPL | http://empty.sourceforge.net/ | `projects/ROCKNIX/packages/tools/empty/package.mk` |
 | `emulationstation` | `9d664e2ffa75d0fcfd129c6598318c61b57ff8f7` | GPL | https://github.com/ROCKNIX/emulationstation-next | `projects/ROCKNIX/packages/ui/emulationstation/package.mk` |
 | `emulators` | `Not declared` | GPLv2 | https://rocknix.org | `projects/ROCKNIX/packages/virtual/emulators/package.mk` |
-| `emuscv-lr` | `dfce10df090ce3f5eb23bdbee289702ec1478246` | Not declared | https://gitlab.com/MaaaX-EmuSCV/libretro-emuscv | `projects/ROCKNIX/packages/emulators/libretro/emuscv-lr/package.mk` |
-| `enet` | `v1.3.18` | Not declared | https://github.com/lsalzman/enet | `projects/ROCKNIX/packages/network/enet/package.mk` |
+| `emuscv-lr` | `dfce10df090ce3f5eb23bdbee289702ec1478246` | GPL-3.0-only | https://gitlab.com/MaaaX-EmuSCV/libretro-emuscv | `projects/ROCKNIX/packages/emulators/libretro/emuscv-lr/package.mk` |
+| `enet` | `v1.3.18` | MIT | https://github.com/lsalzman/enet | `projects/ROCKNIX/packages/network/enet/package.mk` |
 | `entware` | `Not declared` | GPL | https://github.com/Entware/Entware | `projects/ROCKNIX/packages/tools/entware/package.mk` |
-| `es-theme-art-book-next` | `9a50ef366e750aabfab29e6915a2867607212971` | CUSTOM | https://github.com/anthonycaccese/art-book-next-es | `projects/ROCKNIX/packages/ui/themes/es-theme-art-book-next/package.mk` |
 | `es-theme-butterflyos` | `0.1.0` | GPL-2.0-only | https://github.com/KeatenPerkins/butterflyOS | `projects/ROCKNIX/packages/ui/themes/es-theme-butterflyos/package.mk` |
 | `es-themes` | `Not declared` | GPLv2 | https://rocknix.org | `projects/ROCKNIX/packages/virtual/es-themes/package.mk` |
 | `espeak` | `1.48.04-source` | GPL | http://espeak.sourceforge.net/ | `projects/ROCKNIX/packages/audio/espeak/package.mk` |
@@ -128,7 +127,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `file` | `5.48` | BSD-2-Clause | https://www.darwinsys.com/file/ | `packages/addons/addon-depends/system-tools-depends/file/package.mk` |
 | `flac` | `1.5.0` | BSD-3-Clause | https://xiph.org/flac/ | `packages/audio/flac/package.mk` |
 | `fluidsynth` | `2.5.7` | LGPL-2.1-or-later | http://fluidsynth.org/ | `packages/audio/fluidsynth/package.mk` |
-| `flycast-lr` | `5aa091fde632fb332c8d8c34e280d62dc951954c` | Not declared | https://github.com/flyinghead/flycast | `projects/ROCKNIX/packages/emulators/libretro/flycast-lr/package.mk` |
+| `flycast-lr` | `5aa091fde632fb332c8d8c34e280d62dc951954c` | GPL-2.0-only | https://github.com/flyinghead/flycast | `projects/ROCKNIX/packages/emulators/libretro/flycast-lr/package.mk` |
 | `flycast-sa` | `5aa091fde632fb332c8d8c34e280d62dc951954c` | GPLv2 | https://github.com/flyinghead/flycast | `projects/ROCKNIX/packages/emulators/standalone/flycast-sa/package.mk` |
 | `flycast2021-lr` | `603814c9f73b773c455d9a497f389d2f93a257fd` | GPLv2 | https://github.com/metallic77/flycast | `projects/ROCKNIX/packages/emulators/libretro/flycast2021-lr/package.mk` |
 | `fmsx-lr` | `fbe4dfc4c3e3f7eb27089def3d663a905b181845` | GPLv2 | https://github.com/libretro/fmsx-libretro | `projects/ROCKNIX/packages/emulators/libretro/fmsx-lr/package.mk` |
@@ -139,7 +138,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `freechaf-lr` | `cdb8ad6fcecb276761b193650f5ce9ae8b878067` | GPLv2 | https://github.com/libretro/FreeChaF | `projects/ROCKNIX/packages/emulators/libretro/freechaf-lr/package.mk` |
 | `freeimage` | `3180` | GPLv3 | http://freeimage.sourceforge.net/ | `projects/ROCKNIX/packages/tools/freeimage/package.mk` |
 | `freeintv-lr` | `1b51f41238ef9691d9fe16722f7d093bb6a6e379` | GPLv3 | https://github.com/libretro/FreeIntv | `projects/ROCKNIX/packages/emulators/libretro/freeintv-lr/package.mk` |
-| `freej2me-lr` | `1.52` | Not declared | https://github.com/TASEmulators/freej2me-plus | `projects/ROCKNIX/packages/emulators/libretro/freej2me-lr/package.mk` |
+| `freej2me-lr` | `1.52` | GPL-3.0-only AND BSD-3-Clause | https://github.com/TASEmulators/freej2me-plus | `projects/ROCKNIX/packages/emulators/libretro/freej2me-lr/package.mk` |
 | `freetype` | `2.14.3` | FTL OR GPL-2.0-or-later | https://freetype.org | `packages/print/freetype/package.mk` |
 | `fribidi` | `1.0.16` | LGPL-2.1-or-later | http://fribidi.freedesktop.org/ | `packages/devel/fribidi/package.mk` |
 | `fuse` | `5a43d0f724c56f8836f3f92411e0de1b5f82db32` | LGPL-2.1-only | https://github.com/libfuse/libfuse/ | `packages/sysutils/fuse/package.mk` |
@@ -201,7 +200,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `iw` | `6.17` | ISC | https://wireless.docs.kernel.org/en/latest/en/users/documentation/iw.html | `packages/network/iw/package.mk` |
 | `iwd` | `3.12` | LGPL-2.1-or-later | https://git.kernel.org/cgit/network/wireless/iwd.git/about/ | `packages/network/iwd/package.mk` |
 | `jasper` | `4.2.9` | JasPer-2.0 | http://www.ece.uvic.ca/~mdadams/jasper/ | `packages/graphics/jasper/package.mk` |
-| `jaxe-lr` | `4825aad24716f67924cd949354aae490a14b4d2d` | Not declared | https://github.com/kurtjd/jaxe | `projects/ROCKNIX/packages/emulators/libretro/jaxe-lr/package.mk` |
+| `jaxe-lr` | `4825aad24716f67924cd949354aae490a14b4d2d` | MIT | https://github.com/kurtjd/jaxe | `projects/ROCKNIX/packages/emulators/libretro/jaxe-lr/package.mk` |
 | `joyutils` | `b6703ebf04c839fc47f9e490b68c4d5d885f32f9` | GPL | https://github.com/datrh/joyutils | `projects/ROCKNIX/packages/tools/joyutils/package.mk` |
 | `jq` | `1.8.2` | MIT | https://jqlang.github.io/jq/ | `packages/addons/addon-depends/system-tools-depends/jq/package.mk` |
 | `json-c` | `0.19` | MIT | https://github.com/json-c/json-c | `packages/devel/json-c/package.mk` |
@@ -283,7 +282,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `libserialport` | `21b3dfe5f68c205be4086469335fd2fc2ce11ed2` | GPLv3 | https://github.com/sigrokproject/libserialport | `projects/ROCKNIX/packages/devel/libserialport/package.mk` |
 | `libslirp` | `4.7.0` | OSS | https://gitlab.freedesktop.org/slirp/libslirp | `projects/ROCKNIX/packages/network/libslirp/package.mk` |
 | `libsndfile` | `1.2.2` | LGPL-2.1-or-later | https://libsndfile.github.io/libsndfile/ | `packages/audio/libsndfile/package.mk` |
-| `libspeexdsp` | `738e17905e1ca2a1fa932ddd9c2a85d089f4e845` | Not declared | https://github.com/xiph/speexdsp | `projects/ROCKNIX/packages/emulators/libretro/easyrpg-lr/libspeexdsp/package.mk` |
+| `libspeexdsp` | `738e17905e1ca2a1fa932ddd9c2a85d089f4e845` | BSD-3-Clause | https://github.com/xiph/speexdsp | `projects/ROCKNIX/packages/emulators/libretro/easyrpg-lr/libspeexdsp/package.mk` |
 | `libthai` | `0.1.29` | GPL | https://github.com/tlwg/libthai | `projects/ROCKNIX/packages/devel/libthai/package.mk` |
 | `libtirpc` | `1.3.7` | BSD-3-Clause | https://sourceforge.net/projects/libtirpc/ | `packages/network/libtirpc/package.mk` |
 | `libtool` | `2.6.2` | GPL-2.0-or-later | https://www.gnu.org/software/libtool/ | `packages/devel/libtool/package.mk` |
@@ -301,7 +300,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `libxkbfile` | `1.2.0` | MIT | https://www.X.org | `packages/x11/lib/libxkbfile/package.mk` |
 | `libxml2` | `2.15.3` | MIT | http://xmlsoft.org | `packages/textproc/libxml2/package.mk` |
 | `libxmp` | `8201d26cf933688a8be64292457c429fd8e654ab` | GPLv3 | https://github.com/libxmp/libxmp | `projects/ROCKNIX/packages/audio/libxmp/package.mk` |
-| `libxmp-lite` | `4.5.0` | Not declared | http://sourceforge.net/projects/xmp | `projects/ROCKNIX/packages/emulators/libretro/easyrpg-lr/libxmp-lite/package.mk` |
+| `libxmp-lite` | `4.5.0` | MIT | http://sourceforge.net/projects/xmp | `projects/ROCKNIX/packages/emulators/libretro/easyrpg-lr/libxmp-lite/package.mk` |
 | `libxshmfence` | `1.3.3` | HPND-sell-variant | https://www.X.org | `packages/x11/lib/libxshmfence/package.mk` |
 | `libxslt` | `1.1.45` | MIT | http://xmlsoft.org/xslt/ | `packages/textproc/libxslt/package.mk` |
 | `libxss` | `1.2.5` | X11 | https://www.X.org | `packages/addons/addon-depends/chrome-depends/libxss/package.mk` |
@@ -335,8 +334,8 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `miniupnpc` | `2.3.3` | BSD-3-Clause | http://miniupnp.free.fr | `packages/addons/addon-depends/tinc-depends/miniupnpc/package.mk` |
 | `minivmac-lr` | `6b468a9610aa422fe1b01bf56d73b636976d2b97` | GPLv2 | https://github.com/libretro/libretro-minivmac | `projects/ROCKNIX/packages/emulators/libretro/minivmac-lr/package.mk` |
 | `misc-packages` | `Not declared` | GPL-2.0-only | https://libreelec.tv | `packages/virtual/misc-packages/package.mk` |
-| `modules` | `1.0` | custom | Not declared | `projects/ROCKNIX/packages/misc/modules/package.mk` |
-| `mojozork-lr` | `5c8d81f8db53c206ace6952472e7a7e68bd8e752` | Not declared | https://github.com/icculus/mojozork | `projects/ROCKNIX/packages/emulators/libretro/mojozork-lr/package.mk` |
+| `modules` | `1.0` | GPL-2.0-only | Not declared | `projects/ROCKNIX/packages/misc/modules/package.mk` |
+| `mojozork-lr` | `5c8d81f8db53c206ace6952472e7a7e68bd8e752` | Zlib | https://github.com/icculus/mojozork | `projects/ROCKNIX/packages/emulators/libretro/mojozork-lr/package.mk` |
 | `moonlight` | `1.0` | GPL-2.0-only | Not declared | `packages/addons/script/moonlight/package.mk` |
 | `mpdecimal` | `4.0.1` | BSD-2-Clause | http://www.bytereef.org/mpdecimal/index.html | `packages/devel/mpdecimal/package.mk` |
 | `mpfr` | `4.2.2` | LGPL-3.0-or-later | http://www.mpfr.org/ | `packages/devel/mpfr/package.mk` |
@@ -367,7 +366,6 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `networkmanager` | `1.51.4` | GPL | https://gitlab.freedesktop.org/NetworkManager/NetworkManager | `projects/ROCKNIX/packages/network/networkmanager/package.mk` |
 | `nfs-utils` | `2.9.2` | GPL-2.0-or-later | http://www.linux-nfs.org/ | `packages/network/nfs-utils/package.mk` |
 | `nghttp2` | `1.70.0` | MIT | http://www.linuxfromscratch.org/blfs/view/cvs/basicnet/nghttp2.html | `packages/web/nghttp2/package.mk` |
-| `nlohmann-json` | `3.12.0` | MIT | https://nlohmann.github.io/json/ | `packages/textproc/nlohmann-json/package.mk` |
 | `np2kai-lr` | `c2ca4046860264cb307e768f529f180caee5e224` | MIT | https://github.com/AZO234/NP2kai | `projects/ROCKNIX/packages/emulators/libretro/np2kai-lr/package.mk` |
 | `nspr` | `4.39` | MPL-2.0 | http://www.linuxfromscratch.org/blfs/view/svn/general/nspr.html | `packages/security/nspr/package.mk` |
 | `nss` | `3.126` | MPL-2.0 | http://ftp.mozilla.org/ | `packages/security/nss/package.mk` |
@@ -378,12 +376,12 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `oga_controls` | `1604ee24150c1c5bb7c66bc4670919c2ad8f0064` | GPLv2 | https://github.com/christianhaitian/oga_controls | `projects/ROCKNIX/packages/apps/oga_controls/package.mk` |
 | `oniguruma` | `6.9.10` | BSD-2-Clause | https://github.com/kkos/oniguruma | `packages/addons/addon-depends/system-tools-depends/depends/oniguruma/package.mk` |
 | `openal-soft` | `1.25.2` | LGPL-2.0-or-later | http://www.openal.org/ | `packages/audio/openal-soft/package.mk` |
-| `openbor` | `b8303cce992a0db93c3a465df3c943942fe322f8` | Not declared | https://github.com/DCurrent/openbor | `projects/ROCKNIX/packages/emulators/standalone/openbor/package.mk` |
+| `openbor` | `b8303cce992a0db93c3a465df3c943942fe322f8` | BSD-3-Clause | https://github.com/DCurrent/openbor | `projects/ROCKNIX/packages/emulators/standalone/openbor/package.mk` |
 | `openssh` | `10.4p1` | BSD-2-Clause AND ISC | https://www.openssh.com/ | `packages/network/openssh/package.mk` |
 | `openssl` | `3.6.3` | Apache-2.0 | https://openssl-library.org | `packages/security/openssl/package.mk` |
 | `opera-lr` | `67a29e60a4d194b675c9272b21b61eaa022f3ba3` | LGPL with additional notes | https://github.com/libretro/opera-libretro | `projects/ROCKNIX/packages/emulators/libretro/opera-lr/package.mk` |
 | `opus` | `1.6.1` | BSD-3-Clause | http://www.opus-codec.org | `packages/audio/opus/package.mk` |
-| `opusfile` | `9d718345ce03b2fad5d7d28e0bcd1cc69ab2b166` | Not declared | https://github.com/xiph/opusfile | `projects/ROCKNIX/packages/multimedia/opusfile/package.mk` |
+| `opusfile` | `9d718345ce03b2fad5d7d28e0bcd1cc69ab2b166` | BSD-3-Clause | https://github.com/xiph/opusfile | `projects/ROCKNIX/packages/multimedia/opusfile/package.mk` |
 | `p7zip` | `16.02` | GPL | http://p7zip.sourceforge.net/ | `projects/ROCKNIX/packages/compress/p7zip/package.mk` |
 | `pango` | `1.58.2` | LGPL-2.1-or-later | http://www.pango.org/ | `packages/graphics/pango/package.mk` |
 | `parallel-n64-lr` | `f8605345e13c018a30c8f4ed03c05d8fc8f70be8` | GPLv2 | https://github.com/libretro/parallel-n64 | `projects/ROCKNIX/packages/emulators/libretro/parallel-n64-lr/package.mk` |
@@ -411,7 +409,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `puae2021-lr` | `87cbcb27809c2800418bf81da21a766de28029a0` | GPL | https://github.com/libretro/libretro-uae | `projects/ROCKNIX/packages/emulators/libretro/puae2021-lr/package.mk` |
 | `pugixml` | `1.16` | MIT | https://pugixml.org/ | `packages/textproc/pugixml/package.mk` |
 | `pulseaudio` | `17.0` | LGPL-2.1-or-later | http://pulseaudio.org/ | `packages/audio/pulseaudio/package.mk` |
-| `px68k-lr` | `9dfa6abc25ddd6e597790f7a535cd0a1d7f9c385` | Unknown | https://github.com/libretro/px68k-libretro | `projects/ROCKNIX/packages/emulators/libretro/px68k-lr/package.mk` |
+| `px68k-lr` | `9dfa6abc25ddd6e597790f7a535cd0a1d7f9c385` | GPL-2.0-only | https://github.com/libretro/px68k-libretro | `projects/ROCKNIX/packages/emulators/libretro/px68k-lr/package.mk` |
 | `pyudev` | `5e00141` | OSS | https://github.com/pyudev/pyudev | `projects/ROCKNIX/packages/tools/pyudev/package.mk` |
 | `qt6` | `6.10.3` | GPL | https://download.qt.io | `projects/ROCKNIX/packages/graphics/qt6/package.mk` |
 | `quasi88-lr` | `42be798db5585f62b4bd34ce49dd1e8063c9d7c1` | BSD3 | https://github.com/libretro/quasi88-libretro | `projects/ROCKNIX/packages/emulators/libretro/quasi88-lr/package.mk` |
@@ -419,7 +417,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `quirks` | `Not declared` | GPLv2 | Not declared | `projects/ROCKNIX/packages/hardware/quirks/package.mk` |
 | `race-lr` | `171950ea64c96ead503340ed60fa7ba18f56325c` | GPLv2 | https://github.com/libretro/RACE | `projects/ROCKNIX/packages/emulators/libretro/race-lr/package.mk` |
 | `rapidjson` | `1.1.0` | MIT | https://github.com/miloyip/rapidjson | `projects/ROCKNIX/packages/devel/rapidjson/package.mk` |
-| `rclone` | `1.71.0` | Not declared | Not declared | `projects/ROCKNIX/packages/network/rclone/package.mk` |
+| `rclone` | `1.71.0` | MIT | Not declared | `projects/ROCKNIX/packages/network/rclone/package.mk` |
 | `readline` | `8.3` | GPL-3.0-or-later | http://www.gnu.org/software/readline/ | `packages/devel/readline/package.mk` |
 | `renderdoc` | `v1.44` | MIT | https://github.com/baldurk/renderdoc | `projects/ROCKNIX/packages/graphics/renderdoc/package.mk` |
 | `retroarch` | `bdba046fa6766380bc2457532f38e589df769aaf` | GPLv3 | https://github.com/libretro/RetroArch | `projects/ROCKNIX/packages/emulators/libretro/retroarch/package.mk` |
@@ -455,7 +453,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `skyemu-lr` | `46efbcbdb3b902373a09f4724e6d3b1a5acc4af3` | MIT | https://github.com/skylersaleh/SkyEmu | `projects/ROCKNIX/packages/emulators/libretro/skyemu-lr/package.mk` |
 | `slang-shaders` | `a2ac00bcd5a44982ecaa6ba6e5b8cc9a9608b1d6` | GPL | https://github.com/libretro/slang-shaders | `projects/ROCKNIX/packages/emulators/libretro/slang-shaders/package.mk` |
 | `sleep` | `Not declared` | OSS | Not declared | `projects/ROCKNIX/packages/sysutils/sleep/package.mk` |
-| `smsplus-gx-lr` | `c642bbd0680b5959180a420036108893d0aec961` | Non-commercial | https://github.com/libretro/smsplus-gx | `projects/ROCKNIX/packages/emulators/libretro/smsplus-gx-lr/package.mk` |
+| `smsplus-gx-lr` | `c642bbd0680b5959180a420036108893d0aec961` | GPL-2.0-only | https://github.com/libretro/smsplus-gx | `projects/ROCKNIX/packages/emulators/libretro/smsplus-gx-lr/package.mk` |
 | `sndio` | `1.10.0` | GPLv3 | https://sndio.org/ | `projects/ROCKNIX/packages/audio/sndio/package.mk` |
 | `snes9x-lr` | `5a40cd5514e63e691e39141d64267798357a1424` | Non-commercial | https://github.com/libretro/snes9x | `projects/ROCKNIX/packages/emulators/libretro/snes9x-lr/package.mk` |
 | `snes9x2002-lr` | `a0709ec7dcd6de2fbebb43106bd757b649e3b7cf` | Non-commercial | https://github.com/libretro/snes9x2002 | `projects/ROCKNIX/packages/emulators/libretro/snes9x2002-lr/package.mk` |
@@ -524,7 +522,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `wavpack` | `5.9.0` | BSD-3-Clause | https://www.wavpack.com | `packages/audio/wavpack/package.mk` |
 | `wayland` | `1.26.0` | MIT | https://wayland.freedesktop.org/ | `packages/wayland/wayland/package.mk` |
 | `wayland-protocols` | `1.49` | MIT | https://wayland.freedesktop.org/ | `packages/wayland/wayland-protocols/package.mk` |
-| `wildmidi` | `405ca73` | Not declared | https://github.com/Mindwerks/wildmidi | `projects/ROCKNIX/packages/emulators/libretro/easyrpg-lr/wildmidi/package.mk` |
+| `wildmidi` | `405ca73` | GPL-3.0-only AND LGPL-3.0-only | https://github.com/Mindwerks/wildmidi | `projects/ROCKNIX/packages/emulators/libretro/easyrpg-lr/wildmidi/package.mk` |
 | `wine` | `11.0` | MIT | https://github.com/Kron4ek/Wine-Builds | `projects/ROCKNIX/packages/compat/wine/package.mk` |
 | `wireguard-tools` | `1.0.20260223` | GPL-2.0-only OR MIT | https://www.wireguard.com | `packages/network/wireguard-tools/package.mk` |
 | `wireless-regdb` | `2026.05.30` | ISC | https://wireless.wiki.kernel.org/en/developers/regulatory/wireless-regdb | `packages/network/wireless-regdb/package.mk` |
@@ -542,7 +540,7 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `xcb-util-wm` | `0.4.2` | GPL | https://xcb.freedesktop.org/XcbUtil/ | `projects/ROCKNIX/packages/x11/util/xcb-util-wm/package.mk` |
 | `xkbcomp` | `1.5.0` | MIT | https://www.X.org | `packages/x11/app/xkbcomp/package.mk` |
 | `xkeyboard-config` | `2.48` | MIT AND HPND AND HPND-sell-variant | https://www.X.org | `packages/x11/data/xkeyboard-config/package.mk` |
-| `xmil-lr` | `6a52dc21a5ff106137670bb600ab2ce3fcebeb1b` | Unknown | https://github.com/libretro/xmil-libretro | `projects/ROCKNIX/packages/emulators/libretro/xmil-lr/package.mk` |
+| `xmil-lr` | `6a52dc21a5ff106137670bb600ab2ce3fcebeb1b` | BSD-3-Clause | https://github.com/libretro/xmil-libretro | `projects/ROCKNIX/packages/emulators/libretro/xmil-lr/package.mk` |
 | `xmlstarlet` | `1.6.1` | MIT | https://xmlstarlet.github.io/ | `packages/textproc/xmlstarlet/package.mk` |
 | `xorg-launch-helper` | `4` | GPL-2.0-or-later | https://github.com/sofar/xorg-launch-helper | `packages/x11/util/xorg-launch-helper/package.mk` |
 | `xorgproto` | `2025.1` | MIT | https://www.X.org | `packages/x11/proto/xorgproto/package.mk` |
@@ -554,7 +552,6 @@ been licensed correctly. Dynamic shell expressions may require manual review.
 | `xz` | `5.8.3` | 0BSD | https://tukaani.org/xz/ | `packages/compress/xz/package.mk` |
 | `yabasanshiro-lr` | `39535a6abcad5abf9f71c8b2a7975f005ee12ed6` | GPLv2 | https://github.com/libretro/yabause | `projects/ROCKNIX/packages/emulators/libretro/yabasanshiro-lr/package.mk` |
 | `yabasanshiro-sa` | `a40dace1ae0af3ebd45848549fdf396f40e3930f` | GPLv2 | https://github.com/sydarn/yabause | `projects/ROCKNIX/packages/emulators/standalone/yabasanshiro-sa/package.mk` |
-| `zerotier-one` | `1.16.0` | Not declared | https://www.zerotier.com | `projects/ROCKNIX/packages/network/zerotier-one/package.mk` |
 | `zlib` | `1.3.2` | Zlib | http://www.zlib.net | `packages/compress/zlib/package.mk` |
 | `zmusic` | `1.1.14` | GPL | https://github.com/ZDoom/ZMusic | `projects/ROCKNIX/packages/emulators/standalone/gzdoom-sa/zmusic/package.mk` |
 | `zstd` | `1.5.7` | GPL-2.0-only OR BSD-3-Clause | http://www.zstd.net | `packages/compress/zstd/package.mk` |
