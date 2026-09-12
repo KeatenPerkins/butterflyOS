@@ -70,9 +70,11 @@ if [ -e /storage/.please_resize_me ] ; then
     echo "Please do not reboot or turn off your ButterflyOS device!"
     echo ""
 
-    # The image GPT ends at the end of the compact release image. Move its
-    # backup header to the physical end of the card before growing partition 2.
-    ResizeStep "Preparing partition table..." "sgdisk -e $DISK >>$LOG 2>&1"
+    # The image GPT ends at the end of the compact release image.  Parted's
+    # force option repairs that placement non-interactively before partition 2
+    # is grown.  Do not use target sgdisk here: affected ARM builds corrupt its
+    # device argument before opening it.
+    ResizeStep "Preparing partition table..." "parted -s -f -m $DISK print >>$LOG 2>&1"
     ResizeStep "Resizing partition...   " "parted -s -f -m $DISK resizepart $PARTNUM 100% >>$LOG 2>&1"
     ResizeStep "Saving partition table..." "sync >>$LOG 2>&1"
     ResizeStep "Reloading partition table..." "partprobe $DISK >>$LOG 2>&1 && udevadm settle >>$LOG 2>&1"
