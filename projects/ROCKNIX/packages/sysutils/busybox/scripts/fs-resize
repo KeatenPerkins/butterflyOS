@@ -10,6 +10,20 @@ StartProgressLog() {
   StartProgress "$@"
 }
 
+ResizeStep() {
+  STEP_MESSAGE="$1"
+  STEP_COMMAND="$2"
+
+  if ! StartProgressLog spinner "$STEP_MESSAGE" "$STEP_COMMAND"; then
+    echo "FAILED: $STEP_COMMAND" >>$LOG
+    echo "Storage expansion failed. It is safe to power off and retry."
+    StartProgress countdown "Powering off in 8s... " 8 "NOW"
+    mount -o remount,ro /flash
+    poweroff -f
+    exit 1
+  fi
+}
+
 if [ -e /storage/.please_resize_me ] ; then
   . /usr/lib/rocknix/functions
 
@@ -45,9 +59,6 @@ if [ -e /storage/.please_resize_me ] ; then
       ;;
   esac
 
-  rm -f /storage/.please_resize_me
-  sync
-
   echo "DISK: $DISK  PART: $PART" >>$LOG
 
   # just in case
@@ -59,11 +70,32 @@ if [ -e /storage/.please_resize_me ] ; then
     echo "Please do not reboot or turn off your ButterflyOS device!"
     echo ""
 
-    StartProgressLog spinner "Resizing partition...   " "parted -s -f -m $DISK resizepart $PARTNUM 100% >>$LOG 2>&1"
-    StartProgressLog spinner "Checking file system... " "e2fsck -f -p $PART >>$LOG 2>&1"
-    StartProgressLog spinner "Resizing file system... " "resize2fs $PART >>$LOG 2>&1"
-    StartProgressLog spinner "Regenerating UUIDs...   " "tune2fs $PART -U random >>$LOG 2>&1; fatlabel -i -r ${DISK}p1 >>$LOG 2>&1"
-    StartProgressLog spinner "Syncing to disk...      " "sync >>$LOG 2>&1"
+    # The image GPT ends at the end of the compact release image. Move its
+    # backup header to the physical end of the card before growing partition 2.
+    ResizeStep "Preparing partition table..." "sgdisk -e $DISK >>$LOG 2>&1"
+    ResizeStep "Resizing partition...   " "parted -s -f -m $DISK resizepart $PARTNUM 100% >>$LOG 2>&1"
+    ResizeStep "Saving partition table..." "sync >>$LOG 2>&1"
+    ResizeStep "Reloading partition table..." "partprobe $DISK >>$LOG 2>&1 && udevadm settle >>$LOG 2>&1"
+
+    DISK_BYTES=$(blockdev --getsize64 "$DISK")
+    PART_BYTES=$(blockdev --getsize64 "$PART")
+    GPT_PART_BYTES=$(parted -s -m "$DISK" unit B print 2>>$LOG | awk -F: -v part="$PARTNUM" '$1 == part { gsub("B", "", $4); print $4 }')
+    echo "DISK_BYTES: $DISK_BYTES  PART_BYTES: $PART_BYTES  GPT_PART_BYTES: $GPT_PART_BYTES" >>$LOG
+    if [ -z "$DISK_BYTES" -o -z "$PART_BYTES" -o -z "$GPT_PART_BYTES" ] ||
+       [ "$PART_BYTES" -lt $((DISK_BYTES / 2)) ] ||
+       [ "$GPT_PART_BYTES" -lt $((DISK_BYTES / 2)) ]; then
+      echo "FAILED: resized partition is unexpectedly small" >>$LOG
+      echo "Storage expansion failed. It is safe to power off and retry."
+      StartProgress countdown "Powering off in 8s... " 8 "NOW"
+      mount -o remount,ro /flash
+      poweroff -f
+      exit 1
+    fi
+
+    ResizeStep "Checking file system... " "e2fsck -f -p $PART >>$LOG 2>&1"
+    ResizeStep "Resizing file system... " "resize2fs $PART >>$LOG 2>&1"
+    ResizeStep "Regenerating UUIDs...   " "tune2fs $PART -U random >>$LOG 2>&1 && fatlabel -i -r ${DISK}p1 >>$LOG 2>&1"
+    ResizeStep "Finalizing storage...   " "mount $PART /storage >>$LOG 2>&1 && rm -f /storage/.please_resize_me && sync >>$LOG 2>&1 && umount $PART >>$LOG 2>&1"
     StartProgress countdown "Rebooting in 5s...     " 5 "NOW"
   else
     echo "Partition was not detected - resizing aborted."
