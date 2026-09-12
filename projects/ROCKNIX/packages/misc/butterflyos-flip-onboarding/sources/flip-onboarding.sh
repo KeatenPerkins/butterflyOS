@@ -197,6 +197,79 @@ case "${ACTION:-}" in
     fi
     run_low_level restore restore "$restore_image" || true
     ;;
+  export)
+    if [[ ! -f "$DEVICE_BACKUP" || ! -f "$DEVICE_BACKUP_SUM" ]]; then
+      show_message "The device-specific recovery backup is incomplete.\n\nRun ButterflyOS Setup from the stock Miyoo Apps menu before trying to export it.\n\nNothing was changed."
+      exit 1
+    fi
+
+    expected_sha=$(awk 'NR == 1 { print tolower($1) }' "$DEVICE_BACKUP_SUM")
+    actual_sha=$(sha256sum "$DEVICE_BACKUP" 2>/dev/null | awk '{ print tolower($1) }')
+    backup_size=$(wc -c <"$DEVICE_BACKUP" | tr -d ' ')
+    if [[ ! "$expected_sha" =~ ^[0-9a-f]{64}$ || \
+          "$actual_sha" != "$expected_sha" || \
+          "$backup_size" != 2097152 ]]; then
+      show_message "The device-specific recovery backup failed validation.\n\nExpected SHA-256:\n${expected_sha:-invalid manifest}\n\nActual SHA-256:\n${actual_sha:-unreadable}\n\nSize: ${backup_size:-unknown} bytes (expected 2097152)\n\nNo archive was created."
+      exit 1
+    fi
+
+    short_sha=${actual_sha:0:12}
+    archive_name="ButterflyOS-Recovery-${short_sha}.tar.gz"
+    archive="/storage/$archive_name"
+    archive_sum="$archive.sha256"
+    stage=$(mktemp -d /tmp/butterflyos-recovery-export.XXXXXX) || {
+      show_message "Could not create the temporary export folder.\n\nNo archive was created."
+      exit 1
+    }
+    mkdir -p "$stage/butterflyos-recovery"
+    cp -f "$DEVICE_BACKUP" "$DEVICE_BACKUP_SUM" \
+      "$stage/butterflyos-recovery/" || {
+        rm -rf "$stage"
+        show_message "Could not stage the verified recovery files.\n\nNo archive was created."
+        exit 1
+      }
+    for optional in install-last.log setup-last.log; do
+      if [[ -f "/flash/butterflyos-recovery/$optional" ]]; then
+        cp -f "/flash/butterflyos-recovery/$optional" \
+          "$stage/butterflyos-recovery/"
+      fi
+    done
+    cat >"$stage/README.txt" <<EOF
+ButterflyOS device-specific recovery backup
+
+Device backup SHA-256:
+$actual_sha
+
+Keep this archive on another computer or drive. Do not leave your only copy
+on the ButterflyOS microSD card, because reflashing the card erases it.
+
+This backup belongs to the specific Miyoo Flip that created it. Do not share
+it or restore it to another device.
+
+To make Restore Stock Miyoo Boot available after reflashing, extract this
+archive and copy its butterflyos-recovery folder to the root of the
+BUTTERFLYOS boot partition. Keep the .img and .sha256 files together.
+EOF
+
+    archive_tmp="$RECOVERY_DIR/.${archive_name}.tmp"
+    rm -f "$archive_tmp"
+    if ! tar -C "$stage" -czf "$archive_tmp" README.txt butterflyos-recovery || \
+       ! gzip -t "$archive_tmp" || \
+       ! tar -tzf "$archive_tmp" | grep -qx 'butterflyos-recovery/preloader-original.img' || \
+       ! tar -tzf "$archive_tmp" | grep -qx 'butterflyos-recovery/preloader-original.img.sha256'; then
+      rm -rf "$stage"
+      rm -f "$archive_tmp"
+      show_message "The recovery archive failed validation.\n\nNo export was saved."
+      exit 1
+    fi
+    mv -f "$archive_tmp" "$archive"
+    archive_sha=$(sha256sum "$archive" | awk '{ print tolower($1) }')
+    printf '%s  %s\n' "$archive_sha" "$archive_name" >"$archive_sum"
+    sync
+    rm -rf "$stage"
+
+    show_message "RECOVERY BACKUP EXPORTED\n\nSaved at the top of All Storage:\n$archive_name\n\nArchive SHA-256:\n$archive_sha\n\nUse Web File Transfer → All Storage to download both the archive and its .sha256 file to another computer. Reflashing this card erases this copy. Do not share this device-specific backup."
+    ;;
   *)
     show_message "Unknown boot setup action. Nothing was changed."
     exit 1

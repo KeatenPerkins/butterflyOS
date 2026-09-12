@@ -1,6 +1,6 @@
 # ButterflyOS controls and hotkeys
 
-These shortcuts describe the tested Alpha 1 layout on the Miyoo Flip V2. `M`
+These shortcuts describe the tested Alpha 2 layout on the Miyoo Flip V2. `M`
 means the handheld's physical Menu button. A Bluetooth controller can use the
 same shortcuts after its Menu button is captured under Controller & Bluetooth
 settings.
@@ -45,7 +45,7 @@ detection completes.
 ## Standalone-emulator exceptions
 
 Not every standalone emulator uses RetroArch's Quick Menu or save-state
-commands. Alpha 1 adds the clean Menu+Start-twice exit gesture to YabaSanshiro
+commands. Alpha 2 adds the clean Menu+Start-twice exit gesture to YabaSanshiro
 (Saturn) and OpenBOR. PPSSPP retains its native menu and exit behavior.
 
 If a standalone application does not recognize a shortcut, use its native menu

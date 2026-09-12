@@ -5,7 +5,7 @@ is performed on a Miyoo Flip V2 before a milestone is considered complete.
 
 ## Milestone 0: Bootable foundation
 
-Status: **Alpha 1 baseline complete; remaining hardware qualification tracked**
+Status: **Alpha 2 public-release candidate; remaining limitations tracked**
 
 - Reproducible Miyoo Flip V2 ROCKNIX build
 - Working SD-card boot path and display initialization
@@ -16,9 +16,9 @@ Status: **Alpha 1 baseline complete; remaining hardware qualification tracked**
   reporting, charging, Wi-Fi, Bluetooth, both card slots, lid behavior, suspend,
   resume, and shutdown after the replacement shell is installed
 
-Alpha 1 established the bootable and controller-tested baseline. Rumble,
-dedicated lid/suspend regression, controlled battery-runtime measurement, and
-qualification on a second untouched device remain open.
+Alpha 1 established the bootable baseline. Alpha 2 has completed qualification
+on a second untouched device. Rumble, dedicated lid/suspend regression, and
+controlled battery-runtime measurement remain open known limitations.
 
 ## Milestone 1: Console shell prototype
 
@@ -43,16 +43,18 @@ Replace the Alpha 1 bundled stock and patched preloader images with a workflow
 that derives everything from the preloader already installed on the user's own
 Miyoo Flip V2:
 
-Implementation status: the device-local patcher, exact backup, verifier, and
-exact-only restore path are implemented in the Alpha 2 development tree. The
-gate remains open until the complete physical round trip passes on the second
-untouched Flip V2 and the resulting release image is audited.
+Implementation status: the device-local patcher, exact backup, verifier,
+exact-only restore path, and off-card export workflow are implemented. The full
+physical round trip passed on two Flip V2 devices. The remaining gate is the
+final rebuilt-image audit and release packaging.
 
 - Read the device's original 2 MiB preloader without distributing a vendor
   preloader image.
 - Recognize and validate supported preloader structures before modifying data.
 - Save an exact device-specific backup and SHA-256 manifest to the SD card
   before any internal write.
+- Export the validated backup in a portable archive so users can preserve it
+  on another physical device before reflashing the SD card.
 - Reread and verify the saved backup independently.
 - Apply only the documented SD-multiboot patch locally on the device.
 - Validate the generated image structurally and refuse unknown revisions.
@@ -144,7 +146,7 @@ mainline GB/GBC monster-trading games, followed by compatible GBA titles.
 - Verify that failed connections never corrupt or overwrite either player's
   save; make automatic pre-session save backups mandatory
 - Keep the prototype behind an Experimental or Advanced switch and exclude it
-  from the Alpha 1 acceptance criteria
+  from the Alpha 2 acceptance criteria
 
 ### GB/GBC release scope
 

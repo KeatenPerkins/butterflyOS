@@ -6,10 +6,16 @@ test software and is not a stable release.
 ## Release record
 
 - Source tag: `v0.1.0-alpha.2` (create only after qualification)
-- Exact image source commit: `2a294a9`
+- Exact image source commit: pending final recovery-export commit and rebuild
 - Image: `ButterflyOS-v0.1.0-alpha.2-Miyoo-Flip-V2.img.gz`
-- SHA-256: `a3304b1925e277ddde990bdc652f05ec6bcdc8dc80cd9244ccb0328f39696927`
+- SHA-256: pending final rebuild and post-build verification
 - Target: Miyoo Flip V2 (`RK3566` / `Miyoo_Flip_V2`)
+
+The most recent fully hardware-tested pre-release baseline was built from
+commit `f2ea99b` as
+`ROCKNIX-RK3566.aarch64-20260912-Miyoo_Flip_V2.img.gz`, SHA-256
+`39a3b8ba58992e9c3f7894c93bdfbbb6f8a6dce8ed411821ebc769ae1f19fe06`.
+Do not publish that checksum for a later rebuild.
 
 ## Changes from the internal Alpha 1 baseline
 
@@ -25,13 +31,17 @@ test software and is not a stable release.
 - Preserved the exact Rockchip `rkbin` license and firmware-input record.
 - Added public build, recovery, controls, compatibility, licensing, and known
   issue documentation.
+- Added a validated, device-specific recovery-backup export workflow so the
+  original preloader can be preserved off-card before reflashing.
+- Replaced the unsafe first-boot GPT resize path with a fail-closed Parted
+  workflow and verified full storage expansion on physical hardware.
 
 ## Important limitations
 
 - Saturn acceleration is not currently reliable with Panfrost. See Known
   Issues for the tested emulator behavior.
-- Nintendo DS must be requalified with the new open-source default before the
-  release candidate is published.
+- Nintendo DS with the open-source melonDS default passed controls, suspend,
+  resume, and clean-exit testing on physical hardware.
 - No games or proprietary console BIOS files are included.
 
 Read [Quick Start](QUICK_START.md), [Installation and Recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md),

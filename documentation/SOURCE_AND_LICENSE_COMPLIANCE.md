@@ -68,9 +68,9 @@ attribution. Do not use their logos to suggest an official relationship.
 
 ## Current release blockers
 
-- Generate and inspect the clean Alpha 2 image and package/license manifest.
-- Rebuild after the reviewed package exclusions and embedded-notice changes,
-  then repeat the clean-image audit and focused hardware smoke test.
+- Rebuild after the recovery-export addition, then repeat the clean-image audit
+  and a focused hardware smoke test.
+- Recheck the final package/license manifest and embedded firmware/font notices.
 - Publish the exact corresponding source and immutable release tag beside the
   final binary and checksum.
 

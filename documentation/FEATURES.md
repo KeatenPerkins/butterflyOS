@@ -1,6 +1,6 @@
-# ButterflyOS v0.1.0 Alpha 1 features
+# ButterflyOS v0.1.0 Alpha 2 features
 
-Alpha 1 is a hardware-tested Miyoo Flip V2 baseline focused on a clean,
+Alpha 2 is a hardware-tested Miyoo Flip V2 candidate focused on a clean,
 controller-first experience.
 
 ## Console interface
@@ -51,6 +51,7 @@ controller-first experience.
 - Verified SD-multiboot installation
 - Stock Miyoo OS remains available when the ButterflyOS card is removed
 - Guided restoration of stock boot behavior
+- Validated export of the device-specific recovery backup before SD reflashing
 - System Manager, Quick Start, and Controls Guide available on the device
 
 ButterflyOS does not include commercial games or proprietary console BIOS

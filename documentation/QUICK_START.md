@@ -1,6 +1,6 @@
-# ButterflyOS Alpha 1 Quick Start
+# ButterflyOS Alpha 2 Quick Start
 
-ButterflyOS v0.1.0 Alpha 1 supports the **Miyoo Flip V2 only**. It is test
+ButterflyOS v0.1.0 Alpha 2 supports the **Miyoo Flip V2 only**. It is test
 software, not a stable release. Back up saves and other important files before
 testing it.
 
@@ -19,7 +19,7 @@ ButterflyOS does not contain games or proprietary console BIOS files.
 Keep the image and checksum file in the same directory. On Linux, run:
 
 ```sh
-sha256sum -c ButterflyOS-v0.1.0-alpha.1-Miyoo-Flip-V2.img.gz.sha256
+sha256sum -c ButterflyOS-v0.1.0-alpha.2-Miyoo-Flip-V2.img.gz.sha256
 ```
 
 The result must say `OK`. If it does not, delete the download and obtain it
@@ -54,6 +54,9 @@ installed internally.
 5. After the device powers off, move the card to the **right-hand slot**.
 6. Boot ButterflyOS and allow first-boot initialization to finish.
 7. Open **Tools → ButterflyOS Boot Check**.
+8. Open **Tools → Export ButterflyOS Recovery Backup**, then download the
+   resulting archive and `.sha256` file to another computer. Do this before
+   ever reflashing the ButterflyOS card.
 
 If the stock OS does not detect the card or does not initially show
 **ButterflyOS Setup**, shut down normally, wait until fully powered off, reseat

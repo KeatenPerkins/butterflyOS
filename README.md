@@ -3,15 +3,15 @@
 <p align="center"><img src="artwork/branding/icons/butterflyos-emblem-transparent-1024.png" width="192" alt="ButterflyOS butterfly emblem"></p>
 
 ButterflyOS is a fast, friendly, controller-first operating system for the
-Miyoo Flip V2. Version 0.1.0 Alpha 1 is the first hardware-tested baseline. It
-is intended for careful testers and is not yet a stable release.
+Miyoo Flip V2. Version 0.1.0 Alpha 2 is the current public-release candidate.
+It is intended for careful testers and is not yet a stable release.
 
 Start here:
 
 - [Quick Start](documentation/QUICK_START.md)
 - [Installation and recovery](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md)
 - [Controls and hotkeys](documentation/HOTKEYS.md)
-- [Alpha 1 features](documentation/FEATURES.md)
+- [Features](documentation/FEATURES.md)
 - [Compatibility matrix](documentation/BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md)
 - [Known issues](documentation/KNOWN_ISSUES.md)
 - [Alpha 2 release notes](documentation/RELEASE_NOTES_v0.1.0-alpha.2.md)

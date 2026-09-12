@@ -2,7 +2,7 @@
 
 ## Project and source
 
-- [x] Exact binary source commit recorded (`c9d2f0b`); immutable tag pending
+- [ ] Exact binary source commit and immutable tag recorded after final rebuild
 - [ ] Corresponding source and build instructions published beside the image
 - [ ] Source dependency URLs, revisions, hashes, and licenses recorded
 - [ ] GPL/LGPL license texts and copyright notices retained
@@ -26,7 +26,7 @@
 - [x] No games, proprietary user BIOS files, or test media included
 - [x] No Wi-Fi credentials, SSH host keys, passwords, logs, or personal data
 - [x] No device-specific preloader backup or recovery data included
-- [ ] Required firmware and font notices retained
+- [ ] Required firmware and font notices rechecked in the final rebuilt image
 
 ## Branding
 

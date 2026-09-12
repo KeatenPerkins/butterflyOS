@@ -20,6 +20,9 @@ recovery method, not an onboarding step.
 6. After shutdown, move the ButterflyOS card from the left-hand slot to the
    **right-hand slot**, then power on. The prepared card boots ButterflyOS.
 7. In ButterflyOS, open **Tools → ButterflyOS Boot Check**. This is read-only.
+8. Open **Tools → Export ButterflyOS Recovery Backup**. In Web File Transfer,
+   open **All Storage** and download both `ButterflyOS-Recovery-*.tar.gz` and
+   its matching `.sha256` file to another computer or drive.
 
 ### If the card or Setup app is not detected
 
@@ -96,6 +99,31 @@ Restore is therefore byte-for-byte identical to what that specific device held
 before installation. Without the verified device-specific pair, ButterflyOS
 refuses to restore.
 
+## Export the recovery backup before reflashing
+
+The recovery pair initially lives on the ButterflyOS boot partition. Writing a
+new whole-card image erases that partition, the storage partition, and every
+copy stored on that microSD card.
+
+Open **Tools → Export ButterflyOS Recovery Backup**. The tool revalidates the
+backup's size and SHA-256 before creating these files at the top of **All
+Storage**:
+
+```text
+ButterflyOS-Recovery-<device-hash>.tar.gz
+ButterflyOS-Recovery-<device-hash>.tar.gz.sha256
+```
+
+Download both files to a different physical device. Keeping the archive only
+on the ButterflyOS card does not protect it from a reflash. The archive is
+specific to the Miyoo Flip that created it; do not publish it, share it, or use
+it on another unit.
+
+After reflashing, verify and extract the archive on a computer. Copy the
+extracted `butterflyos-recovery` folder to the root of the `BUTTERFLYOS` boot
+partition. **Restore Stock Miyoo Boot** will independently check the 2 MiB
+image and its SHA-256 manifest before allowing a restore.
+
 ## Recovery if installation is interrupted
 
 The installer keeps both original and derived images in RAM and retries a
@@ -107,6 +135,12 @@ MASKROM button remains the final recovery path.
 
 The immutable SoC bootrom and MASKROM implementation are not stored in the SPI
 NAND region modified by ButterflyOS.
+
+A development recovery experiment also proved that ButterflyOS can read and
+verify the complete internal NAND and can constrain a repair to an exact MTD
+region. Full-NAND backup/restore is not exposed in Alpha 2; it remains a future
+Advanced feature because interruption, bad-block handling, and device-specific
+stock data require additional safeguards.
 
 ## Public-release gates
 

@@ -72,6 +72,33 @@ removals, and embedded notices:
 This exact post-review image requires one final focused hardware smoke test
 before tagging and publication.
 
+## September 12, 2026 fail-safe resize baseline
+
+The post-review image was rebuilt after replacing the target-incompatible
+`sgdisk` first-boot path with a fail-closed GNU Parted workflow:
+
+- Exact source commit: `f2ea99b`.
+- Image: `ROCKNIX-RK3566.aarch64-20260912-Miyoo_Flip_V2.img.gz`.
+- Compressed image SHA-256:
+  `39a3b8ba58992e9c3f7894c93bdfbbb6f8a6dce8ed411821ebc769ae1f19fe06`.
+- All 666 main-image package stages completed with zero failures.
+- The pristine FAT and ext4 filesystems passed read-only checks, `SYSTEM.md5`
+  matched, and a complete SD-card readback matched the decompressed image.
+- The embedded resize script was extracted independently and confirmed to
+  check both kernel-reported and on-disk GPT partition sizes before touching
+  the ext4 filesystem, retaining its retry marker until successful completion.
+- Physical first boot repaired the backup GPT, expanded the storage partition
+  and filesystem to 27.6 GiB, removed the retry marker only after success, and
+  left zero failed systemd units.
+- Wi-Fi, SSH, Bluetooth controls and audio, built-in controls and hotkeys,
+  controller fallback, HDMI, media, games, and open-source melonDS Nintendo DS
+  operation passed physical testing. Saturn remains the documented Panfrost
+  exception.
+
+The recovery-export source change intentionally makes this a tested baseline,
+not the final publishable binary. The final Alpha 2 image requires a new exact
+commit, checksum, filesystem/privacy scan, and focused hardware test.
+
 ## Manual license review
 
 The generated package manifest is an inventory, not a legal conclusion.

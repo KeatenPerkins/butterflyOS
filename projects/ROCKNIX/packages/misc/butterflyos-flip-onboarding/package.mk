@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.0.3"
+PKG_VERSION="2.0.4"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
@@ -52,6 +52,7 @@ makeinstall_target() {
 
   mkdir -p "${INSTALL}/usr/config/modules/images"
   cp -a "${PKG_DIR}/sources/ButterflyOS Boot Check.sh" \
+        "${PKG_DIR}/sources/Export ButterflyOS Recovery Backup.sh" \
         "${PKG_DIR}/sources/Restore Stock Miyoo Boot.sh" \
         "${INSTALL}/usr/config/modules/"
   cp -a "${ROOT}/artwork/branding/icons/butterflyos-emblem-transparent-1024.png" \
@@ -79,6 +80,7 @@ makeinstall_target() {
         "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/"
 
   chmod 0755 "${INSTALL}/usr/config/modules/ButterflyOS Boot Check.sh" \
+             "${INSTALL}/usr/config/modules/Export ButterflyOS Recovery Backup.sh" \
              "${INSTALL}/usr/config/modules/Restore Stock Miyoo Boot.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-onboarding.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/manage.sh" \

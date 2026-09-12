@@ -25,6 +25,18 @@
         <image>./images/butterflyos-boot.png</image>
     </game>
     <game>
+        <path>./Export ButterflyOS Recovery Backup.sh</path>
+        <name>Export Recovery Backup</name>
+        <desc>Validate and package this Flip's device-specific recovery files so you can download them before reflashing the ButterflyOS card.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <rating>5.0</rating>
+        <releasedate>2026</releasedate>
+        <genre>Recovery</genre>
+        <players>1</players>
+        <image>./images/butterflyos-boot.png</image>
+    </game>
+    <game>
         <path>./Restore Stock Miyoo Boot.sh</path>
         <name>Restore Stock Miyoo Boot</name>
         <desc>Disable ButterflyOS SD multiboot and restore stock Miyoo boot behavior using a validated and verified write.</desc>

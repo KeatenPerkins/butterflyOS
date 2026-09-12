@@ -12,8 +12,8 @@ retains the BaseOS-derived patcher's MIT notice.
 
 The full device-local install and byte-exact restore round trip passed on a
 second untouched Flip V2. The clean image containing the runtime-dependency
-fixes then repeated the full workflow without live intervention. Public
-The Alpha 2 public candidate also excludes proprietary Mali userspace libraries
+fixes then repeated the full workflow without live intervention. The Alpha 2
+public candidate also excludes proprietary Mali userspace libraries
 and DraStic. Distribution remains on hold until the final clean image,
 package-license audit, and post-build hardware smoke test are complete.
 
@@ -53,8 +53,9 @@ package-license audit, and post-build hardware smoke test are complete.
   resolution, disabled compute shaders, frameskip, and CPU tessellation did not
   correct it. Test a genuinely different Saturn core/backend before treating
   the open GPU migration as fully qualified.
-- Alpha 2 replaces DraStic with open-source melonDS for Nintendo DS. Nintendo
-  DS performance and controls must be requalified on the final image.
+- Alpha 2 replaces DraStic with open-source melonDS for Nintendo DS. Its
+  performance, controls, suspend/resume, and clean exit passed physical testing;
+  compatibility can still vary by game.
 - Arcade games require ROM sets compatible with the selected core. A game that
   does not launch is not necessarily an emulator failure.
 - Standalone emulators do not all provide RetroArch hotkeys. YabaSanshiro and
@@ -77,6 +78,9 @@ package-license audit, and post-build hardware smoke test are complete.
 
 - There is not yet a tested ButterflyOS online-update channel or rollback
   workflow. Reflashing remains the Alpha upgrade method.
+- Reflashing erases the device-specific recovery backup stored on the card.
+  Use **Export ButterflyOS Recovery Backup** and download the result to another
+  physical device before writing a new image.
 - Some inherited Advanced Mode screens retain ROCKNIX terminology and are not
   intended for beginner workflows.
 - Broad theme polishing for external display resolutions is deferred until the
