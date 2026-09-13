@@ -99,6 +99,42 @@ The recovery-export source change intentionally makes this a tested baseline,
 not the final publishable binary. The final Alpha 2 image requires a new exact
 commit, checksum, filesystem/privacy scan, and focused hardware test.
 
+## September 12, 2026 final recovery-export candidate
+
+The exact image built from commit
+`b7d83bb5c8e509e541587983cc8c13dbbbf7a47a` incorporates the qualified
+onboarding flow and the user-facing recovery-backup export:
+
+- Image: `ROCKNIX-RK3566.aarch64-20260912-Miyoo_Flip_V2.img.gz`.
+- Compressed image SHA-256:
+  `15768d411c68254e4c7d0f8363eac98e4ad9ee7b4789cd7afde2abe021f91386`.
+- All 251 compatibility and 666 main-image jobs completed successfully.
+- Gzip integrity and the generated SHA-256 sidecar passed.
+- The FAT label is `BUTTERFLYOS`; `SYSTEM.md5` matches the extracted SYSTEM;
+  and the FAT and pristine ext4 storage filesystems passed read-only checks.
+- Storage contains only `lost+found` and `.please_resize_me` before first boot.
+- The packaged recovery export launcher and implementation are present.
+- No games, console BIOS files, test media, Wi-Fi profiles, SSH private or host
+  keys, device recovery backups, or test-network identifiers were found.
+- Proprietary libmali, Art Book Next, ZeroTier, and the DraStic program are
+  absent. Two generic upstream suspend-helper filenames for the unrelated
+  Anbernic RG DS remain but contain no DraStic program or library.
+- Mesa Panfrost/Panthor drivers and the embedded ButterflyOS license and notice
+  set are present.
+
+This exact image still requires its focused physical-device smoke test before
+the immutable release tag and public upload.
+
+Its September 12 physical test passed first-boot expansion, Wi-Fi, SSH,
+Bluetooth and built-in controls, game and media playback, hotkeys, HDMI video,
+and normal frontend operation. That test exposed three small release fixes:
+Media was hidden while empty, RetroArch audio remained routed to disconnected
+HDMI, and ROCKNIX's synthetic PICO-8 `Splore.png` launcher appeared without
+user content. The fixes were verified live where possible and require one final
+regression build. A single post-suspend LCD line artifact cleared after an HDMI
+display reinitialization, did not coincide with a Panfrost fault or timeout,
+and could not be reproduced.
+
 ## Manual license review
 
 The generated package manifest is an inventory, not a legal conclusion.

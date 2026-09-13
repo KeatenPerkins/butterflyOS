@@ -42,7 +42,32 @@ _wp_profile_index() {
 }
 
 _switch_audio() {
-    local card target i
+    local card target sink hdmi_card i
+
+    # RK3566 presents HDMI and the internal RK817 codec as two independent
+    # PipeWire cards. Disable the HDMI profile when unplugged so WirePlumber
+    # cannot keep choosing its higher-priority but disconnected sink.
+    hdmi_card=$(pactl list short cards 2>/dev/null | awk '/hdmi/ { print $2; exit }')
+    if [ -n "$hdmi_card" ]; then
+        if [ "$1" = "external" ]; then
+            pactl set-card-profile "$hdmi_card" output:stereo-fallback 2>/dev/null || true
+            for i in $(seq 1 20); do
+                sink=$(pactl list short sinks 2>/dev/null | awk '/hdmi/ { print $2; exit }')
+                [ -n "$sink" ] && break
+                sleep 0.1
+            done
+        else
+            sink=$(pactl list short sinks 2>/dev/null | awk '!/hdmi/ { print $2; exit }')
+            [ -n "$sink" ] && pactl set-default-sink "$sink" 2>/dev/null || true
+            pactl set-card-profile "$hdmi_card" off 2>/dev/null || true
+            return 0
+        fi
+        [ -n "$sink" ] && pactl set-default-sink "$sink" 2>/dev/null || true
+        return 0
+    fi
+
+    # Fallback for boards that expose internal and external routes as profiles
+    # of a single PipeWire card.
     card=$(_wp_audio_card); [ -n "$card" ] || return 0
     if [ "$1" = "external" ]; then
         target=$(_wp_profile_index "$card" "HDMI")
@@ -59,6 +84,13 @@ _switch_audio() {
         target=$(_wp_profile_index "$card" "HiFi")
     fi
     [ -n "$card" ] && [ -n "$target" ] && wpctl set-profile "$card" "$target" 2>/dev/null || true
+
+    if [ "$1" = "external" ]; then
+        sink=$(pactl list short sinks 2>/dev/null | awk '/hdmi/ { print $2; exit }')
+    else
+        sink=$(pactl list short sinks 2>/dev/null | awk '!/hdmi/ { print $2; exit }')
+    fi
+    [ -n "$sink" ] && pactl set-default-sink "$sink" 2>/dev/null || true
 }
 
 _apply() {

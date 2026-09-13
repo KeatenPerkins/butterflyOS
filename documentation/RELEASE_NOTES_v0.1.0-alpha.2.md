@@ -6,9 +6,9 @@ test software and is not a stable release.
 ## Release record
 
 - Source tag: `v0.1.0-alpha.2` (create only after qualification)
-- Exact image source commit: pending final recovery-export commit and rebuild
+- Exact image source commit: pending final regression-fix commit and rebuild
 - Image: `ButterflyOS-v0.1.0-alpha.2-Miyoo-Flip-V2.img.gz`
-- SHA-256: pending final rebuild and post-build verification
+- SHA-256: pending final regression rebuild and post-build verification
 - Target: Miyoo Flip V2 (`RK3566` / `Miyoo_Flip_V2`)
 
 The most recent fully hardware-tested pre-release baseline was built from

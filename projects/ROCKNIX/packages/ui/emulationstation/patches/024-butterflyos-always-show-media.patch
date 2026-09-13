@@ -1,0 +1,50 @@
+diff --git a/es-app/src/SystemData.cpp b/es-app/src/SystemData.cpp
+index 3a9ef3f..69d26a1 100644
+--- a/es-app/src/SystemData.cpp
++++ b/es-app/src/SystemData.cpp
+@@ -104,7 +104,7 @@ SystemData::SystemData(const SystemMetadata& metadata, SystemEnvironmentData* e
+ 		{
+ 			populateFolder(mRootFolder, fileMap);
+ 
+-			if (!UIModeController::LoadEmptySystems())
++			if (!UIModeController::LoadEmptySystems() && mMetadata.name != "mplayer")
+ 			{
+ 				if (mRootFolder->getChildren().size() == 0)
+ 					return;
+@@ -134,7 +134,7 @@ SystemData::SystemData(const SystemMetadata& metadata, SystemEnvironmentData* e
+ 
+ 	mRootFolder->getMetadata().resetChangedFlag();
+ 
+-	if (withTheme && (!loadThemeOnlyIfElements || UIModeController::LoadEmptySystems() || mRootFolder->mChildren.size() > 0))
++	if (withTheme && (!loadThemeOnlyIfElements || UIModeController::LoadEmptySystems() || mMetadata.name == "mplayer" || mRootFolder->mChildren.size() > 0))
+ 	{
+ 		loadTheme();
+ 
+@@ -1197,7 +1197,7 @@ SystemData* SystemData::loadSystem(pugi::xml_node system, bool fullMode)
+ 		return nullptr;
+ 	}
+ 
+-	if (fullMode && !UIModeController::LoadEmptySystems() && !Utils::FileSystem::exists(path))
++	if (fullMode && !UIModeController::LoadEmptySystems() && md.name != "mplayer" && !Utils::FileSystem::exists(path))
+ 	{
+ 		LOG(LogError) << "System \"" << md.name << "\" path does not exist !";
+ 		return nullptr;
+@@ -1276,7 +1276,7 @@ SystemData* SystemData::loadSystem(pugi::xml_node system, bool fullMode)
+ 	if (!fullMode)
+ 		return newSys;
+ 
+-	if (!UIModeController::LoadEmptySystems() && newSys->getRootFolder()->getChildren().size() == 0)
++	if (!UIModeController::LoadEmptySystems() && md.name != "mplayer" && newSys->getRootFolder()->getChildren().size() == 0)
+ 	{
+ 		LOG(LogWarning) << "System \"" << md.name << "\" has no games! Ignoring it.";
+ 		delete newSys;
+@@ -1355,6 +1355,9 @@ bool SystemData::isVisible()
+ 	if (isGroupChildSystem())
+ 		return false;
+ 
++	if (!mHidden && mMetadata.name == "mplayer")
++		return true;
++
+ 	if (!mHidden && !mIsCollectionSystem && (UIModeController::LoadEmptySystems() || getGameCountInfo()->totalGames > 0))
+ 		return true;
+ 

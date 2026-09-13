@@ -32,6 +32,10 @@ package-license audit, and post-build hardware smoke test are complete.
 ## Hardware qualification
 
 - Lid-close/open suspend and resume need a dedicated regression test.
+- One post-suspend test showed horizontal/vertical pixel-line corruption on the
+  internal LCD. HDMI connect/disconnect reinitialized the panel and restored
+  the image; logs contained no Panfrost fault or timeout, and the issue did not
+  reproduce. Treat this as an open display-resume observation.
 - Rumble remains unverified.
 - Long-duration battery-runtime, charging, and low-battery behavior need
   controlled measurement. Battery percentage reporting was corrected during

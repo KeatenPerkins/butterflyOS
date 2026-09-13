@@ -142,6 +142,15 @@ makeinstall_target() {
     exit 1
   fi
 
+  # Keep the Miyoo Flip V2 on the same policy-managed audio path as the
+  # ButterflyOS media player. Raw ALSA otherwise selects HDMI (card 0) after
+  # a hotplug and can leave games silent when the internal RK817 codec is
+  # card 1, even though the rest of the interface routes correctly.
+  if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+    sed -i 's/^audio_driver = .*/audio_driver = "pipewire"/' \
+      ${INSTALL}/usr/config/retroarch/retroarch.cfg
+  fi
+
   # Make sure the shader directories exist for overlayfs.
   for dir in common-shaders glsl-shaders slang-shaders
   do

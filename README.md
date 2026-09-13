@@ -59,8 +59,8 @@ bundled vendor-derived preloader images. The Alpha 2 release candidate removes
 those images and derives the SD-boot patch from each user's own preloader. It
 also uses Mesa/Panfrost and excludes the proprietary DraStic package. A complete
 install and exact-restore round trip passed on a second untouched Flip V2.
-Public distribution remains pending completion of the final Alpha 2 build,
-hardware smoke test, and remaining package-license review. See
+Public distribution remains pending completion of the final Alpha 2 regression
+build and focused hardware test. See
 [Known Issues](documentation/KNOWN_ISSUES.md#distribution-licensing-gate).
 
 Release compliance status is tracked in

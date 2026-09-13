@@ -23,7 +23,12 @@ makeinstall_target() {
   cp ${PKG_DIR}/sources/start_pico8.sh ${INSTALL}/usr/bin
   chmod 0755 ${INSTALL}/usr/bin/start_pico8.sh
 
-  mkdir -p ${INSTALL}/usr/lib/autostart/common
-  cp ${PKG_DIR}/sources/autostart/common/* ${INSTALL}/usr/lib/autostart/common
-  chmod 0755 ${INSTALL}/usr/lib/autostart/common/*
+  # ROCKNIX normally creates a synthetic Splore.png launcher in the ROM
+  # directory. ButterflyOS keeps Games limited to content the user supplied,
+  # while retaining PICO-8/Fake-08 support for legally obtained cartridges.
+  if [ "${IMAGE_SUBDEVICE}" != "Miyoo_Flip_V2" ]; then
+    mkdir -p ${INSTALL}/usr/lib/autostart/common
+    cp ${PKG_DIR}/sources/autostart/common/* ${INSTALL}/usr/lib/autostart/common
+    chmod 0755 ${INSTALL}/usr/lib/autostart/common/*
+  fi
 }
