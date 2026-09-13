@@ -1,18 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="160" height="240" viewBox="0 0 160 240">
   <defs>
     <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#10d9ff"/><stop offset=".55" stop-color="#7c4dff"/><stop offset="1" stop-color="#ff3fa4"/></linearGradient>
-    <linearGradient id="pad" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f3f0f7"/><stop offset="1" stop-color="#b9b5c4"/></linearGradient>
     <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
   <rect x="4" y="4" width="152" height="232" rx="12" fill="#090d20" stroke="url(#frame)" stroke-width="4"/>
   <path d="M14 170h132M22 158h116M33 146h94" fill="none" stroke="#159dff" stroke-opacity=".22" stroke-width="2"/>
-  <g transform="translate(14 54)" filter="url(#glow)">
-    <path d="M20 12C8 14 2 26 3 45l3 28c1 11 8 17 17 15 7-2 12-11 18-21h50c6 10 11 19 18 21 9 2 16-4 17-15l3-28c1-19-5-31-17-33-22-4-70-4-92 0Z" fill="url(#pad)" stroke="#5e5a6a" stroke-width="3"/>
-    <path d="M22 18c22-5 66-5 88 0" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="2"/>
-    <g fill="#252338"><rect x="27" y="30" width="13" height="37" rx="3"/><rect x="15" y="42" width="37" height="13" rx="3"/><circle cx="33.5" cy="48.5" r="5" fill="#12111c"/></g>
-    <g transform="rotate(-12 99 49)"><circle cx="99" cy="33" r="7" fill="#7c4dff"/><circle cx="115" cy="49" r="7" fill="#ff3fa4"/><circle cx="83" cy="49" r="7" fill="#159dff"/><circle cx="99" cy="65" r="7" fill="#ffd166"/></g>
-    <g fill="#6d6878"><rect x="52" y="47" width="13" height="5" rx="2.5" transform="rotate(-12 58.5 49.5)"/><rect x="69" y="47" width="13" height="5" rx="2.5" transform="rotate(-12 75.5 49.5)"/></g>
-  </g>
+  <image href="./snes-controller.png" x="10" y="50" width="140" height="100" preserveAspectRatio="xMidYMid meet" filter="url(#glow)"/>
   <rect x="14" y="181" width="132" height="43" rx="7" fill="#121a36" stroke="#304565" stroke-width="2"/>
   <text x="80" y="209" text-anchor="middle" fill="#fff" font-family="Liberation Sans, sans-serif" font-size="22" font-weight="700">Games</text>
 </svg>
