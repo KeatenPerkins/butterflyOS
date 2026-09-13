@@ -50,3 +50,18 @@ commands. Alpha 2 adds the clean Menu+Start-twice exit gesture to YabaSanshiro
 
 If a standalone application does not recognize a shortcut, use its native menu
 where available. Report the emulator, controller, and shortcut involved.
+
+## Media player
+
+| Input | Action |
+|---|---|
+| A | Pause or resume playback |
+| R1 | Play the next track in the current folder |
+| L1 | Play the previous track in the current folder |
+| Right / Left | Seek forward or backward 5 seconds |
+| Up / Down | Seek forward or backward 60 seconds |
+| B or Menu | Stop playback and return to Media |
+
+Opening an audio file automatically queues the other audio tracks in that
+folder. Playback advances to the next track when a song ends. After the final
+track, playback stops and returns to Media; the folder does not loop forever.

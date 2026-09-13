@@ -182,6 +182,10 @@ interrupted or failed transfer.
 
 ## Deferred until after the first stable release
 
+- Add a game-audio mute shortcut and a controller-first background-music
+  overlay so users can browse and control their own music while a game is
+  running. Keep game and music volume independent, restore audio state on exit,
+  and avoid interfering with emulator hotkeys or save-state input.
 - Support for additional handheld models
 - A network catalog for optional ports, themes, and experimental emulators
 - Cloud accounts or online save synchronization
