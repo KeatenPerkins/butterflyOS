@@ -70,7 +70,7 @@
         <releasedate>2026</releasedate>
         <genre>Guide</genre>
         <players>1</players>
-        <image>./images/quick-start.svg</image>
+        <image>./images/quick-start.png</image>
     </game>
     <game>
         <path>./Controls Guide.sh</path>
@@ -82,7 +82,7 @@
         <releasedate>2026</releasedate>
         <genre>Guide</genre>
         <players>1</players>
-        <image>./images/controls-guide.svg</image>
+        <image>./images/controls-guide.png</image>
     </game>
     <game>
         <path>./commander.sh</path>
