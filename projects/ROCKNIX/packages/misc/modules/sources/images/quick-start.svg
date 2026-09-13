@@ -9,11 +9,6 @@
   <path d="M57 27h130c11 0 20 9 20 20v160H66c-10 0-18-8-18-18V43c0-9 3-14 9-16Z" fill="url(#cover)" stroke="url(#edge)" stroke-width="6"/>
   <path d="M66 31v172" stroke="#231745" stroke-width="8"/>
   <path d="M78 47h111M78 187h111" stroke="#fff" stroke-opacity=".18" stroke-width="3"/>
-  <g transform="translate(80 43) scale(.43)" filter="url(#glow)">
-    <path d="M126 119C105 72 57 55 43 77c-12 20 8 60 62 65-42 17-53 57-34 70 18 12 47-10 57-49 10 39 39 61 57 49 19-13 8-53-34-70 54-5 74-45 62-65-14-22-62-5-83 42z" fill="#fff"/>
-    <path d="M128 105v62" stroke="#30b8ff" stroke-width="10" stroke-linecap="round"/>
-    <circle cx="128" cy="97" r="8" fill="#ff4e8a"/>
-    <path d="M119 90l-18-18M137 90l18-18" stroke="#ffc857" stroke-width="6" stroke-linecap="round"/>
-  </g>
+  <image href="./butterflyos-emblem.png" x="91" y="58" width="90" height="90" preserveAspectRatio="xMidYMid meet" filter="url(#glow)"/>
   <text x="136" y="179" text-anchor="middle" fill="#fff" font-family="Liberation Sans, sans-serif" font-size="17" font-weight="700">QUICK START</text>
 </svg>

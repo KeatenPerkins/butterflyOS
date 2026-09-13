@@ -57,9 +57,6 @@ makeinstall_target() {
         "${INSTALL}/usr/config/modules/"
   cp -a "${ROOT}/artwork/branding/icons/butterflyos-emblem-transparent-1024.png" \
         "${INSTALL}/usr/config/modules/images/butterflyos-boot.png"
-  cp -a "${PKG_DIR}/sources/images/butterflyos-boot.svg" \
-        "${INSTALL}/usr/config/modules/images/"
-
   mkdir -p "${INSTALL}/usr/share/butterflyos"
   cp -a "${PKG_DIR}/sources/flip-onboarding.sh" \
         "${PKG_DIR}/sources/flip-onboarding.gptk" \
