@@ -163,6 +163,13 @@ empty Media visibility, absence of the synthetic PICO tile, internal game
 audio, HDMI video/audio, internal display/audio restoration after unplugging
 HDMI, game relaunch audio, and normal shutdown/boot.
 
+The physical empty-card test found that Media remained visible but the
+ButterflyOS Games group anchor was filtered because its pristine storage path
+did not yet exist. Creating that path live restored the intended Games card.
+The source fix now exempts both `mplayer` and `games` from the empty-system
+filter and passed an isolated EmulationStation rebuild. This image must not be
+tagged; one replacement build and focused test are required.
+
 ## Manual license review
 
 The generated package manifest is an inventory, not a legal conclusion.

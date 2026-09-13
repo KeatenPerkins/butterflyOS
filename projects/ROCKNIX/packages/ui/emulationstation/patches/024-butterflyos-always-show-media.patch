@@ -7,7 +7,7 @@ index 3a9ef3f..69d26a1 100644
  			populateFolder(mRootFolder, fileMap);
  
 -			if (!UIModeController::LoadEmptySystems())
-+			if (!UIModeController::LoadEmptySystems() && mMetadata.name != "mplayer")
++			if (!UIModeController::LoadEmptySystems() && mMetadata.name != "mplayer" && mMetadata.name != "games")
  			{
  				if (mRootFolder->getChildren().size() == 0)
  					return;
@@ -16,7 +16,7 @@ index 3a9ef3f..69d26a1 100644
  	mRootFolder->getMetadata().resetChangedFlag();
  
 -	if (withTheme && (!loadThemeOnlyIfElements || UIModeController::LoadEmptySystems() || mRootFolder->mChildren.size() > 0))
-+	if (withTheme && (!loadThemeOnlyIfElements || UIModeController::LoadEmptySystems() || mMetadata.name == "mplayer" || mRootFolder->mChildren.size() > 0))
++	if (withTheme && (!loadThemeOnlyIfElements || UIModeController::LoadEmptySystems() || mMetadata.name == "mplayer" || mMetadata.name == "games" || mRootFolder->mChildren.size() > 0))
  	{
  		loadTheme();
  
@@ -25,7 +25,7 @@ index 3a9ef3f..69d26a1 100644
  	}
  
 -	if (fullMode && !UIModeController::LoadEmptySystems() && !Utils::FileSystem::exists(path))
-+	if (fullMode && !UIModeController::LoadEmptySystems() && md.name != "mplayer" && !Utils::FileSystem::exists(path))
++	if (fullMode && !UIModeController::LoadEmptySystems() && md.name != "mplayer" && md.name != "games" && !Utils::FileSystem::exists(path))
  	{
  		LOG(LogError) << "System \"" << md.name << "\" path does not exist !";
  		return nullptr;
@@ -34,7 +34,7 @@ index 3a9ef3f..69d26a1 100644
  		return newSys;
  
 -	if (!UIModeController::LoadEmptySystems() && newSys->getRootFolder()->getChildren().size() == 0)
-+	if (!UIModeController::LoadEmptySystems() && md.name != "mplayer" && newSys->getRootFolder()->getChildren().size() == 0)
++	if (!UIModeController::LoadEmptySystems() && md.name != "mplayer" && md.name != "games" && newSys->getRootFolder()->getChildren().size() == 0)
  	{
  		LOG(LogWarning) << "System \"" << md.name << "\" has no games! Ignoring it.";
  		delete newSys;
@@ -42,7 +42,7 @@ index 3a9ef3f..69d26a1 100644
  	if (isGroupChildSystem())
  		return false;
  
-+	if (!mHidden && mMetadata.name == "mplayer")
++	if (!mHidden && (mMetadata.name == "mplayer" || mMetadata.name == "games"))
 +		return true;
 +
  	if (!mHidden && !mIsCollectionSystem && (UIModeController::LoadEmptySystems() || getGameCountInfo()->totalGames > 0))

@@ -17,11 +17,12 @@ commit `f2ea99b` as
 `39a3b8ba58992e9c3f7894c93bdfbbb6f8a6dce8ed411821ebc769ae1f19fe06`.
 Do not publish that checksum for a later rebuild.
 
-The final regression image was produced as
+The September 13 regression image was produced as
 `ROCKNIX-RK3566.aarch64-20260913-Miyoo_Flip_V2.img.gz`. Its integrity,
-filesystem contents, and privacy-sensitive exclusions passed host-side audit;
-it remains pending the focused physical-device regression test described in
-the public release audit.
+filesystem contents, and privacy-sensitive exclusions passed host-side audit.
+Its physical test exposed an empty-card Games visibility regression, so it is
+not the publishable Alpha 2 binary. The source fix is complete and requires a
+replacement image and focused physical test.
 
 ## Changes from the internal Alpha 1 baseline
 
