@@ -135,6 +135,34 @@ regression build. A single post-suspend LCD line artifact cleared after an HDMI
 display reinitialization, did not coincide with a Panfrost fault or timeout,
 and could not be reproduced.
 
+## September 13, 2026 final Alpha 2 regression image
+
+The three release-test regressions were corrected and rebuilt from exact source
+commit `e21bad08684982c2490435b9582ba8454e161223`:
+
+- Image: `ROCKNIX-RK3566.aarch64-20260913-Miyoo_Flip_V2.img.gz`.
+- Compressed image SHA-256:
+  `0db1250f51cafa57ddcbbfac545781ecbe57c83040127dc8fc55f2c1761dee81`.
+- All 251 compatibility and 666 main-image jobs completed with zero failures.
+- Gzip integrity and the generated SHA-256 sidecar passed.
+- The FAT volume is labeled `BUTTERFLYOS`; its embedded `SYSTEM.md5` matches
+  the exact SYSTEM payload.
+- The pristine ext4 storage filesystem passed read-only checking and contains
+  only `lost+found` and `.please_resize_me`.
+- Exact SquashFS inspection confirmed the PipeWire RetroArch default and the
+  HDMI-disconnect path that disables the HDMI profile and restores the
+  internal sink.
+- Media is packaged to remain visible when empty. PICO-8/Fake-08 support
+  remains, while the synthetic `Splore.png` autostart hook is absent.
+- No games, BIOS files, test media, libmali, Art Book Next, ZeroTier, or
+  DraStic program were found. Mesa Panfrost and the ButterflyOS license set are
+  present.
+
+This image requires only the focused physical regression test before tagging:
+empty Media visibility, absence of the synthetic PICO tile, internal game
+audio, HDMI video/audio, internal display/audio restoration after unplugging
+HDMI, game relaunch audio, and normal shutdown/boot.
+
 ## Manual license review
 
 The generated package manifest is an inventory, not a legal conclusion.

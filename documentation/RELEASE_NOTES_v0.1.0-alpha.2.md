@@ -6,9 +6,9 @@ test software and is not a stable release.
 ## Release record
 
 - Source tag: `v0.1.0-alpha.2` (create only after qualification)
-- Exact image source commit: pending final regression-fix commit and rebuild
+- Exact image source commit: `e21bad08684982c2490435b9582ba8454e161223`
 - Image: `ButterflyOS-v0.1.0-alpha.2-Miyoo-Flip-V2.img.gz`
-- SHA-256: pending final regression rebuild and post-build verification
+- SHA-256: `0db1250f51cafa57ddcbbfac545781ecbe57c83040127dc8fc55f2c1761dee81`
 - Target: Miyoo Flip V2 (`RK3566` / `Miyoo_Flip_V2`)
 
 The most recent fully hardware-tested pre-release baseline was built from
@@ -16,6 +16,12 @@ commit `f2ea99b` as
 `ROCKNIX-RK3566.aarch64-20260912-Miyoo_Flip_V2.img.gz`, SHA-256
 `39a3b8ba58992e9c3f7894c93bdfbbb6f8a6dce8ed411821ebc769ae1f19fe06`.
 Do not publish that checksum for a later rebuild.
+
+The final regression image was produced as
+`ROCKNIX-RK3566.aarch64-20260913-Miyoo_Flip_V2.img.gz`. Its integrity,
+filesystem contents, and privacy-sensitive exclusions passed host-side audit;
+it remains pending the focused physical-device regression test described in
+the public release audit.
 
 ## Changes from the internal Alpha 1 baseline
 
