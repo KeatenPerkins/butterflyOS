@@ -37,6 +37,8 @@ fi
   --cover-art-file=/usr/share/themes/es-theme-butterflyos/assets/butterflyos-logo.png \
   --osc=no \
   --osd-level=1 \
+  --autocreate-playlist=same \
+  --loop-playlist=no \
   --script=/usr/bin/butterfly_now_playing.lua \
   --input-gamepad=yes \
   --input-ipc-server=/tmp/mpvsocket \

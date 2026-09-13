@@ -36,6 +36,8 @@ BACK_60S_HAT_EVENT='*(ABS_HAT0Y), value 1*'
 SKIP_60S_DPAD_EVENT='*DPAD_UP), value 1'
 SKIP_60S_HAT_EVENT='*(ABS_HAT0Y), value -1*'
 QUIT_MENU_EVENT='*(BTN_MODE), value 1'
+PREVIOUS_TRACK_EVENT='*(BTN_TL), value 1'
+NEXT_TRACK_EVENT='*(BTN_TR), value 1'
 
 ### Search the system for useful devices to monitor for inputs.
 get_devices() {
@@ -88,6 +90,11 @@ function send_key() {
   echo '{"command":["keypress", "'${1}'"]}' | socat - "/tmp/mpvsocket"
 }
 
+function send_command() {
+  ${DEBUG} && log $0 "Send command ${1}."
+  echo '{"command":["'${1}'", "force"]}' | socat - "/tmp/mpvsocket"
+}
+
 get_devices
 
 (
@@ -111,6 +118,12 @@ get_devices
         ;;
         (${QUIT_BACK_EVENT}|${QUIT_MENU_EVENT})
             send_key "Q"
+        ;;
+        (${PREVIOUS_TRACK_EVENT})
+            send_command "playlist-prev"
+        ;;
+        (${NEXT_TRACK_EVENT})
+            send_command "playlist-next"
         ;;
         (${CHANGE_SUB_EVENT})
             send_key "j"
