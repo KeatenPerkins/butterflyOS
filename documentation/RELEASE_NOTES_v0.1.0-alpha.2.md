@@ -6,9 +6,9 @@ test software and is not a stable release.
 ## Release record
 
 - Source tag: `v0.1.0-alpha.2` (create only after qualification)
-- Exact image source commit: `e21bad08684982c2490435b9582ba8454e161223`
-- Image: `ButterflyOS-v0.1.0-alpha.2-Miyoo-Flip-V2.img.gz`
-- SHA-256: `0db1250f51cafa57ddcbbfac545781ecbe57c83040127dc8fc55f2c1761dee81`
+- Exact image source commit: pending final qualification build
+- Image: pending final qualification build
+- SHA-256: pending final qualification build
 - Target: Miyoo Flip V2 (`RK3566` / `Miyoo_Flip_V2`)
 
 The most recent fully hardware-tested pre-release baseline was built from
@@ -29,7 +29,8 @@ replacement image and focused physical test.
 - Removed bundled vendor-derived stock and patched preloader images.
 - Setup now validates, backs up, patches, and verifies each device's own
   preloader; exact restoration was tested on a second untouched Flip V2.
-- Replaced proprietary Mali userspace libraries with Mesa/Panfrost.
+- Restored the ROCKNIX Mali stack with its EULA and the upstream mapping change
+  that avoids modifying the vendor blob.
 - Excluded proprietary DraStic and selected open-source melonDS DS emulation.
 - Excluded the unused Art Book Next theme and ZeroTier service from the Flip
   V2 image after package-license review.
@@ -42,11 +43,15 @@ replacement image and focused physical test.
   original preloader can be preserved off-card before reflashing.
 - Replaced the unsafe first-boot GPT resize path with a fail-closed Parted
   workflow and verified full storage expansion on physical hardware.
+- Added a guided second-game-card tool and a combined game library spanning
+  both SD cards, including second-card access through web file transfer.
+- Added physically tested standalone Saturn mappings for the built-in controls
+  and the 8BitDo controller in Xbox mode.
 
 ## Important limitations
 
-- Saturn acceleration is not currently reliable with Panfrost. See Known
-  Issues for the tested emulator behavior.
+- Saturn runs through standalone YabaSanshiro with the restored Mali stack;
+  compatibility still varies by game.
 - Nintendo DS with the open-source melonDS default passed controls, suspend,
   resume, and clean-exit testing on physical hardware.
 - No games or proprietary console BIOS files are included.

@@ -13,7 +13,8 @@
 - [x] Bundled stock and prepatched vendor preloaders removed
 - [x] Device-local preloader patcher license and attribution retained
 - [x] Rockchip `rkbin` redistribution terms reviewed and notices included
-- [x] Miyoo Flip V2 rebuilt and scanned without Mali `g29p1` userspace blobs
+- [ ] Final Miyoo Flip V2 image checked for the complete Mali EULA and verified
+      to use the unmodified `g29p1` vendor blob
 - [x] DraStic excluded from the ButterflyOS Miyoo Flip V2 public configuration
 - [x] Every Alpha 2 package flagged `unknown`, `nonfree`, `proprietary`,
       `custom`, `Not declared`, or `Non-commercial` reviewed; findings and

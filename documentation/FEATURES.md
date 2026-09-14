@@ -25,6 +25,8 @@ controller-first experience.
 - Favorites synchronized between EmulationStation and RetroArch without
   duplicate entries
 - Game-art scraping
+- Combined game library across the ButterflyOS card and an optional second SD
+  card, with internal-card files taking precedence over duplicate names
 
 ## Connectivity and files
 
@@ -33,6 +35,7 @@ controller-first experience.
 - Bluetooth controllers and Bluetooth audio
 - ButterflyOS-themed authenticated web file transfer for games, BIOS, music,
   videos, saves, and all storage
+- Second-card files exposed through the same web transfer interface
 - Samba/SFTP support inherited from the ROCKNIX base
 
 ## Media and display
@@ -53,6 +56,8 @@ controller-first experience.
 - Guided restoration of stock boot behavior
 - Validated export of the device-specific recovery backup before SD reflashing
 - System Manager, Quick Start, and Controls Guide available on the device
+- Controller-operated Prepare Game Card tool for safe second-slot detection,
+  status, exFAT formatting, folder creation, and library refresh
 
 ButterflyOS does not include commercial games or proprietary console BIOS
 files. See [Known Issues](KNOWN_ISSUES.md) for Alpha limitations.

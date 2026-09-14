@@ -74,17 +74,19 @@ listed above and must also remain in each per-release binary manifest.
 
 ## Arm Mali userspace libraries
 
-The inherited RK3566 configuration can include proprietary/nonfree Mali-G52
-userspace libraries from the JeffyCN mirror used by ROCKNIX. ButterflyOS
-excludes these libraries for the Miyoo Flip V2 and uses Mesa/Panfrost instead.
+The RK3566 configuration includes Mali-G52 userspace libraries from the
+JeffyCN mirror used by ROCKNIX. The accompanying EULA permits use, copying, and
+distribution subject to its terms and must accompany redistributed binaries.
+ButterflyOS uses the upstream ROCKNIX mapping fix that avoids modifying the
+vendor blob.
 
 - Source: https://github.com/JeffyCN/mirrors
 - ButterflyOS package revision: `4233031d818e97a19e8a9cdbbd5c15795ededd93`
 
-**Audit status:** the Miyoo Flip V2 Panfrost-only image was rebuilt and scanned;
-no `libmali` package tree, proprietary Mali userspace filename, or `libmali`
-SONAME reference was found. Device performance testing identified Saturn as a
-known regression; other tested systems remained usable.
+**Audit status:** the EULA and no-blob-modification source changes are present.
+The restored stack passed physical gameplay testing, including Saturn. The
+final rebuilt image must be checked for the EULA and unmodified blob before
+publication.
 
 ## Linux firmware
 

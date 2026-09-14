@@ -5,7 +5,8 @@ This records technical release checks. It is not legal advice.
 ## Alpha 2 candidate policy
 
 - Target only `RK3566/Miyoo_Flip_V2`.
-- Use Mesa/Panfrost; do not bundle proprietary `libmali` userspace libraries.
+- If the ROCKNIX Mali stack is included, retain its complete EULA and use the
+  upstream mapping fix without modifying the vendor blob.
 - Do not bundle DraStic without independently verified redistribution terms.
 - Retain open-source melonDS and DeSmuME Nintendo DS options.
 - Never bundle games, proprietary console BIOS files, user credentials, or

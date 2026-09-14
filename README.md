@@ -27,6 +27,7 @@ Project direction is documented in the [vision](docs/VISION.md) and
 - Wi-Fi, Bluetooth controllers and audio, SSH, and themed web file transfer
 - Music and compatible video playback
 - HDMI video and audio output
+- Combined libraries from the OS card and an optional second game card
 - Reversible SD-card boot setup that preserves the internal Miyoo OS
 - Beginner-facing settings with optional Advanced Mode
 
@@ -56,12 +57,13 @@ endorsed by Miyoo, ROCKNIX, Nintendo, Sega, Sony, or any other platform owner.
 
 The Alpha 1 source baseline remains an internal test artifact because it
 bundled vendor-derived preloader images. The Alpha 2 release candidate removes
-those images and derives the SD-boot patch from each user's own preloader. It
-also uses Mesa/Panfrost and excludes the proprietary DraStic package. A complete
+those images and derives the SD-boot patch from each user's own preloader. Its
+Mali stack includes the applicable EULA and avoids modifying the vendor blob;
+the image excludes the proprietary DraStic package. A complete
 install and exact-restore round trip passed on a second untouched Flip V2.
-The final Alpha 2 regression build and host-side image audit are complete.
-Public distribution remains pending its focused hardware test and immutable
-release tag. See
+Earlier Alpha 2 candidates passed regression and host-side image audits. Public
+distribution remains pending the final rebuilt-image audit, focused hardware
+test, and immutable release tag. See
 [Known Issues](documentation/KNOWN_ISSUES.md#distribution-licensing-gate).
 
 Release compliance status is tracked in

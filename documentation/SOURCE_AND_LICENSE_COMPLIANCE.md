@@ -74,9 +74,10 @@ attribution. Do not use their logos to suggest an official relationship.
 - Publish the exact corresponding source and immutable release tag beside the
   final binary and checksum.
 
-The exact Rockchip `rkbin` license has been retained. Proprietary Mali
-userspace libraries and DraStic are excluded from the public Miyoo Flip V2
-configuration while their separate redistribution status remains unresolved.
+The exact Rockchip `rkbin` license has been retained. The Mali userspace stack
+is accompanied by its EULA and uses the upstream mapping fix without modifying
+the vendor blob. Proprietary DraStic remains excluded from the public Miyoo
+Flip V2 configuration.
 The flagged-package review is recorded in
 `PACKAGE_LICENSE_REVIEW_ALPHA2.md`; Art Book Next and ZeroTier are excluded
 from the post-review Flip V2 candidate. Nintendo DS was requalified using the

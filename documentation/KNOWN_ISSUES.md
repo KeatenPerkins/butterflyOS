@@ -13,9 +13,10 @@ retains the BaseOS-derived patcher's MIT notice.
 The full device-local install and byte-exact restore round trip passed on a
 second untouched Flip V2. The clean image containing the runtime-dependency
 fixes then repeated the full workflow without live intervention. The Alpha 2
-public candidate also excludes proprietary Mali userspace libraries
-and DraStic. Distribution remains on hold until the final clean image,
-package-license audit, and post-build hardware smoke test are complete.
+candidate excludes proprietary DraStic. The restored ROCKNIX Mali stack carries
+its EULA and uses the upstream no-blob-modification mapping fix. Distribution
+remains on hold until the final image, refreshed package audit, and post-build
+hardware smoke test are complete.
 
 ## Installation and recovery
 
@@ -45,18 +46,13 @@ package-license audit, and post-build hardware smoke test are complete.
 
 ## Emulation
 
-- The Miyoo Flip V2 Panfrost qualification build passed initial rendering and
-  performance checks for the interface, HDMI hotplug, N64, Nintendo DS,
-  PlayStation, PSP, and Dreamcast. Brief sub-second N64 stalls occurred during
-  initial game startup and then smoothed out.
-- Saturn via standalone YabaSanshiro remains a Panfrost qualification
-  exception. During the September 11, 2026 Sonic R test it did not accept game
-  controls and produced Panfrost GPU page faults followed by a scheduler
-  timeout. YabaSanshiro-libretro restored controls but ran severely slowly and
-  produced continuous GPU scheduler timeouts. A real Saturn BIOS, native
-  resolution, disabled compute shaders, frameskip, and CPU tessellation did not
-  correct it. Test a genuinely different Saturn core/backend before treating
-  the open GPU migration as fully qualified.
+- The restored ROCKNIX Mali stack passed rendering and gameplay checks for the
+  interface, HDMI hotplug, N64, Nintendo DS, PlayStation, PSP, Dreamcast, and
+  Saturn. Brief sub-second N64 stalls occurred during initial game startup and
+  then smoothed out.
+- Standalone YabaSanshiro ran Saturn smoothly after correcting its generated
+  Flip controller map. The tested built-in and 8BitDo Xbox-mode mappings are
+  now included in source and require confirmation on the final rebuild.
 - Alpha 2 replaces DraStic with open-source melonDS for Nintendo DS. Its
   performance, controls, suspend/resume, and clean exit passed physical testing;
   compatibility can still vary by game.

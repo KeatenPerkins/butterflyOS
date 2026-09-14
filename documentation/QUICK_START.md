@@ -82,6 +82,18 @@ If files are copied while ButterflyOS is running, open the game settings and
 choose **Update Gamelists**. Systems appear only when recognized games are
 present.
 
+## Optional second game card
+
+ButterflyOS can combine games stored on the OS card with games on a second SD
+card. Insert the extra card in the second slot and open **Tools → Prepare Game
+Card**. The tool can inspect a compatible card, create the expected folders, or
+format it as exFAT after two destructive-action confirmations.
+
+Add games beneath `roms/<system>` on that card and choose **Update Gamelists**.
+Games from both cards appear together. If both cards contain a file with the
+same system and filename, the OS-card copy takes precedence. The second card is
+also available as **Second Game Card** in Web File Transfer.
+
 ## Network transfer
 
 Open **Settings → Network Settings**, set the SSH password, and then enable
