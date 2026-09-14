@@ -18,6 +18,33 @@ log() {
   printf '%s %s\n' "$(date '+%F %T')" "$*" >>"${LOG}"
 }
 
+import_internal_media() {
+  local source relative destination source_root destination_root
+
+  for source_root in "${INTERNAL_ROOT}/music" "${INTERNAL_ROOT}/videos"; do
+    [[ -d "${source_root}" ]] || continue
+    if [[ "${source_root}" == "${INTERNAL_ROOT}/music" ]]; then
+      destination_root=${MEDIA_ROOT}/Music
+    else
+      destination_root=${MEDIA_ROOT}/Videos
+    fi
+
+    while IFS= read -r -d '' source; do
+      relative=${source#"${source_root}"/}
+      # RetroAchievements uses its own audio assets below roms/music.
+      [[ "${relative}" == retroachievements/* ]] && continue
+      destination=${destination_root}/${relative}
+      if [[ -e "${destination}" || -L "${destination}" ]]; then
+        log "Media collision, keeping existing library entry: ${relative}"
+        continue
+      fi
+      mkdir -p -- "${destination%/*}"
+      mv -- "${source}" "${destination}"
+      log "Imported OS-card media: ${relative}"
+    done < <(find "${source_root}" -type f -print0)
+  done
+}
+
 cleanup_links() {
   local link target
 
@@ -42,6 +69,7 @@ refresh_links() {
   local linked=0 collisions=0
   local next_manifest=${MANIFEST}.new
 
+  import_internal_media
   cleanup_links
   : >"${next_manifest}"
 
