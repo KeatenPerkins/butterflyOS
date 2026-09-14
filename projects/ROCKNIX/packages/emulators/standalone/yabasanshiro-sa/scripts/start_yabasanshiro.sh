@@ -68,6 +68,29 @@ EOF
   fi
 fi
 
+# YabaSanshiro does not derive a usable map for the Flip's built-in pad or the
+# tested 8BitDo Xbox-mode controller. Install the hardware-qualified map on
+# every launch so a stale first-launch file cannot leave Saturn without input.
+# SDL assigns the first connected controller index 0 and the built-in pad index
+# 1. With no external controller, rewrite the built-in entry as player/index 0.
+if grep -q "Miyoo Flip" /proc/device-tree/model 2>/dev/null
+then
+  FLIP_MAPPING="${SOURCE_DIR}/devices/keymapv2_miyoo_flip.json"
+  if grep -q 'Name="Xbox One S Controller"' /proc/bus/input/devices
+  then
+    cp -f "${FLIP_MAPPING}" "${CONFIG_DIR}/keymapv2.json"
+  else
+    jq '.player1 = .player2
+        | .player1.DeviceID = 0
+        | .["0_retrogame_joypad_19009b4d4b4800000111000000010000"] =
+            .["1_retrogame_joypad_19009b4d4b4800000111000000010000"]
+        | del(.player2,
+              .["0_Xbox One S Controller_0300003e5e040000e002000000006800"],
+              .["1_retrogame_joypad_19009b4d4b4800000111000000010000"])' \
+      "${FLIP_MAPPING}" > "${CONFIG_DIR}/keymapv2.json"
+  fi
+fi
+
 BIOS=""
 GAME=$(echo "${1}"| sed "s#^/.*/##")
 PLATFORM=$(echo "${2}"| sed "s#^/.*/##")
