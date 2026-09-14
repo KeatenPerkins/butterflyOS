@@ -20,7 +20,7 @@
         <releasedate>2026</releasedate>
         <genre>Recovery</genre>
         <players>1</players>
-        <image>./images/butterflyos-boot.png</image>
+        <image>./images/boot-check.png</image>
     </game>
     <game>
         <path>./Enable ButterflyOS SD Boot.sh</path>
@@ -44,7 +44,7 @@
         <releasedate>2026</releasedate>
         <genre>Recovery</genre>
         <players>1</players>
-        <image>./images/butterflyos-boot.png</image>
+        <image>./images/export-recovery.png</image>
     </game>
     <game>
         <path>./Restore Stock Miyoo Boot.sh</path>
@@ -56,7 +56,7 @@
         <releasedate>2026</releasedate>
         <genre>Recovery</genre>
         <players>1</players>
-        <image>./images/butterflyos-boot.png</image>
+        <image>./images/restore-stock.png</image>
     </game>
     <game>
         <path>./System Manager.sh</path>
