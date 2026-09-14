@@ -1,0 +1,103 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 Keaten Perkins
+
+set -u
+
+INTERNAL_ROOT=/storage/roms
+EXTERNAL_MOUNT=/storage/games-external
+EXTERNAL_ROOT=${EXTERNAL_MOUNT}/roms
+STATE_DIR=/storage/.config/butterflyos/game-card
+MANIFEST=${STATE_DIR}/external-links.list
+LOG=${STATE_DIR}/game-card.log
+
+mkdir -p "${STATE_DIR}"
+
+log() {
+  printf '%s %s\n' "$(date '+%F %T')" "$*" >>"${LOG}"
+}
+
+cleanup_links() {
+  local link target
+
+  [[ -f "${MANIFEST}" ]] || return 0
+  while IFS= read -r link || [[ -n "${link}" ]]; do
+    case "${link}" in
+      "${INTERNAL_ROOT}"/*)
+        if [[ -L "${link}" ]]; then
+          target=$(readlink "${link}" 2>/dev/null || true)
+          case "${target}" in
+            "${EXTERNAL_ROOT}"/*) rm -f -- "${link}" ;;
+          esac
+        fi
+        ;;
+    esac
+  done <"${MANIFEST}"
+  : >"${MANIFEST}"
+}
+
+refresh_links() {
+  local source relative destination parent
+  local linked=0 collisions=0
+  local next_manifest=${MANIFEST}.new
+
+  cleanup_links
+  : >"${next_manifest}"
+
+  if ! mountpoint -q "${EXTERNAL_MOUNT}" || [[ ! -d "${EXTERNAL_ROOT}" ]]; then
+    mv -f "${next_manifest}" "${MANIFEST}"
+    log "No mounted external game library; stale links removed."
+    printf 'linked=0 collisions=0 external=absent\n'
+    return 0
+  fi
+
+  # Mirror external files into the familiar internal tree with absolute links.
+  # Internal files always win a same-relative-path collision. Emulators receive
+  # the link path, so new saves and scraped metadata remain on the OS card.
+  while IFS= read -r -d '' source; do
+    relative=${source#"${EXTERNAL_ROOT}"/}
+    destination=${INTERNAL_ROOT}/${relative}
+    parent=${destination%/*}
+    mkdir -p -- "${parent}"
+
+    if [[ -e "${destination}" || -L "${destination}" ]]; then
+      collisions=$((collisions + 1))
+      log "Collision, keeping OS-card entry: ${relative}"
+      continue
+    fi
+
+    if ln -s -- "${source}" "${destination}"; then
+      printf '%s\n' "${destination}" >>"${next_manifest}"
+      linked=$((linked + 1))
+    fi
+  done < <(find "${EXTERNAL_ROOT}" \( -type f -o -type l \) -print0)
+
+  mv -f "${next_manifest}" "${MANIFEST}"
+  log "External library indexed: linked=${linked} collisions=${collisions}."
+  printf 'linked=%s collisions=%s external=mounted\n' "${linked}" "${collisions}"
+}
+
+show_status() {
+  local links=0
+  [[ -f "${MANIFEST}" ]] && links=$(wc -l <"${MANIFEST}")
+  printf 'device=/dev/mmcblk1\n'
+  printf 'partition=/dev/mmcblk1p1\n'
+  if mountpoint -q "${EXTERNAL_MOUNT}"; then
+    printf 'mounted=yes\n'
+    blkid /dev/mmcblk1p1 2>/dev/null || true
+    df -h "${EXTERNAL_MOUNT}" | tail -n 1
+  else
+    printf 'mounted=no\n'
+  fi
+  printf 'indexed_links=%s\n' "${links}"
+}
+
+case "${1:-refresh}" in
+  refresh) refresh_links ;;
+  cleanup) cleanup_links ;;
+  status) show_status ;;
+  *)
+    printf 'Usage: %s {refresh|cleanup|status}\n' "$0" >&2
+    exit 2
+    ;;
+esac

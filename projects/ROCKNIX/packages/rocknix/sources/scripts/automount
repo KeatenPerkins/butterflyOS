@@ -240,6 +240,33 @@ then
   unmount /storage/games-external
   unmount /storage/roms
   mkdir -p /storage/roms
+  /usr/bin/butterflyos-game-card cleanup >/dev/null 2>&1 || true
+
+  # The Flip V2's right/boot slot is mmcblk0 and its left/library slot is
+  # mmcblk1. Keep the OS-card /roms directory as the writable primary library,
+  # then mount a user-friendly FAT/exFAT/NTFS/ext4/btrfs second card alongside
+  # it. butterflyos-game-card indexes external files into the primary tree so
+  # EmulationStation and every emulator continue using one stable path.
+  DIRECT_EXTERNAL=/dev/mmcblk1p1
+  if [ -b "${DIRECT_EXTERNAL}" ] && [ ! -e "/storage/.please_resize_me" ]
+  then
+    DIRECT_FSTYPE=$(blkid -o value -s TYPE "${DIRECT_EXTERNAL}" 2>/dev/null)
+    case "${DIRECT_FSTYPE}" in
+      exfat|vfat|fat|fat32|ntfs|ext4|btrfs)
+        mkdir -p /storage/games-external
+        if [ "${DIRECT_FSTYPE}" = "ntfs" ]; then
+          mount -t ntfs3 -o rw,noatime "${DIRECT_EXTERNAL}" /storage/games-external >/dev/null 2>&1 || true
+        else
+          mount -t "${DIRECT_FSTYPE}" -o rw,noatime "${DIRECT_EXTERNAL}" /storage/games-external >/dev/null 2>&1 || true
+        fi
+        if /usr/bin/busybox mountpoint -q /storage/games-external
+        then
+          mkdir -p /storage/games-external/roms
+          /usr/bin/butterflyos-game-card refresh >/dev/null 2>&1 || true
+        fi
+      ;;
+    esac
+  fi
   create_game_dirs
   exit 0
 fi

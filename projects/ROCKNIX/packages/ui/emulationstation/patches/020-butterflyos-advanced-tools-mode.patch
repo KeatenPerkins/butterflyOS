@@ -14,7 +14,8 @@ index 6ece911..9ad149f 100644
 +			(*it)->getMetadata(MetaDataId::Genre) != "Recovery" &&
 +			(*it)->getName() != "System Manager" &&
 +			(*it)->getName() != "Quick Start" &&
-+			(*it)->getName() != "Controls Guide")
++			(*it)->getName() != "Controls Guide" &&
++			(*it)->getName() != "Prepare Game Card")
 +			continue;
 +
  		if (!showHiddenFiles && (*it)->getHidden())

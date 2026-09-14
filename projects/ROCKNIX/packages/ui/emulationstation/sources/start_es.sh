@@ -2,6 +2,13 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2024 ROCKNIX (https://github.com/ROCKNIX)
 
+# Rebuild ButterflyOS's combined OS-card/second-card index immediately before
+# every EmulationStation scan. This makes Update Gamelists discover files added
+# to either card through SSH, the web transfer tool, or a desktop computer.
+if [ -x /usr/bin/butterflyos-game-card ]; then
+  /usr/bin/butterflyos-game-card refresh >/dev/null 2>&1 || true
+fi
+
 ### setup is the same
 . $(dirname $0)/es_settings
 

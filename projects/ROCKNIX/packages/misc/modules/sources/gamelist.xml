@@ -1,6 +1,16 @@
 <?xml version="1.0"?>
 <gameList>
     <game>
+        <path>./Prepare Game Card.sh</path>
+        <name>Prepare Game Card</name>
+        <desc>Prepare, format, inspect, and refresh a second ButterflyOS game card.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <genre>Utility</genre>
+        <players>1</players>
+        <image>./images/butterflyos-boot.png</image>
+    </game>
+    <game>
         <path>./ButterflyOS Boot Check.sh</path>
         <name>ButterflyOS Boot Check</name>
         <desc>Safely check the Miyoo Flip boot setup and confirm that every multiboot safety gate passes. This check is read-only.</desc>
