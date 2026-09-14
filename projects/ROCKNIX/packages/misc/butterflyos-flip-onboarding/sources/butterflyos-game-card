@@ -5,6 +5,7 @@
 set -u
 
 INTERNAL_ROOT=/storage/roms
+MEDIA_ROOT=/storage/media
 EXTERNAL_MOUNT=/storage/games-external
 EXTERNAL_ROOT=${EXTERNAL_MOUNT}/roms
 STATE_DIR=/storage/.config/butterflyos/game-card
@@ -23,7 +24,7 @@ cleanup_links() {
   [[ -f "${MANIFEST}" ]] || return 0
   while IFS= read -r link || [[ -n "${link}" ]]; do
     case "${link}" in
-      "${INTERNAL_ROOT}"/*)
+      "${INTERNAL_ROOT}"/*|"${MEDIA_ROOT}/Music"/*|"${MEDIA_ROOT}/Videos"/*)
         if [[ -L "${link}" ]]; then
           target=$(readlink "${link}" 2>/dev/null || true)
           case "${target}" in
@@ -51,12 +52,17 @@ refresh_links() {
     return 0
   fi
 
-  # Mirror external files into the familiar internal tree with absolute links.
-  # Internal files always win a same-relative-path collision. Emulators receive
-  # the link path, so new saves and scraped metadata remain on the OS card.
+  # Mirror external games into the familiar ROM tree and external media into
+  # the unified Media library. Internal files always win a same-relative-path
+  # collision. Emulators receive the link path, so new saves and scraped
+  # metadata remain on the OS card.
   while IFS= read -r -d '' source; do
     relative=${source#"${EXTERNAL_ROOT}"/}
-    destination=${INTERNAL_ROOT}/${relative}
+    case "${relative}" in
+      music/*) destination=${MEDIA_ROOT}/Music/${relative#music/} ;;
+      videos/*) destination=${MEDIA_ROOT}/Videos/${relative#videos/} ;;
+      *) destination=${INTERNAL_ROOT}/${relative} ;;
+    esac
     parent=${destination%/*}
     mkdir -p -- "${parent}"
 
