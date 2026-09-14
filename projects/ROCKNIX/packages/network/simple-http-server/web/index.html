@@ -21,6 +21,7 @@
   <header><img class="mark" src="butterfly.png?v=3" alt=""><h1>ButterflyOS</h1><p>Move files to and from your handheld</p></header>
   <section class="grid">
     <a class="card" data-path="roms/"><span class="icon">🎮</span><strong>Games</strong><span>Add ROMs to their system folders</span></a>
+    <a class="card" data-path="games-external/roms/"><span class="icon">▤</span><strong>Second Game Card</strong><span>Manage files stored in the second SD slot</span></a>
     <a class="card" data-path="roms/bios/"><span class="icon">▣</span><strong>BIOS</strong><span>Firmware required by some systems</span></a>
     <a class="card" data-path="media/Music/"><span class="icon">♫</span><strong>Music</strong><span>MP3, FLAC and other audio</span></a>
     <a class="card" data-path="media/Videos/"><span class="icon">▶</span><strong>Videos</strong><span>Video files for the Media library</span></a>
@@ -37,7 +38,7 @@
     </ol>
     <p><b>What is root?</b> It is the built-in administrator account name used by ButterflyOS. You do not need to create a separate account.</p>
   </section>
-  <p class="note">Choose a folder, then use the upload control on that page. For your security, enable Web File Transfer only on a trusted local network.</p>
+  <p class="note">Choose a folder, then use the upload control on that page. Games uploads use the OS card; Second Game Card writes directly to the card in the second slot. Run Update Gamelists after adding files. For your security, enable Web File Transfer only on a trusted local network.</p>
 </main><script>
   document.querySelectorAll('[data-path]').forEach(function(a){
     a.href=location.protocol+'//'+location.hostname+':8080/.config/butterflyos/web/browser.html?v=7&path='+encodeURIComponent('/'+a.dataset.path);
