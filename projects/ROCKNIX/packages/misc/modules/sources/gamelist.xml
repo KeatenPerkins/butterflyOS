@@ -8,7 +8,7 @@
         <publisher>ButterflyOS</publisher>
         <genre>Utility</genre>
         <players>1</players>
-        <image>./images/butterflyos-boot.png</image>
+        <image>./images/prepare-game-card.png</image>
     </game>
     <game>
         <path>./ButterflyOS Boot Check.sh</path>
