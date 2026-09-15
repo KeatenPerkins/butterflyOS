@@ -89,9 +89,22 @@ cleanup_links() {
 }
 
 refresh_links() {
-  local source relative destination parent
+  local source relative destination parent internal_device external_device
   local linked=0 collisions=0
   local next_manifest=${MANIFEST}.new
+
+  # Never import or remove media while inherited ROCKNIX storage mode has the
+  # second card mounted over /storage/roms. In that state both names reference
+  # the same files, so treating one as a duplicate could delete user content.
+  if mountpoint -q "${EXTERNAL_MOUNT}"; then
+    internal_device=$(stat -c '%d' "${INTERNAL_ROOT}" 2>/dev/null || true)
+    external_device=$(stat -c '%d' "${EXTERNAL_ROOT}" 2>/dev/null || true)
+    if [[ -n "${internal_device}" && "${internal_device}" == "${external_device}" ]]; then
+      log "Safety stop: /storage/roms and the second card are the same filesystem."
+      printf 'error=duplicate-mount external=mounted\n'
+      return 1
+    fi
+  fi
 
   import_internal_media
   cleanup_links

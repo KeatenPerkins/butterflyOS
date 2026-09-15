@@ -100,6 +100,11 @@ EOF
     else
       echo "system.hostname=butterflyos" >> ${INSTALL}/usr/config/system/configs/system.cfg
     fi
+    if grep -q '^system.roms.direct=' ${INSTALL}/usr/config/system/configs/system.cfg; then
+      sed -i "s#^system.roms.direct=.*#system.roms.direct=1#g" ${INSTALL}/usr/config/system/configs/system.cfg
+    else
+      echo "system.roms.direct=1" >> ${INSTALL}/usr/config/system/configs/system.cfg
+    fi
     enable_service butterflyos-menu-hotkey.service
   else
     rm -f ${INSTALL}/usr/bin/butterflyos-menu-hotkey

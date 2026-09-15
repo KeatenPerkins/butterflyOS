@@ -1,7 +1,8 @@
 [Unit]
 Description=ROCKNIX user autostart script
 Before=autostart.service
-After=systemd-tmpfiles-setup.service
+After=systemd-tmpfiles-setup.service userconfig.service storage.mount
+RequiresMountsFor=/storage
 
 [Service]
 Type=oneshot
