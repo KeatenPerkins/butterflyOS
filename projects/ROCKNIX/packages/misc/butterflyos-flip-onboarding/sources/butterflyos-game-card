@@ -20,6 +20,7 @@ log() {
 
 import_internal_media() {
   local source relative destination source_root destination_root
+  local directory filename stem extension candidate suffix
 
   for source_root in "${INTERNAL_ROOT}/music" "${INTERNAL_ROOT}/videos"; do
     [[ -d "${source_root}" ]] || continue
@@ -35,8 +36,31 @@ import_internal_media() {
       [[ "${relative}" == retroachievements/* ]] && continue
       destination=${destination_root}/${relative}
       if [[ -e "${destination}" || -L "${destination}" ]]; then
-        log "Media collision, keeping existing library entry: ${relative}"
-        continue
+        if [[ -f "${destination}" ]] && cmp -s -- "${source}" "${destination}"; then
+          rm -f -- "${source}"
+          log "Removed duplicate OS-card media source: ${relative}"
+          continue
+        fi
+
+        # Preserve a genuinely different same-name file, but move it out of
+        # roms/music so EmulationStation cannot mistake it for menu music.
+        directory=${destination%/*}
+        filename=${destination##*/}
+        if [[ "${filename}" == *.* ]]; then
+          stem=${filename%.*}
+          extension=.${filename##*.}
+        else
+          stem=${filename}
+          extension=
+        fi
+        suffix=1
+        candidate=${directory}/${stem}\ \(OS\ card\)${extension}
+        while [[ -e "${candidate}" || -L "${candidate}" ]]; do
+          suffix=$((suffix + 1))
+          candidate=${directory}/${stem}\ \(OS\ card\ ${suffix}\)${extension}
+        done
+        destination=${candidate}
+        log "Renamed OS-card media collision: ${relative} -> ${destination##*/}"
       fi
       mkdir -p -- "${destination%/*}"
       mv -- "${source}" "${destination}"
