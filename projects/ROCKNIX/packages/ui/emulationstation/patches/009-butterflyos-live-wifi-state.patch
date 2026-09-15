@@ -1,0 +1,24 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -5491,7 +5491,11 @@ void GuiMenu::openWifiSettings(Window* win, std::string title, std::string data,
+ 
+ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+ {
+-	bool baseWifiEnabled = SystemConf::getInstance()->getBool("wifi.enabled");
++	const std::string currentWifiSSID = ApiSystem::getInstance()->getCurrentWifiSSID();
++	bool baseWifiEnabled = SystemConf::getInstance()->getBool("wifi.enabled") ||
++		(!currentWifiSSID.empty() && currentWifiSSID != "NOT CONNECTED");
++	if (baseWifiEnabled != SystemConf::getInstance()->getBool("wifi.enabled"))
++		SystemConf::getInstance()->setBool("wifi.enabled", baseWifiEnabled);
+ 	bool baseAdhocEnabled = SystemConf::getInstance()->getBool("wifi.adhoc.enabled");
+ 
+ 	auto theme = ThemeData::getMenuTheme();
+@@ -5507,7 +5511,7 @@ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+ 	auto ip = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getIpAddress(), font, color);
+ 	s->addWithLabel(_("IP ADDRESS"), ip);
+ 
+-	auto activeWifi = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->getCurrentWifiSSID(), font, color);
++	auto activeWifi = std::make_shared<TextComponent>(mWindow, currentWifiSSID, font, color);
+ 	s->addWithLabel(_("CONNECTED WI-FI"), activeWifi);
+ 
+ 	auto status = std::make_shared<TextComponent>(mWindow, ApiSystem::getInstance()->ping() ? _("CONNECTED") : _("NOT CONNECTED"), font, color);

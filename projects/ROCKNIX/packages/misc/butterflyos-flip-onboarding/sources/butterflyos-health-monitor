@@ -1,0 +1,86 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 Keaten Perkins
+
+LOG_DIR=/storage/.config/system/logs
+STATE_FILE=${LOG_DIR}/butterflyos-health.state
+PREVIOUS_FILE=${LOG_DIR}/butterflyos-health.previous
+BOOT_ID=$(cat /proc/sys/kernel/random/boot_id 2>/dev/null)
+LAST_DISPLAY=
+LAST_ES=
+LAST_WIFI=
+
+mkdir -p "${LOG_DIR}"
+
+snapshot() {
+  clean_shutdown=$1
+  uptime_seconds=$(cut -d. -f1 /proc/uptime 2>/dev/null)
+  if pgrep -x emulationstation >/dev/null 2>&1; then
+    es_state=running
+  else
+    es_state=stopped
+  fi
+  wifi_state=$(nmcli -t -f DEVICE,STATE,CONNECTION device status 2>/dev/null |
+    sed -n '/^wlan/{p;q;}')
+  [ -n "${wifi_state}" ] || wifi_state=unavailable
+
+  display_state=
+  for status_file in /sys/class/drm/card*-*/status; do
+    [ -f "${status_file}" ] || continue
+    connector=$(basename "$(dirname "${status_file}")")
+    status=$(cat "${status_file}" 2>/dev/null)
+    edid=none
+    if [ "${status}" = connected ] && [ -s "$(dirname "${status_file}")/edid" ]; then
+      edid=$(cksum "$(dirname "${status_file}")/edid" 2>/dev/null | awk '{print $1 ":" $2}')
+    fi
+    display_state="${display_state}${display_state:+,}${connector}=${status}:${edid}"
+  done
+  [ -n "${display_state}" ] || display_state=unavailable
+
+  tmp_file=${STATE_FILE}.tmp
+  {
+    printf 'boot_id=%s\n' "${BOOT_ID}"
+    printf 'updated=%s\n' "$(date -Iseconds)"
+    printf 'uptime_seconds=%s\n' "${uptime_seconds:-unknown}"
+    printf 'clean_shutdown=%s\n' "${clean_shutdown}"
+    printf 'emulationstation=%s\n' "${es_state}"
+    printf 'wifi=%s\n' "${wifi_state}"
+    printf 'display=%s\n' "${display_state}"
+  } >"${tmp_file}"
+  mv -f "${tmp_file}" "${STATE_FILE}"
+
+  if [ "${display_state}" != "${LAST_DISPLAY}" ]; then
+    logger -t butterflyos-health "display state: ${display_state}"
+    LAST_DISPLAY=${display_state}
+  fi
+  if [ "${es_state}" != "${LAST_ES}" ]; then
+    logger -t butterflyos-health "emulationstation: ${es_state}"
+    LAST_ES=${es_state}
+  fi
+  if [ "${wifi_state}" != "${LAST_WIFI}" ]; then
+    logger -t butterflyos-health "wifi state: ${wifi_state}"
+    LAST_WIFI=${wifi_state}
+  fi
+}
+
+mark_clean_and_exit() {
+  snapshot 1
+  logger -t butterflyos-health "clean monitor shutdown for boot ${BOOT_ID}"
+  exit 0
+}
+
+if [ -f "${STATE_FILE}" ]; then
+  cp -f "${STATE_FILE}" "${PREVIOUS_FILE}"
+  if grep -q '^clean_shutdown=0$' "${PREVIOUS_FILE}"; then
+    logger -t butterflyos-health \
+      "previous boot did not shut down cleanly; preserved ${PREVIOUS_FILE}"
+  fi
+fi
+
+trap mark_clean_and_exit TERM INT HUP
+logger -t butterflyos-health "monitor started for boot ${BOOT_ID}"
+
+while :; do
+  snapshot 0
+  sleep 30
+done

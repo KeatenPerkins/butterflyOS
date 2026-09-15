@@ -95,7 +95,11 @@ EOF
   if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]
   then
     sed -i "s#ssh.enabled=1#ssh.enabled=0#g" ${INSTALL}/usr/config/system/configs/system.cfg
-    sed -i "s#^system.hostname=.*#system.hostname=butterflyos#g" ${INSTALL}/usr/config/system/configs/system.cfg
+    if grep -q '^system.hostname=' ${INSTALL}/usr/config/system/configs/system.cfg; then
+      sed -i "s#^system.hostname=.*#system.hostname=butterflyos#g" ${INSTALL}/usr/config/system/configs/system.cfg
+    else
+      echo "system.hostname=butterflyos" >> ${INSTALL}/usr/config/system/configs/system.cfg
+    fi
     enable_service butterflyos-menu-hotkey.service
   else
     rm -f ${INSTALL}/usr/bin/butterflyos-menu-hotkey

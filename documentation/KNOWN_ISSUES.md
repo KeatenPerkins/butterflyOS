@@ -33,6 +33,17 @@ hardware smoke test are complete.
 ## Hardware qualification
 
 - Lid-close/open suspend and resume need a dedicated regression test.
+- A September 15 overnight test left HDMI and power connected to a powered-off
+  4K television. After returning to the handheld display, the Games interface
+  became malformed and the device stopped responding to the frontend, ping,
+  and SSH. A forced restart recovered it, both filesystems checked clean, and
+  the issue has not yet been reproduced. The affected build kept its journal
+  only in RAM, so it could not establish whether this was a DRM/GPU or broader
+  kernel stall.
+- The next diagnostic build keeps a compressed journal capped at 10 MiB and
+  seven days. It also records HDMI connector/EDID changes, Wi-Fi state,
+  EmulationStation liveness, and whether the previous boot ended cleanly in
+  `/storage/.config/system/logs/butterflyos-health.previous`.
 - One post-suspend test showed horizontal/vertical pixel-line corruption on the
   internal LCD. HDMI connect/disconnect reinitialized the panel and restored
   the image; logs contained no Panfrost fault or timeout, and the issue did not
@@ -85,6 +96,10 @@ hardware smoke test are complete.
   intended for beginner workflows.
 - Broad theme polishing for external display resolutions is deferred until the
   handheld interface and behavior are stable.
+- Network settings in the September 15 failure became inconsistent with the
+  active NetworkManager connection. The next build derives the Wi-Fi switch
+  from live state, refuses empty SSID requests, and retains the last working
+  profile until replacement credentials authenticate successfully.
 
 Report issues with the ButterflyOS version, device revision, controller model,
 system/emulator, steps to reproduce, and whether the problem survives a reboot.

@@ -1,0 +1,14 @@
+[Unit]
+Description=ButterflyOS display and system health recorder
+After=storage.mount NetworkManager.service
+RequiresMountsFor=/storage
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/butterflyos-health-monitor
+Restart=always
+RestartSec=5
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target

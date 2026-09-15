@@ -65,7 +65,14 @@ makeinstall_target() {
         "${INSTALL}/usr/share/butterflyos/"
   mkdir -p "${INSTALL}/usr/bin"
   cp -a "${PKG_DIR}/sources/butterflyos-game-card" \
+        "${PKG_DIR}/sources/butterflyos-health-monitor" \
         "${INSTALL}/usr/bin/"
+
+  mkdir -p "${INSTALL}/usr/lib/systemd/system/var-log.mount.d"
+  cp -a "${PKG_DIR}/system.d/butterflyos-health-monitor.service" \
+        "${INSTALL}/usr/lib/systemd/system/"
+  cp -a "${PKG_DIR}/system.d/var-log.mount.d/butterflyos.conf" \
+        "${INSTALL}/usr/lib/systemd/system/var-log.mount.d/"
 
   mkdir -p "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup"
   cp -a "${PKG_DIR}/sources/stock-bootstrap/launch.sh" \
@@ -90,7 +97,14 @@ makeinstall_target() {
              "${INSTALL}/usr/share/butterflyos/flip-preloader/manage.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/patch-preloader.sh" \
              "${INSTALL}/usr/bin/butterflyos-game-card" \
+             "${INSTALL}/usr/bin/butterflyos-health-monitor" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/launch.sh" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/install.sh" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/patch-preloader.sh"
+}
+
+post_install() {
+  enable_service storage-log.service
+  enable_service var-log.mount
+  enable_service butterflyos-health-monitor.service
 }

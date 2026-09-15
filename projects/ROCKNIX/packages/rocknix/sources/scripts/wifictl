@@ -78,13 +78,21 @@ list_wifi() {
 
 connect_wifi() {
   wait_for_wifi
-  local active_ssid attempt
+  local active_ssid attempt pending_name
   local log_file="/storage/.config/system/logs/wifi-connect.log"
   mkdir -p "$(dirname "${log_file}")"
   {
     printf '\n[%s] requested SSID: %s\n' "$(date -Iseconds)" "${SSID}"
     printf 'interface: %s, country: %s\n' "${WIFI_DEV}" "${COUNTRY:-unset}"
   } >>"${log_file}"
+
+  # Never let a stale or partially initialized frontend request tear down a
+  # healthy connection. This also makes an empty SSID fail visibly in the log
+  # instead of asking NetworkManager to disconnect and connect to "".
+  if [ -z "${SSID}" ]; then
+    printf 'refusing empty SSID request\n' >>"${log_file}"
+    return 1
+  fi
 
   # Ensure NM has the device ready and has scanned
   for i in $(seq 1 10); do
@@ -106,13 +114,22 @@ connect_wifi() {
     "${NMCLI}" dev wifi rescan ifname "${WIFI_DEV}" >>"${log_file}" 2>&1 || true
     sleep 2
 
-    # Drop incomplete/stale NetworkManager state before recreating the profile.
-    "${NMCLI}" connection delete id "${SSID}" >>"${log_file}" 2>&1 || true
+    # Authenticate with a temporary profile. Keep the last known-good profile
+    # until this succeeds so a typo or a transient HDMI/UI failure cannot erase
+    # the device's working network configuration.
+    pending_name="${SSID}.butterflyos-pending"
+    "${NMCLI}" connection delete id "${pending_name}" >>"${log_file}" 2>&1 || true
     if [ -n "${PSK}" ]; then
-      "${NMCLI}" -w 45 device wifi connect "${SSID}" password "${PSK}" ifname "${WIFI_DEV}" >>"${log_file}" 2>&1 && return 0
+      "${NMCLI}" -w 45 device wifi connect "${SSID}" password "${PSK}" ifname "${WIFI_DEV}" name "${pending_name}" >>"${log_file}" 2>&1
     else
-      "${NMCLI}" -w 45 device wifi connect "${SSID}" ifname "${WIFI_DEV}" >>"${log_file}" 2>&1 && return 0
+      "${NMCLI}" -w 45 device wifi connect "${SSID}" ifname "${WIFI_DEV}" name "${pending_name}" >>"${log_file}" 2>&1
     fi
+    if [ $? -eq 0 ]; then
+      "${NMCLI}" connection delete id "${SSID}" >>"${log_file}" 2>&1 || true
+      "${NMCLI}" connection modify "${pending_name}" connection.id "${SSID}" >>"${log_file}" 2>&1 || true
+      return 0
+    fi
+    "${NMCLI}" connection delete id "${pending_name}" >>"${log_file}" 2>&1 || true
     sleep 2
   done
 

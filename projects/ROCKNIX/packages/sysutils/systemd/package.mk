@@ -202,6 +202,15 @@ post_makeinstall_target() {
   sed -e "s,^.*RuntimeMaxFileSize=.*$,RuntimeMaxFileSize=128K,g" -i ${INSTALL}/etc/systemd/journald.conf
   sed -e "s,^.*SplitMode=.*$,SplitMode=none,g" -i ${INSTALL}/etc/systemd/journald.conf
   sed -e "s,^.*SystemMaxUse=.*$,SystemMaxUse=10M,g" -i ${INSTALL}/etc/systemd/journald.conf
+  if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+    # Preserve enough bounded history to diagnose display/GPU or networking
+    # stalls after a forced reboot without allowing logs to consume user space.
+    sed -e "s,^.*Storage=.*$,Storage=persistent,g" -i ${INSTALL}/etc/systemd/journald.conf
+    sed -e "s,^.*Compress=.*$,Compress=yes,g" -i ${INSTALL}/etc/systemd/journald.conf
+    sed -e "s,^.*SystemMaxUse=.*$,SystemMaxUse=10M,g" -i ${INSTALL}/etc/systemd/journald.conf
+    sed -e "s,^.*SystemMaxFileSize=.*$,SystemMaxFileSize=2M,g" -i ${INSTALL}/etc/systemd/journald.conf
+    sed -e "s,^.*MaxRetentionSec=.*$,MaxRetentionSec=7day,g" -i ${INSTALL}/etc/systemd/journald.conf
+  fi
   if [ "${BUILD_WITH_DEBUG}" = "yes" ]; then
     sed -e "s,^.*ForwardToConsole=.*$,ForwardToConsole=yes,g" -i ${INSTALL}/etc/systemd/journald.conf
     sed -e "s,^.*TTYPath=.*$,TTYPath=${DEBUG_TTY},g" -i ${INSTALL}/etc/systemd/journald.conf
