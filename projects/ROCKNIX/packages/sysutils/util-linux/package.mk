@@ -88,14 +88,25 @@ fi
 
 post_makeinstall_target() {
   if [ "${SWAP_SUPPORT}" = "yes" ]; then
+    # The device options are evaluated before IMAGE_SUBDEVICE is finalized in
+    # some image-build paths.  Keep the Flip V2's bounded zram policy here as
+    # well so the immutable /etc/swap.conf always receives the intended
+    # defaults instead of the generic RK3566 values.
+    local zram_swap_size="${ZRAM_SWAP_SIZE}"
+    local zram_compression_algo="${ZRAM_COMPRESSION_ALGO}"
+    if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+      zram_swap_size="256"
+      zram_compression_algo="lz4"
+    fi
+
     mkdir -p ${INSTALL}/etc
       cat ${PKG_DIR}/config/swap.conf | \
-        sed -e "s,@ZRAM_SWAP_SIZE@,${ZRAM_SWAP_SIZE},g" \
+        sed -e "s,@ZRAM_SWAP_SIZE@,${zram_swap_size},g" \
             -e "s,@SWAP_ENABLED_DEFAULT@,${SWAP_ENABLED_DEFAULT},g" \
             -e "s,@SWAP_FILE_SIZE@,${SWAP_FILE_SIZE},g" \
             -e "s,@SWAP_PRIORITY@,${SWAP_PRIORITY:-auto},g" \
             -e "s,@KSM_ENABLE@,${KSM_ENABLE:-auto},g" \
-            -e "s,@ZRAM_COMPRESSION_ALGO@,${ZRAM_COMPRESSION_ALGO},g" \
+            -e "s,@ZRAM_COMPRESSION_ALGO@,${zram_compression_algo},g" \
             > ${INSTALL}/etc/swap.conf
   fi
 }

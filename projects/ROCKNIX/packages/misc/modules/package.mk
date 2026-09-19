@@ -66,5 +66,7 @@ post_makeinstall_target() {
         -d "/gameList/game[path='./${module}']" \
         "${INSTALL}/usr/config/modules/gamelist.xml"
     done
+    rm -f "${INSTALL}/usr/config/modules/images/rclone-backup.svg" \
+          "${INSTALL}/usr/config/modules/images/rclone-restore.svg"
   fi
 }
