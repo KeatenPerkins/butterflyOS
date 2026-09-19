@@ -12,6 +12,21 @@
 
 . /etc/profile.d/001-functions
 
+# Keep runtime USB autosuspend disabled for the internal RTL8733BU combo
+# device. It is normally already "on", but make that policy persistent across
+# USB re-enumeration so a future default or userspace change cannot suspend the
+# Wi-Fi/BT dongle underneath its vendor drivers.
+mkdir -p /run/udev/rules.d
+cat <<'EOF' >/run/udev/rules.d/70-miyoo-flip-rtl8733bu-power.rules
+ACTION=="add|bind", SUBSYSTEM=="usb", ATTR{idVendor}=="0bda", ATTR{idProduct}=="b733", TEST=="power/control", ATTR{power/control}="on"
+EOF
+udevadm control --reload 2>/dev/null || true
+for usb_device in /sys/bus/usb/devices/*; do
+  [ "$(cat "${usb_device}/idVendor" 2>/dev/null)" = 0bda ] || continue
+  [ "$(cat "${usb_device}/idProduct" 2>/dev/null)" = b733 ] || continue
+  [ -w "${usb_device}/power/control" ] && printf '%s\n' on >"${usb_device}/power/control"
+done
+
 if [ -e "/storage/.configured" ]; then
   WIFI_ENABLED=$(get_setting wifi.enabled)
   BT_ENABLED=$(get_setting controllers.bluetooth.enabled)

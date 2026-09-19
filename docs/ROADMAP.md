@@ -20,6 +20,70 @@ Alpha 1 established the bootable baseline. Alpha 2 has completed qualification
 on a second untouched device. Rumble, dedicated lid/suspend regression, and
 controlled battery-runtime measurement remain open known limitations.
 
+### September 19 stability and crash-forensics sprint
+
+The September 16 live diagnostic setup and verification are documented in
+`~/Documents/miyoo-flip-crash-logging-setup.md`. Preserve a copy of its scripts
+and collect its second-card logs before reflashing or repairing/reformatting the
+card. Treat the 512 MiB journal and 2 GiB Wi-Fi debug capture as temporary
+development instrumentation, not public-release defaults.
+
+The safe development baseline now disables both hardware suspend and ROCKNIX
+fake suspend on the Miyoo Flip. Closing the lid is intentionally inert until a
+ButterflyOS-specific display/backlight-only handler passes extended lid cycling
+and storage-integrity testing. Do not restore deep suspend on this hardware:
+captured failures show `mmc0` timing out and disappearing on resume, followed by
+an aborted `/storage` ext4 journal.
+
+- Verify that the live persistent journal, rolling snapshots, EmulationStation
+  archive, RetroArch log, boot history, and Wi-Fi capture still work; import a
+  reviewed, smaller, bounded version into source so diagnostics survive future
+  images without depending on hand-installed autostart files.
+- Enable and validate kernel `pstore`/`ramoops` only after selecting a safe,
+  non-overlapping RK3566 reserved-memory region from the actual memory map.
+  Include console capture, confirm records survive a controlled panic/reboot,
+  and document how exported diagnostics redact private network information.
+- Make USB autosuspend policy explicit for the internal RTL8733BU Wi-Fi/BT
+  device as defensive hygiene, and run controlled long-sleep A/B tests with
+  Wi-Fi enabled versus fully powered off. Twelve hours and three observed
+  resumes showed clean Wi-Fi re-enumeration on EHCI bus 4, so Wi-Fi is no
+  longer the leading suspect. Do not misattribute the repeatable empty-xHCI
+  controller reinitialization warning to the separate EHCI Wi-Fi path.
+- Investigate the reproducible Mali suspend-path warning `unbalanced disables
+  for vdd_gpu`. It occurs through the out-of-tree `mali_kbase` power-management
+  callbacks and is the strongest current lead for display/resume instability.
+  Compare the driver/kernel pairing, regulator ownership and enable/disable
+  balance; preserve the complete call trace in the diagnostic record.
+- Evaluate a conservative approximately 256 MiB LZ4 zram swap configuration on
+  the 1 GiB device. Measure memory pressure, latency, CPU cost, thermals, and
+  emulator performance before making it a default.
+- Define watchdog policy deliberately. Enable a runtime hardware watchdog and
+  consider `oops=panic` only after ramoops is proven, then test clean shutdown,
+  userspace failure, kernel oops, and hard-hang recovery separately.
+- Run a read-only `fsck.exfat` on the second game card before any repair. Decide
+  whether user interoperability requires exFAT or whether ext4 should be an
+  optional reliability-focused format. Never keep the only crash evidence on
+  an unjournaled card without plain-text/rotated fallbacks.
+- Keep core dumps disabled by default on the constrained handheld. Reconsider
+  only a tightly capped, opt-in development mode.
+- Review lower-priority boot/runtime noise: BFQ udev timing, the sixaxis unit
+  naming warning, unused BlueZ SAP/BNEP profiles, repeated `nmbd` WORKGROUP
+  conflicts, and Mali-kbase/kernel version-skew warnings.
+- Provide a development logging mode that can drop `quiet` or raise kernel log
+  level without making verbose boot output the normal end-user experience.
+- Make RetroArch Thumbnails the effective scraper for existing installations,
+  not only clean defaults. Hide or repair ArcadeDB while its hardcoded HTTP
+  endpoint/redirect behavior is broken and document that it is arcade-focused.
+  Improve user-visible handling of exact-name misses (region/revision tags,
+  `FireRed`/`LeafGreen`, and enhanced/compatibility tags) without renaming ROMs
+  or breaking correspondingly named save files. Keep account-requiring IGDB
+  optional and never ship user API secrets.
+
+Acceptance: an induced test failure leaves bounded, readable previous-boot
+evidence; long-sleep testing can distinguish GPU/display, Wi-Fi/USB, storage,
+OOM, userspace, watchdog, and kernel-panic failure classes; normal builds do
+not impose excessive SD wear or multi-gigabyte logging.
+
 ## Milestone 1: Console shell prototype
 
 - Create a ButterflyOS EmulationStation theme with large, readable targets
@@ -27,6 +91,8 @@ controlled battery-runtime measurement remain open known limitations.
   Applications, and Settings
 - Hide unused systems and advanced entries by default
 - Establish consistent button prompts, confirmation dialogs, and terminology
+- Preserve the level-filled battery icon while charging and render a separate,
+  legible lightning-bolt overlay or adjacent indicator
 - Add a controller-friendly Menu/hotkey capture and test workflow that supports
   joystick buttons as well as Guide/Menu keys exposed through evdev
 - Provide a deliberate switch into and out of Advanced mode
@@ -36,6 +102,12 @@ Acceptance: a first-time user can discover games, launch one, change basic
 settings, and shut down without encountering Linux or RetroArch terminology.
 
 ## Milestone 2: Guided setup and system management
+
+- Audit bundled VPN and cloud-service packages before the next release:
+  document each service's purpose and likely user workflow, measure its image
+  and runtime cost, review its security/privacy implications, and decide
+  whether to keep it, hide it behind Advanced mode, offer it as an optional
+  download, or remove it from the image
 
 ### Alpha 2 release gate: device-local preloader patching
 
