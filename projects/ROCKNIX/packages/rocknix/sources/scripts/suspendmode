@@ -7,6 +7,16 @@
 REQUESTED_MODE="${*}"
 SUSPEND_MODE=$(get_setting system.suspendmode)
 
+# The Miyoo Flip V2 can lose mmc0 while resuming from deep suspend, aborting
+# the /storage journal. ButterflyOS keeps suspend disabled until a proven-safe
+# display-only implementation replaces it. Enforce the policy below the GUI so
+# stale settings and direct command-line requests cannot re-enable mem mode.
+if [ -d /usr/share/butterflyos ] && \
+   grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null; then
+  REQUESTED_MODE=off
+  set -- off
+fi
+
 if [ ! "${REQUESTED_MODE}" = "${SUSPEND_MODE}" ]; then
   cat <<EOF >/storage/.config/sleep.conf.d/sleep.conf
 [Sleep]
