@@ -1,0 +1,15 @@
+[Unit]
+Description=ButterflyOS opt-in extended diagnostics
+After=storage.mount NetworkManager.service
+RequiresMountsFor=/storage
+ConditionPathExists=/storage/.config/butterflyos/extended-diagnostics.enabled
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/butterflyos-extended-diagnostics
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target

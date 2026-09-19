@@ -52,6 +52,7 @@ makeinstall_target() {
 
   mkdir -p "${INSTALL}/usr/config/modules/images"
   cp -a "${PKG_DIR}/sources/ButterflyOS Boot Check.sh" \
+        "${PKG_DIR}/sources/Extended Diagnostics.sh" \
         "${PKG_DIR}/sources/Export ButterflyOS Recovery Backup.sh" \
         "${PKG_DIR}/sources/Prepare Game Card.sh" \
         "${PKG_DIR}/sources/Restore Stock Miyoo Boot.sh" \
@@ -65,11 +66,13 @@ makeinstall_target() {
         "${INSTALL}/usr/share/butterflyos/"
   mkdir -p "${INSTALL}/usr/bin"
   cp -a "${PKG_DIR}/sources/butterflyos-game-card" \
+        "${PKG_DIR}/sources/butterflyos-extended-diagnostics" \
         "${PKG_DIR}/sources/butterflyos-health-monitor" \
         "${INSTALL}/usr/bin/"
 
   mkdir -p "${INSTALL}/usr/lib/systemd/system/var-log.mount.d"
   cp -a "${PKG_DIR}/system.d/butterflyos-health-monitor.service" \
+        "${PKG_DIR}/system.d/butterflyos-extended-diagnostics.service" \
         "${INSTALL}/usr/lib/systemd/system/"
   cp -a "${PKG_DIR}/system.d/var-log.mount.d/butterflyos.conf" \
         "${INSTALL}/usr/lib/systemd/system/var-log.mount.d/"
@@ -89,6 +92,7 @@ makeinstall_target() {
         "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/"
 
   chmod 0755 "${INSTALL}/usr/config/modules/ButterflyOS Boot Check.sh" \
+             "${INSTALL}/usr/config/modules/Extended Diagnostics.sh" \
              "${INSTALL}/usr/config/modules/Export ButterflyOS Recovery Backup.sh" \
              "${INSTALL}/usr/config/modules/Prepare Game Card.sh" \
              "${INSTALL}/usr/config/modules/Restore Stock Miyoo Boot.sh" \
@@ -97,6 +101,7 @@ makeinstall_target() {
              "${INSTALL}/usr/share/butterflyos/flip-preloader/manage.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/patch-preloader.sh" \
              "${INSTALL}/usr/bin/butterflyos-game-card" \
+             "${INSTALL}/usr/bin/butterflyos-extended-diagnostics" \
              "${INSTALL}/usr/bin/butterflyos-health-monitor" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/launch.sh" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/install.sh" \
@@ -106,5 +111,6 @@ makeinstall_target() {
 post_install() {
   enable_service storage-log.service
   enable_service var-log.mount
+  enable_service butterflyos-extended-diagnostics.service
   enable_service butterflyos-health-monitor.service
 }

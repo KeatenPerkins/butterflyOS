@@ -1,0 +1,74 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 Keaten Perkins
+
+LOG_DIR=/storage/.config/system/extended-diagnostics
+LIVE_LOG=${LOG_DIR}/system-live.log
+DEEP_LOG=${LOG_DIR}/system-detail.log
+MAX_BYTES=4194304
+KEEP_ROTATIONS=2
+
+mkdir -p "${LOG_DIR}"
+
+rotate_log() {
+  log_file=$1
+  [ -f "${log_file}" ] || return 0
+  log_size=$(wc -c <"${log_file}" 2>/dev/null)
+  [ "${log_size:-0}" -lt "${MAX_BYTES}" ] && return 0
+
+  rm -f "${log_file}.${KEEP_ROTATIONS}"
+  rotation=${KEEP_ROTATIONS}
+  while [ "${rotation}" -gt 1 ]; do
+    previous=$((rotation - 1))
+    [ ! -f "${log_file}.${previous}" ] || \
+      mv -f "${log_file}.${previous}" "${log_file}.${rotation}"
+    rotation=${previous}
+  done
+  mv -f "${log_file}" "${log_file}.1"
+}
+
+live_snapshot() {
+  rotate_log "${LIVE_LOG}"
+  {
+    printf '\n=== %s ===\n' "$(date -Iseconds)"
+    printf '%s\n' '-- uptime / load --'
+    cat /proc/uptime /proc/loadavg 2>/dev/null
+    printf '%s\n' '-- memory --'
+    free -m 2>/dev/null
+    printf '%s\n' '-- storage --'
+    df -h /storage /storage/games-external 2>/dev/null
+    printf '%s\n' '-- temperature / battery --'
+    for sensor in /sys/class/thermal/thermal_zone*/temp \
+                  /sys/class/power_supply/battery/{capacity,status}; do
+      [ -f "${sensor}" ] && printf '%s=%s\n' "${sensor}" "$(cat "${sensor}")"
+    done
+    printf '%s\n' '-- frontend / network --'
+    pgrep -a emulationstation 2>/dev/null || printf '%s\n' 'emulationstation=stopped'
+    nmcli -t -f DEVICE,TYPE,STATE device status 2>/dev/null
+    printf '%s\n' '-- recent warnings --'
+    journalctl -n 40 -p warning --no-pager 2>/dev/null
+  } >>"${LIVE_LOG}"
+}
+
+detail_snapshot() {
+  rotate_log "${DEEP_LOG}"
+  {
+    printf '\n=== %s ===\n' "$(date -Iseconds)"
+    printf '%s\n' '-- processes --'
+    top -b -n 1 2>/dev/null | head -35
+    printf '%s\n' '-- mounts --'
+    mount 2>/dev/null
+    printf '%s\n' '-- kernel faults --'
+    dmesg 2>/dev/null | grep -iE 'error|fail|fault|warn|hang|timeout|mmc|mali|panfrost|drm' | tail -120
+    printf '%s\n' '-- services --'
+    systemctl --failed --no-pager 2>/dev/null
+  } >>"${DEEP_LOG}"
+}
+
+cycle=0
+while :; do
+  live_snapshot
+  cycle=$((cycle + 1))
+  [ $((cycle % 5)) -ne 0 ] || detail_snapshot
+  sleep 60
+done

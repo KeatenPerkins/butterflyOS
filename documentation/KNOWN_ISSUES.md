@@ -32,7 +32,10 @@ hardware smoke test are complete.
 
 ## Hardware qualification
 
-- Lid-close/open suspend and resume need a dedicated regression test.
+- Hardware and ROCKNIX fake suspend are disabled on the Flip safety baseline.
+  The Suspend selector and Suspend System action are hidden so the unsafe
+  `mem` mode cannot be re-enabled through the GUI. Closing the lid is inert
+  until a display/backlight-only ButterflyOS handler passes extended testing.
 - A September 15 overnight test left HDMI and power connected to a powered-off
   4K television. After returning to the handheld display, the Games interface
   became malformed and the device stopped responding to the frontend, ping,
@@ -47,6 +50,15 @@ hardware smoke test are complete.
 - The September 19 stability build also reserves 256 KiB for `ramoops`. Kernel
   panic/oops and console records recovered by systemd are copied into bounded
   archives below `/storage/.config/system/logs/pstore/` on the next boot.
+- Normal logging is compressed and capped at 10 MiB with seven-day retention.
+  Advanced Mode exposes an opt-in **Extended Diagnostics** tool. Its one-minute
+  and five-minute snapshots use two 4 MiB logs with two rotations each (about
+  24 MiB maximum), do not record passwords, and remain available after the
+  collector is switched off. Ramoops archival retains at most eight records.
+- The temporary development card may still contain the September 16 Claude
+  capture setup (512 MiB journal and a separately capped Wi-Fi trace). It is
+  intentionally not part of release images and should be retired after the new
+  Extended Diagnostics workflow is verified.
 - One post-suspend test showed horizontal/vertical pixel-line corruption on the
   internal LCD. HDMI connect/disconnect reinitialized the panel and restored
   the image; logs contained no Panfrost fault or timeout, and the issue did not

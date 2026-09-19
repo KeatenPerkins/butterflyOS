@@ -1,6 +1,17 @@
 <?xml version="1.0"?>
 <gameList>
     <game>
+        <path>./Extended Diagnostics.sh</path>
+        <name>Extended Diagnostics</name>
+        <desc>Enable or disable bounded diagnostic snapshots for investigating crashes and stability problems. Logs rotate automatically.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <releasedate>2026</releasedate>
+        <genre>Advanced</genre>
+        <players>1</players>
+        <image>./images/system-manager.png</image>
+    </game>
+    <game>
         <path>./Prepare Game Card.sh</path>
         <name>Prepare Game Card</name>
         <desc>Prepare, format, inspect, and refresh a second ButterflyOS game card.</desc>
