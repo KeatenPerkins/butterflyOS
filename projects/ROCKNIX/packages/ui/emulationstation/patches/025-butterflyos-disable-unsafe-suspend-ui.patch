@@ -1,0 +1,30 @@
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+index 209a6c5..dc52b7c 100644
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -2200,6 +2200,7 @@ void GuiMenu::openSystemSettings()
+ 
+ #if defined(AMD64) || defined(RK3326) || defined(RK3566) || defined(RK3588) || defined(RK3399) || defined(SM6115) || defined(SM8250)
+ 	// Allow user control over how the device sleeps - only show for devices with real suspend enabled
++	if (!Utils::FileSystem::exists("/usr/share/butterflyos")) {
+ 	s->addGroup(_("SUSPEND"));
+ 	auto optionsSleep = std::make_shared<OptionListComponent<std::string> >(mWindow, _("DEVICE SUSPEND MODE"), false);
+ 	std::vector<std::string> availableSleepModes = ApiSystem::getInstance()->getSleepModes();
+@@ -2223,6 +2224,7 @@ void GuiMenu::openSystemSettings()
+ 			Utils::Platform::runSystemCommand("/usr/bin/suspendmode " + optionsSleep->getSelected(), "", nullptr);
+ 		}
+ 	});
++	}
+ #else
+ 	// Allow user control over a timed shutdown after fake suspend
+ 	s->addGroup(_("SUSPEND"));
+@@ -5962,7 +5964,8 @@ void GuiMenu::openQuitMenu()
+ 			_("NO"), nullptr));
+ 	}, "iconRestart");
+ 
+-	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::SUSPEND))
++	if (!Utils::FileSystem::exists("/usr/share/butterflyos") &&
++		ApiSystem::getInstance()->isScriptingSupported(ApiSystem::SUSPEND))
+ 	{
+ 		s->addEntry(_("SUSPEND SYSTEM"), false, [window, s] {
+ 			window->pushGui(new GuiMsgBox(window, _("REALLY SUSPEND ?"),
