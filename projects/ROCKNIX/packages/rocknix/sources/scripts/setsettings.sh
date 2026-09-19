@@ -407,6 +407,19 @@ function configure_hotkeys() {
             done
             flush_settings
             if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null && \
+               [ "${MY_CONTROLLER}" != "retrogame_joypad" ] && \
+               [ -x /usr/bin/butterflyos-menu-hotkey ]
+            then
+                # The ButterflyOS command bridge owns every external-controller
+                # hotkey.  Do not also write RetroArch joypad hotkeys here:
+                # RetroArch keeps the first duplicate value it reads, so later
+                # "nul" overrides do not prevent chords such as Menu+R1 from
+                # firing both fast-forward and save-state.
+                rm -f /tmp/"${MY_CONTROLLER}.cfg"
+                touch /tmp/butterflyos-external-hotkeys
+                return 0
+            fi
+            if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null && \
                [ "${MY_CONTROLLER}" != "retrogame_joypad" ]
             then
                 # Prefer the physical Home/Guide mapping reported by control-gen.
