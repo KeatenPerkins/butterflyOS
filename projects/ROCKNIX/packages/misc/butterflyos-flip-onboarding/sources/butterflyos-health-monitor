@@ -12,6 +12,29 @@ LAST_WIFI=
 
 mkdir -p "${LOG_DIR}"
 
+archive_pstore() {
+  source_dir=/var/lib/systemd/pstore
+  [ -d "${source_dir}" ] || return 0
+  set -- "${source_dir}"/*
+  [ -e "$1" ] || return 0
+
+  archive_root=${LOG_DIR}/pstore
+  archive_dir=${archive_root}/$(date +%Y%m%d-%H%M%S)-${BOOT_ID}
+  mkdir -p "${archive_dir}"
+  cp -f "${source_dir}"/* "${archive_dir}/" 2>/dev/null || true
+  logger -t butterflyos-health "archived recovered kernel crash record to ${archive_dir}"
+
+  # Keep only the eight newest recovered crashes. Each ramoops record is
+  # bounded by the 256 KiB DT reservation, so this also bounds storage use.
+  archive_count=0
+  for old_archive in $(ls -1dt "${archive_root}"/* 2>/dev/null); do
+    archive_count=$((archive_count + 1))
+    [ "${archive_count}" -le 8 ] || rm -rf "${old_archive}"
+  done
+}
+
+archive_pstore
+
 snapshot() {
   clean_shutdown=$1
   uptime_seconds=$(cut -d. -f1 /proc/uptime 2>/dev/null)

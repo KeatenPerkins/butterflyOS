@@ -33,6 +33,25 @@
 		stdout-path = "serial2:1500000n8";
 	};
 
+	/*
+	 * Persistent kernel crash log. The Flip V2 exposes RAM from 0x00200000
+	 * through 0x3fffffff and places its 256 MiB CMA pool at 0x2cc00000.
+	 * Reserve the aligned 256 KiB immediately below CMA; the live memory map
+	 * confirms that this range has no firmware or device reservation.
+	 */
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		ramoops@2cbc0000 {
+			compatible = "ramoops";
+			reg = <0x0 0x2cbc0000 0x0 0x00040000>;
+			record-size = <0x00020000>;
+			console-size = <0x00010000>;
+		};
+	};
+
 	/* No adc-keys: volume buttons are on GPIO; saradc ch0 is owned by joypad. */
 
 /* RetroArch joypad button ID reference:

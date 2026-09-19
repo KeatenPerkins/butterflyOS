@@ -44,6 +44,9 @@ hardware smoke test are complete.
   seven days. It also records HDMI connector/EDID changes, Wi-Fi state,
   EmulationStation liveness, and whether the previous boot ended cleanly in
   `/storage/.config/system/logs/butterflyos-health.previous`.
+- The September 19 stability build also reserves 256 KiB for `ramoops`. Kernel
+  panic/oops and console records recovered by systemd are copied into bounded
+  archives below `/storage/.config/system/logs/pstore/` on the next boot.
 - One post-suspend test showed horizontal/vertical pixel-line corruption on the
   internal LCD. HDMI connect/disconnect reinitialized the panel and restored
   the image; logs contained no Panfrost fault or timeout, and the issue did not
