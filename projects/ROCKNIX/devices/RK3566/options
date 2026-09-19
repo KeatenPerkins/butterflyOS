@@ -79,11 +79,16 @@
   # Build and install rocknix out-of-tree device trees and overlays (yes / no)
     ROCKNIX_DEVICE_TREE_OVERLAYS="yes"
 
-  # ZRAM Algorithm
-    ZRAM_COMPRESSION_ALGO="lzo-rle"
-
-  # ZRAM Size
-    ZRAM_SWAP_SIZE="0"
+  # ZRAM. The 1 GiB Miyoo Flip V2 benefits from a small LZ4-backed safety net
+  # without allocating an SD-card swap file. Other RK3566 targets retain the
+  # upstream disabled default.
+    if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+      ZRAM_COMPRESSION_ALGO="lz4"
+      ZRAM_SWAP_SIZE="256"
+    else
+      ZRAM_COMPRESSION_ALGO="lzo-rle"
+      ZRAM_SWAP_SIZE="0"
+    fi
 
   # Disk Swap
     SWAP_FILE_SIZE="0"
