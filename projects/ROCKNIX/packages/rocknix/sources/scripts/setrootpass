@@ -18,19 +18,23 @@ sed -i "s#root:${CURRENT}:${LPC}::::::#root:${NEW}:${LPC}::::::#g" /storage/.cac
 # Create a root user and set the password.
 echo -ne "${ROOTPASS}\n${ROOTPASS}\n" | smbpasswd -sa root 2>/dev/null
 
-# Set the root user and password for SyncThing
-syncthing generate --gui-user "root" --gui-password "${ROOTPASS}" >/dev/null 2>&1
+# Set the root user and password for SyncThing on images that include it.
+if command -v syncthing >/dev/null 2>&1; then
+  syncthing generate --gui-user "root" --gui-password "${ROOTPASS}" >/dev/null 2>&1
+fi
 
 # Save the password so we can display it in ES
 set_setting root.password "${ROOTPASS}"
 
-# Restart syncthing if it was enabled.
-SYNCSTATUS=$(get_setting syncthing.enabled)
-SYNCACTIVE=$(systemctl status syncthing | awk '/active/ {print $2}')
-if [ "${SYNCSTATUS}" = "1" ] &&
-   [ "${SYNCACTIVE}" = "active" ]
-then
-  systemctl restart syncthing >/dev/null 2>&1
+# Restart Syncthing if it exists and was enabled.
+if command -v syncthing >/dev/null 2>&1; then
+  SYNCSTATUS=$(get_setting syncthing.enabled)
+  SYNCACTIVE=$(systemctl status syncthing | awk '/active/ {print $2}')
+  if [ "${SYNCSTATUS}" = "1" ] &&
+     [ "${SYNCACTIVE}" = "active" ]
+  then
+    systemctl restart syncthing >/dev/null 2>&1
+  fi
 fi
 
 # Restart simple-http-server if it is enabled
@@ -41,4 +45,3 @@ if [ "${SIMPLESTATUS}" = "1" ] &&
 then
   systemctl restart simple-http-server >/dev/null 2>&1
 fi
-

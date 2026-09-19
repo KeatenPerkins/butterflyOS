@@ -33,6 +33,10 @@ PKG_SOUND="espeak libao"
 
 PKG_SYNC="synctools"
 
+# rclone and Syncthing add roughly 85 MiB of uncompressed binaries and have no
+# supported ButterflyOS onboarding. rsync remains part of the network package.
+[ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ] && PKG_SYNC=""
+
 PKG_TOOLS="patchelf i2c-tools evtest"
 
 PKG_DEBUG="debug"

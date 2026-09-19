@@ -7,9 +7,13 @@ PKG_VERSION=""
 PKG_LICENSE="various"
 PKG_SITE="https://libreelec.tv"
 PKG_URL=""
-PKG_DEPENDS_TARGET="toolchain iwd networkmanager netbase ethtool openssh iw wireless-regdb rsync tailscale avahi miniupnpc nss-mdns speedtest-cli"
+PKG_DEPENDS_TARGET="toolchain iwd networkmanager netbase ethtool openssh iw wireless-regdb rsync avahi miniupnpc nss-mdns speedtest-cli"
 PKG_SECTION="virtual"
 PKG_LONGDESC="Metapackage for various packages to install network support"
+
+# Tailscale is an advanced, account-backed VPN with no ButterflyOS setup flow.
+# Keep the Flip base image focused; Web File Transfer and SSH do not use it.
+[ "${IMAGE_SUBDEVICE}" != "Miyoo_Flip_V2" ] && PKG_DEPENDS_TARGET="${PKG_DEPENDS_TARGET} tailscale"
 
 if [ "${BLUETOOTH_SUPPORT}" = "yes" ]; then
   PKG_DEPENDS_TARGET="${PKG_DEPENDS_TARGET} bluez dbussy"

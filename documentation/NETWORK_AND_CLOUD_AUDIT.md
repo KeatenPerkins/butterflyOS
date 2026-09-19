@@ -17,6 +17,11 @@ savings.
 | WireGuard kernel support/tools | conditional | VPN plumbing and a Tailscale dependency | Remove the tools with Tailscale. Disable the kernel module if no retained package needs it. |
 | OpenVPN | currently conditional/off | Traditional VPN client | Leave excluded. |
 
+Decision recorded September 19, 2026: remove Tailscale, rclone, and Syncthing
+from the Miyoo Flip V2 base image. Their launchers and password-management
+hooks are removed or made conditional. The decision does not affect Web File
+Transfer, SSH/SCP, or rsync.
+
 ## Dependency conclusion
 
 The ButterflyOS Web File Transfer is implemented by `simple-http-server`; it
@@ -37,4 +42,3 @@ image savings will be smaller because the root filesystem is compressed.
   return to the public image.
 - Removing a package also requires removing or hiding every menu entry and help
   reference that would otherwise launch it.
-

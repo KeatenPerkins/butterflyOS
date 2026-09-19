@@ -103,11 +103,10 @@ settings, and shut down without encountering Linux or RetroArch terminology.
 
 ## Milestone 2: Guided setup and system management
 
-- Audit bundled VPN and cloud-service packages before the next release:
-  document each service's purpose and likely user workflow, measure its image
-  and runtime cost, review its security/privacy implications, and decide
-  whether to keep it, hide it behind Advanced mode, offer it as an optional
-  download, or remove it from the image
+- Remove Tailscale, rclone, and Syncthing from the Flip base image after the
+  completed network/cloud audit. Retain the tested Web File Transfer, SSH/SCP,
+  and rsync workflows; reconsider advanced services only as maintained optional
+  packages with explicit onboarding and security guidance.
 
 ### Alpha 2 release gate: device-local preloader patching
 

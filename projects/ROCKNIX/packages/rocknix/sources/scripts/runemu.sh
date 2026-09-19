@@ -495,7 +495,7 @@ gpu_profiling "off"
 
 ### Backup save games
 CLOUD_BACKUP=$(get_setting "cloud.backup")
-if [ "${CLOUD_BACKUP}" = "1" ]
+if [ "${CLOUD_BACKUP}" = "1" ] && [ -x /usr/bin/cloud_backup ]
 then
   INETUP=$(/usr/bin/amionline >/dev/null 2>&1)
   if [ $? == 0 ]
