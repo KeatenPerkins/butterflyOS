@@ -86,7 +86,12 @@ log "Startup complete..."
 
 ### Lock is a prerequisite for emustation
 rm /var/lock/start.games 2>&1 >>${BOOTLOG}
-touch /var/lock/start.games 2>&1 >>${BOOTLOG}
+# Only create the condition marker when the selected UI actually uses the
+# direct emustation.service.  Sway launches ES through essway.service; creating
+# this marker for Sway lets both services start and compete for EGL/DRM.
+case " ${UI_SERVICE} " in
+  *" emustation.service "*) touch /var/lock/start.games 2>&1 >>${BOOTLOG} ;;
+esac
 log "Starting ${UI_SERVICE}..."
 systemctl start ${UI_SERVICE} 2>&1 >>${BOOTLOG} &
 
