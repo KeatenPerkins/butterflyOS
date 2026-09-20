@@ -1,0 +1,204 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -113,6 +113,8 @@
+ static bool linkFrameRelease[2];
+ static bool linkThreadsStarted;
+ static bool linkThreadsStopping;
++static bool linkFrameHeld;
++static unsigned linkPlayer = 1;
+ static struct mAVStream stream;
+ static bool sensorsInitDone;
+ static bool rumbleInitDone;
+@@ -1646,6 +1648,7 @@
+ 	mCoreThreadStart(&linkThreads[0]);
+ 	mCoreThreadStart(&linkThreads[1]);
+ 	linkThreadsStarted = true;
++	linkFrameHeld = false;
+ }
+ 
+ static bool _linkWaitForFrame(void) {
+@@ -1809,15 +1812,21 @@
+ 		linkCore->setKeys(linkCore, _linkKeysForPort(1));
+ 		if (!linkThreadsStarted) {
+ 			_linkStartThreads();
++		} else if (linkFrameHeld) {
++			_linkReleaseFrame();
++			linkFrameHeld = false;
+ 		}
+ 		if (!_linkWaitForFrame()) {
+ 			return;
+ 		}
++		linkFrameHeld = true;
+ 	} else {
+ 		core->runFrame(core);
+ 	}
++	struct mCore* outputCore = linkMode && linkPlayer == 2 ? linkCore : core;
++	mColor* selectedOutputBuffer = linkMode && linkPlayer == 2 ? linkOutputBuffer : outputBuffer;
+ 	unsigned width, height;
+-	core->currentVideoSize(core, &width, &height);
++	outputCore->currentVideoSize(outputCore, &width, &height);
+ 
+ 	/* If using 'Fixed Interval' frameskipping, check
+ 	 * whether a frame is currently available  */
+@@ -1840,12 +1849,12 @@
+ 
+ 	if (!skipFrame) {
+ #if defined(COLOR_16_BIT) && defined(COLOR_5_6_5)
+-		if (videoPostProcess) {
++		if (videoPostProcess && !(linkMode && linkPlayer == 2)) {
+ 			videoPostProcess(width, height);
+ 			videoCallback(ppOutputBuffer, width, height, VIDEO_WIDTH_MAX * sizeof(mColor));
+ 		} else
+ #endif
+-			videoCallback(outputBuffer, width, height, VIDEO_WIDTH_MAX * sizeof(mColor));
++			videoCallback(selectedOutputBuffer, width, height, VIDEO_WIDTH_MAX * sizeof(mColor));
+ 	} else {
+ 		videoCallback(NULL, width, height, VIDEO_WIDTH_MAX * sizeof(mColor));
+ 	}
+@@ -1859,11 +1868,11 @@
+ 	}
+ 
+ #ifdef M_CORE_GBA
+-	if (core->platform(core) == mPLATFORM_GBA) {
+-		struct mAudioBuffer *coreBuffer = core->getAudioBuffer(core);
++	if (outputCore->platform(outputCore) == mPLATFORM_GBA) {
++		struct mAudioBuffer *coreBuffer = outputCore->getAudioBuffer(outputCore);
+         int coreSamplesAvail = mAudioBufferAvailable(coreBuffer);
+         if (coreSamplesAvail > 0) {
+-            unsigned coreSampleRate = core->audioSampleRate(core);
++            unsigned coreSampleRate = outputCore->audioSampleRate(outputCore);
+             size_t samplesProduced;
+             if (coreSampleRate != targetSampleRate) {
+                 /* Resample generated audio */
+@@ -1884,9 +1893,6 @@
+         }
+ 	}
+ #endif
+-	if (linkMode) {
+-		_linkReleaseFrame();
+-	}
+ }
+ 
+ static void _setupMaps(struct mCore* core) {
+@@ -2331,10 +2337,16 @@
+ 	if (deferredSetup) {
+ 		_doDeferredSetup();
+ 	}
+-	struct VFile* vfm = VFileMemChunk(NULL, 0);
+-	mCoreSaveStateNamed(core, vfm, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+-	size_t size = vfm->size(vfm);
+-	vfm->close(vfm);
++	struct VFile* primary = VFileMemChunk(NULL, 0);
++	mCoreSaveStateNamed(core, primary, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
++	size_t size = primary->size(primary);
++	primary->close(primary);
++	if (linkMode) {
++		struct VFile* secondary = VFileMemChunk(NULL, 0);
++		mCoreSaveStateNamed(linkCore, secondary, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
++		size += secondary->size(secondary) + 16;
++		secondary->close(secondary);
++	}
+ 	return size;
+ }
+ 
+@@ -2344,6 +2356,27 @@
+ 	}
+ 	struct VFile* vfm = VFileMemChunk(NULL, 0);
+ 	mCoreSaveStateNamed(core, vfm, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
++	if (linkMode) {
++		struct VFile* second = VFileMemChunk(NULL, 0);
++		mCoreSaveStateNamed(linkCore, second, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
++		size_t firstSize = vfm->size(vfm);
++		size_t secondSize = second->size(second);
++		if (size < firstSize + secondSize + 16 || firstSize > UINT32_MAX || secondSize > UINT32_MAX) {
++			vfm->close(vfm);
++			second->close(second);
++			return false;
++		}
++		uint32_t header[4] = { 0x42474C53U, 1, (uint32_t) firstSize, (uint32_t) secondSize };
++		memset(data, 0, size);
++		memcpy(data, header, sizeof(header));
++		vfm->seek(vfm, 0, SEEK_SET);
++		second->seek(second, 0, SEEK_SET);
++		bool success = vfm->read(vfm, (uint8_t*) data + 16, firstSize) == (ssize_t) firstSize &&
++		               second->read(second, (uint8_t*) data + 16 + firstSize, secondSize) == (ssize_t) secondSize;
++		vfm->close(vfm);
++		second->close(second);
++		return success;
++	}
+ 	if ((ssize_t) size > vfm->size(vfm)) {
+ 		size = vfm->size(vfm);
+ 	} else if ((ssize_t) size < vfm->size(vfm)) {
+@@ -2360,6 +2393,24 @@
+ 	if (deferredSetup) {
+ 		_doDeferredSetup();
+ 	}
++	if (linkMode) {
++		if (size < 16) {
++			return false;
++		}
++		uint32_t header[4];
++		memcpy(header, data, sizeof(header));
++		if (header[0] != 0x42474C53U || header[1] != 1 ||
++		    (size_t) header[2] + (size_t) header[3] + 16 > size) {
++			return false;
++		}
++		struct VFile* first = VFileFromConstMemory((const uint8_t*) data + 16, header[2]);
++		struct VFile* second = VFileFromConstMemory((const uint8_t*) data + 16 + header[2], header[3]);
++		bool success = mCoreLoadStateNamed(core, first, SAVESTATE_RTC) &&
++		               mCoreLoadStateNamed(linkCore, second, SAVESTATE_RTC);
++		first->close(first);
++		second->close(second);
++		return success;
++	}
+ 	struct VFile* vfm = VFileFromConstMemory(data, size);
+ 	bool success = mCoreLoadStateNamed(core, vfm, SAVESTATE_RTC);
+ 	vfm->close(vfm);
+@@ -2471,6 +2522,7 @@
+ 	}
+ 	memset(linkOutputBuffer, 0xFF, VIDEO_BUFF_SIZE);
+ 	linkCore->setVideoBuffer(linkCore, linkOutputBuffer, VIDEO_WIDTH_MAX);
++	linkCore->setAVStream(linkCore, &stream);
+ 	linkCore->loadROM(linkCore, rom);
+ 	linkSavedata = anonymousMemoryMap(GBA_SIZE_FLASH1M);
+ 	if (!linkSavedata) {
+@@ -2498,6 +2550,16 @@
+ 	memset(linkFrameRelease, 0, sizeof(linkFrameRelease));
+ 	linkThreadsStarted = false;
+ 	linkThreadsStopping = false;
++	linkFrameHeld = false;
++	linkPlayer = 1;
++	struct retro_variable playerVar = {
++		.key = "butterfly_gba_link_player",
++		.value = 0,
++	};
++	if (environCallback(RETRO_ENVIRONMENT_GET_VARIABLE, &playerVar) && playerVar.value &&
++	    strcmp(playerVar.value, "2") == 0) {
++		linkPlayer = 2;
++	}
+ 	MutexInit(&linkFrameMutex);
+ 	ConditionInit(&linkFrameCondition);
+ 	mLockstepThreadUserInit(&linkUsers[0], &linkThreads[0]);
+--- a/src/platform/libretro/libretro_core_options.h
++++ b/src/platform/libretro/libretro_core_options.h
+@@ -84,6 +84,20 @@
+ 
+ struct retro_core_option_v2_definition option_defs_us[] = {
+    {
++      "butterfly_gba_link_player",
++      "Butterfly GBA Link Screen",
++      NULL,
++      "Selects the local screen and audio during a ButterflyOS two-system GBA link session.",
++      NULL,
++      "system",
++      {
++         { "1", "Player 1" },
++         { "2", "Player 2" },
++         { NULL, NULL },
++      },
++      "1"
++   },
++   {
+       "mgba_gb_model",
+       "Game Boy Model (Restart)",
+       NULL,

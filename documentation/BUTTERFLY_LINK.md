@@ -137,7 +137,19 @@ atomic writeback, result archive, abort, and one-step restore guarantees as the
 proven GB/GBC path. The linked core will receive only session copies, never a
 user's authoritative library save.
 
-This remains experimental. Player-specific presentation, serialization policy,
-launcher integration, RetroArch netplay validation, real trade testing, and
-hardware performance measurements remain before any save-enabled test. The
-proven GB/GBC path is unchanged during this work.
+The experimental core now exposes a session-only Player 1/Player 2 presentation
+option. Each device renders and consumes audio from only its assigned virtual
+GBA; the other machine continues running locally for link accuracy but is not
+shown or mixed into the local output. Both emulated machines remain quiescent
+between frontend frames so state capture cannot race either emulation thread.
+
+Linked serialization uses a versioned ButterflyOS container holding both mGBA
+states. Because mGBA's SIO lockstep driver serializes its queued events, player
+state, and shared coordinator state, loading the container restores the complete
+virtual cable—not just Player 1. On-device no-save testing produced a 1,057,968
+byte linked state, restored save data and RTC state for both cores, continued
+emulation, and shut down cleanly.
+
+This remains experimental. RetroArch netplay validation, real trade testing,
+and hardware performance measurements remain before any authoritative save can
+be committed. The proven GB/GBC path is unchanged during this work.
