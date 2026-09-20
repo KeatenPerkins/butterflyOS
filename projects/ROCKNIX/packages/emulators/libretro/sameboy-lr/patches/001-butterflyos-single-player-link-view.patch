@@ -1,0 +1,114 @@
+diff --git a/libretro/libretro.c b/libretro/libretro.c
+index 742f4fd..bfly001 100644
+--- a/libretro/libretro.c
++++ b/libretro/libretro.c
+@@ -6,12 +6,8 @@
+ #include <assert.h>
+ #include <signal.h>
+ #include <stdarg.h>
+ #include <stdlib.h>
+-#ifndef WIIU
+-#define AUDIO_FREQUENCY 384000
+-#else
+-/* Use the internal sample rate for the Wii U */
+-#define AUDIO_FREQUENCY 48000
+-#endif
++#define AUDIO_FREQUENCY 384000
++#define LINK_AUDIO_FREQUENCY 48000
+ 
+ #ifdef _WIN32
+@@ -52,7 +52,9 @@ enum rom_type {
+ 
+ enum screen_layout {
+     LAYOUT_TOP_DOWN,
+-    LAYOUT_LEFT_RIGHT
++    LAYOUT_LEFT_RIGHT,
++    LAYOUT_GB_1_ONLY,
++    LAYOUT_GB_2_ONLY
+ };
+ 
+ enum audio_out {
+@@ -634,6 +636,8 @@ static void init_gameboy(unsigned i)
+                          (uint32_t *)(frame_buf + GB_get_screen_width(&gameboy[0]) * GB_get_screen_height(&gameboy[0]) * i));
+     GB_set_rgb_encode_callback(&gameboy[i], rgb_encode);
+-    GB_set_sample_rate(&gameboy[i], AUDIO_FREQUENCY);
++    GB_set_sample_rate(&gameboy[i],
++                       emulated_devices == 2 ? LINK_AUDIO_FREQUENCY
++                                             : AUDIO_FREQUENCY);
+     GB_apu_set_sample_callback(&gameboy[i], audio_callback);
+     GB_set_rumble_callback(&gameboy[i], rumble_callback);
+ 
+@@ -889,10 +891,16 @@ static void check_variables(bool startup)
+         if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value) {
+             if (strcmp(var.value, "top-down") == 0) {
+                 screen_layout = LAYOUT_TOP_DOWN;
+             }
+-            else {
++            else if (strcmp(var.value, "left-right") == 0) {
+                 screen_layout = LAYOUT_LEFT_RIGHT;
+             }
++            else if (strcmp(var.value, "game-boy-1") == 0) {
++                screen_layout = LAYOUT_GB_1_ONLY;
++            }
++            else if (strcmp(var.value, "game-boy-2") == 0) {
++                screen_layout = LAYOUT_GB_2_ONLY;
++            }
+ 
+             geometry_updated = true;
+         }
+@@ -1228,7 +1238,8 @@ void retro_get_system_info(struct retro_system_info *info)
+ void retro_get_system_av_info(struct retro_system_av_info *info)
+ {
+     struct retro_game_geometry geom;
+-    struct retro_system_timing timing = { GB_get_usual_frame_rate(&gameboy[0]), AUDIO_FREQUENCY };
++    struct retro_system_timing timing = { GB_get_usual_frame_rate(&gameboy[0]),
++        emulated_devices == 2 ? LINK_AUDIO_FREQUENCY : AUDIO_FREQUENCY };
+ 
+     if (emulated_devices == 2) {
+         if (screen_layout == LAYOUT_TOP_DOWN) {
+@@ -1235,6 +1247,13 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
+             geom.base_height = GB_get_screen_height(&gameboy[0]);
+             geom.aspect_ratio = ((double)GB_get_screen_width(&gameboy[0]) * emulated_devices) / GB_get_screen_height(&gameboy[0]);
+         }
++        else {
++            /* Both systems continue to run; expose only the local player's
++             * framebuffer and native geometry to the frontend. */
++            geom.base_width = GB_get_screen_width(&gameboy[0]);
++            geom.base_height = GB_get_screen_height(&gameboy[0]);
++            geom.aspect_ratio = (double)GB_get_screen_width(&gameboy[0]) / GB_get_screen_height(&gameboy[0]);
++        }
+     }
+     else {
+         geom.base_width = GB_get_screen_width(&gameboy[0]);
+@@ -1367,6 +1381,16 @@ void retro_run(void)
+ 
+             video_cb(frame_buf_copy, GB_get_screen_width(&gameboy[0]) * emulated_devices, GB_get_screen_height(&gameboy[0]), GB_get_screen_width(&gameboy[0]) * emulated_devices * sizeof(uint32_t));
+         }
++        else {
++            unsigned selected_device = screen_layout == LAYOUT_GB_2_ONLY ? 1 : 0;
++            unsigned pixels_per_device = GB_get_screen_width(&gameboy[0]) *
++                                         GB_get_screen_height(&gameboy[0]);
++
++            video_cb(frame_buf + pixels_per_device * selected_device,
++                     GB_get_screen_width(&gameboy[0]),
++                     GB_get_screen_height(&gameboy[0]),
++                     GB_get_screen_width(&gameboy[0]) * sizeof(uint32_t));
++        }
+     }
+     else {
+         video_cb(frame_buf,
+diff --git a/libretro/libretro_core_options.inc b/libretro/libretro_core_options.inc
+index 9be17b1..bfly002 100644
+--- a/libretro/libretro_core_options.inc
++++ b/libretro/libretro_core_options.inc
+@@ -301,9 +301,11 @@ struct retro_core_option_v2_definition option_defs_us[] = {
+         "system",
+         {
+             { "top-down",   "Top-Down"   },
+             { "left-right", "Left-Right" },
++            { "game-boy-1", "Game Boy #1 Only" },
++            { "game-boy-2", "Game Boy #2 Only" },
+             { NULL, NULL },
+         },
+         "top-down"
+     },

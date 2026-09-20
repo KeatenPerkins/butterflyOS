@@ -210,10 +210,27 @@ mainline GB/GBC monster-trading games, followed by compatible GBA titles.
 
 ### Alpha-era feasibility work
 
-- Identify an emulator/core whose serial-link implementation can be bridged
-  reliably between two separate devices
-- Prototype discovery, pairing, connection health, and synchronized launch on
-  two Flip V2 test units
+Feasibility was proven on September 19, 2026 with two physical Miyoo Flip V2
+units. Identical local Red/Blue content was launched through SameBoy's
+`gb_link_2p` subsystem and synchronized over RetroArch LAN netplay. Each Flip
+controlled a separate player, both prepared saves loaded, an in-game trade
+completed, and both post-trade SRAM files were written with changed hashes.
+The test used isolated copies; normal library saves were never opened for
+writing.
+
+A ButterflyOS SameBoy patch adds native **Game Boy #1 Only** and **Game Boy #2
+Only** output modes. Both emulated systems continue running for the link, while
+each device exposes only its local 160x144 framebuffer and its corresponding
+audio. This avoids displaying two cramped screens or stretching a cropped
+combined image. The dual-system audio rate is set to the hardware-facing 48
+kHz rate rather than SameBoy's desktop-oriented 384 kHz rate; physical testing
+showed substantially improved video and audio pacing. Link sessions should
+temporarily disable Wi-Fi power saving and restore it on exit.
+
+- [x] Identify an emulator/core whose serial-link implementation can be
+  bridged reliably between two separate devices
+- [x] Prototype connection health and synchronized launch on two Flip V2 test
+  units; automatic discovery and pairing UI remain to be implemented
 - Determine which game regions, revisions, ROM hacks, save formats, and core
   versions can interoperate safely
 - Verify that failed connections never corrupt or overwrite either player's
