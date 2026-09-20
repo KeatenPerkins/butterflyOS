@@ -245,7 +245,10 @@ ButterflyOS tests using disposable two-card fixtures. It discovers and
 deduplicates saves across both cards, creates verified isolated working copies,
 detects concurrent changes, performs verified atomic commit/restore, and
 retains pre-session and post-session recovery copies. The controller-facing
-launcher has not yet been implemented.
+launcher now provides Host, Join, Connection Test, Session Status, Cancel, and
+Restore workflows. Real two-device broadcast discovery and core/protocol
+compatibility checks pass. Save exchange and coordinated emulator launch remain
+explicitly disabled until their failure recovery is implemented and tested.
 
 - Provide a controller-only **Butterfly Link** application with **Host** and
   **Join** choices and plain-language status messages

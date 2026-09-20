@@ -1,0 +1,21 @@
+[Unit]
+Description=Butterfly Link local discovery and compatibility service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/butterflyos-link-agent serve
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_UNIX
+MemoryMax=32M
+
+[Install]
+WantedBy=multi-user.target

@@ -69,10 +69,15 @@ removes them; the launcher must not silently delete the last recovery copy.
 
 ## Remaining MVP work
 
-- Controller-friendly Host, Join, Restore, and Connection Test screens
-- Nearby-device discovery with a manual-IP fallback
+- Controller-friendly Host, Join, Restore, Session Status, Cancel, and
+  Connection Test screens are implemented. Host and Join currently prepare a
+  protected local session; they deliberately stop before save exchange and
+  synchronized emulator launch.
+- Nearby-device discovery and core/protocol compatibility checks are
+  implemented, with a manual-IP fallback. The always-on agent is read-only: it
+  exposes only hostname, build identity, protocol version, capabilities, and
+  the SameBoy core hash. It accepts no file paths or write requests.
 - ROM/core/build compatibility checks on both peers
 - Coordinated session launch, clean exit, and save ownership exchange
 - Recovery behavior for Wi-Fi loss, power loss, and one-sided termination
 - Validation across Yellow, Gold, Silver, Crystal, and regional revisions
-

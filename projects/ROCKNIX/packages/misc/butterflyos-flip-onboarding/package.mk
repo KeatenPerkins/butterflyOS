@@ -6,7 +6,7 @@ PKG_VERSION="2.1.0"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
-PKG_DEPENDS_TARGET="toolchain dialog xxd fbalpha2012-lr fbalpha2019-lr \
+PKG_DEPENDS_TARGET="toolchain dialog xxd Python3 fbalpha2012-lr fbalpha2019-lr \
                     fbneo-lr genesis-plus-gx-lr genesis-plus-gx-wide-lr \
                     snes9x-lr snes9x2002-lr snes9x2005_plus-lr \
                     snes9x2010-lr supersnes9x-lr"
@@ -52,6 +52,7 @@ makeinstall_target() {
 
   mkdir -p "${INSTALL}/usr/config/modules/images"
   cp -a "${PKG_DIR}/sources/ButterflyOS Boot Check.sh" \
+        "${PKG_DIR}/sources/Butterfly Link.sh" \
         "${PKG_DIR}/sources/Extended Diagnostics.sh" \
         "${PKG_DIR}/sources/Export ButterflyOS Recovery Backup.sh" \
         "${PKG_DIR}/sources/Prepare Game Card.sh" \
@@ -63,9 +64,11 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/sources/flip-onboarding.sh" \
         "${PKG_DIR}/sources/flip-onboarding.gptk" \
         "${PKG_DIR}/sources/game-card-ui.sh" \
+        "${PKG_DIR}/sources/link-ui.sh" \
         "${INSTALL}/usr/share/butterflyos/"
   mkdir -p "${INSTALL}/usr/bin"
   cp -a "${PKG_DIR}/sources/butterflyos-game-card" \
+        "${PKG_DIR}/sources/butterflyos-link-agent" \
         "${PKG_DIR}/sources/butterflyos-link-save" \
         "${PKG_DIR}/sources/butterflyos-extended-diagnostics" \
         "${PKG_DIR}/sources/butterflyos-health-monitor" \
@@ -75,6 +78,7 @@ makeinstall_target() {
   mkdir -p "${INSTALL}/usr/lib/systemd/system/var-log.mount.d"
   cp -a "${PKG_DIR}/system.d/butterflyos-health-monitor.service" \
         "${PKG_DIR}/system.d/butterflyos-extended-diagnostics.service" \
+        "${PKG_DIR}/system.d/butterflyos-link-agent.service" \
         "${PKG_DIR}/system.d/butterflyos-lid-backlight.service" \
         "${INSTALL}/usr/lib/systemd/system/"
   cp -a "${PKG_DIR}/system.d/var-log.mount.d/butterflyos.conf" \
@@ -95,15 +99,18 @@ makeinstall_target() {
         "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/"
 
   chmod 0755 "${INSTALL}/usr/config/modules/ButterflyOS Boot Check.sh" \
+             "${INSTALL}/usr/config/modules/Butterfly Link.sh" \
              "${INSTALL}/usr/config/modules/Extended Diagnostics.sh" \
              "${INSTALL}/usr/config/modules/Export ButterflyOS Recovery Backup.sh" \
              "${INSTALL}/usr/config/modules/Prepare Game Card.sh" \
              "${INSTALL}/usr/config/modules/Restore Stock Miyoo Boot.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-onboarding.sh" \
              "${INSTALL}/usr/share/butterflyos/game-card-ui.sh" \
+             "${INSTALL}/usr/share/butterflyos/link-ui.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/manage.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/patch-preloader.sh" \
              "${INSTALL}/usr/bin/butterflyos-game-card" \
+             "${INSTALL}/usr/bin/butterflyos-link-agent" \
              "${INSTALL}/usr/bin/butterflyos-link-save" \
              "${INSTALL}/usr/bin/butterflyos-extended-diagnostics" \
              "${INSTALL}/usr/bin/butterflyos-health-monitor" \
@@ -118,5 +125,6 @@ post_install() {
   enable_service var-log.mount
   enable_service butterflyos-extended-diagnostics.service
   enable_service butterflyos-health-monitor.service
+  enable_service butterflyos-link-agent.service
   enable_service butterflyos-lid-backlight.service
 }
