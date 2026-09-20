@@ -9,7 +9,7 @@
 +# local SIO lockstep coordinator requires real mutexes and condition variables;
 +# DISABLE_THREADING replaces those primitives with no-ops. All ButterflyOS
 +# targets use pthreads, which this makefile already links below.
-+DEFINES += -DHAVE_STRNDUP -DHAVE_STRDUP -DMINIMAL_CORE=2
++DEFINES += -DHAVE_STRNDUP -DHAVE_STRDUP -DUSE_PTHREADS -DMINIMAL_CORE=2
  
  include $(BUILD_DIR)/Makefile.common
  

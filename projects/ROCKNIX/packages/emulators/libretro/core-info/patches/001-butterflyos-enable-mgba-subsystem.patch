@@ -1,0 +1,10 @@
+--- a/mgba_libretro.info
++++ b/mgba_libretro.info
+@@ -22,7 +22,7 @@ memory_descriptors = "true"
+ libretro_saves = "true"
+ core_options = "true"
+-load_subsystem = "false"
++load_subsystem = "true"
+ hw_render = "false"
+ needs_fullpath = "false"
+ disk_control = "false"

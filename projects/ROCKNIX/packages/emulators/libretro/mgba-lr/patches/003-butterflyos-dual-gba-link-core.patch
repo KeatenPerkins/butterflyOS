@@ -1,0 +1,229 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -10,6 +10,7 @@
+ #include <mgba/core/cheats.h>
+ #include <mgba/core/core.h>
+ #include <mgba/core/log.h>
++#include <mgba/core/lockstep.h>
+ #include <mgba/core/serialize.h>
+ #include <mgba/core/version.h>
+ #include <mgba-util/audio-buffer.h>
+@@ -24,6 +25,7 @@
+ #include <mgba/gba/core.h>
+ #include <mgba/gba/interface.h>
+ #include <mgba/internal/gba/gba.h>
++#include <mgba/internal/gba/sio/lockstep.h>
+ #endif
+ #include <mgba-util/memory.h>
+ #include <mgba-util/vfs.h>
+@@ -94,6 +96,15 @@
+ static void* data;
+ static size_t dataSize;
+ static void* savedata;
++static struct mCore* linkCore;
++static mColor* linkOutputBuffer;
++static void* linkData;
++static size_t linkDataSize;
++static void* linkSavedata;
++static bool linkMode;
++static struct GBASIOLockstepCoordinator linkCoordinator;
++static struct GBASIOLockstepDriver linkDrivers[2];
++static struct mLockstepUser linkUsers[2];
+ static struct mAVStream stream;
+ static bool sensorsInitDone;
+ static bool rumbleInitDone;
+@@ -1580,6 +1591,42 @@
+ 	return buttons;
+ }
+ 
++static uint16_t _linkKeysForPort(unsigned port) {
++	uint16_t keys = 0;
++	int i;
++	if (useBitmasks) {
++		int16_t mask = inputCallback(port, RETRO_DEVICE_JOYPAD, 0,
++		                             RETRO_DEVICE_ID_JOYPAD_MASK);
++		for (i = 0; i < (int) (sizeof(keymap) / sizeof(*keymap)); ++i) {
++			keys |= ((mask >> keymap[i]) & 1) << i;
++		}
++	} else {
++		for (i = 0; i < (int) (sizeof(keymap) / sizeof(*keymap)); ++i) {
++			keys |= (!!inputCallback(port, RETRO_DEVICE_JOYPAD, 0,
++			                         keymap[i])) << i;
++		}
++	}
++	return keys;
++}
++
++static void _linkUserSleep(struct mLockstepUser* user) {
++	UNUSED(user);
++}
++
++static void _linkUserWake(struct mLockstepUser* user) {
++	UNUSED(user);
++}
++
++static int _linkUserRequestedId(struct mLockstepUser* user) {
++	return user == &linkUsers[0] ? 0 : 1;
++}
++
++static THREAD_ENTRY _linkRunFrame(void* context) {
++	struct mCore* frameCore = context;
++	frameCore->runFrame(frameCore);
++	THREAD_EXIT(0);
++}
++
+ void retro_run(void) {
+ 	if (deferredSetup) {
+ 		_doDeferredSetup();
+@@ -1716,7 +1763,16 @@
+       updateAudioLatency = false;
+    }
+ 
+-	core->runFrame(core);
++	if (linkMode) {
++		Thread threads[2];
++		linkCore->setKeys(linkCore, _linkKeysForPort(1));
++		ThreadCreate(&threads[0], _linkRunFrame, core);
++		ThreadCreate(&threads[1], _linkRunFrame, linkCore);
++		ThreadJoin(&threads[0]);
++		ThreadJoin(&threads[1]);
++	} else {
++		core->runFrame(core);
++	}
+ 	unsigned width, height;
+ 	core->currentVideoSize(core, &width, &height);
+ 
+@@ -2187,6 +2243,21 @@
+ 	if (!core) {
+ 		return;
+ 	}
++	if (linkMode) {
++		core->setPeripheral(core, mPERIPH_GBA_LINK_PORT, NULL);
++		linkCore->setPeripheral(linkCore, mPERIPH_GBA_LINK_PORT, NULL);
++		GBASIOLockstepCoordinatorDeinit(&linkCoordinator);
++		mCoreConfigDeinit(&linkCore->config);
++		linkCore->deinit(linkCore);
++		mappedMemoryFree(linkData, linkDataSize);
++		mappedMemoryFree(linkSavedata, GBA_SIZE_FLASH1M);
++		free(linkOutputBuffer);
++		linkCore = NULL;
++		linkData = NULL;
++		linkSavedata = NULL;
++		linkOutputBuffer = NULL;
++		linkMode = false;
++	}
+ 	mCoreConfigDeinit(&core->config);
+ 	core->deinit(core);
+ 	mappedMemoryFree(data, dataSize);
+@@ -2307,17 +2378,90 @@
+ 	UNUSED(device);
+ }
+ 
++static bool _loadLinkSecondGame(const struct retro_game_info* game) {
++	struct VFile* rom;
++	if (game->data) {
++		linkData = anonymousMemoryMap(game->size);
++		if (!linkData) {
++			return false;
++		}
++		linkDataSize = game->size;
++		memcpy(linkData, game->data, game->size);
++		rom = VFileFromMemory(linkData, game->size);
++	} else {
++		linkData = NULL;
++		linkDataSize = 0;
++		rom = VFileOpen(game->path, O_RDONLY);
++	}
++	if (!rom) {
++		return false;
++	}
++
++	linkCore = mCoreFindVF(rom);
++	if (!linkCore || linkCore->platform(linkCore) != mPLATFORM_GBA) {
++		rom->close(rom);
++		return false;
++	}
++	mCoreInitConfig(linkCore, NULL);
++	linkCore->init(linkCore);
++	linkOutputBuffer = malloc(VIDEO_BUFF_SIZE);
++	if (!linkOutputBuffer) {
++		return false;
++	}
++	memset(linkOutputBuffer, 0xFF, VIDEO_BUFF_SIZE);
++	linkCore->setVideoBuffer(linkCore, linkOutputBuffer, VIDEO_WIDTH_MAX);
++	linkCore->loadROM(linkCore, rom);
++	linkSavedata = anonymousMemoryMap(GBA_SIZE_FLASH1M);
++	if (!linkSavedata) {
++		return false;
++	}
++	memset(linkSavedata, 0xFF, GBA_SIZE_FLASH1M);
++	return true;
++}
++
+ bool retro_load_game_special(unsigned game_type, const struct retro_game_info* info, size_t num_info) {
+-	UNUSED(game_type);
+-	UNUSED(info);
+-	UNUSED(num_info);
+-	return false;
++	if (game_type != BUTTERFLY_GBA_LINK_SUBSYSTEM || num_info != 2 ||
++	    !info[0].path || !info[1].path) {
++		return false;
++	}
++	if (!retro_load_game(&info[0]) || core->platform(core) != mPLATFORM_GBA) {
++		return false;
++	}
++	if (!_loadLinkSecondGame(&info[1])) {
++		retro_unload_game();
++		return false;
++	}
++
++	memset(linkUsers, 0, sizeof(linkUsers));
++	linkUsers[0].sleep = _linkUserSleep;
++	linkUsers[0].wake = _linkUserWake;
++	linkUsers[0].requestedId = _linkUserRequestedId;
++	linkUsers[1].sleep = _linkUserSleep;
++	linkUsers[1].wake = _linkUserWake;
++	linkUsers[1].requestedId = _linkUserRequestedId;
++	GBASIOLockstepCoordinatorInit(&linkCoordinator);
++	GBASIOLockstepDriverCreate(&linkDrivers[0], &linkUsers[0]);
++	GBASIOLockstepDriverCreate(&linkDrivers[1], &linkUsers[1]);
++	GBASIOLockstepCoordinatorAttach(&linkCoordinator, &linkDrivers[0]);
++	GBASIOLockstepCoordinatorAttach(&linkCoordinator, &linkDrivers[1]);
++	core->setPeripheral(core, mPERIPH_GBA_LINK_PORT, &linkDrivers[0].d);
++	linkCore->setPeripheral(linkCore, mPERIPH_GBA_LINK_PORT, &linkDrivers[1].d);
++
++	linkCore->reset(linkCore);
++	struct VFile* save = VFileFromMemory(linkSavedata, GBA_SIZE_FLASH1M);
++	if (!linkCore->loadSave(linkCore, save)) {
++		save->close(save);
++	}
++	linkMode = true;
++	return true;
+ }
+ 
+ void* retro_get_memory_data(unsigned id) {
+ 	switch (id) {
+ 	case RETRO_MEMORY_SAVE_RAM:
+ 		return savedata;
++	case BUTTERFLY_GBA_LINK_SAVE_P2:
++		return linkMode ? linkSavedata : NULL;
+ 	case RETRO_MEMORY_RTC:
+ 		switch (core->platform(core)) {
+ #ifdef M_CORE_GB
+@@ -2387,6 +2531,16 @@
+ 			break;
+ 		}
+ 		break;
++	case BUTTERFLY_GBA_LINK_SAVE_P2:
++		if (linkMode && linkCore) {
++			switch (((struct GBA*) linkCore->board)->memory.savedata.type) {
++			case GBA_SAVEDATA_AUTODETECT:
++				return GBA_SIZE_FLASH1M;
++			default:
++				return GBASavedataSize(&((struct GBA*) linkCore->board)->memory.savedata);
++			}
++		}
++		break;
+ 	case RETRO_MEMORY_RTC:
+ 		switch (core->platform(core)) {
+ #ifdef M_CORE_GB

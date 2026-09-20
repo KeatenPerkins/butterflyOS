@@ -111,11 +111,17 @@ ButterflyOS is therefore prototyping a two-instance mGBA libretro subsystem:
 5. the existing Butterfly Link save-safety layer commits only that device's
    authoritative result.
 
-The first source milestone is complete: the core registers a two-cartridge
-`GBA Link (2 Players)` subsystem with separate save-memory regions, and mGBA's
-real pthread synchronization is enabled for this build. Both patches compile
-for the Miyoo Flip V2. The subsystem is not yet user-facing or functional;
-`retro_load_game_special` still needs the dual-core lifecycle, lockstep wiring,
-per-player input/video/audio routing, serialization rules, and hardware
-performance validation. The proven GB/GBC path remains unchanged while this
-work is experimental.
+The initial core implementation is complete: the core registers a two-cartridge
+`GBA Link (2 Players)` subsystem with separate save-memory regions, enables
+mGBA's real pthread synchronization, loads two GBA core instances, connects
+their local SIO ports through mGBA lockstep, and routes the two libretro input
+ports independently. The complete patch stack compiles from a clean source
+tree for the Miyoo Flip V2. The core-info metadata also advertises subsystem
+support.
+
+This remains an experimental compile milestone, not a proven feature. It still
+needs an isolated live launch test, player-specific presentation, persistent
+worker threads instead of per-frame thread creation, failure-path hardening,
+serialization policy, save-safety integration, RetroArch netplay validation,
+and hardware performance measurements. The proven GB/GBC path remains
+unchanged during this work.
