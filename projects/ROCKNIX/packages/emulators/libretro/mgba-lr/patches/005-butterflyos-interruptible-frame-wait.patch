@@ -1,0 +1,33 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1648,12 +1648,17 @@ static void _linkStartThreads(void) {
+ 	linkThreadsStarted = true;
+ }
+ 
+-static void _linkWaitForFrame(void) {
++static bool _linkWaitForFrame(void) {
+ 	MutexLock(&linkFrameMutex);
+ 	while (!linkFrameDone[0] && !linkThreadsStopping) {
+-		ConditionWait(&linkFrameCondition, &linkFrameMutex);
++		if (ConditionWaitTimed(&linkFrameCondition, &linkFrameMutex, 50)) {
++			MutexUnlock(&linkFrameMutex);
++			return false;
++		}
+ 	}
++	bool ready = linkFrameDone[0];
+ 	MutexUnlock(&linkFrameMutex);
++	return ready;
+ }
+ 
+ static void _linkReleaseFrame(void) {
+@@ -1805,7 +1810,9 @@ void retro_run(void) {
+ 		if (!linkThreadsStarted) {
+ 			_linkStartThreads();
+ 		}
+-		_linkWaitForFrame();
++		if (!_linkWaitForFrame()) {
++			return;
++		}
+ 	} else {
+ 		core->runFrame(core);
+ 	}

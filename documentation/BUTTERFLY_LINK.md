@@ -125,8 +125,12 @@ SIO lockstep acknowledgements without the transfer-state failure seen in the
 disposable-thread prototype. This proves local dual-GBA execution and lockstep
 on the target hardware, but not yet an in-game trade.
 
-This remains experimental. Graceful core shutdown still hangs and requires
-hardening before any save-enabled test. Player-specific presentation,
-serialization policy, save-safety integration, RetroArch netplay validation,
-real trade testing, and hardware performance measurements also remain. The
+The frontend frame wait is bounded so RetroArch can service a quit request even
+when the primary GBA is sleeping in link lockstep. A no-save hardware test then
+shut down RetroArch and both persistent core threads cleanly through the normal
+signal path in under one second, with no forced termination.
+
+This remains experimental. Player-specific presentation, serialization policy,
+save-safety integration, RetroArch netplay validation, real trade testing, and
+hardware performance measurements remain before any save-enabled test. The
 proven GB/GBC path is unchanged during this work.
