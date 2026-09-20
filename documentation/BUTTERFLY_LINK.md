@@ -119,9 +119,14 @@ ports independently. The complete patch stack compiles from a clean source
 tree for the Miyoo Flip V2. The core-info metadata also advertises subsystem
 support.
 
-This remains an experimental compile milestone, not a proven feature. It still
-needs an isolated live launch test, player-specific presentation, persistent
-worker threads instead of per-frame thread creation, failure-path hardening,
+An isolated no-save test on a Miyoo Flip V2 loaded Ruby and Sapphire, ran both
+cores for ten seconds through persistent mGBA core threads, and logged repeated
+SIO lockstep acknowledgements without the transfer-state failure seen in the
+disposable-thread prototype. This proves local dual-GBA execution and lockstep
+on the target hardware, but not yet an in-game trade.
+
+This remains experimental. Graceful core shutdown still hangs and requires
+hardening before any save-enabled test. Player-specific presentation,
 serialization policy, save-safety integration, RetroArch netplay validation,
-and hardware performance measurements. The proven GB/GBC path remains
-unchanged during this work.
+real trade testing, and hardware performance measurements also remain. The
+proven GB/GBC path is unchanged during this work.

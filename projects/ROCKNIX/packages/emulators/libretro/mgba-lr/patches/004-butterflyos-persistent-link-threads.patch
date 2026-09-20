@@ -1,0 +1,177 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -12,6 +12,7 @@
+ #include <mgba/core/log.h>
+ #include <mgba/core/lockstep.h>
+ #include <mgba/core/serialize.h>
++#include <mgba/core/thread.h>
+ #include <mgba/core/version.h>
+ #include <mgba-util/audio-buffer.h>
+ #include <mgba-util/audio-resampler.h>
+@@ -104,7 +105,14 @@
+ static bool linkMode;
+ static struct GBASIOLockstepCoordinator linkCoordinator;
+ static struct GBASIOLockstepDriver linkDrivers[2];
+-static struct mLockstepUser linkUsers[2];
++static struct mLockstepThreadUser linkUsers[2];
++static struct mCoreThread linkThreads[2];
++static Mutex linkFrameMutex;
++static Condition linkFrameCondition;
++static bool linkFrameDone[2];
++static bool linkFrameRelease[2];
++static bool linkThreadsStarted;
++static bool linkThreadsStopping;
+ static struct mAVStream stream;
+ static bool sensorsInitDone;
+ static bool rumbleInitDone;
+@@ -1609,22 +1617,51 @@
+ 	return keys;
+ }
+ 
+-static void _linkUserSleep(struct mLockstepUser* user) {
+-	UNUSED(user);
+-}
+-
+-static void _linkUserWake(struct mLockstepUser* user) {
+-	UNUSED(user);
+-}
+-
+ static int _linkUserRequestedId(struct mLockstepUser* user) {
+-	return user == &linkUsers[0] ? 0 : 1;
++	return user == &linkUsers[0].d ? 0 : 1;
+ }
+ 
+-static THREAD_ENTRY _linkRunFrame(void* context) {
+-	struct mCore* frameCore = context;
+-	frameCore->runFrame(frameCore);
+-	THREAD_EXIT(0);
++static void _linkFrameEnded(struct mCoreThread* thread) {
++	int player = thread == &linkThreads[0] ? 0 : 1;
++	MutexLock(&linkFrameMutex);
++	linkFrameDone[player] = true;
++	ConditionWake(&linkFrameCondition);
++	while (!linkFrameRelease[player] && !linkThreadsStopping) {
++		ConditionWait(&linkFrameCondition, &linkFrameMutex);
++	}
++	linkFrameRelease[player] = false;
++	linkFrameDone[player] = false;
++	MutexUnlock(&linkFrameMutex);
++}
++
++static void _linkStartThreads(void) {
++	linkThreads[0].core = core;
++	linkThreads[0].frameCallback = _linkFrameEnded;
++	linkThreads[1].core = linkCore;
++	linkThreads[1].frameCallback = _linkFrameEnded;
++	core->opts.videoSync = false;
++	core->opts.audioSync = false;
++	linkCore->opts.videoSync = false;
++	linkCore->opts.audioSync = false;
++	mCoreThreadStart(&linkThreads[0]);
++	mCoreThreadStart(&linkThreads[1]);
++	linkThreadsStarted = true;
++}
++
++static void _linkWaitForFrame(void) {
++	MutexLock(&linkFrameMutex);
++	while (!linkFrameDone[0] && !linkThreadsStopping) {
++		ConditionWait(&linkFrameCondition, &linkFrameMutex);
++	}
++	MutexUnlock(&linkFrameMutex);
++}
++
++static void _linkReleaseFrame(void) {
++	MutexLock(&linkFrameMutex);
++	linkFrameRelease[0] = true;
++	linkFrameRelease[1] = true;
++	ConditionWake(&linkFrameCondition);
++	MutexUnlock(&linkFrameMutex);
+ }
+ 
+ void retro_run(void) {
+@@ -1764,12 +1801,11 @@
+    }
+ 
+ 	if (linkMode) {
+-		Thread threads[2];
+ 		linkCore->setKeys(linkCore, _linkKeysForPort(1));
+-		ThreadCreate(&threads[0], _linkRunFrame, core);
+-		ThreadCreate(&threads[1], _linkRunFrame, linkCore);
+-		ThreadJoin(&threads[0]);
+-		ThreadJoin(&threads[1]);
++		if (!linkThreadsStarted) {
++			_linkStartThreads();
++		}
++		_linkWaitForFrame();
+ 	} else {
+ 		core->runFrame(core);
+ 	}
+@@ -1841,6 +1877,9 @@
+         }
+ 	}
+ #endif
++	if (linkMode) {
++		_linkReleaseFrame();
++	}
+ }
+ 
+ static void _setupMaps(struct mCore* core) {
+@@ -2244,6 +2283,19 @@
+ 		return;
+ 	}
+ 	if (linkMode) {
++		if (linkThreadsStarted) {
++			MutexLock(&linkFrameMutex);
++			linkThreadsStopping = true;
++			linkFrameRelease[0] = true;
++			linkFrameRelease[1] = true;
++			ConditionWake(&linkFrameCondition);
++			MutexUnlock(&linkFrameMutex);
++			mCoreThreadEnd(&linkThreads[0]);
++			mCoreThreadEnd(&linkThreads[1]);
++			mCoreThreadJoin(&linkThreads[0]);
++			mCoreThreadJoin(&linkThreads[1]);
++			linkThreadsStarted = false;
++		}
+ 		core->setPeripheral(core, mPERIPH_GBA_LINK_PORT, NULL);
+ 		linkCore->setPeripheral(linkCore, mPERIPH_GBA_LINK_PORT, NULL);
+ 		GBASIOLockstepCoordinatorDeinit(&linkCoordinator);
+@@ -2257,6 +2309,8 @@
+ 		linkSavedata = NULL;
+ 		linkOutputBuffer = NULL;
+ 		linkMode = false;
++		ConditionDeinit(&linkFrameCondition);
++		MutexDeinit(&linkFrameMutex);
+ 	}
+ 	mCoreConfigDeinit(&core->config);
+ 	core->deinit(core);
+@@ -2432,16 +2486,20 @@
+ 		return false;
+ 	}
+ 
+-	memset(linkUsers, 0, sizeof(linkUsers));
+-	linkUsers[0].sleep = _linkUserSleep;
+-	linkUsers[0].wake = _linkUserWake;
+-	linkUsers[0].requestedId = _linkUserRequestedId;
+-	linkUsers[1].sleep = _linkUserSleep;
+-	linkUsers[1].wake = _linkUserWake;
+-	linkUsers[1].requestedId = _linkUserRequestedId;
++	memset(linkThreads, 0, sizeof(linkThreads));
++	memset(linkFrameDone, 0, sizeof(linkFrameDone));
++	memset(linkFrameRelease, 0, sizeof(linkFrameRelease));
++	linkThreadsStarted = false;
++	linkThreadsStopping = false;
++	MutexInit(&linkFrameMutex);
++	ConditionInit(&linkFrameCondition);
++	mLockstepThreadUserInit(&linkUsers[0], &linkThreads[0]);
++	mLockstepThreadUserInit(&linkUsers[1], &linkThreads[1]);
++	linkUsers[0].d.requestedId = _linkUserRequestedId;
++	linkUsers[1].d.requestedId = _linkUserRequestedId;
+ 	GBASIOLockstepCoordinatorInit(&linkCoordinator);
+-	GBASIOLockstepDriverCreate(&linkDrivers[0], &linkUsers[0]);
+-	GBASIOLockstepDriverCreate(&linkDrivers[1], &linkUsers[1]);
++	GBASIOLockstepDriverCreate(&linkDrivers[0], &linkUsers[0].d);
++	GBASIOLockstepDriverCreate(&linkDrivers[1], &linkUsers[1].d);
+ 	GBASIOLockstepCoordinatorAttach(&linkCoordinator, &linkDrivers[0]);
+ 	GBASIOLockstepCoordinatorAttach(&linkCoordinator, &linkDrivers[1]);
+ 	core->setPeripheral(core, mPERIPH_GBA_LINK_PORT, &linkDrivers[0].d);

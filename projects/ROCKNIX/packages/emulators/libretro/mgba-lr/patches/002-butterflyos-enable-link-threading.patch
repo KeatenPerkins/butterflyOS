@@ -1,5 +1,8 @@
 --- a/Makefile.libretro
 +++ b/Makefile.libretro
+@@ -109 +109 @@ else ifeq ($(platform), goadvance)
+-   CPUFLAGS := -Ofast -march=armv8-a+crc+fp+simd -mcpu=cortex-a35 -flto -DUSE_RENDER_THREAD -DNO_ASM -DARM_ASM -frename-registers -ftree-vectorize
++   CPUFLAGS := -Ofast -march=armv8-a+crc+fp+simd -mcpu=cortex-a35 -flto -DNO_ASM -DARM_ASM -frename-registers -ftree-vectorize
 @@ -436,7 +436,11 @@ else
     CFLAGS += -O3
  endif
@@ -13,3 +16,17 @@
  
  include $(BUILD_DIR)/Makefile.common
  
+--- a/libretro-build/Makefile.common
++++ b/libretro-build/Makefile.common
+@@ -58,0 +59 @@ SOURCES_C :=   $(CORE_DIR)/src/arm/arm.c \
++					$(CORE_DIR)/src/core/rewind.c \
+@@ -109,0 +110 @@ SOURCES_C :=   $(CORE_DIR)/src/arm/arm.c \
++					$(CORE_DIR)/src/gba/sio/lockstep.c \
+--- a/src/gba/core.c
++++ b/src/gba/core.c
+@@ -292 +292 @@ static bool _GBACoreInit(struct mCore* core) {
+-#ifndef DISABLE_THREADING
++#if !defined(DISABLE_THREADING) && !defined(MINIMAL_CORE)
+@@ -744 +744 @@ static void _GBACoreReset(struct mCore* core) {
+-#ifndef DISABLE_THREADING
++#if !defined(DISABLE_THREADING) && !defined(MINIMAL_CORE)
