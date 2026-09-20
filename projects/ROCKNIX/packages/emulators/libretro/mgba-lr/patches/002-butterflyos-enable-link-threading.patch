@@ -1,0 +1,15 @@
+--- a/Makefile.libretro
++++ b/Makefile.libretro
+@@ -436,7 +436,11 @@ else
+    CFLAGS += -O3
+ endif
+ 
+-DEFINES += -DHAVE_STRNDUP -DHAVE_STRDUP -DDISABLE_THREADING -DMINIMAL_CORE=2
++# ButterflyOS GBA link sessions run two emulated systems concurrently. mGBA's
++# local SIO lockstep coordinator requires real mutexes and condition variables;
++# DISABLE_THREADING replaces those primitives with no-ops. All ButterflyOS
++# targets use pthreads, which this makefile already links below.
++DEFINES += -DHAVE_STRNDUP -DHAVE_STRDUP -DMINIMAL_CORE=2
+ 
+ include $(BUILD_DIR)/Makefile.common
+ 

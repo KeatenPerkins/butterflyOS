@@ -92,3 +92,30 @@ removes them; the launcher must not silently delete the last recovery copy.
 - Friendlier visual/audio presentation matching ordinary ButterflyOS games
 - Recovery behavior for Wi-Fi loss, power loss, and one-sided termination
 - Validation across Yellow, Gold, Silver, Crystal, and regional revisions
+
+## Game Boy Advance research
+
+Generation-three GBA linking cannot use the GB/GBC SameBoy implementation.
+The pinned mGBA libretro core reports both netplay and subsystem support as
+unavailable, while upstream mGBA currently supports local same-computer GBA
+linking but not network link-cable transport.
+
+ButterflyOS is therefore prototyping a two-instance mGBA libretro subsystem:
+
+1. each Flip loads both locally owned GBA ROMs and isolated save working
+   copies;
+2. mGBA's existing `GBASIOLockstepCoordinator` connects the two local virtual
+   link ports;
+3. RetroArch LAN netplay synchronizes the two players' inputs between Flips;
+4. each Flip presents only its assigned GBA screen and audio; and
+5. the existing Butterfly Link save-safety layer commits only that device's
+   authoritative result.
+
+The first source milestone is complete: the core registers a two-cartridge
+`GBA Link (2 Players)` subsystem with separate save-memory regions, and mGBA's
+real pthread synchronization is enabled for this build. Both patches compile
+for the Miyoo Flip V2. The subsystem is not yet user-facing or functional;
+`retro_load_game_special` still needs the dual-core lifecycle, lockstep wiring,
+per-player input/video/audio routing, serialization rules, and hardware
+performance validation. The proven GB/GBC path remains unchanged while this
+work is experimental.

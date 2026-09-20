@@ -1,0 +1,48 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1287,6 +1287,38 @@ static void _doDeferredSetup(void) {
+ 	deferredSetup = false;
+ }
+ 
++/*
++ * ButterflyOS GBA link-cable subsystem.
++ *
++ * Keep the two save-memory types distinct: RetroArch persists the first
++ * cartridge through the conventional save-RAM region and the second through
++ * a subsystem-private region. The actual two-core lockstep implementation is
++ * installed by the following ButterflyOS patch.
++ */
++#define BUTTERFLY_GBA_LINK_SUBSYSTEM 0x42474C32U
++#define BUTTERFLY_GBA_LINK_SAVE_P2  0x4247U
++
++static const struct retro_subsystem_memory_info butterflyGbaLinkP1Memory[] = {
++	{ "srm", RETRO_MEMORY_SAVE_RAM },
++};
++
++static const struct retro_subsystem_memory_info butterflyGbaLinkP2Memory[] = {
++	{ "srm", BUTTERFLY_GBA_LINK_SAVE_P2 },
++};
++
++static const struct retro_subsystem_rom_info butterflyGbaLinkRoms[] = {
++	{ "Player 1 GBA Game", "gba", false, false, true,
++	  butterflyGbaLinkP1Memory, 1 },
++	{ "Player 2 GBA Game", "gba", false, false, true,
++	  butterflyGbaLinkP2Memory, 1 },
++};
++
++static const struct retro_subsystem_info butterflySubsystems[] = {
++	{ "GBA Link (2 Players)", "gbalink", butterflyGbaLinkRoms, 2,
++	  BUTTERFLY_GBA_LINK_SUBSYSTEM },
++	{ 0 },
++};
++
+ unsigned retro_api_version(void) {
+ 	return RETRO_API_VERSION;
+ }
+@@ -1296,6 +1328,7 @@ void retro_set_environment(retro_environment_t env)
+ {
+ 	environCallback = env;
++	environCallback(RETRO_ENVIRONMENT_SET_SUBSYSTEM_INFO, (void*) butterflySubsystems);
+ 
+ #ifdef M_CORE_GB
+ 	const struct GBColorPreset* presets;
