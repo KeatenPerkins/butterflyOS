@@ -130,7 +130,14 @@ when the primary GBA is sleeping in link lockstep. A no-save hardware test then
 shut down RetroArch and both persistent core threads cleanly through the normal
 signal path in under one second, with no forced termination.
 
+The save transaction backend now accepts `.gba` games and records `gba` in its
+read-only session manifest. Gen 3 saves receive the same isolated working copy,
+immutable verified backup, concurrent-change detection, exact-size validation,
+atomic writeback, result archive, abort, and one-step restore guarantees as the
+proven GB/GBC path. The linked core will receive only session copies, never a
+user's authoritative library save.
+
 This remains experimental. Player-specific presentation, serialization policy,
-save-safety integration, RetroArch netplay validation, real trade testing, and
+launcher integration, RetroArch netplay validation, real trade testing, and
 hardware performance measurements remain before any save-enabled test. The
 proven GB/GBC path is unchanged during this work.

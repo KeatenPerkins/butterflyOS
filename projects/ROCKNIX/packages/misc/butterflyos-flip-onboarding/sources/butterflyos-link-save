@@ -86,10 +86,18 @@ validate_rom() {
   path=$(canonical_file "$1")
   allowed_path "$path" || die "rom-outside-approved-storage:$path"
   case "${path,,}" in
-    *.gb|*.gbc) ;;
+    *.gb|*.gbc|*.gba) ;;
     *) die "unsupported-rom-extension:$path" ;;
   esac
   printf '%s\n' "$path"
+}
+
+rom_system() {
+  case "${1,,}" in
+    *.gba) printf 'gba\n' ;;
+    *.gb|*.gbc) printf 'gb-gbc\n' ;;
+    *) die "unsupported-rom-extension:$1" ;;
+  esac
 }
 
 session_dir() {
@@ -198,7 +206,7 @@ discover() {
 
 begin_session() {
   local selected_rom selected_save id dir backup working manifest
-  local rom_sha save_sha save_size save_mode identity
+  local rom_sha save_sha save_size save_mode identity system
 
   selected_rom=$(validate_rom "${1:?}")
   selected_save=$(validate_save "${2:?}")
@@ -211,6 +219,7 @@ begin_session() {
   manifest="$dir/manifest"
 
   rom_sha=$(sha256_file "$selected_rom")
+  system=$(rom_system "$selected_rom")
   save_sha=$(sha256_file "$selected_save")
   save_size=$(file_size "$selected_save")
   save_mode=$(stat -c '%a' -- "$selected_save")
@@ -228,6 +237,7 @@ begin_session() {
     printf 'created_utc=%s\n' "$(date -u '+%FT%TZ')"
     printf 'rom_path_b64=%s\n' "$(encode "$selected_rom")"
     printf 'rom_sha256=%s\n' "$rom_sha"
+    printf 'rom_system=%s\n' "$system"
     printf 'original_path_b64=%s\n' "$(encode "$selected_save")"
     printf 'original_selected_path_b64=%s\n' "$(encode "${2}")"
     printf 'original_sha256=%s\n' "$save_sha"

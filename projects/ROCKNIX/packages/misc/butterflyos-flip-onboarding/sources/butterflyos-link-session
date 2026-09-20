@@ -26,7 +26,8 @@ PROTOCOL = 1
 PORT = int(os.environ.get("BUTTERFLY_LINK_SESSION_PORT", "41112"))
 STATE_ROOT = pathlib.Path(os.environ.get("BUTTERFLY_LINK_STATE_ROOT", "/storage/.config/butterflyos/link"))
 ANNOUNCEMENT = pathlib.Path(os.environ.get("BUTTERFLY_LINK_ANNOUNCEMENT", "/run/butterflyos-link-host.json"))
-CORE = pathlib.Path(os.environ.get("BUTTERFLY_LINK_CORE", "/usr/lib/libretro/sameboy_libretro.so"))
+SAMEBOY_CORE = pathlib.Path(os.environ.get("BUTTERFLY_LINK_CORE", "/usr/lib/libretro/sameboy_libretro.so"))
+GBA_CORE = pathlib.Path(os.environ.get("BUTTERFLY_LINK_GBA_CORE", "/usr/lib/libretro/mgba_libretro.so"))
 RETROARCH = os.environ.get("BUTTERFLY_LINK_RETROARCH", "/usr/bin/retroarch")
 ROM_ROOTS = tuple(
     pathlib.Path(value)
@@ -57,11 +58,15 @@ def sha256_file(path):
 
 def validate_rom(path):
     path = pathlib.Path(path).resolve(strict=True)
-    if path.suffix.lower() not in (".gb", ".gbc") or not path.is_file():
+    if path.suffix.lower() not in (".gb", ".gbc", ".gba") or not path.is_file():
         raise LinkError("unsupported-rom")
     if not any(path.is_relative_to(root.resolve()) for root in ROM_ROOTS if root.exists()):
         raise LinkError("rom-outside-library")
     return path
+
+
+def rom_system(path):
+    return "gba" if path.suffix.lower() == ".gba" else "gb-gbc"
 
 
 def validate_save(path):
@@ -78,7 +83,17 @@ def rom_metadata(path):
         "sha256": sha256_file(path),
         "size": path.stat().st_size,
         "suffix": path.suffix.lower(),
+        "system": rom_system(path),
     }
+
+
+def metadata_system(metadata):
+    system = metadata.get("system")
+    if system in ("gb-gbc", "gba"):
+        return system
+    # Protocol-1 GB/GBC peers predate the explicit system field. Preserve
+    # compatibility for those builds; GBA peers always advertise it.
+    return "gba" if metadata.get("suffix", "").lower() == ".gba" else "gb-gbc"
 
 
 def find_rom(expected):
@@ -88,7 +103,9 @@ def find_rom(expected):
         for directory, _, names in os.walk(root):
             for name in names:
                 candidate = pathlib.Path(directory, name)
-                if candidate.suffix.lower() not in (".gb", ".gbc"):
+                if candidate.suffix.lower() not in (".gb", ".gbc", ".gba"):
+                    continue
+                if metadata_system(expected) != rom_system(candidate):
                     continue
                 try:
                     if candidate.stat().st_size == expected["size"] and sha256_file(candidate) == expected["sha256"]:
@@ -145,6 +162,9 @@ def write_private(path, data):
 
 
 def create_runtime(session_id, host_rom, guest_rom, host_save, guest_save, player):
+    system = rom_system(host_rom)
+    if rom_system(guest_rom) != system:
+        raise LinkError("mixed-platform-session")
     runtime = STATE_ROOT / "sessions" / session_id / "runtime"
     content = runtime / "content"
     content.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -159,23 +179,29 @@ def create_runtime(session_id, host_rom, guest_rom, host_save, guest_save, playe
     write_private(content / "player1.srm", host_save)
     write_private(content / "player2.srm", guest_save)
 
-    options = runtime / "sameboy-link.opt"
-    options.write_text(
-        'sameboy_audio_interference = "0"\n'
-        f'sameboy_audio_output = "Game Boy #{player}"\n'
-        'sameboy_border = "Super Game Boy only"\n'
-        'sameboy_color_correction_mode = "emulate hardware"\n'
-        'sameboy_high_pass_filter_mode = "accurate"\n'
-        'sameboy_link = "enabled"\n'
-        'sameboy_model = "Auto"\n'
-        'sameboy_model_1 = "Auto"\n'
-        'sameboy_model_2 = "Auto"\n'
-        'sameboy_mono_palette = "greyscale"\n'
-        'sameboy_rtc = "sync to system clock"\n'
-        'sameboy_rumble = "rumble-enabled games"\n'
-        f'sameboy_screen_layout = "game-boy-{player}"\n',
-        encoding="utf-8",
-    )
+    options = runtime / ("mgba-link.opt" if system == "gba" else "sameboy-link.opt")
+    if system == "gba":
+        options.write_text(
+            f'butterfly_gba_link_player = "{player}"\n',
+            encoding="utf-8",
+        )
+    else:
+        options.write_text(
+            'sameboy_audio_interference = "0"\n'
+            f'sameboy_audio_output = "Game Boy #{player}"\n'
+            'sameboy_border = "Super Game Boy only"\n'
+            'sameboy_color_correction_mode = "emulate hardware"\n'
+            'sameboy_high_pass_filter_mode = "accurate"\n'
+            'sameboy_link = "enabled"\n'
+            'sameboy_model = "Auto"\n'
+            'sameboy_model_1 = "Auto"\n'
+            'sameboy_model_2 = "Auto"\n'
+            'sameboy_mono_palette = "greyscale"\n'
+            'sameboy_rtc = "sync to system clock"\n'
+            'sameboy_rumble = "rumble-enabled games"\n'
+            f'sameboy_screen_layout = "game-boy-{player}"\n',
+            encoding="utf-8",
+        )
     config = runtime / "retroarch.cfg"
     config.write_text(
         f'core_options_path = "{options}"\n'
@@ -201,13 +227,17 @@ def create_runtime(session_id, host_rom, guest_rom, host_save, guest_save, playe
         'confirm_quit = "true"\n',
         encoding="utf-8",
     )
-    return runtime, content, rom1, rom2, config
+    return runtime, content, rom1, rom2, config, system
 
 
 def launch(runtime_values, role, peer=None, control=None):
-    runtime, content, rom1, rom2, config = runtime_values
+    runtime, content, rom1, rom2, config, system = runtime_values
+    core = GBA_CORE if system == "gba" else SAMEBOY_CORE
+    subsystem = "gbalink" if system == "gba" else "gb_link_2p"
+    if not core.is_file():
+        raise LinkError(f"missing-{system}-link-core")
     command = [
-        RETROARCH, "-f", "-L", str(CORE), "--subsystem=gb_link_2p",
+        RETROARCH, "-f", "-L", str(core), f"--subsystem={subsystem}",
         str(rom1), str(rom2), f"--appendconfig={config}", "--port=55435",
         "--sram-mode=load-save",
     ]
@@ -297,6 +327,8 @@ def host(arguments):
                 guest_meta = request.get("rom")
                 if not isinstance(guest_meta, dict):
                     raise LinkError("invalid-peer-rom")
+                if metadata_system(guest_meta) != rom_system(rom):
+                    raise LinkError("mixed-platform-session")
                 guest_rom = find_rom(guest_meta)
                 send_frame(connection, {"ok": True, "protocol": PROTOCOL, "rom": rom_metadata(rom)}, save_data)
                 acknowledgement, _ = receive_frame(connection)
@@ -333,6 +365,8 @@ def join(arguments):
         host_meta = response.get("rom")
         if not isinstance(host_meta, dict):
             raise LinkError("invalid-host-rom")
+        if metadata_system(host_meta) != rom_system(rom):
+            raise LinkError("mixed-platform-session")
         host_rom = find_rom(host_meta)
         runtime = create_runtime(arguments.session, host_rom, rom, host_save, save.read_bytes(), 2)
         send_frame(connection, {"action": "ready"})

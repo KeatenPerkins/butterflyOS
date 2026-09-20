@@ -13,11 +13,13 @@ RETRO=$STORAGE/.config/retroarch/saves
 STATE=$STORAGE/.config/butterflyos/link
 TOOL=${1:-$(dirname "$0")/../projects/ROCKNIX/packages/misc/butterflyos-flip-onboarding/sources/butterflyos-link-save}
 
-mkdir -p "$INTERNAL/gb" "$EXTERNAL/roms/gb" "$RETRO/SameBoy"
+mkdir -p "$INTERNAL/gb" "$INTERNAL/gba" "$EXTERNAL/roms/gb" "$RETRO/SameBoy" "$RETRO/mGBA"
 printf 'red-rom-test' >"$INTERNAL/gb/Pokemon Red.gb"
 printf 'blue-rom-test' >"$EXTERNAL/roms/gb/Pokemon Blue.gb"
 printf 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' >"$INTERNAL/gb/Pokemon Red.srm"
 printf 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB' >"$EXTERNAL/roms/gb/Pokemon Blue.srm"
+printf 'ruby-rom-test' >"$INTERNAL/gba/Pokemon Ruby.gba"
+dd if=/dev/zero bs=131072 count=1 status=none | tr '\0' R >"$INTERNAL/gba/Pokemon Ruby.srm"
 
 run_tool() {
   BUTTERFLY_LINK_STORAGE_ROOT="$STORAGE" \
@@ -82,5 +84,34 @@ printf 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF' >"$ROOT/outside.srm"
 if run_tool begin "$INTERNAL/gb/Pokemon Red.gb" "$ROOT/outside.srm" >/dev/null 2>&1; then
   fail "outside save path was accepted"
 fi
+
+# Gen 3 uses the same isolated transaction guarantees. The GBA platform is
+# recorded in the protected manifest so the launcher cannot accidentally mix
+# a GB/GBC runtime with a GBA session.
+gba_discovery=$(run_tool discover "$INTERNAL/gba/Pokemon Ruby.gba")
+grep -Fq 'path='"$INTERNAL/gba/Pokemon Ruby.srm" <<<"$gba_discovery" || fail "GBA discovery omitted Ruby save"
+gba_begin=$(run_tool begin "$INTERNAL/gba/Pokemon Ruby.gba" "$INTERNAL/gba/Pokemon Ruby.srm")
+gba_id=$(sed -n 's/^session_id=//p' <<<"$gba_begin")
+gba_working=$(sed -n 's/^working_save=//p' <<<"$gba_begin")
+gba_backup=$(sed -n 's/^backup=//p' <<<"$gba_begin")
+grep -qx 'rom_system=gba' "$STATE/sessions/$gba_id/manifest" || fail "GBA platform missing from manifest"
+[[ $(stat -c '%s' "$gba_working") -eq 131072 ]] || fail "GBA working copy size changed"
+gba_before=$(sha256sum "$gba_backup" | awk '{print $1}')
+printf Z | dd of="$gba_working" bs=1 seek=4096 conv=notrunc status=none
+run_tool commit "$gba_id" >/dev/null
+[[ $(dd if="$INTERNAL/gba/Pokemon Ruby.srm" bs=1 skip=4096 count=1 status=none) == Z ]] || fail "GBA commit did not update selected save"
+[[ $(sha256sum "$gba_backup" | awk '{print $1}') == "$gba_before" ]] || fail "GBA recovery backup changed"
+run_tool restore "$gba_id" >/dev/null
+[[ $(dd if="$INTERNAL/gba/Pokemon Ruby.srm" bs=1 skip=4096 count=1 status=none) == R ]] || fail "GBA restore did not recover original"
+
+# A truncated or expanded GBA result is never accepted for writeback.
+gba_bad=$(run_tool begin "$INTERNAL/gba/Pokemon Ruby.gba" "$INTERNAL/gba/Pokemon Ruby.srm")
+gba_bad_id=$(sed -n 's/^session_id=//p' <<<"$gba_bad")
+gba_bad_working=$(sed -n 's/^working_save=//p' <<<"$gba_bad")
+truncate -s 65536 "$gba_bad_working"
+if run_tool commit "$gba_bad_id" >/dev/null 2>&1; then
+  fail "wrong-sized GBA result was committed"
+fi
+run_tool abort "$gba_bad_id" >/dev/null
 
 printf 'PASS: Butterfly Link save safety tests\n'
