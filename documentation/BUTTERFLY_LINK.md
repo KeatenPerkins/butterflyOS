@@ -67,17 +67,28 @@ pre-session backup, archives the current file, and atomically restores the
 original bytes. Backups are retained until an explicit future retention policy
 removes them; the launcher must not silently delete the last recovery copy.
 
-## Remaining MVP work
+## Current automated workflow
 
 - Controller-friendly Host, Join, Restore, Session Status, Cancel, and
-  Connection Test screens are implemented. Host and Join currently prepare a
-  protected local session; they deliberately stop before save exchange and
-  synchronized emulator launch.
+  Connection Test screens are implemented. Host waits are cancellable, and
+  Join refreshes discovery automatically.
+- Host and Join exchange only isolated save working copies, require matching
+  ROMs to exist locally on both devices, and launch the proven SameBoy
+  two-system subsystem through RetroArch LAN netplay. ROM bytes never cross
+  the network.
+- Netplay SRAM is explicitly loaded and saved inside the protected session.
+  The joining player's authoritative `.netplay/player2.srm` result is selected
+  for writeback. Each device asks before atomically committing only its own
+  result through `butterflyos-link-save`.
+
+## Remaining MVP work
+
 - Nearby-device discovery and core/protocol compatibility checks are
   implemented, with a manual-IP fallback. The always-on agent is read-only: it
   exposes only hostname, build identity, protocol version, capabilities, and
-  the SameBoy core hash. It accepts no file paths or write requests.
-- ROM/core/build compatibility checks on both peers
-- Coordinated session launch, clean exit, and save ownership exchange
+  the SameBoy core hash when idle. An explicitly started Host session adds an
+  expiring random session token and selected-ROM metadata; it accepts no ROM
+  transfer.
+- Friendlier visual/audio presentation matching ordinary ButterflyOS games
 - Recovery behavior for Wi-Fi loss, power loss, and one-sided termination
 - Validation across Yellow, Gold, Silver, Crystal, and regional revisions

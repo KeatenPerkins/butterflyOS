@@ -1,6 +1,17 @@
 <?xml version="1.0"?>
 <gameList>
     <game>
+        <path>./Butterfly Link.sh</path>
+        <name>Butterfly Link</name>
+        <desc>Prepare protected Pokemon save sessions and connect two ButterflyOS devices for local link-cable play.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <releasedate>2026</releasedate>
+        <genre>Utility</genre>
+        <players>2</players>
+        <image>./images/butterflyos-boot.png</image>
+    </game>
+    <game>
         <path>./Extended Diagnostics.sh</path>
         <name>Extended Diagnostics</name>
         <desc>Enable or disable bounded diagnostic snapshots for investigating crashes and stability problems. Logs rotate automatically.</desc>

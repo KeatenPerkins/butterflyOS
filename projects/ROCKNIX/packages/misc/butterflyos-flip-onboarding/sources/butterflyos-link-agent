@@ -20,6 +20,9 @@ TCP_PORT = int(os.environ.get("BUTTERFLY_LINK_CONTROL_PORT", "41111"))
 CORE = os.environ.get(
     "BUTTERFLY_LINK_CORE", "/usr/lib/libretro/sameboy_libretro.so"
 )
+ANNOUNCEMENT = os.environ.get(
+    "BUTTERFLY_LINK_ANNOUNCEMENT", "/run/butterflyos-link-host.json"
+)
 MAX_REQUEST = 4096
 DISCOVERY_PREFIX = "BUTTERFLY_LINK_DISCOVER"
 
@@ -49,15 +52,29 @@ def os_version():
 
 
 def local_status():
-    return {
+    status = {
         "ok": True,
         "service": "butterfly-link",
         "protocol": PROTOCOL,
         "hostname": socket.gethostname(),
         "version": os_version(),
         "sameboy_sha256": sha256_file(CORE),
-        "capabilities": ["discovery", "compatibility", "save-safety-v1"],
+        "capabilities": [
+            "discovery", "compatibility", "save-safety-v1", "session-launch-v1"
+        ],
     }
+    try:
+        with open(ANNOUNCEMENT, encoding="utf-8") as source:
+            announcement = json.load(source)
+        if (
+            announcement.get("available") is True
+            and announcement.get("protocol") == PROTOCOL
+            and int(announcement.get("expires", 0)) > int(time.time())
+        ):
+            status["link_session"] = announcement
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        pass
+    return status
 
 
 def json_bytes(value):
@@ -200,9 +217,7 @@ def compatibility(peer):
 
 def print_peer(address, peer):
     reasons = compatibility(peer)
-    print(
-        "\t".join(
-            [
+    fields = [
                 f"ip={address}",
                 f"hostname={peer.get('hostname', 'unknown')}",
                 f"version={peer.get('version', 'unknown')}",
@@ -211,8 +226,19 @@ def print_peer(address, peer):
                 f"compatible={'yes' if not reasons else 'no'}",
                 f"reasons={','.join(reasons) if reasons else 'none'}",
             ]
+    session = peer.get("link_session")
+    if isinstance(session, dict):
+        fields.extend(
+            [
+                "session_available=yes",
+                f"session_id={session.get('session_id', '')}",
+                f"session_port={session.get('port', '')}",
+                f"session_token={session.get('token', '')}",
+            ]
         )
-    )
+    else:
+        fields.append("session_available=no")
+    print("\t".join(fields))
 
 
 def main():

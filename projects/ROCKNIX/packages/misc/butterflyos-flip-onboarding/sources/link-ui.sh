@@ -7,6 +7,7 @@ set -u
 TITLE="Butterfly Link — Experimental"
 SAVE_TOOL=${BUTTERFLY_LINK_SAVE_TOOL:-/usr/bin/butterflyos-link-save}
 AGENT=${BUTTERFLY_LINK_AGENT:-/usr/bin/butterflyos-link-agent}
+SESSION_TOOL=${BUTTERFLY_LINK_SESSION_TOOL:-/usr/bin/butterflyos-link-session}
 STATE_ROOT=${BUTTERFLY_LINK_STATE_ROOT:-/storage/.config/butterflyos/link}
 CONTROLLER_CONFIG=${BUTTERFLY_LINK_CONTROLLER_CONFIG:-/usr/share/butterflyos/flip-onboarding.gptk}
 CONTROLLER_PID=
@@ -15,6 +16,7 @@ stop_controller_input() {
   if [[ -n "$CONTROLLER_PID" ]]; then
     kill "$CONTROLLER_PID" 2>/dev/null || true
     wait "$CONTROLLER_PID" 2>/dev/null || true
+    CONTROLLER_PID=
   fi
 }
 
@@ -143,37 +145,51 @@ parse_field() {
 }
 
 choose_peer() {
-  local output line ip hostname compatible index=0 choice own_ip
-  local -a choices=()
-  declare -A addresses=()
+  local require_session=${1:-no} output line ip hostname compatible available index choice own_ip
   own_ip=$(local_ip)
+  while true; do
+    index=0
+    local -a choices=()
+    declare -A addresses=()
+    dialog --clear --title "$TITLE" --infobox \
+      "Searching the local network for another ButterflyOS device..." 7 62 \
+      </dev/tty >/dev/tty 2>/dev/tty
+    output=$($AGENT discover --timeout 3 2>/dev/null || true)
+    while IFS= read -r line; do
+      [[ "$line" == ip=* ]] || continue
+      ip=$(parse_field "$line" ip || true)
+      [[ -n "$ip" && "$ip" != "$own_ip" ]] || continue
+      hostname=$(parse_field "$line" hostname || printf unknown)
+      compatible=$(parse_field "$line" compatible || printf no)
+      available=$(parse_field "$line" session_available || printf no)
+      [[ "$require_session" != yes || "$available" == yes ]] || continue
+      index=$((index + 1))
+      addresses[$index]=$ip
+      choices+=("$index" "$hostname — $ip — compatible: $compatible")
+    done <<<"$output"
 
-  dialog --clear --title "$TITLE" --infobox \
-    "Searching the local network for another ButterflyOS device..." 7 62 \
-    </dev/tty >/dev/tty 2>/dev/tty
-  output=$($AGENT discover --timeout 3 2>/dev/null || true)
-  while IFS= read -r line; do
-    [[ "$line" == ip=* ]] || continue
-    ip=$(parse_field "$line" ip || true)
-    [[ -n "$ip" && "$ip" != "$own_ip" ]] || continue
-    hostname=$(parse_field "$line" hostname || printf unknown)
-    compatible=$(parse_field "$line" compatible || printf no)
-    index=$((index + 1))
-    addresses[$index]=$ip
-    choices+=("$index" "$hostname — $ip — compatible: $compatible")
-  done <<<"$output"
-  choices+=("manual" "Enter an IP address manually")
+    if (( index == 0 )) && [[ "$require_session" == yes ]]; then
+      dialog --clear --title "$TITLE" --cancel-label "Cancel" \
+        --pause "SEARCHING FOR A HOST\n\nStart Host a Session on the other Flip. This list refreshes automatically every three seconds.\n\nSelect Cancel to return." \
+        13 66 3 </dev/tty >/dev/tty 2>/dev/tty || return 1
+      continue
+    fi
 
-  choice=$(dialog --clear --title "$TITLE" --cancel-label "Back" \
-    --menu "Choose the other ButterflyOS device." 18 70 9 \
-    "${choices[@]}" </dev/tty 2>&1 >/dev/tty) || return 1
-  if [[ "$choice" == manual ]]; then
-    dialog --clear --title "$TITLE" --inputbox \
-      "Enter the other device's IPv4 address:" 10 58 \
-      </dev/tty 2>&1 >/dev/tty
-  else
-    printf '%s\n' "${addresses[$choice]}"
-  fi
+    choices+=("refresh" "Refresh device list" "manual" "Enter an IP address manually")
+    choice=$(dialog --clear --title "$TITLE" --cancel-label "Back" \
+      --menu "Choose the other ButterflyOS device." 18 70 9 \
+      "${choices[@]}" </dev/tty 2>&1 >/dev/tty) || return 1
+    case "$choice" in
+      refresh) continue ;;
+      manual)
+        dialog --clear --title "$TITLE" --inputbox \
+          "Enter the other device's IPv4 address:" 10 58 \
+          </dev/tty 2>&1 >/dev/tty
+        ;;
+      *) printf '%s\n' "${addresses[$choice]}" ;;
+    esac
+    return
+  done
 }
 
 test_peer() {
@@ -189,19 +205,101 @@ test_peer() {
 }
 
 host_workflow() {
-  local session ip
+  local session ip rom working output result_save host_pid output_file remaining
   session=$(prepare_save) || return
+  IFS= read -r session <"$STATE_ROOT/last-session"
+  rom=$(sed -n '2p' "$STATE_ROOT/local-ready")
+  working=$(sed -n '3p' "$STATE_ROOT/local-ready")
   ip=$(local_ip)
-  message "HOST PREPARATION COMPLETE\n\nThis device: ${ip:-not connected}\nSession: $session\n\nOn the second Flip, open Butterfly Link and choose Join a Session.\n\nThe synchronized-launch step is still experimental and is not started automatically yet."
+  output_file=$(mktemp "$STATE_ROOT/host-output.XXXXXX")
+  $SESSION_TOOL host --session "$session" --rom "$rom" --save "$working" --timeout 300 >"$output_file" 2>&1 &
+  host_pid=$!
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    [[ -e /run/butterflyos-link-host.json ]] && break
+    kill -0 "$host_pid" 2>/dev/null || break
+    sleep 0.1
+  done
+  while kill -0 "$host_pid" 2>/dev/null && [[ -e /run/butterflyos-link-host.json ]]; do
+    if ! dialog --clear --title "$TITLE" --cancel-label "Cancel Host" \
+      --pause "WAITING FOR PLAYER 2\n\nThis device: ${ip:-not connected}\n\nOn the second Flip, choose Join a Session.\n\nThe host remains available for five minutes. Select Cancel Host to stop safely." \
+      15 68 1 </dev/tty >/dev/tty 2>/dev/tty; then
+      kill -TERM "$host_pid" 2>/dev/null || true
+      wait "$host_pid" 2>/dev/null || true
+      $SAVE_TOOL abort "$session" >/dev/null 2>&1 || true
+      rm -f "$STATE_ROOT/local-ready" "$output_file"
+      message "HOST CANCELLED\n\nNo game was launched and your original save was not changed."
+      return
+    fi
+  done
+  stop_controller_input
+  if wait "$host_pid"; then
+    output=$(cat "$output_file")
+    rm -f "$output_file"
+    start_controller_input
+    result_save=$(sed -n 's/^result_save=//p' <<<"$output" | tail -n 1)
+    finish_session "$session" "$result_save"
+  else
+    output=$(cat "$output_file")
+    rm -f "$output_file"
+    start_controller_input
+    message "LINK SESSION ENDED SAFELY\n\n$output\n\nYour original save was not changed. The verified backup and working copy were retained."
+  fi
 }
 
 join_workflow() {
-  local peer session
-  peer=$(choose_peer) || return
-  test_peer "$peer" || return
+  local peer session rom working probe token port host_session output result_save
+  peer=$(choose_peer yes) || return
+  if ! probe=$($AGENT probe "$peer" 2>&1); then
+    message "COMPATIBILITY CHECK FAILED\n\n$probe"
+    return
+  fi
+  [[ "$(parse_field "$probe" compatible || true)" == yes ]] || {
+    message "COMPATIBILITY CHECK FAILED\n\n${probe//$'\t'/\n}"
+    return
+  }
+  [[ "$(parse_field "$probe" session_available || true)" == yes ]] || {
+    message "HOST IS NOT READY\n\nOpen Host a Session on the other Flip first, then try Join again."
+    return
+  }
+  token=$(parse_field "$probe" session_token || true)
+  port=$(parse_field "$probe" session_port || true)
+  host_session=$(parse_field "$probe" session_id || true)
+  [[ -n "$token" && "$port" =~ ^[0-9]+$ && -n "$host_session" ]] || {
+    message "INVALID HOST SESSION\n\nThe host announcement was incomplete. Cancel and create a new host session."
+    return
+  }
   session=$(prepare_save) || return
+  IFS= read -r session <"$STATE_ROOT/last-session"
+  rom=$(sed -n '2p' "$STATE_ROOT/local-ready")
+  working=$(sed -n '3p' "$STATE_ROOT/local-ready")
   printf '%s\n' "$peer" >"$STATE_ROOT/last-peer"
-  message "JOIN PREPARATION COMPLETE\n\nPeer: $peer\nSession: $session\n\nBoth the network and your protected save are ready. The synchronized-launch and save-exchange step is the next development milestone."
+  dialog --clear --title "$TITLE" --infobox \
+    "CONNECTING TO PLAYER 1\n\nPeer: $peer\n\nChecking local games, exchanging protected save copies, and preparing the synchronized launch..." \
+    11 66 </dev/tty >/dev/tty 2>/dev/tty
+  stop_controller_input
+  if output=$($SESSION_TOOL join --peer "$peer" --port "$port" --token "$token" \
+      --session "$session" --rom "$rom" --save "$working" 2>&1); then
+    start_controller_input
+    result_save=$(sed -n 's/^result_save=//p' <<<"$output" | tail -n 1)
+    finish_session "$session" "$result_save"
+  else
+    start_controller_input
+    message "LINK SESSION ENDED SAFELY\n\n$output\n\nYour original save was not changed. The verified backup and working copy were retained."
+  fi
+}
+
+finish_session() {
+  local session=${1:?} result_save=${2:?} output
+  if confirm "LINK SESSION FINISHED\n\nSave the trade or battle results to your selected game save?\n\nContinue verifies and commits only your own updated save. Cancel leaves the original untouched."; then
+    if output=$($SAVE_TOOL commit "$session" "$result_save" 2>&1); then
+      rm -f "$STATE_ROOT/local-ready"
+      message "RESULTS SAVED SAFELY\n\n$output\n\nThe pre-session recovery backup was retained."
+    else
+      message "RESULTS WERE NOT WRITTEN\n\n$output\n\nYour original save and verified backup remain available."
+    fi
+  else
+    message "ORIGINAL SAVE UNCHANGED\n\nThe session working copy and verified backup were retained. You can inspect or cancel the session from this menu."
+  fi
 }
 
 restore_backup() {
@@ -300,7 +398,7 @@ while true; do
     cancel) cancel_last_session ;;
     restore) restore_backup ;;
     about)
-      message "BUTTERFLY LINK\n\nEach player uses legally obtained games and their own save. ButterflyOS creates verified backups and isolated working copies before networking begins.\n\nThis MVP currently validates discovery, compatibility, selection, backup, and recovery. Automated save exchange and synchronized launch are still under development."
+      message "BUTTERFLY LINK\n\nEach player uses legally obtained games and their own save. ROM files never cross the network. Both devices must already contain matching local copies of both selected games.\n\nButterflyOS backs up each original, exchanges isolated save copies, launches the linked session, and asks before committing each player's result."
       ;;
     close) break ;;
   esac

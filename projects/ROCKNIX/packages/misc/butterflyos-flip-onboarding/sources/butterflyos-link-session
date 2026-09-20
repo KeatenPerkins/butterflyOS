@@ -1,0 +1,371 @@
+#!/usr/bin/python3
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 Keaten Perkins
+
+"""Ephemeral peer exchange and synchronized launcher for Butterfly Link.
+
+Only save working copies and metadata cross the LAN. ROM data is never sent.
+Both devices must already own matching local ROMs.
+"""
+
+import argparse
+import hashlib
+import json
+import os
+import pathlib
+import secrets
+import select
+import signal
+import socket
+import struct
+import subprocess
+import sys
+import time
+
+PROTOCOL = 1
+PORT = int(os.environ.get("BUTTERFLY_LINK_SESSION_PORT", "41112"))
+STATE_ROOT = pathlib.Path(os.environ.get("BUTTERFLY_LINK_STATE_ROOT", "/storage/.config/butterflyos/link"))
+ANNOUNCEMENT = pathlib.Path(os.environ.get("BUTTERFLY_LINK_ANNOUNCEMENT", "/run/butterflyos-link-host.json"))
+CORE = pathlib.Path(os.environ.get("BUTTERFLY_LINK_CORE", "/usr/lib/libretro/sameboy_libretro.so"))
+RETROARCH = os.environ.get("BUTTERFLY_LINK_RETROARCH", "/usr/bin/retroarch")
+ROM_ROOTS = tuple(
+    pathlib.Path(value)
+    for value in os.environ.get(
+        "BUTTERFLY_LINK_ROM_ROOTS", "/storage/roms:/storage/games-external/roms"
+    ).split(":")
+    if value
+)
+MAX_JSON = 64 * 1024
+MAX_SAVE = 8 * 1024 * 1024
+
+
+class LinkError(Exception):
+    pass
+
+
+def sha256_bytes(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def sha256_file(path):
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for block in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def validate_rom(path):
+    path = pathlib.Path(path).resolve(strict=True)
+    if path.suffix.lower() not in (".gb", ".gbc") or not path.is_file():
+        raise LinkError("unsupported-rom")
+    if not any(path.is_relative_to(root.resolve()) for root in ROM_ROOTS if root.exists()):
+        raise LinkError("rom-outside-library")
+    return path
+
+
+def validate_save(path):
+    path = pathlib.Path(path).resolve(strict=True)
+    size = path.stat().st_size
+    if not path.is_file() or size < 1 or size > MAX_SAVE:
+        raise LinkError("invalid-working-save")
+    return path
+
+
+def rom_metadata(path):
+    return {
+        "name": path.name,
+        "sha256": sha256_file(path),
+        "size": path.stat().st_size,
+        "suffix": path.suffix.lower(),
+    }
+
+
+def find_rom(expected):
+    for root in ROM_ROOTS:
+        if not root.exists():
+            continue
+        for directory, _, names in os.walk(root):
+            for name in names:
+                candidate = pathlib.Path(directory, name)
+                if candidate.suffix.lower() not in (".gb", ".gbc"):
+                    continue
+                try:
+                    if candidate.stat().st_size == expected["size"] and sha256_file(candidate) == expected["sha256"]:
+                        return candidate.resolve()
+                except OSError:
+                    continue
+    raise LinkError("matching-peer-rom-not-found")
+
+
+def send_frame(connection, metadata, blob=b""):
+    header = dict(metadata)
+    header["blob_size"] = len(blob)
+    header["blob_sha256"] = sha256_bytes(blob)
+    encoded = json.dumps(header, sort_keys=True, separators=(",", ":")).encode()
+    if len(encoded) > MAX_JSON or len(blob) > MAX_SAVE:
+        raise LinkError("outgoing-frame-too-large")
+    connection.sendall(struct.pack("!I", len(encoded)) + encoded + blob)
+
+
+def receive_exact(connection, length):
+    chunks = []
+    remaining = length
+    while remaining:
+        block = connection.recv(min(65536, remaining))
+        if not block:
+            raise LinkError("peer-disconnected")
+        chunks.append(block)
+        remaining -= len(block)
+    return b"".join(chunks)
+
+
+def receive_frame(connection):
+    header_size = struct.unpack("!I", receive_exact(connection, 4))[0]
+    if header_size < 2 or header_size > MAX_JSON:
+        raise LinkError("invalid-header-size")
+    try:
+        metadata = json.loads(receive_exact(connection, header_size).decode())
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise LinkError("invalid-header") from error
+    blob_size = metadata.get("blob_size")
+    if not isinstance(blob_size, int) or blob_size < 0 or blob_size > MAX_SAVE:
+        raise LinkError("invalid-save-size")
+    blob = receive_exact(connection, blob_size)
+    if sha256_bytes(blob) != metadata.get("blob_sha256"):
+        raise LinkError("save-checksum-failed")
+    return metadata, blob
+
+
+def write_private(path, data):
+    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    temporary.write_bytes(data)
+    temporary.chmod(0o600)
+    os.replace(temporary, path)
+
+
+def create_runtime(session_id, host_rom, guest_rom, host_save, guest_save, player):
+    runtime = STATE_ROOT / "sessions" / session_id / "runtime"
+    content = runtime / "content"
+    content.mkdir(parents=True, exist_ok=True, mode=0o700)
+    suffix1 = host_rom.suffix.lower()
+    suffix2 = guest_rom.suffix.lower()
+    rom1 = content / f"player1{suffix1}"
+    rom2 = content / f"player2{suffix2}"
+    for target, source in ((rom1, host_rom), (rom2, guest_rom)):
+        if target.exists() or target.is_symlink():
+            target.unlink()
+        target.symlink_to(source)
+    write_private(content / "player1.srm", host_save)
+    write_private(content / "player2.srm", guest_save)
+
+    options = runtime / "sameboy-link.opt"
+    options.write_text(
+        'sameboy_audio_interference = "0"\n'
+        f'sameboy_audio_output = "Game Boy #{player}"\n'
+        'sameboy_border = "Super Game Boy only"\n'
+        'sameboy_color_correction_mode = "emulate hardware"\n'
+        'sameboy_high_pass_filter_mode = "accurate"\n'
+        'sameboy_link = "enabled"\n'
+        'sameboy_model = "Auto"\n'
+        'sameboy_model_1 = "Auto"\n'
+        'sameboy_model_2 = "Auto"\n'
+        'sameboy_mono_palette = "greyscale"\n'
+        'sameboy_rtc = "sync to system clock"\n'
+        'sameboy_rumble = "rumble-enabled games"\n'
+        f'sameboy_screen_layout = "game-boy-{player}"\n',
+        encoding="utf-8",
+    )
+    config = runtime / "retroarch.cfg"
+    config.write_text(
+        f'core_options_path = "{options}"\n'
+        f'savefile_directory = "{content}"\n'
+        'savefiles_in_content_dir = "true"\n'
+        'sort_savefiles_enable = "false"\n'
+        'sort_savefiles_by_content_enable = "false"\n'
+        'config_save_on_exit = "false"\n'
+        'autosave_interval = "5"\n'
+        'network_cmd_enable = "true"\n'
+        'network_cmd_port = "55355"\n'
+        'netplay_public_announce = "false"\n'
+        'netplay_use_mitm_server = "false"\n'
+        'netplay_port = "55435"\n'
+        'netplay_check_frames = "1"\n'
+        'notification_show_netplay_extra = "true"\n'
+        'video_fullscreen = "true"\n'
+        'video_smooth = "false"\n'
+        'aspect_ratio_index = "22"\n'
+        'video_aspect_ratio = "1.333333"\n'
+        'input_enable_hotkey_btn = "10"\n'
+        'input_exit_emulator_btn = "9"\n'
+        'confirm_quit = "true"\n',
+        encoding="utf-8",
+    )
+    return runtime, content, rom1, rom2, config
+
+
+def launch(runtime_values, role, peer=None, control=None):
+    runtime, content, rom1, rom2, config = runtime_values
+    command = [
+        RETROARCH, "-f", "-L", str(CORE), "--subsystem=gb_link_2p",
+        str(rom1), str(rom2), f"--appendconfig={config}", "--port=55435",
+        "--sram-mode=load-save",
+    ]
+    command.append("--host" if role == "host" else f"--connect={peer}")
+    log = runtime / "launch.log"
+    with log.open("ab") as output:
+        process = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT)
+        peer_finished = False
+        while process.poll() is None:
+            if control is not None:
+                readable, _, _ = select.select([control], [], [], 0.25)
+                if readable:
+                    try:
+                        notice, _ = receive_frame(control)
+                    except (LinkError, OSError):
+                        notice = {"action": "peer-finished"}
+                    if notice.get("action") == "peer-finished":
+                        peer_finished = True
+                        subprocess.run(
+                            [RETROARCH, "--command", "QUIT"],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            check=False,
+                        )
+                        break
+            else:
+                time.sleep(0.25)
+        if peer_finished:
+            try:
+                process.wait(timeout=8)
+            except subprocess.TimeoutExpired:
+                process.terminate()
+                try:
+                    process.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
+        else:
+            process.wait()
+    result_save = content / ("player1.srm" if role == "host" else "player2.srm")
+    netplay_result = content / ".netplay" / "player2.srm"
+    if role == "join" and netplay_result.is_file():
+        result_save = netplay_result
+    if not result_save.is_file() or not 0 < result_save.stat().st_size <= MAX_SAVE:
+        raise LinkError("result-save-missing")
+    effective_returncode = 0 if peer_finished and process.returncode in (-signal.SIGINT, 0) else process.returncode
+    print(f"retroarch_exit={process.returncode}")
+    print(f"result_save={result_save}")
+    return effective_returncode
+
+
+def host(arguments):
+    rom = validate_rom(arguments.rom)
+    save = validate_save(arguments.save)
+    save_data = save.read_bytes()
+    token = secrets.token_hex(16)
+    announcement = {
+        "available": True,
+        "protocol": PROTOCOL,
+        "session_id": arguments.session,
+        "token": token,
+        "port": PORT,
+        "rom": rom_metadata(rom),
+        "expires": int(time.time()) + arguments.timeout,
+    }
+    ANNOUNCEMENT.write_text(json.dumps(announcement, sort_keys=True), encoding="utf-8")
+    ANNOUNCEMENT.chmod(0o600)
+    try:
+        with socket.socket() as server:
+            server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            server.bind(("", PORT))
+            server.listen(1)
+            server.settimeout(arguments.timeout)
+            connection, address = server.accept()
+            with connection:
+                connection.settimeout(15)
+                request, guest_save = receive_frame(connection)
+                if request.get("action") != "join" or request.get("protocol") != PROTOCOL or request.get("token") != token:
+                    raise LinkError("invalid-join-request")
+                # Stop advertising as soon as one valid peer claims the host.
+                # The host UI uses this transition to close its cancellable
+                # waiting screen before RetroArch takes over the display.
+                try:
+                    ANNOUNCEMENT.unlink()
+                except FileNotFoundError:
+                    pass
+                guest_meta = request.get("rom")
+                if not isinstance(guest_meta, dict):
+                    raise LinkError("invalid-peer-rom")
+                guest_rom = find_rom(guest_meta)
+                send_frame(connection, {"ok": True, "protocol": PROTOCOL, "rom": rom_metadata(rom)}, save_data)
+                acknowledgement, _ = receive_frame(connection)
+                if acknowledgement.get("action") != "ready":
+                    raise LinkError("peer-not-ready")
+                runtime = create_runtime(arguments.session, rom, guest_rom, save_data, guest_save, 1)
+                send_frame(connection, {"action": "launch", "start_at": time.time() + 2.0})
+                result = launch(runtime, "host", control=connection)
+                try:
+                    send_frame(connection, {"action": "peer-finished"})
+                except OSError:
+                    pass
+                return result
+    finally:
+        try:
+            ANNOUNCEMENT.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def join(arguments):
+    rom = validate_rom(arguments.rom)
+    save = validate_save(arguments.save)
+    with socket.create_connection((arguments.peer, arguments.port), timeout=10) as connection:
+        connection.settimeout(20)
+        send_frame(
+            connection,
+            {"action": "join", "protocol": PROTOCOL, "token": arguments.token, "rom": rom_metadata(rom)},
+            save.read_bytes(),
+        )
+        response, host_save = receive_frame(connection)
+        if not response.get("ok") or response.get("protocol") != PROTOCOL:
+            raise LinkError(response.get("error", "host-rejected-session"))
+        host_meta = response.get("rom")
+        if not isinstance(host_meta, dict):
+            raise LinkError("invalid-host-rom")
+        host_rom = find_rom(host_meta)
+        runtime = create_runtime(arguments.session, host_rom, rom, host_save, save.read_bytes(), 2)
+        send_frame(connection, {"action": "ready"})
+        launch_message, _ = receive_frame(connection)
+        if launch_message.get("action") != "launch":
+            raise LinkError("launch-not-authorized")
+        delay = max(0.0, float(launch_message.get("start_at", 0)) - time.time())
+        time.sleep(min(delay, 5.0))
+        return launch(runtime, "join", arguments.peer, connection)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    commands = parser.add_subparsers(dest="command", required=True)
+    host_parser = commands.add_parser("host")
+    host_parser.add_argument("--session", required=True)
+    host_parser.add_argument("--rom", required=True)
+    host_parser.add_argument("--save", required=True)
+    host_parser.add_argument("--timeout", type=int, default=180)
+    join_parser = commands.add_parser("join")
+    join_parser.add_argument("--peer", required=True)
+    join_parser.add_argument("--port", type=int, default=PORT)
+    join_parser.add_argument("--token", required=True)
+    join_parser.add_argument("--session", required=True)
+    join_parser.add_argument("--rom", required=True)
+    join_parser.add_argument("--save", required=True)
+    arguments = parser.parse_args()
+    try:
+        return host(arguments) if arguments.command == "host" else join(arguments)
+    except (LinkError, OSError, ValueError, subprocess.SubprocessError) as error:
+        print(f"error={error}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
