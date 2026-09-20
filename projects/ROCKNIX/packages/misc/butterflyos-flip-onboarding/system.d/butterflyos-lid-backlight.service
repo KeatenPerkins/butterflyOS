@@ -1,0 +1,14 @@
+[Unit]
+Description=ButterflyOS display-only lid handler
+After=systemd-udev-settle.service
+ConditionPathExists=/sys/class/backlight/backlight/bl_power
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/butterflyos-lid-backlight
+Restart=always
+RestartSec=2
+TimeoutStopSec=3
+
+[Install]
+WantedBy=multi-user.target

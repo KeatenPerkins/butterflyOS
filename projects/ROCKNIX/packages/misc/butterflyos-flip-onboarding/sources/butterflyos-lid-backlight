@@ -1,0 +1,69 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 Keaten Perkins
+
+BACKLIGHT=/sys/class/backlight/backlight/bl_power
+
+restore_backlight() {
+  [ ! -w "${BACKLIGHT}" ] || printf 0 >"${BACKLIGHT}"
+}
+trap restore_backlight EXIT INT TERM HUP
+
+find_lid_event() {
+  for input in /sys/class/input/event*; do
+    [ -r "${input}/device/name" ] || continue
+    [ "$(cat "${input}/device/name" 2>/dev/null)" = "gpio-keys-hall" ] || continue
+    printf '/dev/input/%s\n' "$(basename "${input}")"
+    return 0
+  done
+  return 1
+}
+
+set_initial_state() {
+  event=$1
+  evtest --query "${event}" EV_SW SW_LID >/dev/null 2>&1
+  query_status=$?
+  if [ "${query_status}" -eq 10 ]; then
+    printf 4 >"${BACKLIGHT}"
+    logger -t butterflyos-lid "lid initially closed: backlight off"
+  else
+    printf 0 >"${BACKLIGHT}"
+    logger -t butterflyos-lid "lid initially open: backlight on"
+  fi
+}
+
+while :; do
+  if [ ! -w "${BACKLIGHT}" ]; then
+    logger -t butterflyos-lid "backlight control unavailable; retrying"
+    sleep 2
+    continue
+  fi
+
+  LID_EVENT=$(find_lid_event || true)
+  if [ -z "${LID_EVENT}" ] || [ ! -r "${LID_EVENT}" ]; then
+    logger -t butterflyos-lid "hall-sensor input unavailable; retrying"
+    sleep 2
+    continue
+  fi
+
+  set_initial_state "${LID_EVENT}"
+  logger -t butterflyos-lid "monitoring ${LID_EVENT}; hardware suspend remains disabled"
+
+  stdbuf -oL evtest "${LID_EVENT}" 2>/dev/null |
+  while IFS= read -r event_line; do
+    case "${event_line}" in
+      *"type 5 (EV_SW), code 0 (SW_LID), value 1"*)
+        printf 4 >"${BACKLIGHT}"
+        logger -t butterflyos-lid "lid closed: backlight off"
+        ;;
+      *"type 5 (EV_SW), code 0 (SW_LID), value 0"*)
+        printf 0 >"${BACKLIGHT}"
+        logger -t butterflyos-lid "lid opened: backlight on"
+        ;;
+    esac
+  done
+
+  restore_backlight
+  logger -t butterflyos-lid "hall-sensor monitor stopped; retrying"
+  sleep 1
+done

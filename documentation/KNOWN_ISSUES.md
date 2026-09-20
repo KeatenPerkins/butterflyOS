@@ -34,8 +34,11 @@ hardware smoke test are complete.
 
 - Hardware and ROCKNIX fake suspend are disabled on the Flip safety baseline.
   The Suspend selector and Suspend System action are hidden so the unsafe
-  `mem` mode cannot be re-enabled through the GUI. Closing the lid is inert
-  until a display/backlight-only ButterflyOS handler passes extended testing.
+  `mem` mode cannot be re-enabled through the GUI. Closing the lid turns off
+  only the LCD backlight; opening restores it without changing the selected
+  brightness. Games, audio, networking, and the rest of the system continue
+  running while closed. This favors stability and filesystem safety over
+  maximum standby battery life.
 - A September 15 overnight test left HDMI and power connected to a powered-off
   4K television. After returning to the handheld display, the Games interface
   became malformed and the device stopped responding to the frontend, ping,

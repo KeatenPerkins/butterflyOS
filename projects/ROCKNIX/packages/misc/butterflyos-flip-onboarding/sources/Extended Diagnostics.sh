@@ -6,6 +6,28 @@
 
 MARKER=/storage/.config/butterflyos/extended-diagnostics.enabled
 LOG_DIR=/storage/.config/system/extended-diagnostics
+CONTROLLER_CONFIG=/usr/share/butterflyos/flip-onboarding.gptk
+CONTROLLER_PID=
+
+cleanup() {
+  if [[ -n "${CONTROLLER_PID}" ]]; then
+    kill "${CONTROLLER_PID}" 2>/dev/null || true
+    wait "${CONTROLLER_PID}" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+
+start_controller_input() {
+  /usr/bin/control-gen_init.sh >/dev/null 2>&1 || true
+  if [[ -f /storage/.config/gptokeyb/control.ini && -f "${CONTROLLER_CONFIG}" ]]; then
+    source /storage/.config/gptokeyb/control.ini
+    get_controls
+    /usr/bin/gptokeyb -c "${CONTROLLER_CONFIG}" >/dev/null 2>&1 &
+    CONTROLLER_PID=$!
+  fi
+}
+
+start_controller_input
 
 if [ -f "${MARKER}" ]; then
   dialog --title "ButterflyOS Extended Diagnostics" \

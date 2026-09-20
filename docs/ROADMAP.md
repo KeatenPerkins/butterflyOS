@@ -28,12 +28,14 @@ and collect its second-card logs before reflashing or repairing/reformatting the
 card. Treat the 512 MiB journal and 2 GiB Wi-Fi debug capture as temporary
 development instrumentation, not public-release defaults.
 
-The safe development baseline now disables both hardware suspend and ROCKNIX
-fake suspend on the Miyoo Flip. Closing the lid is intentionally inert until a
-ButterflyOS-specific display/backlight-only handler passes extended lid cycling
-and storage-integrity testing. Do not restore deep suspend on this hardware:
-captured failures show `mmc0` timing out and disappearing on resume, followed by
-an aborted `/storage` ext4 journal.
+The safe development baseline disables both hardware suspend and ROCKNIX fake
+suspend on the Miyoo Flip. A ButterflyOS-specific display-only lid handler was
+validated live on September 19: closing the lid writes `4` to the panel
+backlight's `bl_power`, opening writes `0`, and the selected brightness is
+preserved. The game and operating system continue running. This intentionally
+trades standby battery life for stability and storage safety. Do not restore
+deep suspend on this hardware: captured failures show `mmc0` timing out and
+disappearing on resume, followed by an aborted `/storage` ext4 journal.
 
 - Verify that the live persistent journal, rolling snapshots, EmulationStation
   archive, RetroArch log, boot history, and Wi-Fi capture still work; import a

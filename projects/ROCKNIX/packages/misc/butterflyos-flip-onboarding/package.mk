@@ -68,11 +68,13 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/sources/butterflyos-game-card" \
         "${PKG_DIR}/sources/butterflyos-extended-diagnostics" \
         "${PKG_DIR}/sources/butterflyos-health-monitor" \
+        "${PKG_DIR}/sources/butterflyos-lid-backlight" \
         "${INSTALL}/usr/bin/"
 
   mkdir -p "${INSTALL}/usr/lib/systemd/system/var-log.mount.d"
   cp -a "${PKG_DIR}/system.d/butterflyos-health-monitor.service" \
         "${PKG_DIR}/system.d/butterflyos-extended-diagnostics.service" \
+        "${PKG_DIR}/system.d/butterflyos-lid-backlight.service" \
         "${INSTALL}/usr/lib/systemd/system/"
   cp -a "${PKG_DIR}/system.d/var-log.mount.d/butterflyos.conf" \
         "${INSTALL}/usr/lib/systemd/system/var-log.mount.d/"
@@ -103,6 +105,7 @@ makeinstall_target() {
              "${INSTALL}/usr/bin/butterflyos-game-card" \
              "${INSTALL}/usr/bin/butterflyos-extended-diagnostics" \
              "${INSTALL}/usr/bin/butterflyos-health-monitor" \
+             "${INSTALL}/usr/bin/butterflyos-lid-backlight" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/launch.sh" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/install.sh" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/patch-preloader.sh"
@@ -113,4 +116,5 @@ post_install() {
   enable_service var-log.mount
   enable_service butterflyos-extended-diagnostics.service
   enable_service butterflyos-health-monitor.service
+  enable_service butterflyos-lid-backlight.service
 }

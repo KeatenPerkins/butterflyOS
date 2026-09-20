@@ -107,8 +107,14 @@ Alpha 2 onboarding qualification:
   See
   [`ALPHA2_ONBOARDING_QUALIFICATION.md`](../ALPHA2_ONBOARDING_QUALIFICATION.md).
 
+Validated September 19, 2026:
+
+- Lid close/open uses a ButterflyOS display-only handler. It blanks and restores
+  the LCD backlight without hardware or fake suspend, preserving brightness and
+  avoiding the MMC/GPU resume path that previously caused lockups and possible
+  filesystem damage. The running game/system remains active while closed.
+
 Still requiring dedicated Alpha follow-up validation:
 
-- Lid-close, lid-open, suspend, and resume behavior
 - Rumble
 - Controlled battery-runtime and low-battery-warning measurement

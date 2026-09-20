@@ -46,6 +46,8 @@ controller-first experience.
 - HDMI video and audio output
 - Return to the internal 640×480 display after HDMI disconnection
 - On-the-fly brightness adjustment with M+Up and M+Down
+- Safe display-only lid handling: closing blanks the LCD backlight and opening
+  restores it without suspending the CPU, GPU, storage, networking, or game
 
 ## Setup and recovery
 
