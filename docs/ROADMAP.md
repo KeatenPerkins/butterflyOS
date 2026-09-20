@@ -240,6 +240,13 @@ temporarily disable Wi-Fi power saving and restore it on exit.
 
 ### GB/GBC release scope
 
+The save-safety backend is implemented and passes both workstation and live
+ButterflyOS tests using disposable two-card fixtures. It discovers and
+deduplicates saves across both cards, creates verified isolated working copies,
+detects concurrent changes, performs verified atomic commit/restore, and
+retains pre-session and post-session recovery copies. The controller-facing
+launcher has not yet been implemented.
+
 - Provide a controller-only **Butterfly Link** application with **Host** and
   **Join** choices and plain-language status messages
 - Discover nearby ButterflyOS devices on the same network, with an IP/manual

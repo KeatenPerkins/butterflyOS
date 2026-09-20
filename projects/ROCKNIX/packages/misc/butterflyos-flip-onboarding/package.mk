@@ -66,6 +66,7 @@ makeinstall_target() {
         "${INSTALL}/usr/share/butterflyos/"
   mkdir -p "${INSTALL}/usr/bin"
   cp -a "${PKG_DIR}/sources/butterflyos-game-card" \
+        "${PKG_DIR}/sources/butterflyos-link-save" \
         "${PKG_DIR}/sources/butterflyos-extended-diagnostics" \
         "${PKG_DIR}/sources/butterflyos-health-monitor" \
         "${PKG_DIR}/sources/butterflyos-lid-backlight" \
@@ -103,6 +104,7 @@ makeinstall_target() {
              "${INSTALL}/usr/share/butterflyos/flip-preloader/manage.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/patch-preloader.sh" \
              "${INSTALL}/usr/bin/butterflyos-game-card" \
+             "${INSTALL}/usr/bin/butterflyos-link-save" \
              "${INSTALL}/usr/bin/butterflyos-extended-diagnostics" \
              "${INSTALL}/usr/bin/butterflyos-health-monitor" \
              "${INSTALL}/usr/bin/butterflyos-lid-backlight" \
