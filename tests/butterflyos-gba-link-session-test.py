@@ -59,6 +59,7 @@ def main():
                 "BUTTERFLY_LINK_RETROARCH": str(fake_retroarch),
                 "BUTTERFLY_LINK_GBA_CORE": str(core),
                 "BUTTERFLY_LINK_ANNOUNCEMENT": str(root / "announcement.json"),
+                "BUTTERFLY_LINK_HEADLESS": "1",
             }
         )
         host_env = dict(common, BUTTERFLY_LINK_STATE_ROOT=str(root / "host"))
@@ -95,6 +96,7 @@ def main():
         assert str(core) in commands
         assert 'butterfly_gba_link_player = "1"' in (root / "host/sessions/gba-host/runtime/mgba-link.opt").read_text()
         assert 'butterfly_gba_link_player = "2"' in (root / "join/sessions/gba-join/runtime/mgba-link.opt").read_text()
+        assert 'video_driver = "null"' in (root / "host/sessions/gba-host/runtime/retroarch.cfg").read_text()
         assert "result_save=" in host_stdout
         assert "result_save=" in join.stdout
         assert not announcement.exists()

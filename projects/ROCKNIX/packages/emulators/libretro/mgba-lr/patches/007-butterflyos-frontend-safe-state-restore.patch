@@ -1,0 +1,65 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1622,6 +1622,14 @@ static int _linkUserRequestedId(struct mLockstepUser* user) {
+ 	return user == &linkUsers[0].d ? 0 : 1;
+ }
+ 
++static void _linkRestoreUserSleep(struct mLockstepUser* user) {
++	UNUSED(user);
++}
++
++static void _linkRestoreUserWake(struct mLockstepUser* user) {
++	UNUSED(user);
++}
++
+ static void _linkFrameEnded(struct mCoreThread* thread) {
+ 	int player = thread == &linkThreads[0] ? 0 : 1;
+ 	MutexLock(&linkFrameMutex);
+@@ -2406,8 +2414,45 @@ bool retro_unserialize(const void* data, size_t size) {
+ 		}
+ 		struct VFile* first = VFileFromConstMemory((const uint8_t*) data + 16, header[2]);
+ 		struct VFile* second = VFileFromConstMemory((const uint8_t*) data + 16 + header[2], header[3]);
++		/* RetroArch restores netplay state on its frontend thread. Lockstep's
++		 * normal callbacks belong exclusively to the two mCore threads, which
++		 * may not have started yet, so suppress thread waits during restore. */
++		struct mLockstepUser restoreUsers[2] = {
++			{ .sleep = _linkRestoreUserSleep, .wake = _linkRestoreUserWake },
++			{ .sleep = _linkRestoreUserSleep, .wake = _linkRestoreUserWake },
++		};
++		struct mLockstepUser* activeUsers[2] = {
++			linkDrivers[0].user,
++			linkDrivers[1].user,
++		};
++		linkDrivers[0].user = &restoreUsers[0];
++		linkDrivers[1].user = &restoreUsers[1];
++		MutexLock(&linkCoordinator.mutex);
++		linkCoordinator.transferActive = false;
++		linkCoordinator.waiting = 0;
++		MutexUnlock(&linkCoordinator.mutex);
+-		bool success = mCoreLoadStateNamed(core, first, SAVESTATE_RTC) &&
+-		               mCoreLoadStateNamed(linkCore, second, SAVESTATE_RTC);
++		bool success = mCoreLoadStateNamed(core, first, SAVESTATE_RTC);
++		/* The primary driver's state owns the shared coordinator state. The
++		 * secondary core must still pass through setMode while loading, which
++		 * requires an idle coordinator; preserve and restore the primary's
++		 * synchronized values around that second load. */
++		bool restoredTransferActive = false;
++		uint32_t restoredWaiting = 0;
++		if (success) {
++			MutexLock(&linkCoordinator.mutex);
++			restoredTransferActive = linkCoordinator.transferActive;
++			restoredWaiting = linkCoordinator.waiting;
++			linkCoordinator.transferActive = false;
++			linkCoordinator.waiting = 0;
++			MutexUnlock(&linkCoordinator.mutex);
++			success = mCoreLoadStateNamed(linkCore, second, SAVESTATE_RTC);
++			MutexLock(&linkCoordinator.mutex);
++			linkCoordinator.transferActive = restoredTransferActive;
++			linkCoordinator.waiting = restoredWaiting;
++			MutexUnlock(&linkCoordinator.mutex);
++		}
++		linkDrivers[0].user = activeUsers[0];
++		linkDrivers[1].user = activeUsers[1];
+ 		first->close(first);
+ 		second->close(second);
+ 		return success;

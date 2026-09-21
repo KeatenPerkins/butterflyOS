@@ -38,6 +38,7 @@ ROM_ROOTS = tuple(
 )
 MAX_JSON = 64 * 1024
 MAX_SAVE = 8 * 1024 * 1024
+HEADLESS = os.environ.get("BUTTERFLY_LINK_HEADLESS", "0") == "1"
 
 
 class LinkError(Exception):
@@ -203,7 +204,14 @@ def create_runtime(session_id, host_rom, guest_rom, host_save, guest_save, playe
             encoding="utf-8",
         )
     config = runtime / "retroarch.cfg"
+    headless = (
+        'video_driver = "null"\n'
+        'audio_driver = "null"\n'
+        'input_driver = "null"\n'
+        if HEADLESS else ""
+    )
     config.write_text(
+        headless +
         f'core_options_path = "{options}"\n'
         f'savefile_directory = "{content}"\n'
         'savefiles_in_content_dir = "true"\n'
