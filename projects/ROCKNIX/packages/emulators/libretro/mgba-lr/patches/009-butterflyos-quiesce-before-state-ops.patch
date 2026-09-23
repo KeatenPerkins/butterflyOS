@@ -1,0 +1,78 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1679,6 +1679,38 @@
+ 	ConditionWake(&linkFrameCondition);
+ 	MutexUnlock(&linkFrameMutex);
+ }
++static bool _linkQuiesceBoth(void) {
++	/* Park both persistent linked core threads at a frame boundary before a
++	 * frontend-side state op (retro_serialize/retro_unserialize/size), which
++	 * can otherwise race a worker still mid-frame. _linkWaitForFrame only
++	 * waits for player 0, so player 1 could still be running when the
++	 * frontend captures/restores state; the captured GDB trace had a worker
++	 * abort in GBASIOLockstepDriverSetMode while the frontend was inside
++	 * retro_serialize -> GBASIOLockstepDriverSaveState. A thread sets
++	 * linkFrameDone[player] in _linkFrameEnded and then blocks on its
++	 * release flag, so a true linkFrameDone[player] means that thread is
++	 * quiescent. The bound is a counted 4 x 50 ms deadline: attempts advances
++	 * on every bounded wait (timeout OR early wake) so a half-parked state
++	 * spamming wakes cannot exceed the bound; the predicate is re-checked
++	 * after every wake. Leaves threads parked; the caller sets linkFrameHeld
++	 * so the next retro_run releases them. Bounded so a wedged session fails
++	 * the op rather than hangs, honoring the interruptible wait. */
++	if (!linkThreadsStarted) {
++		return true;
++	}
++	MutexLock(&linkFrameMutex);
++	unsigned attempts = 0;
++	bool parked = linkFrameDone[0] && linkFrameDone[1];
++	while (!parked && !linkThreadsStopping && attempts < 4) {
++		ConditionWaitTimed(&linkFrameCondition, &linkFrameMutex, 50);
++		++attempts;
++		parked = linkFrameDone[0] && linkFrameDone[1];
++	}
++	bool quiescent = parked && !linkThreadsStopping;
++	MutexUnlock(&linkFrameMutex);
++	return quiescent;
++}
++
+ 
+ void retro_run(void) {
+ 	if (deferredSetup) {
+@@ -2345,6 +2377,12 @@
+ 	if (deferredSetup) {
+ 		_doDeferredSetup();
+ 	}
++	if (linkMode) {
++		if (!_linkQuiesceBoth()) {
++			return 0;
++		}
++		linkFrameHeld = true;
++	}
+ 	struct VFile* primary = VFileMemChunk(NULL, 0);
+ 	mCoreSaveStateNamed(core, primary, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+ 	size_t size = primary->size(primary);
+@@ -2361,6 +2399,12 @@
+ bool retro_serialize(void* data, size_t size) {
+ 	if (deferredSetup) {
+ 		_doDeferredSetup();
++	}
++	if (linkMode) {
++		if (!_linkQuiesceBoth()) {
++			return false;
++		}
++		linkFrameHeld = true;
+ 	}
+ 	struct VFile* vfm = VFileMemChunk(NULL, 0);
+ 	mCoreSaveStateNamed(core, vfm, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+@@ -2411,6 +2455,10 @@
+ 		    (size_t) header[2] + (size_t) header[3] + 16 > size) {
+ 			return false;
+ 		}
++		if (!_linkQuiesceBoth()) {
++			return false;
++		}
++		linkFrameHeld = true;
+ 		struct VFile* first = VFileFromConstMemory((const uint8_t*) data + 16, header[2]);
+ 		struct VFile* second = VFileFromConstMemory((const uint8_t*) data + 16 + header[2], header[3]);
+ 		/* RetroArch restores netplay state on its frontend thread. Lockstep's

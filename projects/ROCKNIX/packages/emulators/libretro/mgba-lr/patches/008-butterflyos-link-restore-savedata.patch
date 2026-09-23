@@ -1,0 +1,20 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -2430,7 +2430,7 @@
+ 		linkCoordinator.transferActive = false;
+ 		linkCoordinator.waiting = 0;
+ 		MutexUnlock(&linkCoordinator.mutex);
+-		bool success = mCoreLoadStateNamed(core, first, SAVESTATE_RTC);
++		bool success = mCoreLoadStateNamed(core, first, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+ 		/* The primary driver's state owns the shared coordinator state. The
+ 		 * secondary core must still pass through setMode while loading, which
+ 		 * requires an idle coordinator; preserve and restore the primary's
+@@ -2444,7 +2444,7 @@
+ 			linkCoordinator.transferActive = false;
+ 			linkCoordinator.waiting = 0;
+ 			MutexUnlock(&linkCoordinator.mutex);
+-			success = mCoreLoadStateNamed(linkCore, second, SAVESTATE_RTC);
++			success = mCoreLoadStateNamed(linkCore, second, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+ 			MutexLock(&linkCoordinator.mutex);
+ 			linkCoordinator.transferActive = restoredTransferActive;
+ 			linkCoordinator.waiting = restoredWaiting;
