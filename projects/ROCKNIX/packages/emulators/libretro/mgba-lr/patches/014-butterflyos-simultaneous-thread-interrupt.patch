@@ -1,0 +1,318 @@
+--- a/include/mgba/core/thread.h
++++ b/include/mgba/core/thread.h
+@@ -109,6 +109,8 @@
+ bool mCoreThreadIsActive(struct mCoreThread* threadContext);
+ void mCoreThreadInterrupt(struct mCoreThread* threadContext);
+ void mCoreThreadInterruptFromThread(struct mCoreThread* threadContext);
++bool mCoreThreadInterruptRequest(struct mCoreThread* threadContext);
++bool mCoreThreadInterruptWait(struct mCoreThread* threadContext);
+ void mCoreThreadContinue(struct mCoreThread* threadContext);
+ 
+ void mCoreThreadRunFunction(struct mCoreThread* threadContext, void (*run)(struct mCoreThread*));
+--- a/src/core/thread.c
++++ b/src/core/thread.c
+@@ -598,6 +598,44 @@
+ 	MutexUnlock(&threadContext->impl->stateMutex);
+ }
+ 
++bool mCoreThreadInterruptRequest(struct mCoreThread* threadContext) {
++	if (!threadContext || !threadContext->impl) {
++		return false;
++	}
++	MutexLock(&threadContext->impl->stateMutex);
++	++threadContext->impl->interruptDepth;
++	if (threadContext->impl->interruptDepth > 1) {
++		MutexUnlock(&threadContext->impl->stateMutex);
++		return true;
++	}
++	if (threadContext->impl->state < mTHREAD_RUNNING ||
++	    threadContext->impl->state >= mTHREAD_EXITING ||
++	    threadContext->impl->state == mTHREAD_CRASHED) {
++		--threadContext->impl->interruptDepth;
++		MutexUnlock(&threadContext->impl->stateMutex);
++		return false;
++	}
++	threadContext->impl->state = mTHREAD_INTERRUPTING;
++	ConditionWake(&threadContext->impl->stateOnThreadCond);
++	MutexUnlock(&threadContext->impl->stateMutex);
++	return true;
++}
++
++bool mCoreThreadInterruptWait(struct mCoreThread* threadContext) {
++	if (!threadContext || !threadContext->impl) {
++		return false;
++	}
++	MutexLock(&threadContext->impl->stateMutex);
++	if (threadContext->impl->interruptDepth < 1) {
++		MutexUnlock(&threadContext->impl->stateMutex);
++		return false;
++	}
++	_waitUntilNotState(threadContext->impl, mTHREAD_INTERRUPTING);
++	bool interrupted = threadContext->impl->state == mTHREAD_INTERRUPTED;
++	MutexUnlock(&threadContext->impl->stateMutex);
++	return interrupted;
++}
++
+ void mCoreThreadContinue(struct mCoreThread* threadContext) {
+ 	if (!threadContext) {
+ 		return;
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1631,15 +1631,9 @@
+ 	UNUSED(user);
+ }
+ 
+-struct LinkStateOpGuard {
+-	struct mLockstepUser saveUsers[2];
+-	struct mLockstepUser* activeUsers[2];
+-	bool transferActive;
+-	uint32_t waiting;
+-	bool playerAsleep[2];
+-	bool active;
+-	bool drained;
+-	bool workersRunning;
++struct LinkThreadInterruptGuard {
++	bool requested[2];
++	bool acknowledged[2];
+ };
+ 
+ static struct GBASIOLockstepPlayer* _linkPlayerForDriver(unsigned player) {
+@@ -1649,126 +1643,53 @@
+ 	return TableLookup(&linkCoordinator.players, linkDrivers[player].lockstepId);
+ }
+ 
+-static void _linkRestoreThreadWaits(struct LinkStateOpGuard* guard) {
++static void _linkRestoreThreadWaits(struct mLockstepUser* activeUsers[2]) {
+ 	unsigned i;
+ 	for (i = 0; i < 2; ++i) {
+ 		struct GBASIOLockstepPlayer* player = _linkPlayerForDriver(i);
+ 		if (player && player->asleep) {
+-			guard->activeUsers[i]->sleep(guard->activeUsers[i]);
++			activeUsers[i]->sleep(activeUsers[i]);
+ 		} else {
+-			guard->activeUsers[i]->wake(guard->activeUsers[i]);
++			activeUsers[i]->wake(activeUsers[i]);
+ 		}
+ 	}
+ }
+ 
+-static void _linkReleaseStateOpWorkers(void) {
+-	MutexLock(&linkFrameMutex);
+-	linkFrameRelease[0] = true;
+-	linkFrameRelease[1] = true;
+-	linkFrameHeld = false;
+-	ConditionWake(&linkFrameCondition);
+-	MutexUnlock(&linkFrameMutex);
+-}
+-
+-static bool _linkStateOpBegin(struct LinkStateOpGuard* guard) {
++static bool _linkInterruptBothThreads(struct LinkThreadInterruptGuard* guard) {
+ 	memset(guard, 0, sizeof(*guard));
+-	guard->saveUsers[0].sleep = _linkRestoreUserSleep;
+-	guard->saveUsers[0].wake = _linkRestoreUserWake;
+-	guard->saveUsers[1].sleep = _linkRestoreUserSleep;
+-	guard->saveUsers[1].wake = _linkRestoreUserWake;
+-	MutexLock(&linkCoordinator.mutex);
+-	guard->activeUsers[0] = linkDrivers[0].user;
+-	guard->activeUsers[1] = linkDrivers[1].user;
+-	guard->transferActive = linkCoordinator.transferActive;
+-	guard->waiting = linkCoordinator.waiting;
+-	unsigned i;
+-	for (i = 0; i < 2; ++i) {
+-		struct GBASIOLockstepPlayer* player = _linkPlayerForDriver(i);
+-		guard->playerAsleep[i] = player && player->asleep;
+-		if (player) {
+-			player->asleep = false;
+-		}
+-	}
+-	linkDrivers[0].user = &guard->saveUsers[0];
+-	linkDrivers[1].user = &guard->saveUsers[1];
+-	linkCoordinator.transferActive = false;
+-	linkCoordinator.waiting = 0;
+-	guard->active = true;
+-	guard->workersRunning = linkThreadsStarted;
+-	MutexUnlock(&linkCoordinator.mutex);
+-	if (!guard->workersRunning) {
+-		guard->drained = true;
++	if (!linkThreadsStarted) {
+ 		return true;
+ 	}
+-
+-	/* A lockstep sleep only queues mTHREAD_REQ_WAIT. Wake both real users after
+-	 * replacing the callbacks so each worker can finish its current frame
+-	 * without blocking on its peer and park in _linkFrameEnded instead. */
+-	guard->activeUsers[0]->wake(guard->activeUsers[0]);
+-	guard->activeUsers[1]->wake(guard->activeUsers[1]);
+-
+ 	MutexLock(&linkFrameMutex);
+-	unsigned attempts = 0;
+-	while (!(linkFrameDone[0] && linkFrameDone[1]) && !linkThreadsStopping && attempts < 8) {
+-		ConditionWaitTimed(&linkFrameCondition, &linkFrameMutex, 50);
+-		++attempts;
++	if (linkFrameDone[0]) {
++		linkFrameRelease[0] = true;
+ 	}
+-	guard->drained = linkFrameDone[0] && linkFrameDone[1] && !linkThreadsStopping;
+-	if (logCallback) {
+-		logCallback(RETRO_LOG_INFO,
+-		           "[BFLink] state-op drain done0=%d done1=%d attempts=%u drained=%d\n",
+-		           (int)linkFrameDone[0], (int)linkFrameDone[1], attempts, (int)guard->drained);
++	if (linkFrameDone[1]) {
++		linkFrameRelease[1] = true;
+ 	}
++	linkFrameHeld = false;
++	ConditionWake(&linkFrameCondition);
+ 	MutexUnlock(&linkFrameMutex);
+-
+-	if (!guard->drained) {
+-		MutexLock(&linkCoordinator.mutex);
+-		linkCoordinator.transferActive = guard->transferActive;
+-		linkCoordinator.waiting = guard->waiting;
+-		for (i = 0; i < 2; ++i) {
+-			struct GBASIOLockstepPlayer* player = _linkPlayerForDriver(i);
+-			if (player) {
+-				player->asleep = guard->playerAsleep[i];
+-			}
+-		}
+-		linkDrivers[0].user = guard->activeUsers[0];
+-		linkDrivers[1].user = guard->activeUsers[1];
+-		_linkRestoreThreadWaits(guard);
+-		guard->active = false;
+-		MutexUnlock(&linkCoordinator.mutex);
+-		_linkReleaseStateOpWorkers();
++	guard->requested[0] = mCoreThreadInterruptRequest(&linkThreads[0]);
++	guard->requested[1] = mCoreThreadInterruptRequest(&linkThreads[1]);
++	if (guard->requested[0] && guard->requested[1]) {
++		guard->acknowledged[0] = mCoreThreadInterruptWait(&linkThreads[0]);
++		guard->acknowledged[1] = mCoreThreadInterruptWait(&linkThreads[1]);
+ 	}
+-	return guard->drained;
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] interrupt request0=%d request1=%d ack0=%d ack1=%d\n",
++		           guard->requested[0], guard->requested[1],
++		           guard->acknowledged[0], guard->acknowledged[1]);
++	}
++	return guard->acknowledged[0] && guard->acknowledged[1];
+ }
+ 
+-static void _linkStateOpEnd(struct LinkStateOpGuard* guard, bool loadedState) {
+-	if (!guard->active) {
+-		return;
+-	}
+-	MutexLock(&linkCoordinator.mutex);
+-	if (!loadedState) {
+-		linkCoordinator.transferActive = guard->transferActive;
+-		linkCoordinator.waiting = guard->waiting;
+-		unsigned i;
+-		for (i = 0; i < 2; ++i) {
+-			struct GBASIOLockstepPlayer* player = _linkPlayerForDriver(i);
+-			if (player) {
+-				player->asleep = guard->playerAsleep[i];
+-			}
+-		}
++static void _linkContinueInterruptedThreads(struct LinkThreadInterruptGuard* guard) {
++	if (guard->requested[1]) {
++		mCoreThreadContinue(&linkThreads[1]);
+ 	}
+-	linkDrivers[0].user = guard->activeUsers[0];
+-	linkDrivers[1].user = guard->activeUsers[1];
+-	if (guard->workersRunning) {
+-		_linkRestoreThreadWaits(guard);
+-	}
+-	guard->active = false;
+-	MutexUnlock(&linkCoordinator.mutex);
+-	if (guard->workersRunning) {
+-		_linkReleaseStateOpWorkers();
+-	}
+-	if (logCallback) {
+-		logCallback(RETRO_LOG_INFO, "[BFLink] state-op end loaded=%d\n", (int)loadedState);
++	if (guard->requested[0]) {
++		mCoreThreadContinue(&linkThreads[0]);
+ 	}
+ }
+ 
+@@ -2490,8 +2411,9 @@
+ 		_doDeferredSetup();
+ 	}
+ 	if (linkMode) {
+-		struct LinkStateOpGuard guard;
+-		if (!_linkStateOpBegin(&guard)) {
++		struct LinkThreadInterruptGuard guard;
++		if (!_linkInterruptBothThreads(&guard)) {
++			_linkContinueInterruptedThreads(&guard);
+ 			return 0;
+ 		}
+ 		struct VFile* primary = VFileMemChunk(NULL, 0);
+@@ -2501,7 +2423,7 @@
+ 		size_t size = primary->size(primary) + secondary->size(secondary) + 16;
+ 		primary->close(primary);
+ 		secondary->close(secondary);
+-		_linkStateOpEnd(&guard, false);
++		_linkContinueInterruptedThreads(&guard);
+ 		return size;
+ 	}
+ 	struct VFile* primary = VFileMemChunk(NULL, 0);
+@@ -2523,8 +2445,9 @@
+ 		bool success = false;
+ 		struct VFile* vfm = NULL;
+ 		struct VFile* second = NULL;
+-		struct LinkStateOpGuard guard;
+-		if (!_linkStateOpBegin(&guard)) {
++		struct LinkThreadInterruptGuard guard;
++		if (!_linkInterruptBothThreads(&guard)) {
++			_linkContinueInterruptedThreads(&guard);
+ 			return false;
+ 		}
+ 		vfm = VFileMemChunk(NULL, 0);
+@@ -2550,7 +2473,7 @@
+ 		if (second) {
+ 			second->close(second);
+ 		}
+-		_linkStateOpEnd(&guard, false);
++		_linkContinueInterruptedThreads(&guard);
+ 		return success;
+ 	}
+ 	struct VFile* vfm = VFileMemChunk(NULL, 0);
+@@ -2587,12 +2510,24 @@
+ 		}
+ 		struct VFile* first = VFileFromConstMemory((const uint8_t*) data + 16, header[2]);
+ 		struct VFile* second = VFileFromConstMemory((const uint8_t*) data + 16 + header[2], header[3]);
+-		struct LinkStateOpGuard guard;
+-		if (!_linkStateOpBegin(&guard)) {
++		struct LinkThreadInterruptGuard guard;
++		if (!_linkInterruptBothThreads(&guard)) {
++			_linkContinueInterruptedThreads(&guard);
+ 			first->close(first);
+ 			second->close(second);
+ 			return false;
+ 		}
++		struct mLockstepUser restoreUsers[2] = {
++			{ .sleep = _linkRestoreUserSleep, .wake = _linkRestoreUserWake },
++			{ .sleep = _linkRestoreUserSleep, .wake = _linkRestoreUserWake },
++		};
++		struct mLockstepUser* activeUsers[2] = { linkDrivers[0].user, linkDrivers[1].user };
++		MutexLock(&linkCoordinator.mutex);
++		linkDrivers[0].user = &restoreUsers[0];
++		linkDrivers[1].user = &restoreUsers[1];
++		linkCoordinator.transferActive = false;
++		linkCoordinator.waiting = 0;
++		MutexUnlock(&linkCoordinator.mutex);
+ 		bool success = mCoreLoadStateNamed(core, first, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+ 		/* The primary driver's state owns the shared coordinator state. The
+ 		 * secondary core must still pass through setMode while loading, which
+@@ -2613,9 +2548,14 @@
+ 			linkCoordinator.waiting = restoredWaiting;
+ 			MutexUnlock(&linkCoordinator.mutex);
+ 		}
++		MutexLock(&linkCoordinator.mutex);
++		linkDrivers[0].user = activeUsers[0];
++		linkDrivers[1].user = activeUsers[1];
++		_linkRestoreThreadWaits(activeUsers);
++		MutexUnlock(&linkCoordinator.mutex);
+ 		first->close(first);
+ 		second->close(second);
+-		_linkStateOpEnd(&guard, success);
++		_linkContinueInterruptedThreads(&guard);
+ 		return success;
+ 	}
+ 	struct VFile* vfm = VFileFromConstMemory(data, size);
