@@ -85,6 +85,13 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/system.d/var-log.mount.d/butterflyos.conf" \
         "${INSTALL}/usr/lib/systemd/system/var-log.mount.d/"
 
+  # Keep the Flip's OS-card SD controller (dwmmc_rockchip fe2b0000.mmc) always-on
+  # so its broken runtime-PM resume path cannot drop mmcblk0 mid-run. Flip-only;
+  # the second-card controller (fe2c0000.mmc) is excluded by the KERNEL match.
+  mkdir -p "${INSTALL}/usr/lib/udev/rules.d"
+  cp -a "${PKG_DIR}/udev.d/10-butterflyos-mmc0-runtimepm.rules" \
+        "${INSTALL}/usr/lib/udev/rules.d/"
+
   mkdir -p "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup"
   cp -a "${PKG_DIR}/sources/stock-bootstrap/launch.sh" \
         "${PKG_DIR}/sources/stock-bootstrap/config.json" \
