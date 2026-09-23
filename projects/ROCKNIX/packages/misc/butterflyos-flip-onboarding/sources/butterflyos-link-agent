@@ -17,8 +17,11 @@ import time
 PROTOCOL = 1
 UDP_PORT = int(os.environ.get("BUTTERFLY_LINK_DISCOVERY_PORT", "41110"))
 TCP_PORT = int(os.environ.get("BUTTERFLY_LINK_CONTROL_PORT", "41111"))
-CORE = os.environ.get(
+SAMEBOY_CORE = os.environ.get(
     "BUTTERFLY_LINK_CORE", "/usr/lib/libretro/sameboy_libretro.so"
+)
+GBA_CORE = os.environ.get(
+    "BUTTERFLY_LINK_GBA_CORE", "/usr/lib/libretro/mgba_libretro.so"
 )
 ANNOUNCEMENT = os.environ.get(
     "BUTTERFLY_LINK_ANNOUNCEMENT", "/run/butterflyos-link-host.json"
@@ -58,7 +61,8 @@ def local_status():
         "protocol": PROTOCOL,
         "hostname": socket.gethostname(),
         "version": os_version(),
-        "sameboy_sha256": sha256_file(CORE),
+        "sameboy_sha256": sha256_file(SAMEBOY_CORE),
+        "mgba_sha256": sha256_file(GBA_CORE),
         "capabilities": [
             "discovery", "compatibility", "save-safety-v1", "session-launch-v1"
         ],
@@ -212,6 +216,8 @@ def compatibility(peer):
         reasons.append("protocol")
     if peer.get("sameboy_sha256") != local["sameboy_sha256"]:
         reasons.append("sameboy-core")
+    if peer.get("mgba_sha256") != local["mgba_sha256"]:
+        reasons.append("mgba-core")
     return reasons
 
 
@@ -223,6 +229,7 @@ def print_peer(address, peer):
                 f"version={peer.get('version', 'unknown')}",
                 f"protocol={peer.get('protocol', 'unknown')}",
                 f"core={peer.get('sameboy_sha256', 'unknown')}",
+                f"gba_core={peer.get('mgba_sha256', 'unknown')}",
                 f"compatible={'yes' if not reasons else 'no'}",
                 f"reasons={','.join(reasons) if reasons else 'none'}",
             ]

@@ -62,17 +62,17 @@ select_rom() {
     seen[$canonical]=1
     name=${canonical##*/}
     case "${name,,}" in
-      *pokemon*.gb|*pokemon*.gbc|*pocket\ monsters*.gb|*pocket\ monsters*.gbc) ;;
+      *pokemon*.gb|*pokemon*.gbc|*pokemon*.gba|*pocket\ monsters*.gb|*pocket\ monsters*.gbc|*pocket\ monsters*.gba) ;;
       *) continue ;;
     esac
     index=$((index + 1))
     paths[$index]=$canonical
     choices+=("$index" "$(card_label "$canonical") — ${name%.*}")
   done < <(find /storage/roms /storage/games-external/roms \
-    \( -type f -o -type l \) \( -iname '*.gb' -o -iname '*.gbc' \) -print0 2>/dev/null)
+    \( -type f -o -type l \) \( -iname '*.gb' -o -iname '*.gbc' -o -iname '*.gba' \) -print0 2>/dev/null)
 
   if (( index == 0 )); then
-    message "NO SUPPORTED GAMES FOUND\n\nAdd your legally obtained GB/GBC Pokémon games to either card, refresh the game library, and try again."
+    message "NO SUPPORTED GAMES FOUND\n\nAdd your legally obtained GB, GBC, or GBA Pokémon games to either card, refresh the game library, and try again."
     return 1
   fi
 
@@ -200,7 +200,7 @@ test_peer() {
   else
     status="COMPATIBILITY CHECK FAILED"
   fi
-  message "$status\n\nPeer: $peer\n\n${result//$'\t'/\n}\n\nA passing check confirms the discovery protocol and SameBoy core match."
+  message "$status\n\nPeer: $peer\n\n${result//$'\t'/\n}\n\nA passing check confirms the discovery protocol and both link cores match."
   [[ "$status" == *PASSED ]]
 }
 
