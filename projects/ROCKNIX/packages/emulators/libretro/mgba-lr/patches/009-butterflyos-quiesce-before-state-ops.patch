@@ -1,6 +1,6 @@
 --- a/src/platform/libretro/libretro.c
 +++ b/src/platform/libretro/libretro.c
-@@ -1679,6 +1679,38 @@
+@@ -1679,6 +1679,47 @@
  	ConditionWake(&linkFrameCondition);
  	MutexUnlock(&linkFrameMutex);
  }
@@ -12,14 +12,19 @@
 +	 * frontend captures/restores state; the captured GDB trace had a worker
 +	 * abort in GBASIOLockstepDriverSetMode while the frontend was inside
 +	 * retro_serialize -> GBASIOLockstepDriverSaveState. A thread sets
-+	 * linkFrameDone[player] in _linkFrameEnded and then blocks on its
-+	 * release flag, so a true linkFrameDone[player] means that thread is
-+	 * quiescent. The bound is a counted 4 x 50 ms deadline: attempts advances
-+	 * on every bounded wait (timeout OR early wake) so a half-parked state
-+	 * spamming wakes cannot exceed the bound; the predicate is re-checked
-+	 * after every wake. Leaves threads parked; the caller sets linkFrameHeld
-+	 * so the next retro_run releases them. Bounded so a wedged session fails
-+	 * the op rather than hangs, honoring the interruptible wait. */
++	 * linkFrameDone[player] in _linkFrameEnded and then blocks on its release
++	 * flag, so a true linkFrameDone[player] means that thread is quiescent.
++	 * The bound is a counted 4 x 50 ms deadline: attempts advances on every
++	 * bounded wait (timeout OR early wake) so a half-parked state spamming
++	 * wakes cannot exceed the bound; the predicate is re-checked after
++	 * every wake. On failure (timeout or stopping), any worker that already
++	 * parked is released and both release flags are pre-armed so a worker
++	 * that parks later finds its flag set and does not linger -- otherwise a
++	 * timed-out quiesce could strand a parked worker the next retro_run
++	 * (linkFrameHeld still false) would never release. The caller sets
++	 * linkFrameHeld after a successful park so the next retro_run advances
++	 * a fresh frame. Bounded so a wedged session fails the op rather than
++	 * hangs, honoring the interruptible wait. */
 +	if (!linkThreadsStarted) {
 +		return true;
 +	}
@@ -32,14 +37,18 @@
 +		parked = linkFrameDone[0] && linkFrameDone[1];
 +	}
 +	bool quiescent = parked && !linkThreadsStopping;
++	if (!quiescent) {
++		linkFrameRelease[0] = true;
++		linkFrameRelease[1] = true;
++		ConditionWake(&linkFrameCondition);
++	}
 +	MutexUnlock(&linkFrameMutex);
 +	return quiescent;
 +}
-+
  
  void retro_run(void) {
  	if (deferredSetup) {
-@@ -2345,6 +2377,12 @@
+@@ -2345,6 +2386,12 @@
  	if (deferredSetup) {
  		_doDeferredSetup();
  	}
@@ -52,7 +61,7 @@
  	struct VFile* primary = VFileMemChunk(NULL, 0);
  	mCoreSaveStateNamed(core, primary, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
  	size_t size = primary->size(primary);
-@@ -2361,6 +2399,12 @@
+@@ -2361,6 +2408,12 @@
  bool retro_serialize(void* data, size_t size) {
  	if (deferredSetup) {
  		_doDeferredSetup();
@@ -65,7 +74,7 @@
  	}
  	struct VFile* vfm = VFileMemChunk(NULL, 0);
  	mCoreSaveStateNamed(core, vfm, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
-@@ -2411,6 +2455,10 @@
+@@ -2411,6 +2464,10 @@
  		    (size_t) header[2] + (size_t) header[3] + 16 > size) {
  			return false;
  		}
