@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 Keaten Perkins
+#
+# Keep the OS-card SD controller always-on so its broken runtime-PM resume
+# path can never fire. The Rockchip DW-MMC controller at fe2b0000.mmc drives
+# the OS card (mmcblk0: squashfs root + ext4 /storage). On this board its
+# runtime-PM resume fails intermittently (kernel: "mmc0: error -110 doing
+# runtime resume" / "error -5 whilst initialising SD card"), which drops the
+# card mid-run (EXT4-fs shut down, SQUASHFS read failures) and forces a reboot.
+# Holding power/control=on prevents the controller from ever entering suspend,
+# so the broken resume code never runs. Cost is negligible (~50-100 mW).
+#
+# Flip-specific: the KERNEL match excludes the second-card SD controller
+# (fe2c0000.mmc / mmcblk1), which is left on its default runtime-PM policy.
+# Fires at device discovery, before any filesystem is mounted.
+
+ACTION!="add|change", GOTO="butterflyos_mmc0_pm_end"
+SUBSYSTEM!="platform", GOTO="butterflyos_mmc0_pm_end"
+DRIVER!="dwmmc_rockchip", GOTO="butterflyos_mmc0_pm_end"
+KERNEL!="fe2b0000.mmc", GOTO="butterflyos_mmc0_pm_end"
+RUN+="/bin/sh -c 'echo on > /sys/devices/platform/fe2b0000.mmc/power/control'"
+
+LABEL="butterflyos_mmc0_pm_end"
