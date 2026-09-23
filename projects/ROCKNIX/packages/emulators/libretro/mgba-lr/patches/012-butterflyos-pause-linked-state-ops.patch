@@ -1,0 +1,117 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1678,6 +1678,61 @@
+ 	}
+ }
+ 
++struct LinkThreadPauseGuard {
++	bool interrupted[2];
++};
++
++static void _linkPauseBothThreads(struct LinkThreadPauseGuard* guard) {
++	memset(guard, 0, sizeof(*guard));
++	if (!linkThreadsStarted) {
++		return;
++	}
++
++	/* mCoreThreadInterrupt cannot observe a worker blocked in our custom
++	 * frame callback. Release only workers already parked there, then clear
++	 * the frontend's held-frame bookkeeping before requesting native mGBA
++	 * interrupts. A released worker can help its lockstep peer reach the
++	 * mCoreThread loop while the first interrupt is acknowledged. */
++	MutexLock(&linkFrameMutex);
++	if (linkFrameDone[0]) {
++		linkFrameRelease[0] = true;
++	}
++	if (linkFrameDone[1]) {
++		linkFrameRelease[1] = true;
++	}
++	ConditionWake(&linkFrameCondition);
++	linkFrameHeld = false;
++	MutexUnlock(&linkFrameMutex);
++
++	mCoreThreadInterrupt(&linkThreads[0]);
++	guard->interrupted[0] = true;
++	mCoreThreadInterrupt(&linkThreads[1]);
++	guard->interrupted[1] = true;
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] thread-pause guard begin interrupted0=%d interrupted1=%d\n",
++		           guard->interrupted[0], guard->interrupted[1]);
++	}
++}
++
++static void _linkResumeBothThreads(struct LinkThreadPauseGuard* guard) {
++	if (!guard->interrupted[0] && !guard->interrupted[1]) {
++		return;
++	}
++	/* Resume the secondary first so the primary lockstep coordinator never
++	 * starts a transfer while its peer is still interrupted. */
++	if (guard->interrupted[1]) {
++		mCoreThreadContinue(&linkThreads[1]);
++		guard->interrupted[1] = false;
++	}
++	if (guard->interrupted[0]) {
++		mCoreThreadContinue(&linkThreads[0]);
++		guard->interrupted[0] = false;
++	}
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] thread-pause guard end\n");
++	}
++}
++
+ static void _linkFrameEnded(struct mCoreThread* thread) {
+ 	int player = thread == &linkThreads[0] ? 0 : 1;
+ 	MutexLock(&linkFrameMutex);
+@@ -2396,7 +2451,9 @@
+ 		_doDeferredSetup();
+ 	}
+ 	if (linkMode) {
++		struct LinkThreadPauseGuard pauseGuard;
+ 		struct LinkStateSaveGuard guard;
++		_linkPauseBothThreads(&pauseGuard);
+ 		_linkStateSaveBegin(&guard);
+ 		struct VFile* primary = VFileMemChunk(NULL, 0);
+ 		struct VFile* secondary = VFileMemChunk(NULL, 0);
+@@ -2406,6 +2463,7 @@
+ 		primary->close(primary);
+ 		secondary->close(secondary);
+ 		_linkStateSaveEnd(&guard);
++		_linkResumeBothThreads(&pauseGuard);
+ 		return size;
+ 	}
+ 	struct VFile* primary = VFileMemChunk(NULL, 0);
+@@ -2427,7 +2485,9 @@
+ 		bool success = false;
+ 		struct VFile* vfm = NULL;
+ 		struct VFile* second = NULL;
++		struct LinkThreadPauseGuard pauseGuard;
+ 		struct LinkStateSaveGuard guard;
++		_linkPauseBothThreads(&pauseGuard);
+ 		_linkStateSaveBegin(&guard);
+ 		vfm = VFileMemChunk(NULL, 0);
+ 		mCoreSaveStateNamed(core, vfm, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+@@ -2453,6 +2513,7 @@
+ 			second->close(second);
+ 		}
+ 		_linkStateSaveEnd(&guard);
++		_linkResumeBothThreads(&pauseGuard);
+ 		return success;
+ 	}
+ 	struct VFile* vfm = VFileMemChunk(NULL, 0);
+@@ -2489,6 +2550,8 @@
+ 		}
+ 		struct VFile* first = VFileFromConstMemory((const uint8_t*) data + 16, header[2]);
+ 		struct VFile* second = VFileFromConstMemory((const uint8_t*) data + 16 + header[2], header[3]);
++		struct LinkThreadPauseGuard pauseGuard;
++		_linkPauseBothThreads(&pauseGuard);
+ 		/* RetroArch restores netplay state on its frontend thread. Lockstep's
+ 		 * normal callbacks belong exclusively to the two mCore threads, which
+ 		 * may not have started yet, so suppress thread waits during restore. */
+@@ -2530,6 +2593,7 @@
+ 		linkDrivers[1].user = activeUsers[1];
+ 		first->close(first);
+ 		second->close(second);
++		_linkResumeBothThreads(&pauseGuard);
+ 		return success;
+ 	}
+ 	struct VFile* vfm = VFileFromConstMemory(data, size);
