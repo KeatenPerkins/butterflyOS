@@ -1,0 +1,213 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1631,6 +1631,53 @@
+ 	UNUSED(user);
+ }
+ 
++struct LinkStateSaveGuard {
++	struct mLockstepUser saveUsers[2];
++	struct mLockstepUser* activeUsers[2];
++	bool transferActive;
++	uint32_t waiting;
++	bool active;
++};
++
++static void _linkStateSaveBegin(struct LinkStateSaveGuard* guard) {
++	memset(guard, 0, sizeof(*guard));
++	guard->saveUsers[0].sleep = _linkRestoreUserSleep;
++	guard->saveUsers[0].wake = _linkRestoreUserWake;
++	guard->saveUsers[1].sleep = _linkRestoreUserSleep;
++	guard->saveUsers[1].wake = _linkRestoreUserWake;
++	MutexLock(&linkCoordinator.mutex);
++	guard->activeUsers[0] = linkDrivers[0].user;
++	guard->activeUsers[1] = linkDrivers[1].user;
++	guard->transferActive = linkCoordinator.transferActive;
++	guard->waiting = linkCoordinator.waiting;
++	linkDrivers[0].user = &guard->saveUsers[0];
++	linkDrivers[1].user = &guard->saveUsers[1];
++	linkCoordinator.transferActive = false;
++	linkCoordinator.waiting = 0;
++	guard->active = true;
++	MutexUnlock(&linkCoordinator.mutex);
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] state-save guard begin transferActive=%d waiting=%u\n",
++		           (int)guard->transferActive, guard->waiting);
++	}
++}
++
++static void _linkStateSaveEnd(struct LinkStateSaveGuard* guard) {
++	if (!guard->active) {
++		return;
++	}
++	MutexLock(&linkCoordinator.mutex);
++	linkCoordinator.transferActive = guard->transferActive;
++	linkCoordinator.waiting = guard->waiting;
++	linkDrivers[0].user = guard->activeUsers[0];
++	linkDrivers[1].user = guard->activeUsers[1];
++	guard->active = false;
++	MutexUnlock(&linkCoordinator.mutex);
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] state-save guard end\n");
++	}
++}
++
+ static void _linkFrameEnded(struct mCoreThread* thread) {
+ 	int player = thread == &linkThreads[0] ? 0 : 1;
+ 	MutexLock(&linkFrameMutex);
+@@ -1679,56 +1726,6 @@
+ 	ConditionWake(&linkFrameCondition);
+ 	MutexUnlock(&linkFrameMutex);
+ }
+-static bool _linkQuiesceBoth(void) {
+-	/* Park both persistent linked core threads at a frame boundary before a
+-	 * frontend-side state op (retro_serialize/retro_unserialize/size), which
+-	 * can otherwise race a worker still mid-frame. _linkWaitForFrame only
+-	 * waits for player 0, so player 1 could still be running when the
+-	 * frontend captures/restores state; the captured GDB trace had a worker
+-	 * abort in GBASIOLockstepDriverSetMode while the frontend was inside
+-	 * retro_serialize -> GBASIOLockstepDriverSaveState. A thread sets
+-	 * linkFrameDone[player] in _linkFrameEnded and then blocks on its release
+-	 * flag, so a true linkFrameDone[player] means that thread is quiescent.
+-	 * The bound is a counted 4 x 50 ms deadline: attempts advances on every
+-	 * bounded wait (timeout OR early wake) so a half-parked state spamming
+-	 * wakes cannot exceed the bound; the predicate is re-checked after
+-	 * every wake. On failure (timeout or stopping), any worker that already
+-	 * parked is released and both release flags are pre-armed so a worker
+-	 * that parks later finds its flag set and does not linger -- otherwise a
+-	 * timed-out quiesce could strand a parked worker the next retro_run
+-	 * (linkFrameHeld still false) would never release. The caller sets
+-	 * linkFrameHeld after a successful park so the next retro_run advances
+-	 * a fresh frame. Bounded so a wedged session fails the op rather than
+-	 * hangs, honoring the interruptible wait. */
+-	if (!linkThreadsStarted) {
+-		return true;
+-	}
+-	MutexLock(&linkFrameMutex);
+-	if (logCallback) {
+-		logCallback(RETRO_LOG_INFO, "[BFLink] quiesce entry started=%d done0=%d done1=%d rel0=%d rel1=%d stopping=%d\n",
+-		           linkThreadsStarted, linkFrameDone[0], linkFrameDone[1], linkFrameRelease[0], linkFrameRelease[1], linkThreadsStopping);
+-	}
+-	unsigned attempts = 0;
+-	bool parked = linkFrameDone[0] && linkFrameDone[1];
+-	while (!parked && !linkThreadsStopping && attempts < 4) {
+-		ConditionWaitTimed(&linkFrameCondition, &linkFrameMutex, 50);
+-		++attempts;
+-		parked = linkFrameDone[0] && linkFrameDone[1];
+-	}
+-	bool quiescent = parked && !linkThreadsStopping;
+-	if (!quiescent) {
+-		linkFrameRelease[0] = true;
+-		linkFrameRelease[1] = true;
+-		ConditionWake(&linkFrameCondition);
+-	}
+-	if (logCallback) {
+-		logCallback(RETRO_LOG_INFO, "[BFLink] quiesce exit attempts=%u parked=%d quiescent=%d done0=%d done1=%d rel0=%d rel1=%d stopping=%d\n",
+-		           attempts, (int)parked, (int)quiescent, linkFrameDone[0], linkFrameDone[1], linkFrameRelease[0], linkFrameRelease[1], linkThreadsStopping);
+-	}
+-	MutexUnlock(&linkFrameMutex);
+-	return quiescent;
+-}
+-
+ void retro_run(void) {
+ 	if (deferredSetup) {
+ 		_doDeferredSetup();
+@@ -2399,21 +2396,22 @@
+ 		_doDeferredSetup();
+ 	}
+ 	if (linkMode) {
+-		if (!_linkQuiesceBoth()) {
+-			return 0;
+-		}
+-		linkFrameHeld = true;
++		struct LinkStateSaveGuard guard;
++		_linkStateSaveBegin(&guard);
++		struct VFile* primary = VFileMemChunk(NULL, 0);
++		struct VFile* secondary = VFileMemChunk(NULL, 0);
++		mCoreSaveStateNamed(core, primary, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
++		mCoreSaveStateNamed(linkCore, secondary, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
++		size_t size = primary->size(primary) + secondary->size(secondary) + 16;
++		primary->close(primary);
++		secondary->close(secondary);
++		_linkStateSaveEnd(&guard);
++		return size;
+ 	}
+ 	struct VFile* primary = VFileMemChunk(NULL, 0);
+ 	mCoreSaveStateNamed(core, primary, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+ 	size_t size = primary->size(primary);
+ 	primary->close(primary);
+-	if (linkMode) {
+-		struct VFile* secondary = VFileMemChunk(NULL, 0);
+-		mCoreSaveStateNamed(linkCore, secondary, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+-		size += secondary->size(secondary) + 16;
+-		secondary->close(secondary);
+-	}
+ 	return size;
+ }
+ 
+@@ -2426,34 +2424,39 @@
+ 		_doDeferredSetup();
+ 	}
+ 	if (linkMode) {
+-		if (!_linkQuiesceBoth()) {
+-			return false;
+-		}
+-		linkFrameHeld = true;
+-	}
+-	struct VFile* vfm = VFileMemChunk(NULL, 0);
+-	mCoreSaveStateNamed(core, vfm, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+-	if (linkMode) {
+-		struct VFile* second = VFileMemChunk(NULL, 0);
++		bool success = false;
++		struct VFile* vfm = NULL;
++		struct VFile* second = NULL;
++		struct LinkStateSaveGuard guard;
++		_linkStateSaveBegin(&guard);
++		vfm = VFileMemChunk(NULL, 0);
++		mCoreSaveStateNamed(core, vfm, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
++		second = VFileMemChunk(NULL, 0);
+ 		mCoreSaveStateNamed(linkCore, second, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+ 		size_t firstSize = vfm->size(vfm);
+ 		size_t secondSize = second->size(second);
+ 		if (size < firstSize + secondSize + 16 || firstSize > UINT32_MAX || secondSize > UINT32_MAX) {
+-			vfm->close(vfm);
+-			second->close(second);
+-			return false;
++			goto link_save_cleanup;
+ 		}
+ 		uint32_t header[4] = { 0x42474C53U, 1, (uint32_t) firstSize, (uint32_t) secondSize };
+ 		memset(data, 0, size);
+ 		memcpy(data, header, sizeof(header));
+ 		vfm->seek(vfm, 0, SEEK_SET);
+ 		second->seek(second, 0, SEEK_SET);
+-		bool success = vfm->read(vfm, (uint8_t*) data + 16, firstSize) == (ssize_t) firstSize &&
+-		               second->read(second, (uint8_t*) data + 16 + firstSize, secondSize) == (ssize_t) secondSize;
+-		vfm->close(vfm);
+-		second->close(second);
++		success = vfm->read(vfm, (uint8_t*) data + 16, firstSize) == (ssize_t) firstSize &&
++		          second->read(second, (uint8_t*) data + 16 + firstSize, secondSize) == (ssize_t) secondSize;
++link_save_cleanup:
++		if (vfm) {
++			vfm->close(vfm);
++		}
++		if (second) {
++			second->close(second);
++		}
++		_linkStateSaveEnd(&guard);
+ 		return success;
+ 	}
++	struct VFile* vfm = VFileMemChunk(NULL, 0);
++	mCoreSaveStateNamed(core, vfm, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
+ 	if ((ssize_t) size > vfm->size(vfm)) {
+ 		size = vfm->size(vfm);
+ 	} else if ((ssize_t) size < vfm->size(vfm)) {
+@@ -2484,10 +2487,6 @@
+ 		    (size_t) header[2] + (size_t) header[3] + 16 > size) {
+ 			return false;
+ 		}
+-		if (!_linkQuiesceBoth()) {
+-			return false;
+-		}
+-		linkFrameHeld = true;
+ 		struct VFile* first = VFileFromConstMemory((const uint8_t*) data + 16, header[2]);
+ 		struct VFile* second = VFileFromConstMemory((const uint8_t*) data + 16 + header[2], header[3]);
+ 		/* RetroArch restores netplay state on its frontend thread. Lockstep's
