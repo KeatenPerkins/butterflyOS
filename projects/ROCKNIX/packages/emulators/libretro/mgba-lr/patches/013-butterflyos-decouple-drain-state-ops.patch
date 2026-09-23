@@ -1,6 +1,6 @@
 --- a/src/platform/libretro/libretro.c
 +++ b/src/platform/libretro/libretro.c
-@@ -1631,15 +1631,45 @@
+@@ -1631,15 +1631,46 @@
  	UNUSED(user);
  }
  
@@ -13,6 +13,7 @@
 +	bool playerAsleep[2];
  	bool active;
 +	bool drained;
++	bool workersRunning;
  };
  
 -static void _linkStateSaveBegin(struct LinkStateSaveGuard* guard) {
@@ -48,7 +49,7 @@
  	memset(guard, 0, sizeof(*guard));
  	guard->saveUsers[0].sleep = _linkRestoreUserSleep;
  	guard->saveUsers[0].wake = _linkRestoreUserWake;
-@@ -1650,86 +1680,90 @@
+@@ -1650,86 +1681,94 @@
  	guard->activeUsers[1] = linkDrivers[1].user;
  	guard->transferActive = linkCoordinator.transferActive;
  	guard->waiting = linkCoordinator.waiting;
@@ -65,13 +66,14 @@
  	linkCoordinator.transferActive = false;
  	linkCoordinator.waiting = 0;
  	guard->active = true;
++	guard->workersRunning = linkThreadsStarted;
  	MutexUnlock(&linkCoordinator.mutex);
 -	if (logCallback) {
 -		logCallback(RETRO_LOG_INFO, "[BFLink] state-save guard begin transferActive=%d waiting=%u\n",
 -		           (int)guard->transferActive, guard->waiting);
 -	}
 -}
- 
+-
 -static void _linkStateSaveEnd(struct LinkStateSaveGuard* guard) {
 -	if (!guard->active) {
 -		return;
@@ -85,25 +87,26 @@
 -	MutexUnlock(&linkCoordinator.mutex);
 -	if (logCallback) {
 -		logCallback(RETRO_LOG_INFO, "[BFLink] state-save guard end\n");
--	}
++	if (!guard->workersRunning) {
++		guard->drained = true;
++		return true;
+ 	}
 -}
+-
+-struct LinkThreadPauseGuard {
+-	bool interrupted[2];
+-};
+ 
+-static void _linkPauseBothThreads(struct LinkThreadPauseGuard* guard) {
+-	memset(guard, 0, sizeof(*guard));
+-	if (!linkThreadsStarted) {
+-		return;
+-	}
 +	/* A lockstep sleep only queues mTHREAD_REQ_WAIT. Wake both real users after
 +	 * replacing the callbacks so each worker can finish its current frame
 +	 * without blocking on its peer and park in _linkFrameEnded instead. */
 +	guard->activeUsers[0]->wake(guard->activeUsers[0]);
 +	guard->activeUsers[1]->wake(guard->activeUsers[1]);
- 
--struct LinkThreadPauseGuard {
--	bool interrupted[2];
--};
--
--static void _linkPauseBothThreads(struct LinkThreadPauseGuard* guard) {
--	memset(guard, 0, sizeof(*guard));
- 	if (!linkThreadsStarted) {
--		return;
-+		guard->drained = true;
-+		return true;
- 	}
  
 -	/* mCoreThreadInterrupt cannot observe a worker blocked in our custom
 -	 * frame callback. Release only workers already parked there, then clear
@@ -183,20 +186,24 @@
 +				player->asleep = guard->playerAsleep[i];
 +			}
 +		}
- 	}
++	}
 +	linkDrivers[0].user = guard->activeUsers[0];
 +	linkDrivers[1].user = guard->activeUsers[1];
-+	_linkRestoreThreadWaits(guard);
++	if (guard->workersRunning) {
++		_linkRestoreThreadWaits(guard);
++	}
 +	guard->active = false;
 +	MutexUnlock(&linkCoordinator.mutex);
-+	_linkReleaseStateOpWorkers();
++	if (guard->workersRunning) {
++		_linkReleaseStateOpWorkers();
+ 	}
  	if (logCallback) {
 -		logCallback(RETRO_LOG_INFO, "[BFLink] thread-pause guard end\n");
 +		logCallback(RETRO_LOG_INFO, "[BFLink] state-op end loaded=%d\n", (int)loadedState);
  	}
  }
  
-@@ -2451,10 +2485,10 @@
+@@ -2451,10 +2490,10 @@
  		_doDeferredSetup();
  	}
  	if (linkMode) {
@@ -211,7 +218,7 @@
  		struct VFile* primary = VFileMemChunk(NULL, 0);
  		struct VFile* secondary = VFileMemChunk(NULL, 0);
  		mCoreSaveStateNamed(core, primary, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
-@@ -2462,8 +2496,7 @@
+@@ -2462,8 +2501,7 @@
  		size_t size = primary->size(primary) + secondary->size(secondary) + 16;
  		primary->close(primary);
  		secondary->close(secondary);
@@ -221,7 +228,7 @@
  		return size;
  	}
  	struct VFile* primary = VFileMemChunk(NULL, 0);
-@@ -2485,10 +2518,10 @@
+@@ -2485,10 +2523,10 @@
  		bool success = false;
  		struct VFile* vfm = NULL;
  		struct VFile* second = NULL;
@@ -236,7 +243,7 @@
  		vfm = VFileMemChunk(NULL, 0);
  		mCoreSaveStateNamed(core, vfm, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
  		second = VFileMemChunk(NULL, 0);
-@@ -2512,8 +2545,7 @@
+@@ -2512,8 +2550,7 @@
  		if (second) {
  			second->close(second);
  		}
@@ -246,7 +253,7 @@
  		return success;
  	}
  	struct VFile* vfm = VFileMemChunk(NULL, 0);
-@@ -2550,25 +2582,12 @@
+@@ -2550,25 +2587,12 @@
  		}
  		struct VFile* first = VFileFromConstMemory((const uint8_t*) data + 16, header[2]);
  		struct VFile* second = VFileFromConstMemory((const uint8_t*) data + 16 + header[2], header[3]);
@@ -278,7 +285,7 @@
  		bool success = mCoreLoadStateNamed(core, first, SAVESTATE_SAVEDATA | SAVESTATE_RTC);
  		/* The primary driver's state owns the shared coordinator state. The
  		 * secondary core must still pass through setMode while loading, which
-@@ -2589,11 +2608,9 @@
+@@ -2589,11 +2613,9 @@
  			linkCoordinator.waiting = restoredWaiting;
  			MutexUnlock(&linkCoordinator.mutex);
  		}
