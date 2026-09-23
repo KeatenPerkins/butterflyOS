@@ -144,6 +144,8 @@
 -	guard->activeUsers[0]->wake(guard->activeUsers[0]);
 -	guard->activeUsers[1]->wake(guard->activeUsers[1]);
 -
++	guard->requested[0] = mCoreThreadInterruptRequest(&linkThreads[0]);
++	guard->requested[1] = mCoreThreadInterruptRequest(&linkThreads[1]);
  	MutexLock(&linkFrameMutex);
 -	unsigned attempts = 0;
 -	while (!(linkFrameDone[0] && linkFrameDone[1]) && !linkThreadsStopping && attempts < 8) {
@@ -180,8 +182,6 @@
 -		guard->active = false;
 -		MutexUnlock(&linkCoordinator.mutex);
 -		_linkReleaseStateOpWorkers();
-+	guard->requested[0] = mCoreThreadInterruptRequest(&linkThreads[0]);
-+	guard->requested[1] = mCoreThreadInterruptRequest(&linkThreads[1]);
 +	if (guard->requested[0] && guard->requested[1]) {
 +		guard->acknowledged[0] = mCoreThreadInterruptWait(&linkThreads[0]);
 +		guard->acknowledged[1] = mCoreThreadInterruptWait(&linkThreads[1]);
