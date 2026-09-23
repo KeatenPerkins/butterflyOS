@@ -1,0 +1,57 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1704,6 +1704,10 @@
+ 		return true;
+ 	}
+ 	MutexLock(&linkFrameMutex);
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] quiesce entry started=%d done0=%d done1=%d rel0=%d rel1=%d stopping=%d\n",
++		           linkThreadsStarted, linkFrameDone[0], linkFrameDone[1], linkFrameRelease[0], linkFrameRelease[1], linkThreadsStopping);
++	}
+ 	unsigned attempts = 0;
+ 	bool parked = linkFrameDone[0] && linkFrameDone[1];
+ 	while (!parked && !linkThreadsStopping && attempts < 4) {
+@@ -1716,6 +1720,10 @@
+ 		linkFrameRelease[0] = true;
+ 		linkFrameRelease[1] = true;
+ 		ConditionWake(&linkFrameCondition);
++	}
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] quiesce exit attempts=%u parked=%d quiescent=%d done0=%d done1=%d rel0=%d rel1=%d stopping=%d\n",
++		           attempts, (int)parked, (int)quiescent, linkFrameDone[0], linkFrameDone[1], linkFrameRelease[0], linkFrameRelease[1], linkThreadsStopping);
+ 	}
+ 	MutexUnlock(&linkFrameMutex);
+ 	return quiescent;
+@@ -2383,6 +2391,10 @@
+ }
+ 
+ size_t retro_serialize_size(void) {
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] enter serialize_size linkMode=%d linkThreadsStarted=%d\n",
++		           (int)linkMode, linkThreadsStarted);
++	}
+ 	if (deferredSetup) {
+ 		_doDeferredSetup();
+ 	}
+@@ -2406,6 +2418,10 @@
+ }
+ 
+ bool retro_serialize(void* data, size_t size) {
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] enter serialize linkMode=%d linkThreadsStarted=%d\n",
++		           (int)linkMode, linkThreadsStarted);
++	}
+ 	if (deferredSetup) {
+ 		_doDeferredSetup();
+ 	}
+@@ -2451,6 +2467,10 @@
+ }
+ 
+ bool retro_unserialize(const void* data, size_t size) {
++	if (logCallback) {
++		logCallback(RETRO_LOG_INFO, "[BFLink] enter unserialize linkMode=%d linkThreadsStarted=%d\n",
++		           (int)linkMode, linkThreadsStarted);
++	}
+ 	if (deferredSetup) {
+ 		_doDeferredSetup();
+ 	}
