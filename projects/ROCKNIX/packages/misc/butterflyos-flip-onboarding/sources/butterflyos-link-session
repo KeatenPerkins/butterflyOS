@@ -224,7 +224,7 @@ def create_runtime(session_id, host_rom, guest_rom, host_save, guest_save, playe
         'netplay_public_announce = "false"\n'
         'netplay_use_mitm_server = "false"\n'
         'netplay_port = "55435"\n'
-        'netplay_check_frames = "1"\n'
+        'netplay_check_frames = "30"\n'
         'notification_show_netplay_extra = "true"\n'
         'video_fullscreen = "true"\n'
         'video_smooth = "false"\n'
