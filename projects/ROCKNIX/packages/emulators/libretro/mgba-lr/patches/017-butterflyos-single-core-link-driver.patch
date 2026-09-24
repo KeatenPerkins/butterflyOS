@@ -90,13 +90,14 @@
 +static void _finish(struct GBASIODriver* driver, uint16_t data[4]) {
 +  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
 +  data[link->playerId] = link->localWord;
-+  if (link->connected && link->transferPending) {
++  /* Drain peer packets even when this side has not initiated a transfer. */
++  if (link->connected) {
 +    while (link->rxSize < sizeof(struct BFPacket)) {
-+      ssize_t got = SocketRecv(link->socket, link->rxBuffer + link->rxSize, sizeof(struct BFPacket) - link->rxSize);
++      ssize_t got = SocketRecv(link->socket, link->rxBuffer + link->rxSize, sizeof(link->rxBuffer) - link->rxSize);
 +      if (got <= 0) break;
 +      link->rxSize += (unsigned) got;
 +    }
-+    if (link->rxSize >= sizeof(struct BFPacket)) {
++    while (link->rxSize >= sizeof(struct BFPacket)) {
 +      struct BFPacket packet;
 +      memcpy(&packet, link->rxBuffer, sizeof(packet));
 +      memmove(link->rxBuffer, link->rxBuffer + sizeof(packet), link->rxSize - sizeof(packet));
