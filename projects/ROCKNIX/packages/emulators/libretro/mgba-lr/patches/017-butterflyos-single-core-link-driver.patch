@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/include/mgba/internal/gba/sio/butterfly.h
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,25 @@
 +#ifndef GBA_SIO_BUTTERFLY_H
 +#define GBA_SIO_BUTTERFLY_H
 +#include <mgba-util/common.h>
@@ -13,10 +13,12 @@
 +  uint16_t localWord;
 +  uint16_t remoteWord;
 +  uint32_t sequence;
++  uint32_t remoteSequence;
 +  uint8_t rxBuffer[32];
 +  unsigned rxSize;
 +  unsigned playerId;
 +  bool connected;
++  bool haveRemoteSequence;
 +  bool transferPending;
 +};
 +void GBASIOButterflyCreate(struct GBASIOButterfly*, unsigned playerId);
@@ -26,7 +28,7 @@
 +#endif
 --- /dev/null
 +++ b/src/gba/sio/butterfly.c
-@@ -0,0 +1,80 @@
+@@ -0,0 +1,83 @@
 +#include <mgba/internal/gba/sio/butterfly.h>
 +#include <mgba/internal/gba/gba.h>
 +#include <mgba/internal/gba/io.h>
@@ -71,7 +73,7 @@
 +static void _deinit(struct GBASIODriver* driver) { _close((struct GBASIOButterfly*) driver); }
 +static void _reset(struct GBASIODriver* driver) {
 +  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
-+  link->transferPending = false; link->rxSize = 0;
++  link->transferPending = false; link->rxSize = 0; link->haveRemoteSequence = false;
 +}
 +static bool _handles(struct GBASIODriver* driver, enum GBASIOMode mode) { UNUSED(driver); return mode == GBA_SIO_MULTI; }
 +static int _devices(struct GBASIODriver* driver) { return ((struct GBASIOButterfly*) driver)->connected ? 1 : 0; }
@@ -99,9 +101,12 @@
 +      memcpy(&packet, link->rxBuffer, sizeof(packet));
 +      memmove(link->rxBuffer, link->rxBuffer + sizeof(packet), link->rxSize - sizeof(packet));
 +      link->rxSize -= sizeof(packet);
-+      if (ntohl(packet.magic) == BF_MAGIC && ntohs(packet.version) == BF_VERSION && ntohs(packet.checksum) == _checksum(&packet)) {
++      uint32_t sequence = ntohl(packet.sequence);
++      bool fresh = !link->haveRemoteSequence || (int32_t) (sequence - link->remoteSequence) > 0;
++      if (ntohl(packet.magic) == BF_MAGIC && ntohs(packet.version) == BF_VERSION && ntohs(packet.checksum) == _checksum(&packet) && fresh) {
 +        unsigned peer = ntohs(packet.player) & 3;
 +        if (peer != link->playerId) data[peer] = ntohs(packet.word);
++        link->remoteSequence = sequence; link->haveRemoteSequence = true;
 +      }
 +    }
 +  }
