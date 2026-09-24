@@ -28,7 +28,7 @@
 +#endif
 --- /dev/null
 +++ b/src/gba/sio/butterfly.c
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,84 @@
 +#include <mgba/internal/gba/sio/butterfly.h>
 +#include <mgba/internal/gba/gba.h>
 +#include <mgba/internal/gba/io.h>
