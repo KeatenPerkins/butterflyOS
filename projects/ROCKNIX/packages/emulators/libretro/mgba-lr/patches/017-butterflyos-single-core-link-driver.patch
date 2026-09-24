@@ -13,6 +13,8 @@
 +  uint16_t localWord;
 +  uint16_t remoteWord;
 +  uint32_t sequence;
++  uint8_t rxBuffer[32];
++  unsigned rxSize;
 +  unsigned playerId;
 +  bool connected;
 +  bool transferPending;
@@ -24,7 +26,7 @@
 +#endif
 --- /dev/null
 +++ b/src/gba/sio/butterfly.c
-@@ -0,0 +1,67 @@
+@@ -0,0 +1,82 @@
 +#include <mgba/internal/gba/sio/butterfly.h>
 +#include <mgba/internal/gba/gba.h>
 +#include <mgba/internal/gba/io.h>
@@ -67,7 +69,10 @@
 +}
 +static bool _init(struct GBASIODriver* driver) { UNUSED(driver); return true; }
 +static void _deinit(struct GBASIODriver* driver) { _close((struct GBASIOButterfly*) driver); }
-+static void _reset(struct GBASIODriver* driver) { ((struct GBASIOButterfly*) driver)->transferPending = false; }
++static void _reset(struct GBASIODriver* driver) {
++  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
++  link->transferPending = false; link->rxSize = 0;
++}
 +static bool _handles(struct GBASIODriver* driver, enum GBASIOMode mode) { UNUSED(driver); return mode == GBA_SIO_MULTI; }
 +static int _devices(struct GBASIODriver* driver) { return ((struct GBASIOButterfly*) driver)->connected ? 1 : 0; }
 +static int _id(struct GBASIODriver* driver) { return (int) ((struct GBASIOButterfly*) driver)->playerId; }
@@ -84,10 +89,20 @@
 +  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
 +  data[link->playerId] = link->localWord;
 +  if (link->connected && link->transferPending) {
-+    struct BFPacket packet;
-+    if (SocketRecv(link->socket, &packet, sizeof(packet)) == sizeof(packet) && ntohl(packet.magic) == BF_MAGIC && ntohs(packet.version) == BF_VERSION && ntohs(packet.checksum) == _checksum(&packet)) {
-+      unsigned peer = ntohs(packet.player) & 3;
-+      if (peer != link->playerId) data[peer] = ntohs(packet.word);
++    while (link->rxSize < sizeof(struct BFPacket)) {
++      ssize_t got = SocketRecv(link->socket, link->rxBuffer + link->rxSize, sizeof(struct BFPacket) - link->rxSize);
++      if (got <= 0) break;
++      link->rxSize += (unsigned) got;
++    }
++    if (link->rxSize >= sizeof(struct BFPacket)) {
++      struct BFPacket packet;
++      memcpy(&packet, link->rxBuffer, sizeof(packet));
++      memmove(link->rxBuffer, link->rxBuffer + sizeof(packet), link->rxSize - sizeof(packet));
++      link->rxSize -= sizeof(packet);
++      if (ntohl(packet.magic) == BF_MAGIC && ntohs(packet.version) == BF_VERSION && ntohs(packet.checksum) == _checksum(&packet)) {
++        unsigned peer = ntohs(packet.player) & 3;
++        if (peer != link->playerId) data[peer] = ntohs(packet.word);
++      }
 +    }
 +  }
 +  link->transferPending = false;
