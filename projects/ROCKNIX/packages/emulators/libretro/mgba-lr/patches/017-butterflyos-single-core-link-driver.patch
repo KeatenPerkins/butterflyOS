@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/include/mgba/internal/gba/sio/butterfly.h
-@@ -0,0 +1,20 @@
+@@ -0,0 +1,21 @@
 +#ifndef GBA_SIO_BUTTERFLY_H
 +#define GBA_SIO_BUTTERFLY_H
 +#include <mgba-util/common.h>
@@ -12,6 +12,7 @@
 +  Socket socket;
 +  uint16_t localWord;
 +  uint16_t remoteWord;
++  uint32_t sequence;
 +  unsigned playerId;
 +  bool connected;
 +  bool transferPending;
@@ -23,14 +24,21 @@
 +#endif
 --- /dev/null
 +++ b/src/gba/sio/butterfly.c
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,67 @@
 +#include <mgba/internal/gba/sio/butterfly.h>
 +#include <mgba/internal/gba/gba.h>
 +#include <mgba/internal/gba/io.h>
 +#include <string.h>
 +#include <arpa/inet.h>
 +#define BF_MAGIC 0x42464C4Bu
-+struct BFPacket { uint32_t magic; uint16_t player; uint16_t word; };
++#define BF_VERSION 2u
++struct BFPacket { uint32_t magic; uint16_t version; uint16_t player; uint32_t sequence; uint16_t word; uint16_t checksum; };
++static uint16_t _checksum(const struct BFPacket* packet) {
++  const uint8_t* bytes = (const uint8_t*) packet;
++  uint16_t sum = 0;
++  for (unsigned i = 0; i < sizeof(*packet) - sizeof(packet->checksum); ++i) sum = (uint16_t) (sum * 33u + bytes[i]);
++  return sum;
++}
 +static bool _init(struct GBASIODriver*);
 +static void _deinit(struct GBASIODriver*);
 +static void _reset(struct GBASIODriver*);
@@ -66,7 +74,8 @@
 +static bool _start(struct GBASIODriver* driver) {
 +  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
 +  if (!link->connected) return true;
-+  struct BFPacket packet = { htonl(BF_MAGIC), htons((uint16_t) link->playerId), htons(link->d.p->p->memory.io[GBA_REG(SIOMULTI0)]) };
++  struct BFPacket packet = { htonl(BF_MAGIC), htons(BF_VERSION), htons((uint16_t) link->playerId), htonl(link->sequence++), htons(link->d.p->p->memory.io[GBA_REG(SIOMULTI0)]), 0 };
++  packet.checksum = htons(_checksum(&packet));
 +  link->localWord = ntohs(packet.word);
 +  link->transferPending = SocketSend(link->socket, &packet, sizeof(packet)) == sizeof(packet);
 +  return true;
@@ -76,7 +85,7 @@
 +  data[link->playerId] = link->localWord;
 +  if (link->connected && link->transferPending) {
 +    struct BFPacket packet;
-+    if (SocketRecv(link->socket, &packet, sizeof(packet)) == sizeof(packet) && ntohl(packet.magic) == BF_MAGIC) {
++    if (SocketRecv(link->socket, &packet, sizeof(packet)) == sizeof(packet) && ntohl(packet.magic) == BF_MAGIC && ntohs(packet.version) == BF_VERSION && ntohs(packet.checksum) == _checksum(&packet)) {
 +      unsigned peer = ntohs(packet.player) & 3;
 +      if (peer != link->playerId) data[peer] = ntohs(packet.word);
 +    }
