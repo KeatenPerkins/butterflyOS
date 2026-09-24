@@ -358,12 +358,28 @@ def host(arguments):
                 if acknowledgement.get("action") != "ready":
                     raise LinkError("peer-not-ready")
                 runtime = create_runtime(arguments.session, rom, guest_rom, save_data, guest_save, 1)
-                send_frame(connection, {"action": "launch", "start_at": time.time() + 2.0})
-                result = launch(runtime, "host", control=connection)
+                data_server = None
+                data_connection = None
+                launch_message = {"action": "launch", "start_at": time.time() + 2.0}
+                if os.environ.get("BUTTERFLY_LINK_SINGLE_CORE") == "1":
+                    data_server = socket.socket()
+                    data_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    data_server.bind(("", 0))
+                    data_server.listen(1)
+                    launch_message["data_port"] = data_server.getsockname()[1]
+                send_frame(connection, launch_message)
+                if data_server is not None:
+                    data_server.settimeout(15)
+                    data_connection, _ = data_server.accept()
+                    data_connection.settimeout(15)
+                    data_server.close()
+                result = launch(runtime, "host", control=data_connection or connection)
                 try:
                     send_frame(connection, {"action": "peer-finished"})
                 except OSError:
                     pass
+                if data_connection is not None:
+                    data_connection.close()
                 return result
     finally:
         try:
@@ -396,9 +412,19 @@ def join(arguments):
         launch_message, _ = receive_frame(connection)
         if launch_message.get("action") != "launch":
             raise LinkError("launch-not-authorized")
+        data_connection = None
+        if os.environ.get("BUTTERFLY_LINK_SINGLE_CORE") == "1":
+            data_port = launch_message.get("data_port")
+            if not isinstance(data_port, int) or not 1 <= data_port <= 65535:
+                raise LinkError("single-core-link-missing-data-port")
+            data_connection = socket.create_connection((arguments.peer, data_port), timeout=10)
+            data_connection.settimeout(15)
         delay = max(0.0, float(launch_message.get("start_at", 0)) - time.time())
         time.sleep(min(delay, 5.0))
-        return launch(runtime, "join", arguments.peer, connection)
+        result = launch(runtime, "join", arguments.peer, data_connection or connection)
+        if data_connection is not None:
+            data_connection.close()
+        return result
 
 
 def main():
