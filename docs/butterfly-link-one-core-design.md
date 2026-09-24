@@ -85,6 +85,31 @@ thread may call RetroArch state save/load while a transfer is active.
    pairs. Only after stable two-device tests should the UI expose the feature
    as Alpha functionality.
 
+## mGBA integration seam
+
+The source inspection confirms that this can be implemented without changing
+RetroArch's frame loop or restoring machine state. mGBA exposes a
+`struct GBASIODriver` with `setMode`, `handlesMode`, `connectedDevices`,
+`start`, and `finishMultiplayer` callbacks. The network adapter should:
+
+* claim only `GBA_SIO_MULTI` (and reject JoyBus/normal serial modes for the
+  first version);
+* send one bounded transfer event from `start` with the local transfer data
+  and emulated timing boundary;
+* wait for the peer's corresponding event in the adapter's timing callback;
+* call `finishMultiplayer` with the local and peer words once both events are
+  present;
+* report one connected peer through `connectedDevices` and a stable local
+  `deviceId`;
+* keep all socket work outside the emulation thread, using a bounded queue and
+  a wakeup/timing event rather than blocking in `start`.
+
+This is materially different from the current patches: no second `GBA` object,
+no `retro_serialize`/`retro_unserialize` during play, and no shared lockstep
+coordinator. The existing lockstep implementation is still useful as a
+reference for transfer timing and word ordering, but should not be extended
+with more state-synchronization patches.
+
 ## Non-goals for this iteration
 
 * no ROM transfer or cloud service;
