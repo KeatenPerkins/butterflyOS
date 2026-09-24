@@ -251,11 +251,26 @@ def launch(runtime_values, role, peer=None, control=None):
     ]
     command.append("--host" if role == "host" else f"--connect={peer}")
     log = runtime / "launch.log"
+    environment = os.environ.copy()
+    pass_fds = ()
+    single_core = environment.get("BUTTERFLY_LINK_SINGLE_CORE") == "1"
+    if single_core:
+        if control is None:
+            raise LinkError("single-core-link-missing-transport")
+        environment["BUTTERFLY_LINK_SOCKET_FD"] = str(control.fileno())
+        environment["BUTTERFLY_LINK_PLAYER"] = "0" if role == "host" else "1"
+        pass_fds = (control.fileno(),)
     with log.open("ab") as output:
-        process = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT)
+        process = subprocess.Popen(
+            command,
+            stdout=output,
+            stderr=subprocess.STDOUT,
+            env=environment,
+            pass_fds=pass_fds,
+        )
         peer_finished = False
         while process.poll() is None:
-            if control is not None:
+            if control is not None and not single_core:
                 readable, _, _ = select.select([control], [], [], 0.25)
                 if readable:
                     try:
