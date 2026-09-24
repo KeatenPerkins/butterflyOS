@@ -171,14 +171,21 @@ def create_runtime(session_id, host_rom, guest_rom, host_save, guest_save, playe
     content.mkdir(parents=True, exist_ok=True, mode=0o700)
     suffix1 = host_rom.suffix.lower()
     suffix2 = guest_rom.suffix.lower()
-    rom1 = content / f"player1{suffix1}"
-    rom2 = content / f"player2{suffix2}"
-    for target, source in ((rom1, host_rom), (rom2, guest_rom)):
+    # The GBA single-core adapter loads info[0] as the local game.  Keep the
+    # selected ROM/save in player1 for each device; the legacy GB/GBC
+    # two-core path retains host/player1 and guest/player2 ordering.
+    if system == "gba" and player == 2:
+        rom_sources = ((guest_rom, guest_save), (host_rom, host_save))
+    else:
+        rom_sources = ((host_rom, host_save), (guest_rom, guest_save))
+    rom1 = content / f"player1{rom_sources[0][0].suffix.lower()}"
+    rom2 = content / f"player2{rom_sources[1][0].suffix.lower()}"
+    for target, (source, _) in zip((rom1, rom2), rom_sources):
         if target.exists() or target.is_symlink():
             target.unlink()
         target.symlink_to(source)
-    write_private(content / "player1.srm", host_save)
-    write_private(content / "player2.srm", guest_save)
+    write_private(content / "player1.srm", rom_sources[0][1])
+    write_private(content / "player2.srm", rom_sources[1][1])
 
     options = runtime / ("mgba-link.opt" if system == "gba" else "sameboy-link.opt")
     if system == "gba":
@@ -313,7 +320,12 @@ def launch(runtime_values, role, peer=None, control=None):
                     process.wait()
         else:
             process.wait()
-    result_save = content / ("player1.srm" if role == "host" else "player2.srm")
+    # Single-core GBA always writes the local game as player1.  Other systems
+    # retain their established host/player1 and join/player2 save mapping.
+    if system == "gba" and single_core:
+        result_save = content / "player1.srm"
+    else:
+        result_save = content / ("player1.srm" if role == "host" else "player2.srm")
     netplay_result = content / ".netplay" / "player2.srm"
     if role == "join" and netplay_result.is_file():
         result_save = netplay_result
