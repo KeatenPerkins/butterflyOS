@@ -1,0 +1,6 @@
+--- a/libretro-build/Makefile.common
++++ b/libretro-build/Makefile.common
+@@ -109,2 +109,3 @@ SOURCES_C :=
+					$(CORE_DIR)/src/gba/sio.c \
+					$(CORE_DIR)/src/gba/sio/gbp.c \
++					$(CORE_DIR)/src/gba/sio/butterfly.c \
