@@ -1,0 +1,47 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -27,4 +27,5 @@
+ #include <mgba/gba/interface.h>
+ #include <mgba/internal/gba/gba.h>
+ #include <mgba/internal/gba/sio/lockstep.h>
++#include <mgba/internal/gba/sio/butterfly.h>
+ #endif
+@@ -103,4 +104,6 @@
+ static size_t linkDataSize;
+ static void* linkSavedata;
+ static bool linkMode;
++static bool butterflySingleLinkMode;
++static struct GBASIOButterfly butterflySingleLink;
+ static struct GBASIOLockstepCoordinator linkCoordinator;
+@@ -2394,4 +2397,8 @@
+ 		ConditionDeinit(&linkFrameCondition);
+ 		MutexDeinit(&linkFrameMutex);
+ 	}
++	if (butterflySingleLinkMode) {
++		GBASIOButterflyDestroy(&butterflySingleLink);
++		butterflySingleLinkMode = false;
++	}
+ 	mCoreConfigDeinit(&core->config);
+@@ -2680,4 +2687,22 @@
+ }
+ 
+ bool retro_load_game_special(unsigned game_type, const struct retro_game_info* info, size_t num_info) {
++	const char* singleLink = getenv("BUTTERFLY_LINK_SINGLE_CORE");
++	if (singleLink && strcmp(singleLink, "1") == 0) {
++		if (num_info < 1 || !info[0].path || !retro_load_game(&info[0]) || core->platform(core) != mPLATFORM_GBA) {
++			return false;
++		}
++		const char* fdText = getenv("BUTTERFLY_LINK_SOCKET_FD");
++		const char* playerText = getenv("BUTTERFLY_LINK_PLAYER");
++		int fd = fdText ? atoi(fdText) : -1;
++		unsigned player = playerText ? (unsigned) atoi(playerText) : 0;
++		GBASIOButterflyCreate(&butterflySingleLink, player);
++		if (fd < 0 || !GBASIOButterflyAttachSocket(&butterflySingleLink, fd)) {
++			retro_unload_game();
++			return false;
++		}
++		core->setPeripheral(core, mPERIPH_GBA_LINK_PORT, &butterflySingleLink.d);
++		butterflySingleLinkMode = true;
++		return true;
++	}
+ 	if (game_type != BUTTERFLY_GBA_LINK_SUBSYSTEM || num_info != 2 ||
