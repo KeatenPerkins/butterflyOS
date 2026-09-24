@@ -1,0 +1,85 @@
+--- /dev/null
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -0,0 +1,20 @@
++#ifndef GBA_SIO_BUTTERFLY_H
++#define GBA_SIO_BUTTERFLY_H
++#include <mgba-util/common.h>
++#include <mgba-util/socket.h>
++#include <mgba/gba/interface.h>
++CXX_GUARD_START
++struct GBASIOButterfly {
++  struct GBASIODriver d;
++  Socket socket;
++  uint16_t localWord;
++  uint16_t remoteWord;
++  unsigned playerId;
++  bool connected;
++  bool transferPending;
++};
++void GBASIOButterflyCreate(struct GBASIOButterfly*, unsigned playerId);
++void GBASIOButterflyDestroy(struct GBASIOButterfly*);
++bool GBASIOButterflyAttachSocket(struct GBASIOButterfly*, Socket);
++CXX_GUARD_END
++#endif
+--- /dev/null
++++ b/src/gba/sio/butterfly.c
+@@ -0,0 +1,59 @@
++#include <mgba/internal/gba/sio/butterfly.h>
++#include <mgba/internal/gba/gba.h>
++#include <mgba/internal/gba/io.h>
++#include <string.h>
++#include <arpa/inet.h>
++#define BF_MAGIC 0x42464C4Bu
++struct BFPacket { uint32_t magic; uint16_t player; uint16_t word; };
++static bool _init(struct GBASIODriver*);
++static void _deinit(struct GBASIODriver*);
++static void _reset(struct GBASIODriver*);
++static bool _handles(struct GBASIODriver*, enum GBASIOMode);
++static int _devices(struct GBASIODriver*);
++static int _id(struct GBASIODriver*);
++static bool _start(struct GBASIODriver*);
++static void _finish(struct GBASIODriver*, uint16_t[4]);
++static void _close(struct GBASIOButterfly* link) {
++  if (!SOCKET_FAILED(link->socket)) SocketClose(link->socket);
++  link->socket = INVALID_SOCKET; link->connected = false;
++}
++void GBASIOButterflyCreate(struct GBASIOButterfly* link, unsigned playerId) {
++  memset(link, 0, sizeof(*link)); link->socket = INVALID_SOCKET;
++  link->playerId = playerId & 3; link->d.init = _init;
++  link->d.deinit = _deinit; link->d.reset = _reset;
++  link->d.handlesMode = _handles; link->d.connectedDevices = _devices;
++  link->d.deviceId = _id; link->d.start = _start;
++  link->d.finishMultiplayer = _finish;
++}
++void GBASIOButterflyDestroy(struct GBASIOButterfly* link) { _close(link); }
++bool GBASIOButterflyAttachSocket(struct GBASIOButterfly* link, Socket socket) {
++  if (SOCKET_FAILED(socket)) return false; _close(link);
++  link->socket = socket; SocketSetBlocking(socket, false); link->connected = true;
++  return true;
++}
++static bool _init(struct GBASIODriver* driver) { UNUSED(driver); return true; }
++static void _deinit(struct GBASIODriver* driver) { _close((struct GBASIOButterfly*) driver); }
++static void _reset(struct GBASIODriver* driver) { ((struct GBASIOButterfly*) driver)->transferPending = false; }
++static bool _handles(struct GBASIODriver* driver, enum GBASIOMode mode) { UNUSED(driver); return mode == GBA_SIO_MULTI; }
++static int _devices(struct GBASIODriver* driver) { return ((struct GBASIOButterfly*) driver)->connected ? 1 : 0; }
++static int _id(struct GBASIODriver* driver) { return (int) ((struct GBASIOButterfly*) driver)->playerId; }
++static bool _start(struct GBASIODriver* driver) {
++  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
++  if (!link->connected) return true;
++  struct BFPacket packet = { htonl(BF_MAGIC), htons((uint16_t) link->playerId), htons(link->d.p->p->memory.io[GBA_REG(SIOMULTI0)]) };
++  link->localWord = ntohs(packet.word);
++  link->transferPending = SocketSend(link->socket, &packet, sizeof(packet)) == sizeof(packet);
++  return true;
++}
++static void _finish(struct GBASIODriver* driver, uint16_t data[4]) {
++  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
++  data[link->playerId] = link->localWord;
++  if (link->connected && link->transferPending) {
++    struct BFPacket packet;
++    if (SocketRecv(link->socket, &packet, sizeof(packet)) == sizeof(packet) && ntohl(packet.magic) == BF_MAGIC) {
++      unsigned peer = ntohs(packet.player) & 3;
++      if (peer != link->playerId) data[peer] = ntohs(packet.word);
++    }
++  }
++  link->transferPending = false;
++}
