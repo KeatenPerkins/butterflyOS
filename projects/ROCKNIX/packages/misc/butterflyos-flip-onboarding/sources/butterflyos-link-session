@@ -230,6 +230,8 @@ def create_runtime(session_id, host_rom, guest_rom, host_save, guest_save, playe
         'video_smooth = "false"\n'
         'aspect_ratio_index = "22"\n'
         'video_aspect_ratio = "1.333333"\n'
+        'savestate_auto_load = "false"\n'
+        'savestate_auto_save = "false"\n'
         'input_enable_hotkey_btn = "10"\n'
         'input_exit_emulator_btn = "9"\n'
         'confirm_quit = "true"\n',
