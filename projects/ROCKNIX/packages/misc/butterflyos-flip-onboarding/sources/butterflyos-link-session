@@ -267,6 +267,9 @@ def launch(runtime_values, role, peer=None, control=None):
     if single_core:
         if control is None:
             raise LinkError("single-core-link-missing-transport")
+        # Select Butterfly Link's mGBA transport instead of RetroArch's
+        # normal two-core lockstep subsystem path.
+        environment["BUTTERFLY_LINK_SINGLE_CORE"] = "1"
         environment["BUTTERFLY_LINK_SOCKET_FD"] = str(control.fileno())
         environment["BUTTERFLY_LINK_PLAYER"] = "0" if role == "host" else "1"
         pass_fds = (control.fileno(),)
