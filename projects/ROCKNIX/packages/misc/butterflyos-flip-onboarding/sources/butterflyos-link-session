@@ -253,7 +253,10 @@ def launch(runtime_values, role, peer=None, control=None):
     log = runtime / "launch.log"
     environment = os.environ.copy()
     pass_fds = ()
-    single_core = environment.get("BUTTERFLY_LINK_SINGLE_CORE") == "1"
+    # GBA sessions use the experimental one-core transport by default. GB/GBC
+    # keeps the established SameBoy path; the explicit variable can disable
+    # the GBA transport for rollback testing.
+    single_core = system == "gba" and environment.get("BUTTERFLY_LINK_SINGLE_CORE", "1") == "1"
     if single_core:
         if control is None:
             raise LinkError("single-core-link-missing-transport")
@@ -361,7 +364,7 @@ def host(arguments):
                 data_server = None
                 data_connection = None
                 launch_message = {"action": "launch", "start_at": time.time() + 2.0}
-                if os.environ.get("BUTTERFLY_LINK_SINGLE_CORE") == "1":
+                if rom_system(rom) == "gba" and os.environ.get("BUTTERFLY_LINK_SINGLE_CORE", "1") == "1":
                     data_server = socket.socket()
                     data_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                     data_server.bind(("", 0))
@@ -413,7 +416,7 @@ def join(arguments):
         if launch_message.get("action") != "launch":
             raise LinkError("launch-not-authorized")
         data_connection = None
-        if os.environ.get("BUTTERFLY_LINK_SINGLE_CORE") == "1":
+        if rom_system(rom) == "gba" and os.environ.get("BUTTERFLY_LINK_SINGLE_CORE", "1") == "1":
             data_port = launch_message.get("data_port")
             if not isinstance(data_port, int) or not 1 <= data_port <= 65535:
                 raise LinkError("single-core-link-missing-data-port")
