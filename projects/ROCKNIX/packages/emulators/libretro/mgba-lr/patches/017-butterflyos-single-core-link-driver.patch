@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/include/mgba/internal/gba/sio/butterfly.h
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,23 @@
 +#ifndef GBA_SIO_BUTTERFLY_H
 +#define GBA_SIO_BUTTERFLY_H
 +#include <mgba-util/common.h>
@@ -26,7 +26,7 @@
 +#endif
 --- /dev/null
 +++ b/src/gba/sio/butterfly.c
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,80 @@
 +#include <mgba/internal/gba/sio/butterfly.h>
 +#include <mgba/internal/gba/gba.h>
 +#include <mgba/internal/gba/io.h>
