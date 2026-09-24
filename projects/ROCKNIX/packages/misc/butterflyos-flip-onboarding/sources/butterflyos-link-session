@@ -244,19 +244,24 @@ def launch(runtime_values, role, peer=None, control=None):
     subsystem = "gbalink" if system == "gba" else "gb_link_2p"
     if not core.is_file():
         raise LinkError(f"missing-{system}-link-core")
+    # GBA single-core sessions use the Butterfly packet transport inside the
+    # mGBA core.  Do not also enable RetroArch's netplay layer: it performs
+    # independent state serialization and can abort mGBA while the game is
+    # using the link port.
+    environment = os.environ.copy()
+    single_core = system == "gba" and environment.get("BUTTERFLY_LINK_SINGLE_CORE", "1") == "1"
     command = [
         RETROARCH, "-f", "-L", str(core), f"--subsystem={subsystem}",
         str(rom1), str(rom2), f"--appendconfig={config}", "--port=55435",
         "--sram-mode=load-save",
     ]
-    command.append("--host" if role == "host" else f"--connect={peer}")
+    if not single_core:
+        command.append("--host" if role == "host" else f"--connect={peer}")
     log = runtime / "launch.log"
-    environment = os.environ.copy()
     pass_fds = ()
     # GBA sessions use the experimental one-core transport by default. GB/GBC
     # keeps the established SameBoy path; the explicit variable can disable
     # the GBA transport for rollback testing.
-    single_core = system == "gba" and environment.get("BUTTERFLY_LINK_SINGLE_CORE", "1") == "1"
     if single_core:
         if control is None:
             raise LinkError("single-core-link-missing-transport")
