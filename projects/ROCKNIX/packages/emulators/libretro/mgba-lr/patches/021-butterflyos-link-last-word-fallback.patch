@@ -1,0 +1,27 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -77,4 +77,10 @@
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
+   data[link->playerId] = link->localWord;
++  /* Network replies arrive after the emulated SIO completion event. Keep
++   * the last valid peer word so the master does not report 0xFFFF while
++   * waiting for the next packet. */
++  if (link->haveRemoteSequence) {
++    data[link->playerId == 0 ? 1 : 0] = link->remoteWord;
++  }
+  /* Drain peer packets even when this side has not initiated a transfer. */
+  if (link->connected) {
+@@ -92,5 +92,8 @@
+       bool fresh = !link->haveRemoteSequence || (int32_t) (sequence - link->remoteSequence) > 0;
+       if (ntohl(packet.magic) == BF_MAGIC && ntohs(packet.version) == BF_VERSION && ntohs(packet.checksum) == _checksum(&packet) && fresh) {
+         unsigned peer = ntohs(packet.player) & 3;
+-        if (peer != link->playerId) data[peer] = ntohs(packet.word);
++        if (peer != link->playerId) {
++          link->remoteWord = ntohs(packet.word);
++          data[peer] = link->remoteWord;
++        }
+         link->remoteSequence = sequence; link->haveRemoteSequence = true;
+@@ -132,2 +132,3 @@
+    }
++    link->remoteWord = ntohs(packet.word);
+     uint16_t localWord = gba->memory.io[GBA_REG(SIOMLT_SEND)];
