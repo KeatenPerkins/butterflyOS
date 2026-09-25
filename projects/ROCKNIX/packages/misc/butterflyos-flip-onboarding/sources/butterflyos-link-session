@@ -266,6 +266,20 @@ def launch(runtime_values, role, peer=None, control=None):
     ]
     if not single_core:
         command.append("--host" if role == "host" else f"--connect={peer}")
+    # Opt-in diagnostic capture for development sessions. The core limits
+    # its own output; normal sessions retain their existing logging settings.
+    diagnostics = single_core and (
+        environment.get("BUTTERFLY_LINK_DIAGNOSTICS") == "1"
+        or (STATE_ROOT / "diagnostics-enabled").is_file()
+    )
+    if diagnostics:
+        environment["BUTTERFLY_LINK_DIAGNOSTICS"] = "1"
+        command.append("--verbose")
+        with config.open("a", encoding="utf-8") as settings:
+            settings.write('log_verbosity = "true"\n'
+                           'libretro_log_level = "1"\n'
+                           'frontend_log_level = "1"\n'
+                           'log_to_file = "false"\n')
     log = runtime / "launch.log"
     pass_fds = ()
     # GBA sessions use the experimental one-core transport by default. GB/GBC

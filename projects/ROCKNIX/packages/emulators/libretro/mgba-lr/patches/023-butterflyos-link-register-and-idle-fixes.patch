@@ -1,0 +1,35 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -95,6 +95,10 @@
+ static bool _start(struct GBASIODriver* driver) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
+   if (!link->connected || !link->d.p) return false;
++  /* The driver callback is invoked for every SIO mode. Let mGBA's generic
++   * normal-serial path complete normally; Butterfly packets only exist for
++   * multiplayer link transfers. */
++  if (link->d.p->mode != GBA_SIO_MULTI) return true;
+   /* Both players submit their local word. The generic SIO path schedules
+    * a completion for the secondary as well, allowing a reply packet. */
+   uint16_t localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+@@ -110,6 +114,9 @@
+ }
+ static void _finish(struct GBASIODriver* driver, uint16_t data[4]) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
++  /* Disconnected GBA link endpoints read high. mGBA's normal lockstep
++   * driver follows this convention; zero is a valid link word. */
++  for (unsigned i = 0; i < 4; ++i) data[i] = 0xFFFF;
+   data[link->playerId] = link->localWord;
+   /* Network replies arrive after the emulated SIO completion event. Keep
+    * the last valid peer word so the master does not report 0xFFFF while
+@@ -191,7 +198,9 @@
+     }
+     link->remoteWord = ntohs(packet.word);
+     uint16_t localWord = gba->memory.io[GBA_REG(SIOMLT_SEND)];
+-    gba->memory.io[GBA_REG(SIOMULTI0 + link->playerId)] = localWord;
++    /* GBA_REG() converts byte addresses to 16-bit array indices. Add the
++     * player index after conversion or player 1 aliases SIOMULTI0. */
++    gba->memory.io[GBA_REG(SIOMULTI0) + link->playerId] = localWord;
+     struct BFPacket reply = {
+       htonl(BF_MAGIC), htons(BF_VERSION), htons((uint16_t) link->playerId),
+       htonl(link->sequence++), htons(localWord), 0
+

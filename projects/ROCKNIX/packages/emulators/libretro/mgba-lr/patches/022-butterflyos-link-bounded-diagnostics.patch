@@ -1,0 +1,134 @@
+--- a/include/mgba/internal/gba/sio/butterfly.h
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -17,6 +17,11 @@
+   bool connected;
+   bool haveRemoteSequence;
+   bool transferPending;
++  /* Optional diagnostics; budgets last for the lifetime of this driver. */
++  bool diagnostics;
++  uint32_t diagnosticFrame;
++  uint32_t diagnosticCalls[6];
++  unsigned diagnosticLines[6];
+ };
+ void GBASIOButterflyCreate(struct GBASIOButterfly*, unsigned playerId);
+ void GBASIOButterflyDestroy(struct GBASIOButterfly*);
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -2,9 +2,21 @@
+ #include <mgba/internal/gba/gba.h>
+ #include <mgba/internal/gba/io.h>
+ #include <string.h>
++#include <stdlib.h>
+ #include <arpa/inet.h>
+ #define BF_MAGIC 0x42464C4Bu
+ #define BF_VERSION 2u
++enum BFDiagnostic { BF_STATE, BF_MODE, BF_START, BF_FINISH, BF_POLL, BF_IDLE };
++/* First 64 events per category, then every 256th; at most 512 lines per
++ * category per process. No socket waits or transfer scheduling changes. */
++static bool _diagnostic(struct GBASIOButterfly* link, enum BFDiagnostic event) {
++  if (!link->diagnostics) return false;
++  uint32_t count = ++link->diagnosticCalls[event];
++  if (link->diagnosticLines[event] >= 512) return false;
++  if (count > 64 && count % 256 != 0) return false;
++  ++link->diagnosticLines[event];
++  return true;
++}
+ struct BFPacket { uint32_t magic; uint16_t version; uint16_t player; uint32_t sequence; uint16_t word; uint16_t checksum; };
+ static uint16_t _checksum(const struct BFPacket* packet) {
+   const uint8_t* bytes = (const uint8_t*) packet;
+@@ -27,6 +39,8 @@
+ }
+ void GBASIOButterflyCreate(struct GBASIOButterfly* link, unsigned playerId) {
+   memset(link, 0, sizeof(*link)); link->socket = INVALID_SOCKET;
++  const char* diagnostics = getenv("BUTTERFLY_LINK_DIAGNOSTICS");
++  link->diagnostics = diagnostics && strcmp(diagnostics, "1") == 0;
+   link->playerId = playerId & 3; link->d.init = _init;
+   link->d.deinit = _deinit; link->d.reset = _reset;
+   link->d.setMode = _setMode;
+@@ -41,7 +55,15 @@
+   return true;
+ }
+ static bool _init(struct GBASIODriver* driver) { UNUSED(driver); return true; }
+-static void _deinit(struct GBASIODriver* driver) { _close((struct GBASIOButterfly*) driver); }
++static void _deinit(struct GBASIODriver* driver) {
++  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
++  if (link->diagnostics) mLOG(GBA_SIO, INFO,
++      "BF diag022 end p=%u frame=%u state=%u mode=%u start=%u finish=%u poll=%u idle=%u",
++      link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_STATE],
++      link->diagnosticCalls[BF_MODE], link->diagnosticCalls[BF_START],
++      link->diagnosticCalls[BF_FINISH], link->diagnosticCalls[BF_POLL], link->diagnosticCalls[BF_IDLE]);
++  _close(link);
++}
+ static void _reset(struct GBASIODriver* driver) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
+   link->transferPending = false; link->rxSize = 0; link->haveRemoteSequence = false;
+@@ -53,9 +75,18 @@
+   sio->siocnt = GBASIOMultiplayerSetSlave(sio->siocnt, link->playerId != 0);
+   sio->siocnt = GBASIOMultiplayerSetReady(sio->siocnt, true);
+   sio->rcnt = GBASIORegisterRCNTSetSd(sio->rcnt, true);
++  if (_diagnostic(link, BF_STATE)) mLOG(GBA_SIO, INFO,
++      "BF state p=%u f=%u cnt=%04X rcnt=%04X id=%u slave=%u ready=%u",
++      link->playerId, link->diagnosticFrame, sio->siocnt, sio->rcnt,
++      (unsigned) GBASIOMultiplayerGetId(sio->siocnt),
++      (unsigned) GBASIOMultiplayerIsSlave(sio->siocnt), (unsigned) GBASIOMultiplayerIsReady(sio->siocnt));
+ }
+ static void _setMode(struct GBASIODriver* driver, enum GBASIOMode mode) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
++  if (_diagnostic(link, BF_MODE)) mLOG(GBA_SIO, INFO,
++      "BF mode p=%u f=%u requested=%d current=%d connected=%u",
++      link->playerId, link->diagnosticFrame, mode, link->d.p ? link->d.p->mode : -1,
++      (unsigned) link->connected);
+   if (mode == GBA_SIO_MULTI) _applyLinkState(link);
+ }
+ static bool _handles(struct GBASIODriver* driver, enum GBASIOMode mode) { UNUSED(driver); return mode == GBA_SIO_MULTI; }
+@@ -71,6 +102,10 @@
+   packet.checksum = htons(_checksum(&packet));
+   link->localWord = ntohs(packet.word);
+   link->transferPending = SocketSend(link->socket, &packet, sizeof(packet)) == sizeof(packet);
++  if (_diagnostic(link, BF_START)) mLOG(GBA_SIO, INFO,
++      "BF start p=%u f=%u n=%u seq=%u word=%04X sent=%u cnt=%04X",
++      link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_START],
++      ntohl(packet.sequence), localWord, (unsigned) link->transferPending, link->d.p->siocnt);
+   return true;
+ }
+ static void _finish(struct GBASIODriver* driver, uint16_t data[4]) {
+@@ -107,8 +142,23 @@
+     }
+   }
+   link->transferPending = false;
++  if (_diagnostic(link, BF_FINISH)) mLOG(GBA_SIO, INFO,
++      "BF finish p=%u f=%u n=%u data=%04X,%04X,%04X,%04X remote=%04X have=%u seq=%u",
++      link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_FINISH],
++      data[0], data[1], data[2], data[3], link->remoteWord,
++      (unsigned) link->haveRemoteSequence, link->remoteSequence);
+ }
+ void GBASIOButterflyPollFrame(struct GBASIOButterfly* link) {
++  if (link && link->diagnostics) {
++    ++link->diagnosticFrame;
++    if (link->diagnosticFrame == 1) mLOG(GBA_SIO, INFO,
++        "BF diag022 enabled p=%u first=64 stride=256 cap=512/category", link->playerId);
++    if (link->diagnosticFrame % 300 == 0 && _diagnostic(link, BF_IDLE)) mLOG(GBA_SIO, INFO,
++        "BF idle p=%u f=%u mode=%d cnt=%04X connected=%u rx=%u seq=%u remote=%04X",
++        link->playerId, link->diagnosticFrame, link->d.p ? link->d.p->mode : -1,
++        link->d.p ? link->d.p->siocnt : 0, (unsigned) link->connected,
++        link->rxSize, link->remoteSequence, link->remoteWord);
++  }
+   if (!link || !link->connected || !link->d.p || link->d.p->mode != GBA_SIO_MULTI) return;
+   struct GBASIO* sio = link->d.p;
+   struct GBA* gba = sio->p;
+@@ -147,8 +197,13 @@
+       htonl(link->sequence++), htons(localWord), 0
+     };
+     reply.checksum = htons(_checksum(&reply));
+-    SocketSend(link->socket, &reply, sizeof(reply));
++    ssize_t sent = SocketSend(link->socket, &reply, sizeof(reply));
+     sio->siocnt = GBASIOMultiplayerClearBusy(sio->siocnt);
++    if (_diagnostic(link, BF_POLL)) mLOG(GBA_SIO, INFO,
++        "BF poll p=%u f=%u n=%u peer=%u seq=%u word=%04X reply=%04X sent=%d cnt=%04X irq=%u",
++        link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_POLL],
++        peer, sequence, link->remoteWord, localWord, (int) sent, sio->siocnt,
++        (unsigned) GBASIOMultiplayerIsIrq(sio->siocnt));
+     if (GBASIOMultiplayerIsIrq(sio->siocnt)) GBARaiseIRQ(gba, GBA_IRQ_SIO, 0);
+   }
+ }
+

@@ -38,6 +38,7 @@ def main():
         fake_retroarch.write_text(
             "#!/bin/sh\n"
             "case \" $* \" in *' --command '*) exit 0;; esac\n"
+            "printf 'diagnostics=%s\\n' \"${BUTTERFLY_LINK_DIAGNOSTICS:-0}\"\n"
             f"printf '%s\\n' \"$*\" >>'{command_log}'\n"
             "for arg in \"$@\"; do case \"$arg\" in --appendconfig=*) cfg=${arg#--appendconfig=};; esac; done\n"
             "content=$(sed -n 's/^savefile_directory = \"\\(.*\\)\"/\\1/p' \"$cfg\")\n"
@@ -64,6 +65,10 @@ def main():
         )
         host_env = dict(common, BUTTERFLY_LINK_STATE_ROOT=str(root / "host"))
         join_env = dict(common, BUTTERFLY_LINK_STATE_ROOT=str(root / "join"))
+        host_env.pop("BUTTERFLY_LINK_DIAGNOSTICS", None)
+        join_env.pop("BUTTERFLY_LINK_DIAGNOSTICS", None)
+        (root / "host").mkdir()
+        (root / "host/diagnostics-enabled").touch()
         host = subprocess.Popen(
             [str(TOOL), "host", "--session", "gba-host", "--rom", str(ruby), "--save", str(ruby_save), "--timeout", "15"],
             stdout=subprocess.PIPE,
@@ -94,6 +99,14 @@ def main():
         commands = command_log.read_text(encoding="utf-8")
         assert "--subsystem=gbalink" in commands
         assert str(core) in commands
+        assert commands.count("--verbose") == 1, commands
+        host_runtime = root / "host/sessions/gba-host/runtime"
+        join_runtime = root / "join/sessions/gba-join/runtime"
+        assert "diagnostics=1" in (host_runtime / "launch.log").read_text()
+        assert "diagnostics=0" in (join_runtime / "launch.log").read_text()
+        assert 'libretro_log_level = "1"' in (host_runtime / "retroarch.cfg").read_text()
+        assert 'log_to_file = "false"' in (host_runtime / "retroarch.cfg").read_text()
+        assert 'log_verbosity' not in (join_runtime / "retroarch.cfg").read_text()
         assert 'butterfly_gba_link_player = "1"' in (root / "host/sessions/gba-host/runtime/mgba-link.opt").read_text()
         assert 'butterfly_gba_link_player = "2"' in (root / "join/sessions/gba-join/runtime/mgba-link.opt").read_text()
         assert 'video_driver = "null"' in (root / "host/sessions/gba-host/runtime/retroarch.cfg").read_text()
