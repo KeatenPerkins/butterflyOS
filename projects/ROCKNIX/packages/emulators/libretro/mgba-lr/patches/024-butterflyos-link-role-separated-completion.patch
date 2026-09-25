@@ -1,0 +1,43 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -99,6 +99,10 @@ static bool _start(struct GBASIODriver* driver) {
+    * normal-serial path complete normally; Butterfly packets only exist for
+    * multiplayer link transfers. */
+   if (link->d.p->mode != GBA_SIO_MULTI) return true;
++  /* The guest is completed by PollFrame when the master's request arrives.
++   * Returning false prevents a second generic completion/IRQ for the same
++   * transfer. */
++  if (link->playerId != 0) return false;
+   /* Both players submit their local word. The generic SIO path schedules
+    * a completion for the secondary as well, allowing a reply packet. */
+   uint16_t localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+@@ -190,17 +194,26 @@ void GBASIOButterflyPollFrame(struct GBASIOButterfly* link) {
+     if (peer == link->playerId) continue;
+     link->remoteSequence = sequence;
+     link->haveRemoteSequence = true;
++    link->remoteWord = ntohs(packet.word);
++
++    /* The master only consumes guest replies here. The guest owns the
++     * register writes, reply, and completion signal below. */
++    if (link->playerId == 0) continue;
+     switch (peer) {
+-    case 0: gba->memory.io[GBA_REG(SIOMULTI0)] = ntohs(packet.word); break;
+-    case 1: gba->memory.io[GBA_REG(SIOMULTI1)] = ntohs(packet.word); break;
+-    case 2: gba->memory.io[GBA_REG(SIOMULTI2)] = ntohs(packet.word); break;
+-    case 3: gba->memory.io[GBA_REG(SIOMULTI3)] = ntohs(packet.word); break;
++    case 0: gba->memory.io[GBA_REG(SIOMULTI0)] = link->remoteWord; break;
++    case 1: gba->memory.io[GBA_REG(SIOMULTI1)] = link->remoteWord; break;
++    case 2: gba->memory.io[GBA_REG(SIOMULTI2)] = link->remoteWord; break;
++    case 3: gba->memory.io[GBA_REG(SIOMULTI3)] = link->remoteWord; break;
+     }
+-    link->remoteWord = ntohs(packet.word);
+     uint16_t localWord = gba->memory.io[GBA_REG(SIOMLT_SEND)];
+     /* GBA_REG() converts byte addresses to 16-bit array indices. Add the
+      * player index after conversion or player 1 aliases SIOMULTI0. */
+     gba->memory.io[GBA_REG(SIOMULTI0) + link->playerId] = localWord;
++    for (unsigned slot = 0; slot < 4; ++slot) {
++      if (slot != peer && slot != link->playerId) {
++        gba->memory.io[GBA_REG(SIOMULTI0) + slot] = 0xFFFF;
++      }
++    }
+     struct BFPacket reply = {
