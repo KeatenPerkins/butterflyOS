@@ -1,0 +1,45 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -99,10 +99,16 @@
+    * normal-serial path complete normally; Butterfly packets only exist for
+    * multiplayer link transfers. */
+   if (link->d.p->mode != GBA_SIO_MULTI) return true;
+-  /* The guest is completed by PollFrame when the master's request arrives.
+-   * Returning false prevents a second generic completion/IRQ for the same
+-   * transfer. */
+-  if (link->playerId != 0) return false;
++  if (link->playerId != 0) {
++    /* The guest does not put a packet on the wire, but it still participates
++     * in mGBA's normal completion event. Capture the word for its one reply. */
++    link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
++    if (_diagnostic(link, BF_START)) mLOG(GBA_SIO, INFO,
++        "BF start p=%u f=%u n=%u guest-word=%04X sent=0 cnt=%04X",
++        link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_START],
++        link->localWord, link->d.p->siocnt);
++    return true;
++  }
+   /* Both players submit their local word. The generic SIO path schedules
+    * a completion for the secondary as well, allowing a reply packet. */
+   uint16_t localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+@@ -205,7 +211,7 @@
+     case 2: gba->memory.io[GBA_REG(SIOMULTI2)] = link->remoteWord; break;
+     case 3: gba->memory.io[GBA_REG(SIOMULTI3)] = link->remoteWord; break;
+     }
+-    uint16_t localWord = gba->memory.io[GBA_REG(SIOMLT_SEND)];
++    uint16_t localWord = link->localWord;
+     /* GBA_REG() converts byte addresses to 16-bit array indices. Add the
+      * player index after conversion or player 1 aliases SIOMULTI0. */
+     gba->memory.io[GBA_REG(SIOMULTI0) + link->playerId] = localWord;
+@@ -220,12 +226,10 @@
+     };
+     reply.checksum = htons(_checksum(&reply));
+     ssize_t sent = SocketSend(link->socket, &reply, sizeof(reply));
+-    sio->siocnt = GBASIOMultiplayerClearBusy(sio->siocnt);
+     if (_diagnostic(link, BF_POLL)) mLOG(GBA_SIO, INFO,
+         "BF poll p=%u f=%u n=%u peer=%u seq=%u word=%04X reply=%04X sent=%d cnt=%04X irq=%u",
+         link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_POLL],
+         peer, sequence, link->remoteWord, localWord, (int) sent, sio->siocnt,
+         (unsigned) GBASIOMultiplayerIsIrq(sio->siocnt));
+-    if (GBASIOMultiplayerIsIrq(sio->siocnt)) GBARaiseIRQ(gba, GBA_IRQ_SIO, 0);
+   }
+ }
