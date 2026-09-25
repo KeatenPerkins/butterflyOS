@@ -28,7 +28,7 @@
 +#endif
 --- /dev/null
 +++ b/src/gba/sio/butterfly.c
-@@ -0,0 +1,84 @@
+@@ -0,0 +1,101 @@
 +#include <mgba/internal/gba/sio/butterfly.h>
 +#include <mgba/internal/gba/gba.h>
 +#include <mgba/internal/gba/io.h>
@@ -46,6 +46,7 @@
 +static bool _init(struct GBASIODriver*);
 +static void _deinit(struct GBASIODriver*);
 +static void _reset(struct GBASIODriver*);
++static void _setMode(struct GBASIODriver*, enum GBASIOMode);
 +static bool _handles(struct GBASIODriver*, enum GBASIOMode);
 +static int _devices(struct GBASIODriver*);
 +static int _id(struct GBASIODriver*);
@@ -59,6 +60,7 @@
 +  memset(link, 0, sizeof(*link)); link->socket = INVALID_SOCKET;
 +  link->playerId = playerId & 3; link->d.init = _init;
 +  link->d.deinit = _deinit; link->d.reset = _reset;
++  link->d.setMode = _setMode;
 +  link->d.handlesMode = _handles; link->d.connectedDevices = _devices;
 +  link->d.deviceId = _id; link->d.start = _start;
 +  link->d.finishMultiplayer = _finish;
@@ -75,13 +77,28 @@
 +  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
 +  link->transferPending = false; link->rxSize = 0; link->haveRemoteSequence = false;
 +}
++static void _applyLinkState(struct GBASIOButterfly* link) {
++  if (!link->connected || !link->d.p || link->d.p->mode != GBA_SIO_MULTI) return;
++  struct GBASIO* sio = link->d.p;
++  sio->siocnt = GBASIOMultiplayerSetId(sio->siocnt, link->playerId);
++  sio->siocnt = GBASIOMultiplayerSetSlave(sio->siocnt, link->playerId != 0);
++  sio->siocnt = GBASIOMultiplayerSetReady(sio->siocnt, true);
++  sio->rcnt = GBASIORegisterRCNTSetSd(sio->rcnt, true);
++}
++static void _setMode(struct GBASIODriver* driver, enum GBASIOMode mode) {
++  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
++  if (mode == GBA_SIO_MULTI) _applyLinkState(link);
++}
 +static bool _handles(struct GBASIODriver* driver, enum GBASIOMode mode) { UNUSED(driver); return mode == GBA_SIO_MULTI; }
 +static int _devices(struct GBASIODriver* driver) { return ((struct GBASIOButterfly*) driver)->connected ? 1 : 0; }
 +static int _id(struct GBASIODriver* driver) { return (int) ((struct GBASIOButterfly*) driver)->playerId; }
 +static bool _start(struct GBASIODriver* driver) {
 +  struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
-+  if (!link->connected) return true;
-+  struct BFPacket packet = { htonl(BF_MAGIC), htons(BF_VERSION), htons((uint16_t) link->playerId), htonl(link->sequence++), htons(link->d.p->p->memory.io[GBA_REG(SIOMULTI0)]), 0 };
++  if (!link->connected || !link->d.p) return false;
++  /* Both players submit their local word. The generic SIO path schedules
++   * a completion for the secondary as well, allowing a reply packet. */
++  uint16_t localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
++  struct BFPacket packet = { htonl(BF_MAGIC), htons(BF_VERSION), htons((uint16_t) link->playerId), htonl(link->sequence++), htons(localWord), 0 };
 +  packet.checksum = htons(_checksum(&packet));
 +  link->localWord = ntohs(packet.word);
 +  link->transferPending = SocketSend(link->socket, &packet, sizeof(packet)) == sizeof(packet);

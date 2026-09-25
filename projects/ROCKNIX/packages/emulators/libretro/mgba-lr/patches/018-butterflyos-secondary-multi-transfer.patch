@@ -1,0 +1,13 @@
+--- a/src/gba/sio.c
++++ b/src/gba/sio.c
+@@ -202,7 +202,9 @@
+				sio->rcnt = GBASIORegisterRCNTClearSc(sio->rcnt);
+				_startTransfer(sio);
+			} else {
+-				// TODO
++				/* A network-backed driver may need to submit this player's
++				 * SIOMLT_SEND word as the reply to the master transfer. */
++				_startTransfer(sio);
+			}
+		}
+		break;
