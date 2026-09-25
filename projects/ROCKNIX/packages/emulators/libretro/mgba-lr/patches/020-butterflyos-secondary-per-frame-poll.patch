@@ -1,0 +1,67 @@
+--- a/include/mgba/internal/gba/sio/butterfly.h
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -22,4 +22,5 @@
+ void GBASIOButterflyCreate(struct GBASIOButterfly*, unsigned playerId);
+ void GBASIOButterflyDestroy(struct GBASIOButterfly*);
+ bool GBASIOButterflyAttachSocket(struct GBASIOButterfly*, Socket);
++void GBASIOButterflyPollFrame(struct GBASIOButterfly*);
+ CXX_GUARD_END
+ #endif
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -100,2 +100,45 @@
+   link->transferPending = false;
+ }
++void GBASIOButterflyPollFrame(struct GBASIOButterfly* link) {
++  if (!link || !link->connected || !link->d.p || link->d.p->mode != GBA_SIO_MULTI) return;
++  struct GBASIO* sio = link->d.p;
++  struct GBA* gba = sio->p;
++  while (link->rxSize < sizeof(struct BFPacket)) {
++    ssize_t got = SocketRecv(link->socket, link->rxBuffer + link->rxSize,
++        sizeof(link->rxBuffer) - link->rxSize);
++    if (got <= 0) break;
++    link->rxSize += (unsigned) got;
++  }
++  while (link->rxSize >= sizeof(struct BFPacket)) {
++    struct BFPacket packet;
++    memcpy(&packet, link->rxBuffer, sizeof(packet));
++    memmove(link->rxBuffer, link->rxBuffer + sizeof(packet),
++        link->rxSize - sizeof(packet));
++    link->rxSize -= sizeof(packet);
++    uint32_t sequence = ntohl(packet.sequence);
++    bool fresh = !link->haveRemoteSequence ||
++        (int32_t) (sequence - link->remoteSequence) > 0;
++    if (ntohl(packet.magic) != BF_MAGIC || ntohs(packet.version) != BF_VERSION ||
++        ntohs(packet.checksum) != _checksum(&packet) || !fresh) continue;
++    unsigned peer = ntohs(packet.player) & 3;
++    if (peer == link->playerId) continue;
++    link->remoteSequence = sequence;
++    link->haveRemoteSequence = true;
++    switch (peer) {
++    case 0: gba->memory.io[GBA_REG(SIOMULTI0)] = ntohs(packet.word); break;
++    case 1: gba->memory.io[GBA_REG(SIOMULTI1)] = ntohs(packet.word); break;
++    case 2: gba->memory.io[GBA_REG(SIOMULTI2)] = ntohs(packet.word); break;
++    case 3: gba->memory.io[GBA_REG(SIOMULTI3)] = ntohs(packet.word); break;
++    }
++    uint16_t localWord = gba->memory.io[GBA_REG(SIOMLT_SEND)];
++    gba->memory.io[GBA_REG(SIOMULTI0 + link->playerId)] = localWord;
++    struct BFPacket reply = {
++      htonl(BF_MAGIC), htons(BF_VERSION), htons((uint16_t) link->playerId),
++      htonl(link->sequence++), htons(localWord), 0
++    };
++    reply.checksum = htons(_checksum(&reply));
++    SocketSend(link->socket, &reply, sizeof(reply));
++    sio->siocnt = GBASIOMultiplayerClearBusy(sio->siocnt);
++    if (GBASIOMultiplayerIsIrq(sio->siocnt)) GBARaiseIRQ(gba, GBA_IRQ_SIO, 0);
++  }
++}
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1899,4 +1899,7 @@
+ 	} else {
+ 		core->runFrame(core);
++		if (butterflySingleLinkMode) {
++			GBASIOButterflyPollFrame(&butterflySingleLink);
++		}
+ 	}
+ 	struct mCore* outputCore = linkMode && linkPlayer == 2 ? linkCore : core;
