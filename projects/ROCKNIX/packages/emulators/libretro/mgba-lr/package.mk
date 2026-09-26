@@ -32,6 +32,9 @@ PKG_USE_CMAKE="no"
 
 make_target() {
   cd ${PKG_BUILD}
+  # A partially rebuilt core can otherwise link with unresolved internal
+  # symbols and crash only when RetroArch first calls them on the device.
+  export LDFLAGS="${LDFLAGS} -Wl,--no-undefined"
   case ${ARCH} in
     arm)
       make -f Makefile.libretro platform=unix-armv HAVE_NEON=1

@@ -1,0 +1,4 @@
+--- a/libretro-build/Makefile.common
++++ b/libretro-build/Makefile.common
+@@ -134,0 +135 @@
++					$(CORE_DIR)/src/util/patch-fast.c \

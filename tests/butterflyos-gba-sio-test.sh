@@ -14,5 +14,11 @@ cc -std=c99 -D_GNU_SOURCE -DMINIMAL_CORE=2 -DM_CORE_GBA -DM_CORE_GB \
     "$mgba_source/src/gba/sio.c" "$mgba_source/src/core/timing.c" \
     -o "$test_build/sio-test"
 printf 'Test executable: %s\n' "$test_build/sio-test"
+if [ "${3:-}" ]; then
+    "$test_build/sio-test" "$3"
+    exit
+fi
 "$test_build/sio-test"
 "$test_build/sio-test" master-delay
+"$test_build/sio-test" payload
+"$test_build/sio-test" subframe
