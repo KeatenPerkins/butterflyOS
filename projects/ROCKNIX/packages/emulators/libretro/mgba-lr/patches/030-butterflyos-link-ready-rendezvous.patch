@@ -1,0 +1,77 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -5,8 +5,9 @@
+ #include <stdlib.h>
+ #include <arpa/inet.h>
+ #define BF_MAGIC 0x42464C4Bu
+-#define BF_VERSION 3u /* Guest replies echo the master's transfer sequence. */
++#define BF_VERSION 4u /* Same-sequence packets carry ready-state updates. */
+ #define BF_POLL_CYCLES 1024 /* About 61 microseconds at the GBA clock. */
++#define BF_READY_WORD 0x8FFFu
+ enum BFDiagnostic { BF_STATE, BF_MODE, BF_START, BF_FINISH, BF_POLL, BF_IDLE };
+ /* First 64 events per category, then every 256th; at most 512 lines per
+  * category per process. No socket waits or transfer scheduling changes. */
+@@ -162,3 +162,7 @@
+   _flush(link);
+ }
++/* Do not complete the ready transition until both endpoints have observed it. */
++static bool _needsReadyRendezvous(uint16_t localWord, uint16_t remoteWord) {
++  return (localWord == BF_READY_WORD) != (remoteWord == BF_READY_WORD);
++}
+ static bool _start(struct GBASIODriver* driver) {
+@@ -260,6 +264,21 @@
+     if (link->transferPending && link->d.p->mode == GBA_SIO_MULTI) _complete(link);
+     return;
+   }
++  /* A guest may reach the ready word after its initial reply. Send the
++   * changed value on the same sequence instead of waiting for a new master
++   * transfer. */
++  if (link->playerId != 0 && link->transferPending && !link->txSize &&
++      link->d.p->mode == GBA_SIO_MULTI) {
++    uint16_t currentWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
++    if (currentWord != link->localWord) {
++      link->localWord = currentWord;
++      _queue(link, link->pendingSequence, link->localWord);
++      if (!_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++        _complete(link);
++        return;
++      }
++    }
++  }
+   /* A queued reply must finish before another request can use the buffer.
+    * Limit work per poll, and preserve partial reads without busy waiting. */
+   for (unsigned budget = 0; budget < 8 && !link->txSize; ++budget) {
+@@ -288,17 +307,30 @@
+     if (link->playerId == 0) {
+       if (!link->transferPending || sequence != link->pendingSequence) continue;
+     } else {
+-      if (link->haveRemoteSequence && (int32_t) (sequence - link->remoteSequence) <= 0) continue;
++      if (link->haveRemoteSequence && sequence == link->remoteSequence && !link->transferPending) continue;
++      if (link->haveRemoteSequence && (int32_t) (sequence - link->remoteSequence) < 0) continue;
++      if (!link->haveRemoteSequence || sequence != link->remoteSequence) {
++        link->pendingSequence = sequence;
++        link->transferPending = true;
++      }
+       link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+     }
++    uint16_t previousRemoteWord = link->remoteWord;
+     link->remoteWord = ntohs(packet.word);
+     link->remoteSequence = sequence;
+     link->haveRemoteSequence = true;
+-    if (link->playerId != 0) _queue(link, sequence, link->localWord);
++    if (link->playerId != 0 &&
++        (!link->transferPending || previousRemoteWord != link->remoteWord ||
++         link->localWord != link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)])) {
++      link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
++      _queue(link, sequence, link->localWord);
++    }
+     if (_diagnostic(link, BF_POLL)) mLOG(GBA_SIO, INFO,
+         "BF poll p=%u f=%u n=%u peer=%u seq=%u word=%04X local=%04X reply=%u",
+         link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_POLL],
+         peer, sequence, link->remoteWord, link->localWord, (unsigned) (link->playerId != 0));
+-    _complete(link);
++    if (!_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++      _complete(link);
++    }
+   }
+ }

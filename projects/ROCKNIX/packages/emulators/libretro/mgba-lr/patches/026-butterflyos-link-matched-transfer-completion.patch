@@ -59,8 +59,8 @@
 +/* Keep incomplete writes queued: TCP may accept fewer than 16 bytes. */
 +static bool _flush(struct GBASIOButterfly* link) {
 +  while (link->connected && link->txOffset < link->txSize) {
-+    ssize_t sent = send(link->socket, link->txBuffer + link->txOffset,
-+        link->txSize - link->txOffset, MSG_NOSIGNAL);
++    ssize_t sent = SocketSend(link->socket, link->txBuffer + link->txOffset,
++        link->txSize - link->txOffset);
 +    if (sent < 0 && errno == EINTR) continue;
 +    if (sent < 0 && SocketWouldBlock()) return false;
 +    if (sent <= 0) { _close(link); return false; }
