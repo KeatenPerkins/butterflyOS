@@ -1,0 +1,46 @@
+--- a/include/mgba/internal/gba/sio/butterfly.h
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -30,6 +30,10 @@
+   uint32_t diagnosticCalls[6];
+   unsigned diagnosticLines[6];
+   unsigned diagnosticBurst[6];
++  bool diagnosticWordValid;
++  uint16_t diagnosticLastLocalWord;
++  uint16_t diagnosticLastRemoteWord;
++  unsigned diagnosticWordLines;
+ };
+ void GBASIOButterflyCreate(struct GBASIOButterfly*, unsigned playerId);
+ void GBASIOButterflyDestroy(struct GBASIOButterfly*);
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -19,6 +19,21 @@
+   ++link->diagnosticLines[event];
+   return true;
+ }
++static void _diagnosticWords(struct GBASIOButterfly* link, uint32_t sequence,
++    uint16_t localWord, uint16_t remoteWord) {
++  if (!link->diagnostics || link->diagnosticWordLines >= 256) return;
++  if (link->diagnosticWordValid &&
++      link->diagnosticLastLocalWord == localWord &&
++      link->diagnosticLastRemoteWord == remoteWord) return;
++  link->diagnosticWordValid = true;
++  link->diagnosticLastLocalWord = localWord;
++  link->diagnosticLastRemoteWord = remoteWord;
++  ++link->diagnosticWordLines;
++  mLOG(GBA_SIO, INFO,
++      "BF word-change p=%u f=%u n=%u mode=%d seq=%u local=%04X remote=%04X",
++      link->playerId, link->diagnosticFrame, link->diagnosticWordLines,
++      link->d.p ? link->d.p->mode : -1, sequence, localWord, remoteWord);
++}
+ struct BFPacket { uint32_t magic; uint16_t version; uint16_t player; uint32_t sequence; uint16_t word; uint16_t checksum; };
+ static uint16_t _checksum(const struct BFPacket* packet) {
+   const uint8_t* bytes = (const uint8_t*) packet;
+@@ -195,6 +210,8 @@
+ static void _complete(struct GBASIOButterfly* link) {
+   uint16_t data[4];
+   _finish(&link->d, data);
++  _diagnosticWords(link, link->remoteSequence, data[link->playerId],
++      data[link->playerId == 0 ? 1 : 0]);
+   /* Use mGBA's helper for registers, busy, cable clock and the single IRQ. */
+   GBASIOMultiplayerFinishTransfer(link->d.p, data, 0);
+ }
