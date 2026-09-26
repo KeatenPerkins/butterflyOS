@@ -1,0 +1,308 @@
+--- a/include/mgba/internal/gba/sio/butterfly.h
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -11,6 +11,11 @@
+   uint16_t remoteWord;
+   uint32_t sequence;
+   uint32_t remoteSequence;
++  uint32_t pendingSequence;
++  unsigned pendingFrames;
++  uint8_t txBuffer[16];
++  unsigned txSize;
++  unsigned txOffset;
+   uint8_t rxBuffer[32];
+   unsigned rxSize;
+   unsigned playerId;
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -5,7 +5,7 @@
+ #include <stdlib.h>
+ #include <arpa/inet.h>
+ #define BF_MAGIC 0x42464C4Bu
+-#define BF_VERSION 2u
++#define BF_VERSION 3u /* Guest replies echo the master's transfer sequence. */
+ enum BFDiagnostic { BF_STATE, BF_MODE, BF_START, BF_FINISH, BF_POLL, BF_IDLE };
+ /* First 64 events per category, then every 256th; at most 512 lines per
+  * category per process. No socket waits or transfer scheduling changes. */
+@@ -33,9 +33,12 @@
+ static int _id(struct GBASIODriver*);
+ static bool _start(struct GBASIODriver*);
+ static void _finish(struct GBASIODriver*, uint16_t[4]);
++static bool _flush(struct GBASIOButterfly*);
++static void _complete(struct GBASIOButterfly*);
+ static void _close(struct GBASIOButterfly* link) {
+   if (!SOCKET_FAILED(link->socket)) SocketClose(link->socket);
+   link->socket = INVALID_SOCKET; link->connected = false;
++  link->txSize = link->txOffset = 0;
+ }
+ void GBASIOButterflyCreate(struct GBASIOButterfly* link, unsigned playerId) {
+   memset(link, 0, sizeof(*link)); link->socket = INVALID_SOCKET;
+@@ -66,7 +69,9 @@
+ }
+ static void _reset(struct GBASIODriver* driver) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
+-  link->transferPending = false; link->rxSize = 0; link->haveRemoteSequence = false;
++  link->transferPending = false; link->haveRemoteSequence = false;
++  link->pendingFrames = 0;
++  /* Keep the sequence and a partially sent frame intact across game reset. */
+ }
+ static void _applyLinkState(struct GBASIOButterfly* link) {
+   if (!link->connected || !link->d.p || link->d.p->mode != GBA_SIO_MULTI) return;
+@@ -88,76 +93,72 @@
+       link->playerId, link->diagnosticFrame, mode, link->d.p ? link->d.p->mode : -1,
+       (unsigned) link->connected);
+   if (mode == GBA_SIO_MULTI) _applyLinkState(link);
++  else link->transferPending = false;
+ }
+ static bool _handles(struct GBASIODriver* driver, enum GBASIOMode mode) { UNUSED(driver); return mode == GBA_SIO_MULTI; }
+ static int _devices(struct GBASIODriver* driver) { return ((struct GBASIOButterfly*) driver)->connected ? 1 : 0; }
+ static int _id(struct GBASIODriver* driver) { return (int) ((struct GBASIOButterfly*) driver)->playerId; }
++/* Keep incomplete writes queued: TCP may accept fewer than 16 bytes. */
++static bool _flush(struct GBASIOButterfly* link) {
++  while (link->connected && link->txOffset < link->txSize) {
++    ssize_t sent = send(link->socket, link->txBuffer + link->txOffset,
++        link->txSize - link->txOffset, MSG_NOSIGNAL);
++    if (sent < 0 && errno == EINTR) continue;
++    if (sent < 0 && SocketWouldBlock()) return false;
++    if (sent <= 0) { _close(link); return false; }
++    link->txOffset += (unsigned) sent;
++  }
++  link->txOffset = link->txSize = 0;
++  return link->connected;
++}
++static void _queue(struct GBASIOButterfly* link, uint32_t sequence, uint16_t word) {
++  struct BFPacket packet = { htonl(BF_MAGIC), htons(BF_VERSION),
++      htons((uint16_t) link->playerId), htonl(sequence), htons(word), 0 };
++  packet.checksum = htons(_checksum(&packet));
++  memcpy(link->txBuffer, &packet, sizeof(packet));
++  link->txSize = sizeof(packet);
++  link->txOffset = 0;
++  _flush(link);
++}
+ static bool _start(struct GBASIODriver* driver) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
+-  if (!link->connected || !link->d.p) return false;
+-  /* The driver callback is invoked for every SIO mode. Let mGBA's generic
+-   * normal-serial path complete normally; Butterfly packets only exist for
+-   * multiplayer link transfers. */
+-  if (link->d.p->mode != GBA_SIO_MULTI) return true;
+-  if (link->playerId != 0) {
+-    /* The guest does not put a packet on the wire, but it still participates
+-     * in mGBA's normal completion event. Capture the word for its one reply. */
+-    link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+-    if (_diagnostic(link, BF_START)) mLOG(GBA_SIO, INFO,
+-        "BF start p=%u f=%u n=%u guest-word=%04X sent=0 cnt=%04X",
+-        link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_START],
+-        link->localWord, link->d.p->siocnt);
++  if (!link->d.p || link->d.p->mode != GBA_SIO_MULTI) return true;
++  if (!link->connected) return true;
++  /* Only the master starts a cable transfer. Emerald need not write start
++   * at all on the guest; its send register is sampled on request arrival. */
++  if (link->playerId != 0 || link->transferPending) return false;
++  link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
++  link->pendingSequence = link->sequence++;
++  link->pendingFrames = 0;
++  link->transferPending = true;
++  link->haveRemoteSequence = false;
++  /* An abandoned request must finish sending before a new frame is queued.
++   * On congestion, fail this connection rather than corrupt the stream. */
++  if (link->txSize && !_flush(link)) {
++    _close(link);
++    link->transferPending = false;
+     return true;
+   }
+-  /* Both players submit their local word. The generic SIO path schedules
+-   * a completion for the secondary as well, allowing a reply packet. */
+-  uint16_t localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+-  struct BFPacket packet = { htonl(BF_MAGIC), htons(BF_VERSION), htons((uint16_t) link->playerId), htonl(link->sequence++), htons(localWord), 0 };
+-  packet.checksum = htons(_checksum(&packet));
+-  link->localWord = ntohs(packet.word);
+-  link->transferPending = SocketSend(link->socket, &packet, sizeof(packet)) == sizeof(packet);
++  _queue(link, link->pendingSequence, link->localWord);
+   if (_diagnostic(link, BF_START)) mLOG(GBA_SIO, INFO,
+-      "BF start p=%u f=%u n=%u seq=%u word=%04X sent=%u cnt=%04X",
++      "BF start p=%u f=%u n=%u seq=%u word=%04X queued=%u",
+       link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_START],
+-      ntohl(packet.sequence), localWord, (unsigned) link->transferPending, link->d.p->siocnt);
+-  return true;
++      link->pendingSequence, link->localWord, (unsigned) link->connected);
++  if (!link->connected) {
++    link->transferPending = false;
++    return true;
++  }
++  /* No generic timer: its sub-millisecond deadline precedes the network
++   * reply. PollFrame completes only this transfer's echoed sequence. */
++  return false;
+ }
+ static void _finish(struct GBASIODriver* driver, uint16_t data[4]) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
+-  /* Disconnected GBA link endpoints read high. mGBA's normal lockstep
+-   * driver follows this convention; zero is a valid link word. */
+   for (unsigned i = 0; i < 4; ++i) data[i] = 0xFFFF;
+   data[link->playerId] = link->localWord;
+-  /* Network replies arrive after the emulated SIO completion event. Keep
+-   * the last valid peer word so the master does not report 0xFFFF while
+-   * waiting for the next packet. */
+-  if (link->haveRemoteSequence) {
++  if (link->connected && link->haveRemoteSequence) {
+     data[link->playerId == 0 ? 1 : 0] = link->remoteWord;
+   }
+-  /* Drain peer packets even when this side has not initiated a transfer. */
+-  if (link->connected) {
+-    while (link->rxSize < sizeof(struct BFPacket)) {
+-      ssize_t got = SocketRecv(link->socket, link->rxBuffer + link->rxSize, sizeof(link->rxBuffer) - link->rxSize);
+-      if (got <= 0) break;
+-      link->rxSize += (unsigned) got;
+-    }
+-    while (link->rxSize >= sizeof(struct BFPacket)) {
+-      struct BFPacket packet;
+-      memcpy(&packet, link->rxBuffer, sizeof(packet));
+-      memmove(link->rxBuffer, link->rxBuffer + sizeof(packet), link->rxSize - sizeof(packet));
+-      link->rxSize -= sizeof(packet);
+-      uint32_t sequence = ntohl(packet.sequence);
+-      bool fresh = !link->haveRemoteSequence || (int32_t) (sequence - link->remoteSequence) > 0;
+-      if (ntohl(packet.magic) == BF_MAGIC && ntohs(packet.version) == BF_VERSION && ntohs(packet.checksum) == _checksum(&packet) && fresh) {
+-        unsigned peer = ntohs(packet.player) & 3;
+-        if (peer != link->playerId) {
+-          link->remoteWord = ntohs(packet.word);
+-          data[peer] = link->remoteWord;
+-        }
+-        link->remoteSequence = sequence; link->haveRemoteSequence = true;
+-      }
+-    }
+-  }
+   link->transferPending = false;
+   if (_diagnostic(link, BF_FINISH)) mLOG(GBA_SIO, INFO,
+       "BF finish p=%u f=%u n=%u data=%04X,%04X,%04X,%04X remote=%04X have=%u seq=%u",
+@@ -165,71 +166,80 @@
+       data[0], data[1], data[2], data[3], link->remoteWord,
+       (unsigned) link->haveRemoteSequence, link->remoteSequence);
+ }
++static void _complete(struct GBASIOButterfly* link) {
++  uint16_t data[4];
++  _finish(&link->d, data);
++  /* Use mGBA's helper for registers, busy, cable clock and the single IRQ. */
++  GBASIOMultiplayerFinishTransfer(link->d.p, data, 0);
++}
+ void GBASIOButterflyPollFrame(struct GBASIOButterfly* link) {
+-  if (link && link->diagnostics) {
++  if (!link) return;
++  if (link->diagnostics) {
+     ++link->diagnosticFrame;
+     if (link->diagnosticFrame == 1) mLOG(GBA_SIO, INFO,
+-        "BF diag022 enabled p=%u first=64 stride=256 cap=512/category", link->playerId);
++        "BF diag026 enabled p=%u protocol=%u first=64 stride=256 cap=512/category",
++        link->playerId, BF_VERSION);
+     if (link->diagnosticFrame % 300 == 0 && _diagnostic(link, BF_IDLE)) mLOG(GBA_SIO, INFO,
+-        "BF idle p=%u f=%u mode=%d cnt=%04X connected=%u rx=%u seq=%u remote=%04X",
++        "BF idle p=%u f=%u mode=%d cnt=%04X connected=%u rx=%u seq=%u remote=%04X pending=%u age=%u",
+         link->playerId, link->diagnosticFrame, link->d.p ? link->d.p->mode : -1,
+         link->d.p ? link->d.p->siocnt : 0, (unsigned) link->connected,
+-        link->rxSize, link->remoteSequence, link->remoteWord);
++        link->rxSize, link->remoteSequence, link->remoteWord,
++        (unsigned) link->transferPending, link->pendingFrames);
+   }
+-  if (!link || !link->connected || !link->d.p || link->d.p->mode != GBA_SIO_MULTI) return;
+-  struct GBASIO* sio = link->d.p;
+-  struct GBA* gba = sio->p;
+-  while (link->rxSize < sizeof(struct BFPacket)) {
+-    ssize_t got = SocketRecv(link->socket, link->rxBuffer + link->rxSize,
+-        sizeof(link->rxBuffer) - link->rxSize);
+-    if (got <= 0) break;
+-    link->rxSize += (unsigned) got;
+-  }
+-  while (link->rxSize >= sizeof(struct BFPacket)) {
++  if (!link->d.p) return;
++  if (link->connected && link->txSize) _flush(link);
++  if (link->connected && link->transferPending && ++link->pendingFrames >= 300) {
++    if (_diagnostic(link, BF_STATE)) mLOG(GBA_SIO, WARN,
++        "BF transfer timeout p=%u seq=%u", link->playerId, link->pendingSequence);
++    /* The other game may still be loading or entering the club. Complete
++     * as absent for this request, but leave the session usable for retry. */
++    link->haveRemoteSequence = false;
++    if (link->d.p->mode == GBA_SIO_MULTI) _complete(link);
++    else link->transferPending = false;
++  }
++  if (!link->connected) {
++    if (link->transferPending && link->d.p->mode == GBA_SIO_MULTI) _complete(link);
++    return;
++  }
++  /* A queued reply must finish before another request can use the buffer.
++   * Limit work per frame, and preserve partial reads without busy waiting. */
++  for (unsigned budget = 0; budget < 8 && !link->txSize; ++budget) {
+     struct BFPacket packet;
++    while (link->rxSize < sizeof(packet)) {
++      ssize_t got = SocketRecv(link->socket, link->rxBuffer + link->rxSize,
++          sizeof(packet) - link->rxSize);
++      if (got < 0 && errno == EINTR) continue;
++      if (got < 0 && SocketWouldBlock()) return;
++      if (got <= 0) {
++        _close(link);
++        if (link->transferPending && link->d.p->mode == GBA_SIO_MULTI) _complete(link);
++        return;
++      }
++      link->rxSize += (unsigned) got;
++    }
+     memcpy(&packet, link->rxBuffer, sizeof(packet));
+-    memmove(link->rxBuffer, link->rxBuffer + sizeof(packet),
+-        link->rxSize - sizeof(packet));
+-    link->rxSize -= sizeof(packet);
++    link->rxSize = 0;
++    unsigned peer = ntohs(packet.player);
+     uint32_t sequence = ntohl(packet.sequence);
+-    bool fresh = !link->haveRemoteSequence ||
+-        (int32_t) (sequence - link->remoteSequence) > 0;
+     if (ntohl(packet.magic) != BF_MAGIC || ntohs(packet.version) != BF_VERSION ||
+-        ntohs(packet.checksum) != _checksum(&packet) || !fresh) continue;
+-    unsigned peer = ntohs(packet.player) & 3;
+-    if (peer == link->playerId) continue;
+-    link->remoteSequence = sequence;
+-    link->haveRemoteSequence = true;
+-    link->remoteWord = ntohs(packet.word);
++        ntohs(packet.checksum) != _checksum(&packet) ||
++        peer != (link->playerId == 0 ? 1u : 0u) ||
++        link->d.p->mode != GBA_SIO_MULTI) continue;
+-
++
+-    /* The master only consumes guest replies here. The guest owns the
+-     * register writes, reply, and completion signal below. */
+-    if (link->playerId == 0) continue;
+-    switch (peer) {
+-    case 0: gba->memory.io[GBA_REG(SIOMULTI0)] = link->remoteWord; break;
+-    case 1: gba->memory.io[GBA_REG(SIOMULTI1)] = link->remoteWord; break;
+-    case 2: gba->memory.io[GBA_REG(SIOMULTI2)] = link->remoteWord; break;
+-    case 3: gba->memory.io[GBA_REG(SIOMULTI3)] = link->remoteWord; break;
+-    }
+-    uint16_t localWord = link->localWord;
+-    /* GBA_REG() converts byte addresses to 16-bit array indices. Add the
+-     * player index after conversion or player 1 aliases SIOMULTI0. */
+-    gba->memory.io[GBA_REG(SIOMULTI0) + link->playerId] = localWord;
+-    for (unsigned slot = 0; slot < 4; ++slot) {
+-      if (slot != peer && slot != link->playerId) {
+-        gba->memory.io[GBA_REG(SIOMULTI0) + slot] = 0xFFFF;
+-      }
++    if (link->playerId == 0) {
++      if (!link->transferPending || sequence != link->pendingSequence) continue;
++    } else {
++      if (link->haveRemoteSequence && (int32_t) (sequence - link->remoteSequence) <= 0) continue;
++      link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+     }
+-    struct BFPacket reply = {
+-      htonl(BF_MAGIC), htons(BF_VERSION), htons((uint16_t) link->playerId),
+-      htonl(link->sequence++), htons(localWord), 0
+-    };
+-    reply.checksum = htons(_checksum(&reply));
+-    ssize_t sent = SocketSend(link->socket, &reply, sizeof(reply));
++    link->remoteWord = ntohs(packet.word);
++    link->remoteSequence = sequence;
++    link->haveRemoteSequence = true;
++    if (link->playerId != 0) _queue(link, sequence, link->localWord);
+     if (_diagnostic(link, BF_POLL)) mLOG(GBA_SIO, INFO,
+-        "BF poll p=%u f=%u n=%u peer=%u seq=%u word=%04X reply=%04X sent=%d cnt=%04X irq=%u",
++        "BF poll p=%u f=%u n=%u peer=%u seq=%u word=%04X local=%04X reply=%u",
+         link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_POLL],
+-        peer, sequence, link->remoteWord, localWord, (int) sent, sio->siocnt,
+-        (unsigned) GBASIOMultiplayerIsIrq(sio->siocnt));
++        peer, sequence, link->remoteWord, link->localWord, (unsigned) (link->playerId != 0));
++    _complete(link);
+   }
+ }
