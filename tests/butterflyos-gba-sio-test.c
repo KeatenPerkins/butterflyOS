@@ -151,7 +151,37 @@ static void edgeCases(void) {
 int main(int argc, char** argv) {
     setup();
     start(0xB9A0, 0xB9A0);
-    if (argc > 1 && strcmp(argv[1], "master-delay") == 0) {
+    if (argc > 1 && strcmp(argv[1], "payload") == 0) {
+        GBASIOButterflyPollFrame(&links[1]);
+        assert(irqs[1] == 1);
+        /* Simulate the guest's IRQ handler preparing the NEXT word. Both
+         * endpoints must still report the same snapshot for this transfer. */
+        boards[1].memory.io[GBA_REG(SIOMLT_SEND)] = 0x7777;
+        GBASIOButterflyPollFrame(&links[1]);
+        GBASIOButterflyPollFrame(&links[0]);
+        assert(irqs[0] == 1);
+        checkWords(0, 0xB9A0, 0xB9A0);
+        checkWords(1, 0xB9A0, 0xB9A0);
+        puts("PASS: later send-register writes cannot change a completed transfer");
+    } else if (argc > 1 && strcmp(argv[1], "subframe") == 0) {
+        /* Nine transfers fit in less than one 280896-cycle video frame.
+         * Never call PollFrame: exercise the real emulated event scheduler. */
+        for (unsigned i = 0; i < 9; ++i) {
+            if (i) start(0x1000 + i, 0x2000 + i);
+            mTimingTick(&boards[1].timing, 2048);
+            mTimingTick(&boards[0].timing, 2048);
+            assert(irqs[0] == i + 1 && irqs[1] == i + 1);
+            checkWords(0, i ? 0x1000 + i : 0xB9A0, i ? 0x2000 + i : 0xB9A0);
+            checkWords(1, i ? 0x1000 + i : 0xB9A0, i ? 0x2000 + i : 0xB9A0);
+        }
+        /* Leaving multiplayer must cancel its poll event. */
+        GBASIOWriteSIOCNT(&boards[0].sio, 0);
+        GBASIOWriteSIOCNT(&boards[1].sio, 0);
+        mTimingTick(&boards[0].timing, 100000);
+        mTimingTick(&boards[1].timing, 100000);
+        assert(irqs[0] == 9 && irqs[1] == 9);
+        puts("PASS: nine transfers complete within one emulated frame; mode switch is quiet");
+    } else if (argc > 1 && strcmp(argv[1], "master-delay") == 0) {
         /* Let the emulated cable duration elapse before delivering a reply. */
         mTimingTick(&boards[0].timing, 100000);
         assert(irqs[0] == 0);

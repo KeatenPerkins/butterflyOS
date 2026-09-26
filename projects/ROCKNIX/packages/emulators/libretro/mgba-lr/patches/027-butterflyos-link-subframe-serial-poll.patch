@@ -1,0 +1,171 @@
+--- a/include/mgba/internal/gba/sio/butterfly.h
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -3,6 +3,7 @@
+ #include <mgba-util/common.h>
+ #include <mgba-util/socket.h>
+ #include <mgba/gba/interface.h>
++#include <mgba/core/timing.h>
+ CXX_GUARD_START
+ struct GBASIOButterfly {
+   struct GBASIODriver d;
+@@ -22,11 +23,13 @@
+   bool connected;
+   bool haveRemoteSequence;
+   bool transferPending;
++  struct mTimingEvent pollEvent;
+   /* Optional diagnostics; budgets last for the lifetime of this driver. */
+   bool diagnostics;
+   uint32_t diagnosticFrame;
+   uint32_t diagnosticCalls[6];
+   unsigned diagnosticLines[6];
++  unsigned diagnosticBurst[6];
+ };
+ void GBASIOButterflyCreate(struct GBASIOButterfly*, unsigned playerId);
+ void GBASIOButterflyDestroy(struct GBASIOButterfly*);
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -6,6 +6,7 @@
+ #include <arpa/inet.h>
+ #define BF_MAGIC 0x42464C4Bu
+ #define BF_VERSION 3u /* Guest replies echo the master's transfer sequence. */
++#define BF_POLL_CYCLES 1024 /* About 61 microseconds at the GBA clock. */
+ enum BFDiagnostic { BF_STATE, BF_MODE, BF_START, BF_FINISH, BF_POLL, BF_IDLE };
+ /* First 64 events per category, then every 256th; at most 512 lines per
+  * category per process. No socket waits or transfer scheduling changes. */
+@@ -13,7 +14,8 @@
+   if (!link->diagnostics) return false;
+   uint32_t count = ++link->diagnosticCalls[event];
+   if (link->diagnosticLines[event] >= 512) return false;
+-  if (count > 64 && count % 256 != 0) return false;
++  if (link->diagnosticBurst[event]) --link->diagnosticBurst[event];
++  else if (count > 64 && count % 256 != 0) return false;
+   ++link->diagnosticLines[event];
+   return true;
+ }
+@@ -35,13 +37,26 @@
+ static void _finish(struct GBASIODriver*, uint16_t[4]);
+ static bool _flush(struct GBASIOButterfly*);
+ static void _complete(struct GBASIOButterfly*);
++static void _poll(struct GBASIOButterfly*);
++static void _pollEvent(struct mTiming*, void*, uint32_t);
++static void _armPoll(struct GBASIOButterfly* link) {
++  if (link->connected && link->d.p && link->d.p->mode == GBA_SIO_MULTI &&
++      !mTimingIsScheduled(&link->d.p->p->timing, &link->pollEvent)) {
++    mTimingSchedule(&link->d.p->p->timing, &link->pollEvent, BF_POLL_CYCLES);
++  }
++}
+ static void _close(struct GBASIOButterfly* link) {
++  if (link->d.p) mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
+   if (!SOCKET_FAILED(link->socket)) SocketClose(link->socket);
+   link->socket = INVALID_SOCKET; link->connected = false;
+   link->txSize = link->txOffset = 0;
+ }
+ void GBASIOButterflyCreate(struct GBASIOButterfly* link, unsigned playerId) {
+   memset(link, 0, sizeof(*link)); link->socket = INVALID_SOCKET;
++  link->pollEvent.context = link;
++  link->pollEvent.name = "Butterfly Link network poll";
++  link->pollEvent.callback = _pollEvent;
++  link->pollEvent.priority = 0x81;
+   const char* diagnostics = getenv("BUTTERFLY_LINK_DIAGNOSTICS");
+   link->diagnostics = diagnostics && strcmp(diagnostics, "1") == 0;
+   link->playerId = playerId & 3; link->d.init = _init;
+@@ -57,11 +72,14 @@
+   link->socket = socket; SocketSetBlocking(socket, false); link->connected = true;
+   return true;
+ }
+-static bool _init(struct GBASIODriver* driver) { UNUSED(driver); return true; }
++static bool _init(struct GBASIODriver* driver) {
++  _armPoll((struct GBASIOButterfly*) driver);
++  return true;
++}
+ static void _deinit(struct GBASIODriver* driver) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
+   if (link->diagnostics) mLOG(GBA_SIO, INFO,
+-      "BF diag022 end p=%u frame=%u state=%u mode=%u start=%u finish=%u poll=%u idle=%u",
++      "BF diag027 end p=%u frame=%u state=%u mode=%u start=%u finish=%u poll=%u idle=%u",
+       link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_STATE],
+       link->diagnosticCalls[BF_MODE], link->diagnosticCalls[BF_START],
+       link->diagnosticCalls[BF_FINISH], link->diagnosticCalls[BF_POLL], link->diagnosticCalls[BF_IDLE]);
+@@ -71,6 +89,7 @@
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
+   link->transferPending = false; link->haveRemoteSequence = false;
+   link->pendingFrames = 0;
++  if (link->d.p) mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
+   /* Keep the sequence and a partially sent frame intact across game reset. */
+ }
+ static void _applyLinkState(struct GBASIOButterfly* link) {
+@@ -88,12 +107,19 @@
+ }
+ static void _setMode(struct GBASIODriver* driver, enum GBASIOMode mode) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
++  /* Capture each room-entry transition without removing the total log cap. */
++  for (unsigned i = 0; i < 6; ++i) link->diagnosticBurst[i] = 64;
+   if (_diagnostic(link, BF_MODE)) mLOG(GBA_SIO, INFO,
+       "BF mode p=%u f=%u requested=%d current=%d connected=%u",
+       link->playerId, link->diagnosticFrame, mode, link->d.p ? link->d.p->mode : -1,
+       (unsigned) link->connected);
+-  if (mode == GBA_SIO_MULTI) _applyLinkState(link);
+-  else link->transferPending = false;
++  if (mode == GBA_SIO_MULTI) {
++    _applyLinkState(link);
++    _armPoll(link);
++  } else {
++    link->transferPending = false;
++    mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
++  }
+ }
+ static bool _handles(struct GBASIODriver* driver, enum GBASIOMode mode) { UNUSED(driver); return mode == GBA_SIO_MULTI; }
+ static int _devices(struct GBASIODriver* driver) { return ((struct GBASIOButterfly*) driver)->connected ? 1 : 0; }
+@@ -149,7 +175,7 @@
+     return true;
+   }
+   /* No generic timer: its sub-millisecond deadline precedes the network
+-   * reply. PollFrame completes only this transfer's echoed sequence. */
++   * reply. The poll event completes only this transfer's echoed sequence. */
+   return false;
+ }
+ static void _finish(struct GBASIODriver* driver, uint16_t data[4]) {
+@@ -177,7 +203,7 @@
+   if (link->diagnostics) {
+     ++link->diagnosticFrame;
+     if (link->diagnosticFrame == 1) mLOG(GBA_SIO, INFO,
+-        "BF diag026 enabled p=%u protocol=%u first=64 stride=256 cap=512/category",
++        "BF diag027 enabled p=%u protocol=%u first=64 stride=256 mode-burst=64 cap=512/category",
+         link->playerId, BF_VERSION);
+     if (link->diagnosticFrame % 300 == 0 && _diagnostic(link, BF_IDLE)) mLOG(GBA_SIO, INFO,
+         "BF idle p=%u f=%u mode=%d cnt=%04X connected=%u rx=%u seq=%u remote=%04X pending=%u age=%u",
+@@ -187,7 +213,6 @@
+         (unsigned) link->transferPending, link->pendingFrames);
+   }
+   if (!link->d.p) return;
+-  if (link->connected && link->txSize) _flush(link);
+   if (link->connected && link->transferPending && ++link->pendingFrames >= 300) {
+     if (_diagnostic(link, BF_STATE)) mLOG(GBA_SIO, WARN,
+         "BF transfer timeout p=%u seq=%u", link->playerId, link->pendingSequence);
+@@ -197,12 +222,25 @@
+     if (link->d.p->mode == GBA_SIO_MULTI) _complete(link);
+     else link->transferPending = false;
+   }
++  _poll(link);
++}
++static void _pollEvent(struct mTiming* timing, void* user, uint32_t cyclesLate) {
++  struct GBASIOButterfly* link = user;
++  _poll(link);
++  if (link->connected && link->d.p->mode == GBA_SIO_MULTI) {
++    /* Never block the emulator thread or spin to catch up missed polls. */
++    int32_t next = cyclesLate < BF_POLL_CYCLES ? BF_POLL_CYCLES - cyclesLate : 1;
++    mTimingSchedule(timing, &link->pollEvent, next);
++  }
++}
++static void _poll(struct GBASIOButterfly* link) {
++  if (link->connected && link->txSize) _flush(link);
+   if (!link->connected) {
+     if (link->transferPending && link->d.p->mode == GBA_SIO_MULTI) _complete(link);
+     return;
+   }
+   /* A queued reply must finish before another request can use the buffer.
+-   * Limit work per frame, and preserve partial reads without busy waiting. */
++   * Limit work per poll, and preserve partial reads without busy waiting. */
+   for (unsigned budget = 0; budget < 8 && !link->txSize; ++budget) {
+     struct BFPacket packet;
+     while (link->rxSize < sizeof(packet)) {
