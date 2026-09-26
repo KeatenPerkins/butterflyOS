@@ -76,7 +76,7 @@ struct WirePacket {
 };
 
 static struct WirePacket packet(unsigned player, uint32_t sequence, uint16_t word) {
-    struct WirePacket result = { htonl(0x42464C4B), htons(3), htons(player),
+    struct WirePacket result = { htonl(0x42464C4B), htons(4), htons(player),
         htonl(sequence), htons(word), 0 };
     uint16_t sum = 0;
     const uint8_t* bytes = (const uint8_t*) &result;
@@ -187,6 +187,21 @@ int main(int argc, char** argv) {
         assert(irqs[0] == 0);
         assert(GBASIOMultiplayerIsBusy(boards[0].sio.siocnt));
         puts("PASS: delayed reply does not complete the master early");
+    } else if (argc > 1 && strcmp(argv[1], "ready") == 0) {
+        /* The master can observe the room-ready word before the guest. The
+         * guest must publish its same-sequence update before either side
+         * completes the transfer. */
+        start(0x8FFF, 0xB9A0);
+        GBASIOButterflyPollFrame(&links[1]);
+        assert(irqs[0] == 0 && irqs[1] == 0);
+        boards[1].memory.io[GBA_REG(SIOMLT_SEND)] = 0x8FFF;
+        GBASIOButterflyPollFrame(&links[1]);
+        assert(irqs[1] == 1);
+        GBASIOButterflyPollFrame(&links[0]);
+        assert(irqs[0] == 1);
+        checkWords(0, 0x8FFF, 0x8FFF);
+        checkWords(1, 0x8FFF, 0x8FFF);
+        puts("PASS: ready transition waits for both endpoints and updates one sequence");
     } else {
         GBASIOButterflyPollFrame(&links[1]);
         assert(irqs[1] == 1);
