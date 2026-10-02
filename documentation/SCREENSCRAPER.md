@@ -1,8 +1,10 @@
 # ScreenScraper
 
 ButterflyOS supports ScreenScraper in EmulationStation when release developer
-credentials are injected during the frontend build. Users select ScreenScraper
-in the Scraper menu. A personal ScreenScraper account is optional; availability,
+credentials are injected during the frontend build. New release installations
+default to ScreenScraper; existing installations retain their saved provider
+selection, which can be changed in the Scraper menu. A personal ScreenScraper
+account is optional; availability,
 quotas, and anonymous access are controlled by ScreenScraper.
 
 Developer credentials are separate from personal account fields. Do not enter

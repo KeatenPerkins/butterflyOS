@@ -66,6 +66,13 @@ makeinstall_target() {
 
   mkdir -p ${INSTALL}/usr/config/emulationstation
     cp -a ${PKG_DIR}/config/common/*.cfg ${INSTALL}/usr/config/emulationstation
+    # Release builds with developer credentials start with ScreenScraper.
+    # Public-source builds without credentials retain the thumbnail fallback.
+    if grep -q '^#define SCREENSCRAPER_DEV_LOGIN ' \
+      ${PKG_BUILD}/es-app/src/scrapers/ButterflyScreenScraperCredentials.h; then
+      sed -i '/<\/config>/i\    <string name="Scraper" value="ScreenScraper" />' \
+        ${INSTALL}/usr/config/emulationstation/es_settings.cfg
+    fi
     rm -f ${INSTALL}/usr/config/emulationstation/resources/logo.png
 
   mkdir -p ${INSTALL}/usr/config/emulationstation/resources
