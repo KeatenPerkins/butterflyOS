@@ -1,0 +1,75 @@
+--- a/es-app/src/scrapers/Scraper.cpp
++++ b/es-app/src/scrapers/Scraper.cpp
+@@ -373,7 +373,7 @@
+ 
+ 	// Ignored errors
+-	if (status == HttpReq::REQ_404_NOTFOUND || status == HttpReq::REQ_IO_ERROR)
++	if (status == HttpReq::REQ_404_NOTFOUND)
+ 	{
+ 		setStatus(ASYNC_DONE);
+ 		return;
+ 	}
+@@ -633,7 +633,7 @@
+ 	// Ignored errors
+-	if (status == HttpReq::REQ_404_NOTFOUND || status == HttpReq::REQ_IO_ERROR)
++	if (status == HttpReq::REQ_404_NOTFOUND)
+ 	{
+ 		setStatus(ASYNC_DONE);
+ 		return;
+ 	}
+ 
+--- a/es-app/src/scrapers/ThreadedScraper.h
++++ b/es-app/src/scrapers/ThreadedScraper.h
+@@ -99,6 +99,9 @@
+ 	int mTotal;
+ 	int mThreadCount;
+ 	int mExitCode;
++	int mMatched = 0;
++	int mNotFound = 0;
++	int mFailed = 0;
+ 
+ 	static bool mPaused;
+ 	static ThreadedScraper* mInstance;
+--- a/es-app/src/scrapers/ThreadedScraper.cpp
++++ b/es-app/src/scrapers/ThreadedScraper.cpp
+@@ -143,5 +143,15 @@
+ void ThreadedScraper::processError(int status, const std::string statusString)
+ {
++	++mFailed;
++	if (status == HttpReq::REQ_IO_ERROR)
++	{
++		mExitCode = ASYNC_ERROR;
++		Window* w = mWindow;
++		mWindow->postToUiThread([w]() {
++			w->pushGui(new GuiMsgBox(w, _("SCRAPE FAILED") + std::string("\n\nCouldn't reach the scraper or download artwork.\nCheck Wi-Fi and try again.\nFailed games remain retryable.")));
++		});
++		return;
++	}
+ 	if (status == HttpReq::REQ_430_TOOMANYSCRAPS || status == HttpReq::REQ_430_TOOMANYFAILURES || 
+ 		status == HttpReq::REQ_426_BLACKLISTED || status == HttpReq::REQ_FILESTREAM_ERROR || status == HttpReq::REQ_426_SERVERMAINTENANCE ||
+ 		status == HttpReq::REQ_403_BADLOGIN || status == HttpReq::REQ_401_FORBIDDEN)
+@@ -210,7 +220,14 @@
+ 	}
+ 	
+ 	if (mExitCode == ASYNC_DONE)
+-		mWindow->displayNotificationMessage(GUIICON + _("SCRAPING FINISHED") + std::string(". ") + _("UPDATE GAMELISTS TO APPLY CHANGES."));
++	{
++		std::string summary = (mFailed ? _("SCRAPING FINISHED WITH ERRORS") : _("SCRAPING FINISHED")) +
++			std::string("\n\nMatched: ") + std::to_string(mMatched) +
++			"\nNot found: " + std::to_string(mNotFound) +
++			"\nFailed: " + std::to_string(mFailed) + "\n\n" + _("UPDATE GAMELISTS TO APPLY CHANGES.");
++		Window* w = mWindow;
++		mWindow->postToUiThread([w, summary]() { w->pushGui(new GuiMsgBox(w, summary)); });
++	}
+ 
+ 	delete this;
+ 	ThreadedScraper::mInstance = nullptr;
+@@ -240,2 +257,1 @@
+-		auto scraperName = Scraper::getScraperName(Scraper::getScraper());
+-		thread.getSearchParams().game->getMetadata().setScrapeDate(scraperName);
++		++mNotFound;
+@@ -245,3 +261,4 @@
++	++mMatched;
+ 	ScraperSearchParams& search = thread.getSearchParams();
+ 	auto game = search.game;
+ 

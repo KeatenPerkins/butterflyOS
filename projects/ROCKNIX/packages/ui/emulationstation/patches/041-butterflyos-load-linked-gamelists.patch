@@ -1,0 +1,12 @@
+--- a/es-app/src/Gamelist.cpp
++++ b/es-app/src/Gamelist.cpp
+@@ -114,5 +114,8 @@
+ 	std::vector<FileData*> ret;
+ 
+-	if (fromFile && (Utils::String::toLower(Utils::FileSystem::getExtension(xmlpath)) != ".xml" || !Utils::FileSystem::isRegularFile(xmlpath)))
++	// The combined SD-card library links game lists to the second card.
++	// Check the resolved file rather than rejecting a cached symlink, but keep
++	// the original path for loading and system-relative artwork resolution.
++	if (fromFile && (Utils::String::toLower(Utils::FileSystem::getExtension(xmlpath)) != ".xml" || !Utils::FileSystem::isRegularFile(Utils::FileSystem::getCanonicalPath(xmlpath))))
+ 		return ret;
+ 
