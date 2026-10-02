@@ -1,0 +1,6 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -180,1 +180,2 @@
+-  if (link->playerId != 0 || link->transferPending) return false;
++  if (link->playerId != 0) return true;
++  if (link->transferPending) return false;

@@ -1,5 +1,9 @@
 # ButterflyOS public-release legal checklist
 
+Historical package reviews and image scans are supporting evidence, not
+approval of a later image. Items referring to the final artifact remain open
+until its exact source revision and binary have been checked together.
+
 ## Project and source
 
 - [ ] Exact binary source commit and immutable tag recorded after final rebuild
@@ -16,17 +20,17 @@
 - [ ] Final Miyoo Flip V2 image checked for the complete Mali EULA and verified
       to use the unmodified `g29p1` vendor blob
 - [x] DraStic excluded from the ButterflyOS Miyoo Flip V2 public configuration
-- [x] Every Alpha 2 package flagged `unknown`, `nonfree`, `proprietary`,
+- [ ] Final package inventory checked against the previously reviewed `unknown`, `nonfree`, `proprietary`,
       `custom`, `Not declared`, or `Non-commercial` reviewed; findings and
       impacts recorded in `PACKAGE_LICENSE_REVIEW_ALPHA2.md`
-- [x] Final boot and system filesystems scanned for unintended binaries and
+- [ ] Final boot and system filesystems scanned for unintended binaries and
       private content
 
 ## Content and privacy
 
-- [x] No games, proprietary user BIOS files, or test media included
-- [x] No Wi-Fi credentials, SSH host keys, passwords, logs, or personal data
-- [x] No device-specific preloader backup or recovery data included
+- [ ] Final image contains no games, proprietary user BIOS files, or test media
+- [ ] Final image contains no Wi-Fi credentials, SSH host keys, passwords, logs, or personal data
+- [ ] Final image contains no device-specific preloader backup or recovery data
 - [ ] Required firmware and font notices rechecked in the final rebuilt image
 
 ## Branding

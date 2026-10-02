@@ -1,0 +1,14 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -163,3 +163,9 @@
+   link->txSize = sizeof(packet);
+   link->txOffset = 0;
+-  _flush(link);
++  bool flushed = _flush(link);
++  if (link->diagnostics && sequence < 5) {
++    ++link->diagnosticWordLines;
++    mLOG(GBA_SIO, INFO, "BF tx p=%u f=%u n=%u seq=%u ack=%u flushed=%u connected=%u",
++        link->playerId, link->diagnosticFrame, link->diagnosticWordLines,
++        sequence, (unsigned) ack, (unsigned) flushed, (unsigned) link->connected);
++  }
+ }

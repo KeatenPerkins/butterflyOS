@@ -1,155 +1,132 @@
 # Butterfly Link
 
-Butterfly Link is an experimental local-network link-cable experience for
-user-provided GB/GBC games and saves. ButterflyOS does not provide or transfer
-ROMs, BIOS files, or an online matchmaking service.
+Butterfly Link copies or exchanges Pokémon between selected emulator save files.
+Open **Tools → Butterfly Link**, from the home screen or **Start → Tools**.
+Use the D-pad to navigate, **A/Start** to select, and **B/Menu** to go back.
 
-## Proven prototype
+It works locally on one Flip or between two Flips on the same Wi-Fi network.
+It edits saves; it does not launch games, emulate a cable, or provide battles.
+Older netplay and USB-link plans describe historical experiments.
 
-On September 19, 2026, two Miyoo Flip V2 units running the same ButterflyOS
-build completed a Pokémon Red/Blue trade. The prototype used SameBoy's
-two-system link subsystem synchronized through RetroArch LAN netplay. Each
-device controlled one player. Both prepared saves loaded, the trade completed,
-and both updated saves were written and verified.
+Keep an independent backup, exit the emulator before opening Butterfly Link,
+and do not have the same save open in another application during a transfer.
 
-The ButterflyOS SameBoy patch provides native `Game Boy #1 Only` and `Game Boy
-#2 Only` presentation modes. Both systems remain emulated for link timing, but
-each Flip displays and plays audio from only its assigned system. Dual-link
-sessions use 48 kHz audio; ordinary one-system SameBoy operation retains its
-upstream audio rate.
+## Supported games and transfer directions
 
-## Save-safety backend
+Known English retail layouts are supported for Red, Blue, Yellow; Gold, Silver,
+Crystal; and Ruby, Sapphire, Emerald, FireRed, LeafGreen. Other languages,
+ROM hacks, and unrecognized revisions are not generally qualified.
 
-`/usr/bin/butterflyos-link-save` owns the save lifecycle. The future graphical
-launcher must use this backend instead of writing directly to a library save.
+| Source → destination | Local | Remote Wi-Fi | Limits |
+|---|---|---|---|
+| Gen I → Gen I | Trade or copy | Trade or copy | PC-box Pokémon |
+| Gen II → Gen II | Trade or copy | Trade or copy | PC-box Pokémon |
+| Gen III → Gen III | Trade or copy | Trade or copy | PC-box Pokémon; Trade requires matching save-format families |
+| Gen I → Gen II | Copy | Copy, qualification pending | Time Capsule conversion; remote Yellow → Crystal persistence failure under investigation |
+| Gen II → Gen III | Copy | Copy | One-way conversion; held items cleared |
+| Gen II → Gen I | Unavailable | Unavailable | No reverse Time Capsule conversion |
+| Gen III → earlier generations | Unavailable | Unavailable | No reverse conversion |
 
-Supported commands:
+The current Gen III Trade helper refuses different save-format families:
+Ruby/Sapphire, Emerald, and FireRed/LeafGreen are separate families. Thus
+Ruby ↔ Sapphire and FireRed ↔ LeafGreen can trade, while Ruby ↔ Emerald
+Trade is refused. Gen III Copy does not have that same-format restriction.
+Do not interpret the table as qualification of every Gen III game pairing.
+
+Gen II → III is a Butterfly Link conversion, not an original-game cable feature.
+Compatible identity/training data is converted; generation-specific fields need
+newly derived values. **All held items are currently cleared**, even if a Gen III
+counterpart exists. The app rejects Pokémon it cannot identify safely from the
+source ROM. It does not provide an unrestricted species, move, or item editor.
+
+**Trade** exchanges two boxed Pokémon and changes both saves. **Copy** adds the
+source Pokémon to a free destination PC slot; only the destination changes.
+Party Pokémon are preview-only. Gen I/II copies append to the next valid empty
+position in the selected box.
+
+Use ordinary battery saves (`.srm` or `.sav`), not emulator save states.
+Save through the game's own menu and exit cleanly before a transfer. To check
+the result, load the game's saved progress rather than an older emulator state,
+which can contain older save data.
+
+## Local workflow
+
+1. Choose **Local Transfer** and a generation or cross-generation copy mode.
+2. Choose the source save and check its game, trainer, and card location.
+3. Choose its matching ROM if prompted; the app prepares or reuses a sprite/name cache.
+4. Browse the party/boxes, open a PC box, and select a Pokémon.
+5. Choose Trade or Copy where available.
+6. Choose the compatible destination save and its Pokémon for Trade, or a free PC box for Copy.
+7. If offered, choose whether the eligible Pokémon should evolve.
+8. Review the protected copies and confirm the action, or cancel.
+9. Read the completion result and inspect the destination game's PC.
+
+The normal flow commits at final confirmation. There is no extra main-menu
+Commit step after a successful transfer.
+
+## Remote workflow
+
+1. Connect both Flips to the same Wi-Fi and open Butterfly Link; SSH is not required.
+2. The sender chooses **Remote Transfer → Host**, then a transfer mode.
+3. The other device chooses **Remote Transfer → Join** and selects the host.
+4. The host accepts the request and selects its save, boxed Pokémon, and action.
+5. The joiner chooses its compatible save and receiving Pokémon or free PC box.
+6. Both devices approve the review before prepared saves are committed.
+7. Read the results on both devices and check the destination game(s).
+
+Save working copies cross the LAN; **ROMs do not**. Each device needs the
+matching ROM for its own selected save, not its friend's ROM. Equal ROM hashes
+are not required. Guest-network isolation or blocked local broadcasts can
+prevent discovery. This save-transfer UI has no manual-IP entry.
+
+Local evolution prompts are not implemented in the remote workflow.
+Remote trade evolution must not be advertised as automatic.
+
+## Evolution and artwork
+
+Local transfers, including eligible copies, can offer **Keep / Evolve** for
+supported trade evolutions such as Kadabra, Machoke, Graveler, and Haunter.
+Selected held-item rules exist where compatible ROM-derived item names are
+available; every trade evolution and Everstone rule is not yet qualified.
+Evolution edits the protected destination copy. Recognized ordinary species
+names update; player-assigned nicknames are preserved.
+
+Sprites are extracted from the user's matching ROM and cached by its SHA-256.
+Unknown layouts are refused. Gen I front sprites are monochrome; Gen II/III
+can show normal/shiny artwork. Gen I/II sprites have a light-grey backing.
+Some move/item details may retain numeric IDs when name lookup is unavailable.
+No Pokémon sprite cache, ROM, or save is bundled in the image.
+
+## Backups and failure handling
+
+Working copies and pre-commit backups remain under:
 
 ```text
-butterflyos-link-save discover ROM
-butterflyos-link-save begin ROM SAVE
-butterflyos-link-save status SESSION_ID
-butterflyos-link-save commit SESSION_ID [WORKING_SAVE]
-butterflyos-link-save abort SESSION_ID
-butterflyos-link-save restore SESSION_ID
+/storage/.config/butterflyos/save-trade/sessions/
 ```
 
-`discover` searches the selected ROM's directory, the configured RetroArch
-save tree, the OS-card ROM tree, and the second game-card ROM tree. It resolves
-symlinks and reports one entry per physical save. The save adjacent to the
-selected ROM is preferred, followed by the OS save tree and then other card
-locations. The UI must display the selected card and absolute path whenever
-more than one candidate exists.
-
-`begin` creates a private session below:
+The UI log is:
 
 ```text
-/storage/.config/butterflyos/link/sessions/SESSION_ID/
+/storage/.config/butterflyos/logs/butterfly-link.log
 ```
 
-The session contains:
+Copy important saves off-device before reflashing; backups on the OS card are
+erased too. There is no one-button transaction-recovery browser in the current app.
 
-- a read-only, SHA-256-verified copy of the original save;
-- a writable working copy used by the emulator;
-- a non-executable manifest containing Base64-encoded paths, hashes, size,
-  permissions, timestamp, and storage identity;
-- an atomically updated state file.
+Cancellation before commit leaves originals unchanged. Remote commits occur
+separately on each device; interruption after one commit can leave a one-sided
+result. Inspect both saves and preserve session backups before repeating a trade.
 
-The original library save is not passed to the emulator. `commit` refuses to
-write if the original changed after the session began or if the working save's
-size changed. It verifies a same-directory temporary copy, flushes it, renames
-it atomically over the selected canonical path, verifies the result, and keeps
-a post-session archive. This works for saves physically located on either SD
-card, including files reached through the merged-library symlinks.
-
-`abort` never modifies the selected save. `restore` verifies the immutable
-pre-session backup, archives the current file, and atomically restores the
-original bytes. Backups are retained until an explicit future retention policy
-removes them; the launcher must not silently delete the last recovery copy.
-
-## Current automated workflow
-
-- Controller-friendly Host, Join, Restore, Session Status, Cancel, and
-  Connection Test screens are implemented. Host waits are cancellable, and
-  Join refreshes discovery automatically.
-- Host and Join exchange only isolated save working copies, require matching
-  ROMs to exist locally on both devices, and launch the proven SameBoy
-  two-system subsystem through RetroArch LAN netplay. ROM bytes never cross
-  the network.
-- Netplay SRAM is explicitly loaded and saved inside the protected session.
-  The joining player's authoritative `.netplay/player2.srm` result is selected
-  for writeback. Each device asks before atomically committing only its own
-  result through `butterflyos-link-save`.
-
-## Remaining MVP work
-
-- Nearby-device discovery and core/protocol compatibility checks are
-  implemented, with a manual-IP fallback. The always-on agent is read-only: it
-  exposes only hostname, build identity, protocol version, capabilities, and
-  the SameBoy core hash when idle. An explicitly started Host session adds an
-  expiring random session token and selected-ROM metadata; it accepts no ROM
-  transfer.
-- Friendlier visual/audio presentation matching ordinary ButterflyOS games
-- Recovery behavior for Wi-Fi loss, power loss, and one-sided termination
-- Validation across Yellow, Gold, Silver, Crystal, and regional revisions
-
-## Game Boy Advance research
-
-Generation-three GBA linking cannot use the GB/GBC SameBoy implementation.
-The pinned mGBA libretro core reports both netplay and subsystem support as
-unavailable, while upstream mGBA currently supports local same-computer GBA
-linking but not network link-cable transport.
-
-ButterflyOS is therefore prototyping a two-instance mGBA libretro subsystem:
-
-1. each Flip loads both locally owned GBA ROMs and isolated save working
-   copies;
-2. mGBA's existing `GBASIOLockstepCoordinator` connects the two local virtual
-   link ports;
-3. RetroArch LAN netplay synchronizes the two players' inputs between Flips;
-4. each Flip presents only its assigned GBA screen and audio; and
-5. the existing Butterfly Link save-safety layer commits only that device's
-   authoritative result.
-
-The initial core implementation is complete: the core registers a two-cartridge
-`GBA Link (2 Players)` subsystem with separate save-memory regions, enables
-mGBA's real pthread synchronization, loads two GBA core instances, connects
-their local SIO ports through mGBA lockstep, and routes the two libretro input
-ports independently. The complete patch stack compiles from a clean source
-tree for the Miyoo Flip V2. The core-info metadata also advertises subsystem
-support.
-
-An isolated no-save test on a Miyoo Flip V2 loaded Ruby and Sapphire, ran both
-cores for ten seconds through persistent mGBA core threads, and logged repeated
-SIO lockstep acknowledgements without the transfer-state failure seen in the
-disposable-thread prototype. This proves local dual-GBA execution and lockstep
-on the target hardware, but not yet an in-game trade.
-
-The frontend frame wait is bounded so RetroArch can service a quit request even
-when the primary GBA is sleeping in link lockstep. A no-save hardware test then
-shut down RetroArch and both persistent core threads cleanly through the normal
-signal path in under one second, with no forced termination.
-
-The save transaction backend now accepts `.gba` games and records `gba` in its
-read-only session manifest. Gen 3 saves receive the same isolated working copy,
-immutable verified backup, concurrent-change detection, exact-size validation,
-atomic writeback, result archive, abort, and one-step restore guarantees as the
-proven GB/GBC path. The linked core will receive only session copies, never a
-user's authoritative library save.
-
-The experimental core now exposes a session-only Player 1/Player 2 presentation
-option. Each device renders and consumes audio from only its assigned virtual
-GBA; the other machine continues running locally for link accuracy but is not
-shown or mixed into the local output. Both emulated machines remain quiescent
-between frontend frames so state capture cannot race either emulation thread.
-
-Linked serialization uses a versioned ButterflyOS container holding both mGBA
-states. Because mGBA's SIO lockstep driver serializes its queued events, player
-state, and shared coordinator state, loading the container restores the complete
-virtual cable—not just Player 1. On-device no-save testing produced a 1,057,968
-byte linked state, restored save data and RTC state for both cores, continued
-emulation, and shut down cleanly.
-
-This remains experimental. RetroArch netplay validation, real trade testing,
-and hardware performance measurements remain before any authoritative save can
-be committed. The proven GB/GBC path is unchanged during this work.
+The October 2 rebuild verifies the committed file hash and uses fresh timestamps.
+These checks do not establish that loading an emulator state or an in-game
+redundant save block will preserve the file. In the October 2 Yellow → Crystal
+remote test, the prepared file contained Pikachu and the joiner logged a commit,
+but Crystal's live save no longer contained it after the game ran. The cause was
+an edited active PC box that had not been synchronized to the banked box the
+game loads on Continue. Opening the PC after the initial fix exposed a second
+format error: converted names lacked the game's required 0x50 terminator.
+Both source fixes pass expanded regression tests and are deployed live, but
+need an in-game PC-open/persistence retest and the next image.
+Same-generation remote trade/copy and remote Gen II → III
+copy passed user testing. See [current build status](CURRENT_BUILD_STATUS.md).

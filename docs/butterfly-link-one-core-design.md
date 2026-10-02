@@ -1,5 +1,8 @@
 # Butterfly Link: one-core-per-device design
 
+Historical emulator-link research. This does not describe the installed
+save-transfer Butterfly Link app. See [the current user guide](../documentation/BUTTERFLY_LINK.md).
+
 ## Why the current prototype is being replaced
 
 The current GBA prototype starts two emulators on each Flip and synchronizes

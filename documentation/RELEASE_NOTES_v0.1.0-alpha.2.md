@@ -3,6 +3,11 @@
 Alpha 2 is the first public-release candidate for the Miyoo Flip V2. It remains
 test software and is not a stable release.
 
+This is a draft for the future public release. See
+[current build status](CURRENT_BUILD_STATUS.md) for the October 2 test image
+and changes awaiting a rebuild. A development image's checksum must not be
+substituted for the final release checksum.
+
 ## Release record
 
 - Source tag: `v0.1.0-alpha.2` (create only after qualification)
@@ -11,7 +16,9 @@ test software and is not a stable release.
 - SHA-256: pending final qualification build
 - Target: Miyoo Flip V2 (`RK3566` / `Miyoo_Flip_V2`)
 
-The most recent fully hardware-tested pre-release baseline was built from
+## Historical September pre-release records
+
+An earlier fully hardware-tested pre-release baseline was built from
 commit `f2ea99b` as
 `ROCKNIX-RK3566.aarch64-20260912-Miyoo_Flip_V2.img.gz`, SHA-256
 `39a3b8ba58992e9c3f7894c93bdfbbb6f8a6dce8ed411821ebc769ae1f19fe06`.
@@ -47,13 +54,33 @@ replacement image and focused physical test.
   both SD cards, including second-card access through web file transfer.
 - Added physically tested standalone Saturn mappings for the built-in controls
   and the 8BitDo controller in Xbox mode.
+- Added Games, Favorites, Media, Tools, and Settings home destinations, with
+  Start/Main Menu and Select/Shut Down Menu cues.
+- Replaced the old cable-emulation Butterfly Link launcher with a save-based
+  SDL app: local/remote same-generation trades/copies, ROM-derived sprites,
+  local evolution choices, and one-way generation conversions.
+- Added unified music/video browsing across both cards and controller-operated
+  track selection, automatic next-track playback, and clean stop/return.
+- Added display-only lid handling and bounded optional Extended Diagnostics;
+  unsafe hardware suspend remains disabled.
+
+The next build additionally includes wrapped confirmation/result text,
+clearer trade/copy completion wording, save-write hash checks and fresh
+timestamps, tighter Start-icon spacing, and Advanced-only Cloud/VPN groups.
 
 ## Important limitations
 
 - Saturn runs through standalone YabaSanshiro with the restored Mali stack;
   compatibility still varies by game.
-- Nintendo DS with the open-source melonDS default passed controls, suspend,
-  resume, and clean-exit testing on physical hardware.
+- Nintendo DS with the open-source melonDS default passed controls, audio,
+  and clean-exit testing on physical hardware. Lid close/open does not suspend
+  emulation.
+- Remote Yellow → Crystal copy persistence remains under investigation;
+  see [Butterfly Link](BUTTERFLY_LINK.md). Remote Gen II → III copy passed.
+- Party transfers, remote trade-evolution prompts, battles, and reverse
+  generation conversions are unavailable.
+- Bluetooth hotkeys/controller modes and multiplayer have qualification limits;
+  see [Controls](HOTKEYS.md).
 - No games or proprietary console BIOS files are included.
 
 Read [Quick Start](QUICK_START.md), [Installation and Recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md),

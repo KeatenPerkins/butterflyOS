@@ -31,7 +31,7 @@
 +    uint16_t currentWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
 +    if (currentWord != link->localWord) {
 +      link->localWord = currentWord;
-+      _queue(link, link->pendingSequence, link->localWord);
++      _queue(link, link->pendingSequence, link->localWord, false);
 +      if (!_needsReadyRendezvous(link->localWord, link->remoteWord)) {
 +        _complete(link);
 +        return;
@@ -63,7 +63,7 @@
 +        (!link->transferPending || previousRemoteWord != link->remoteWord ||
 +         link->localWord != link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)])) {
 +      link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
-+      _queue(link, sequence, link->localWord);
++      _queue(link, sequence, link->localWord, false);
 +    }
      if (_diagnostic(link, BF_POLL)) mLOG(GBA_SIO, INFO,
          "BF poll p=%u f=%u n=%u peer=%u seq=%u word=%04X local=%04X reply=%u",

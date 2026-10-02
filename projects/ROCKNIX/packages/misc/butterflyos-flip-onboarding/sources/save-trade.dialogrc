@@ -1,0 +1,27 @@
+# ButterflyOS Save Trade dialog palette.
+# Keep every screen readable on the Flip's small panel while using the same
+# restrained black, blue, cyan, and white palette as the main ButterflyOS UI.
+use_colors = ON
+use_shadow = OFF
+screen_color = (BLACK,BLACK,OFF)
+dialog_color = (WHITE,BLACK,OFF)
+shadow_color = (BLACK,BLACK,OFF)
+border_color = (BLUE,BLACK,ON)
+title_color = (CYAN,BLACK,ON)
+button_active_color = (WHITE,BLUE,ON)
+button_inactive_color = (WHITE,BLACK,OFF)
+button_key_active_color = (WHITE,BLUE,ON)
+button_key_inactive_color = (CYAN,BLACK,OFF)
+button_label_active_color = (WHITE,BLUE,ON)
+button_label_inactive_color = (WHITE,BLACK,OFF)
+menubox_color = (WHITE,BLACK,OFF)
+menubox_border_color = (BLUE,BLACK,ON)
+itemhelp_color = (CYAN,BLACK,OFF)
+item_color = (WHITE,BLACK,OFF)
+item_selected_color = (WHITE,BLUE,ON)
+tag_color = (CYAN,BLACK,OFF)
+tag_selected_color = (WHITE,BLUE,ON)
+inputbox_color = (WHITE,BLACK,OFF)
+inputbox_border_color = (BLUE,BLACK,ON)
+form_active_text_color = (WHITE,BLUE,ON)
+form_item_readonly_color = (WHITE,BLACK,OFF)

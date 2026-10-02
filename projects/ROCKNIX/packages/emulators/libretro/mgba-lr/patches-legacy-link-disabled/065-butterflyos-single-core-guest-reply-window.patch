@@ -1,0 +1,64 @@
+--- a/include/mgba/internal/gba/sio/butterfly.h
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -23,4 +23,5 @@ struct GBASIOButterfly {
+   bool transferPending;
+   bool pendingWordUpdate;
++  unsigned pendingReplyPolls;
+   bool awaitingAck;
+   struct mTimingEvent pollEvent;
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -9,4 +9,5 @@
+ #define BF_POLL_CYCLES 1024 /* About 61 microseconds at the GBA clock. */
+ #define BF_READY_WORD 0x8FFFu
+ #define BF_ACK_FLAG 0x8000u
++#define BF_GUEST_REPLY_POLLS 256u /* roughly one 60 Hz frame */
+ enum BFDiagnostic { BF_STATE, BF_MODE, BF_START, BF_FINISH, BF_POLL, BF_IDLE };
+@@ -108,4 +109,5 @@ static void _reset(struct GBASIODriver* driver) {
+   link->awaitingAck = false;
+   link->pendingFrames = 0;
+   link->pendingWordUpdate = false;
++  link->pendingReplyPolls = 0;
+   if (link->d.p) mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
+@@ -297,11 +299,16 @@ static void _poll(struct GBASIOButterfly* link) {
+   if (link->playerId != 0 && (link->transferPending || link->pendingWordUpdate) && !link->txSize &&
+       link->d.p->mode == GBA_SIO_MULTI) {
+     uint16_t currentWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+-    if (currentWord != link->localWord) {
++    if (link->pendingWordUpdate && link->pendingReplyPolls < BF_GUEST_REPLY_POLLS) {
++      ++link->pendingReplyPolls;
++    }
++    if (currentWord != link->localWord ||
++        (link->pendingWordUpdate && link->pendingReplyPolls >= BF_GUEST_REPLY_POLLS)) {
+       bool alreadyComplete = link->pendingWordUpdate;
+       link->localWord = currentWord;
+       _queue(link, link->pendingSequence, link->localWord, false);
+       link->pendingWordUpdate = false;
++      link->pendingReplyPolls = 0;
+       if (!alreadyComplete && !_needsReadyRendezvous(link, link->localWord, link->remoteWord)) {
+         _complete(link);
+         return;
+@@ -360,9 +367,8 @@ static void _poll(struct GBASIOButterfly* link) {
+     if (link->playerId != 0 && newSequence) {
+       link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+       /* The incoming host packet is already a complete emulated cable
+-       * transfer. Complete the guest immediately instead of waiting for a
+-       * second network ACK, which can deadlock when the game repeats a word. */
++       * transfer. Complete the guest first, then let its game process the
++       * received word before publishing the next reply. */
+       link->awaitingAck = false;
+-      _queue(link, sequence, link->localWord, false);
+     }
+     if (link->playerId != 0 && newSequence &&
+@@ -372,9 +378,7 @@ static void _poll(struct GBASIOButterfly* link) {
+        * leave transferPending set until the timeout path; that advances the
+        * guest one sequence behind the host and produces a transmission error. */
+       _complete(link);
+-      if ((link->localWord == BF_READY_WORD) !=
+-          (link->remoteWord == BF_READY_WORD)) {
+-        link->pendingWordUpdate = true;
+-      }
++      link->pendingWordUpdate = true;
++      link->pendingReplyPolls = 0;
+       return;
+     }

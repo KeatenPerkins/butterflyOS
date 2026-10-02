@@ -1,0 +1,20 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -2687,3 +2687,17 @@ static bool _loadLinkSecondGame(const struct retro_game_info* game) {
+ 	memset(linkSavedata, 0xFF, GBA_SIZE_FLASH1M);
++	/*
++	 * The native two-core subsystem normally starts player 2 with blank
++	 * save RAM. A local diagnostic can opt in to a protected copy of a real
++	 * save so both game instances can reach the same link area. This is
++	 * deliberately environment-controlled and never changes normal sessions.
++	 */
++	const char* localSavePath = getenv("BUTTERFLY_LINK_LOCAL_SAVE_P2");
++	if (localSavePath && *localSavePath) {
++		struct VFile* localSave = VFileOpen(localSavePath, O_RDONLY);
++		if (localSave) {
++			localSave->read(localSave, linkSavedata, GBA_SIZE_FLASH1M);
++			localSave->close(localSave);
++		}
++	}
+ 	return true;
+ }

@@ -1,11 +1,14 @@
 # ButterflyOS Alpha Compatibility Matrix
 
 This is the minimum Miyoo Flip V2 Alpha test suite. The selected games are
-user-supplied backups from /mnt/slowStorage/melissaGames/Roms; they are not
+user-supplied backups used during development; they are not
 part of ButterflyOS and must not be distributed with an image.
 
 For every row, verify boot, video, audio, built-in controls, Bluetooth
-controls, Menu, save/load state, exit, sleep/wake, and ten minutes of play.
+controls, Menu, save/load state where supported, exit, lid-close/open, and ten
+minutes of play. Lid handling is display-only: games continue running, and
+hardware suspend must remain disabled. A smoke test is not full compatibility
+qualification or proof that all multiplayer/controller combinations work.
 
 | Tier | System | Primary test | Stress or special test | BIOS | Core/emulator | Result |
 |---|---|---|---|---|---|---|
@@ -19,7 +22,7 @@ controls, Menu, save/load state, exit, sleep/wake, and ten minutes of play.
 | A | Genesis/Mega Drive | MD/Sonic the Hedgehog 3 (USA).md | MD/Contra - Hard Corps (USA, Korea).md | None | Genesis Plus GX | Development smoke test passed |
 | A | PC Engine | PCE/Bonk's Adventure (USA).pce | PCE/R-Type (USA).pce | None | Beetle PCE Fast | Development smoke test passed |
 | A | Nintendo 64 | N64/Super Mario 64.z64 | N64/Mario racing car 64.z64 | None | Mupen64Plus-Next | Passed; brief loading slowdown observed in Mario racing car 64 |
-| A | Nintendo DS | NDS/Mario Kart DS (USA) (En,Fr,De,Es,It).zip | NDS/Metroid Prime - Hunters (USA).zip | Recommended | DraStic | Development smoke test passed |
+| A | Nintendo DS | NDS/Mario Kart DS (USA) (En,Fr,De,Es,It).zip | NDS/Metroid Prime - Hunters (USA).zip | Recommended | melonDS DS | Open-source replacement passed development controls/audio/exit testing; DraStic excluded |
 | A | PlayStation | PS/Castlevania Symphony of the Night.chd | PS/Gran Turismo.chd | Required/recommended | PCSX-ReARMed | Development smoke test passed with user BIOS |
 | A | Dreamcast | DC/Crazy Taxi.chd | DC/Ikaruga v1.002 (2002)(ESP)(NTSC)(JP)[!].chd | Required/recommended | Flycast 2021 | Development smoke test passed with user BIOS |
 | A | Saturn | SS/NiGHTS into Dreams... (USA, Brazil).chd | SS/Panzer Dragoon II Zwei (USA).chd | Required/recommended | YabaSanshiro | Passed; standalone exit path validated separately |
@@ -35,6 +38,10 @@ controls, Menu, save/load state, exit, sleep/wake, and ten minutes of play.
 | B | OpenBOR | OPENBOR/Final Fight Gold Champion Edition.pak | OPENBOR/Contra - Locked 'N Loaded.pak | None | OpenBOR | Passed; standalone exit path validated separately |
 
 ## Hold until corrected or expanded
+
+The test filenames above are examples, not necessarily the canonical directory
+names on the installed image. Follow System Manager's folder guidance; additional
+systems inherited from upstream are not automatically ButterflyOS-qualified.
 
 - ATARI2600, CPS2, CPS3, MAME2010, NEOCD, PICO, and several placeholder
   folders contain no usable games.

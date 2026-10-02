@@ -122,3 +122,27 @@ full technical review is recorded in
 ButterflyOS is freely downloadable and is not conditioned on payment or a
 donation. Art Book Next and ZeroTier are excluded from the public Flip V2
 configuration beginning with the post-review Alpha 2 candidate.
+
+## PKSav
+
+The Butterfly Link save-transfer helper uses PKSav, a portable C
+library for reading and writing Pokémon save files. PKSav is distributed under
+the MIT license; its complete license text is shipped with the image under
+`/usr/share/licenses/pksav/LICENSE.txt`.
+
+- Source: https://github.com/savaughn/pksav
+- ButterflyOS use: read-only inspection and copy-based save transactions
+- ButterflyOS does not distribute game ROMs or save files.
+
+## Game Boy sprite-cache decoder
+
+The optional Generation I/II Butterfly Link sprite-cache decoder is adapted
+from Andrew Ekstedt's `pokemon-sprites-rby` project, under BSD-2-Clause:
+
+- Source: https://github.com/magical/pokemon-sprites-rby
+- Pinned reference revision: `36966acd74c2a93e3bc583e7aa6786b6eba8c8e4`
+- ButterflyOS use: decode front sprites only from a ROM the user already owns;
+  no Pokémon graphics are included in the image.
+
+The decoder source retains its attribution and the image already ships the
+BSD-2-Clause license text in its license bundle.

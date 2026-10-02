@@ -1,0 +1,5 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -185,1 +185,1 @@
+-  if (link->playerId != 0) return true;
++  if (link->playerId != 0) return false;

@@ -1,0 +1,8 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -214,3 +214,4 @@
+-  if (link->connected && link->haveRemoteSequence) {
++  if (link->connected && (link->haveRemoteSequence ||
++      (link->playerId != 0 && link->remoteSequence == link->pendingSequence))) {
+     data[link->playerId == 0 ? 1 : 0] = link->remoteWord;
+   }

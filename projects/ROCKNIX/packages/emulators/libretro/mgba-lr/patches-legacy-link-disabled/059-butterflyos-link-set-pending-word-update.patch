@@ -1,0 +1,9 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -351,1 +351,2 @@
+-        link->transferPending = true;
++        link->transferPending = true;
++        link->pendingWordUpdate = false;
+@@ -368,1 +368,1 @@
+-        !_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++        !_needsReadyRendezvous(link, link->localWord, link->remoteWord)) {

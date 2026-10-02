@@ -1,0 +1,17 @@
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -5853,3 +5853,5 @@
+ 	// CLOUD SERVICES
++	// Untested cloud and VPN controls are available only in Advanced Mode.
++	if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1") {
+ 	s->addGroup(_("CLOUD SERVICES"));
+ 
+@@ -5936,6 +5938,7 @@
+ 		SystemConf::getInstance()->set("zerotier.up", ztEnabled ? "1" : "0");
+ 	});
+ 
++	}
+ 	mWindow->pushGui(s);
+ }
+ 

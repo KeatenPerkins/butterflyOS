@@ -3,6 +3,10 @@
 Alpha software may contain defects and can change incompatibly. Keep backups of
 games, saves, BIOS files, and any device-specific recovery data.
 
+Reviewed against the October 2 development source. See
+[current build status](CURRENT_BUILD_STATUS.md) for the image/staged-change split.
+Historical checks do not qualify a later rebuilt image.
+
 ## Distribution licensing gate
 
 Alpha 1 bundled vendor-derived stock and patched preloader images and therefore
@@ -46,7 +50,7 @@ hardware smoke test are complete.
   the issue has not yet been reproduced. The affected build kept its journal
   only in RAM, so it could not establish whether this was a DRM/GPU or broader
   kernel stall.
-- The next diagnostic build keeps a compressed journal capped at 10 MiB and
+- The diagnostic baseline keeps a compressed journal capped at 10 MiB and
   seven days. It also records HDMI connector/EDID changes, Wi-Fi state,
   EmulationStation liveness, and whether the previous boot ended cleanly in
   `/storage/.config/system/logs/butterflyos-health.previous`.
@@ -58,10 +62,8 @@ hardware smoke test are complete.
   and five-minute snapshots use two 4 MiB logs with two rotations each (about
   24 MiB maximum), do not record passwords, and remain available after the
   collector is switched off. Ramoops archival retains at most eight records.
-- The temporary development card may still contain the September 16 Claude
-  capture setup (512 MiB journal and a separately capped Wi-Fi trace). It is
-  intentionally not part of release images and should be retired after the new
-  Extended Diagnostics workflow is verified.
+- Large early diagnostic captures were development-only and are not intended
+  for release images. Use the bounded Extended Diagnostics tool instead.
 - One post-suspend test showed horizontal/vertical pixel-line corruption on the
   internal LCD. HDMI connect/disconnect reinitialized the panel and restored
   the image; logs contained no Panfrost fault or timeout, and the issue did not
@@ -72,6 +74,10 @@ hardware smoke test are complete.
   development testing.
 - Bluetooth Player 1 fallback depends on device-disconnect detection and is not
   literally instantaneous on every controller.
+- Native built-in hotkeys and the tested external/fallback handler differ in
+  shoulder-button assignments. Menu capture does not learn all raw controller
+  event codes; arbitrary Bluetooth controllers and four-player ordering remain
+  unqualified. See [Controls](HOTKEYS.md).
 
 ## Emulation
 
@@ -83,7 +89,7 @@ hardware smoke test are complete.
   Flip controller map. The tested built-in and 8BitDo Xbox-mode mappings are
   now included in source and require confirmation on the final rebuild.
 - Alpha 2 replaces DraStic with open-source melonDS for Nintendo DS. Its
-  performance, controls, suspend/resume, and clean exit passed physical testing;
+  performance, controls, and clean exit passed physical testing;
   compatibility can still vary by game.
 - Arcade games require ROM sets compatible with the selected core. A game that
   does not launch is not necessarily an emulator failure.
@@ -102,22 +108,52 @@ hardware smoke test are complete.
   10-bit encodes may skip badly.
 - The current audio now-playing screen is functional but remains a UI-polish
   target.
+- HDMI/hotplug and media behavior passed development tests, but long-duration
+  external-display use and every video codec/profile are not qualified.
+
+## Butterfly Link
+
+- The current app performs save-based transfers; it does not provide cable
+  emulation, battles, or party transfers.
+- Same-generation local/remote trade and copy passed user testing. Remote
+  Gen II → III copy also passed; source saves are unchanged and held items cleared.
+- Remote Yellow → Crystal produced a prepared save containing Pikachu and
+  logged a destination commit, but the live Crystal save lacked Pikachu after
+  the game ran. The cause was traced to an unsynchronized Gen II banked PC box.
+  A subsequent PC white screen exposed malformed converted name terminators;
+  the helper now writes the required 0x50 terminators. Crystal was repaired
+  from its backup with Pikachu retained. The source fixes pass 48 expanded
+  persistence/name regression cases and are deployed live on
+  both test devices; it still needs an in-game save/exit/reopen retest and a new
+  image. Fresh timestamps and file hashes alone cannot fix a save-format error.
+- Local evolution prompts are implemented for supported rules. Remote
+  evolution prompts, complete Everstone/held-item rules, and arbitrary ROM
+  hacks/languages are not qualified.
+- Gen II → I and Gen III → earlier-generation conversion are unavailable.
+- Gen III Trade currently requires the same save-format family (Ruby/Sapphire,
+  Emerald, or FireRed/LeafGreen). Cross-family Gen III Copy is implemented;
+  cross-family Trade is refused by the helper.
+- Remote final commits occur separately. A late disconnect can leave a
+  one-sided result; retain session backups and inspect both saves.
+- The current UI does not offer a one-button recovery browser for every
+  retained session. Never restore an unrelated save over a game by filename alone.
 
 ## Updates and interface
 
 - There is not yet a tested ButterflyOS online-update channel or rollback
   workflow. Reflashing remains the Alpha upgrade method.
 - Reflashing erases the device-specific recovery backup stored on the card.
-  Use **Export ButterflyOS Recovery Backup** and download the result to another
+  Use **Export Recovery Backup** and download the result to another
   physical device before writing a new image.
 - Some inherited Advanced Mode screens retain ROCKNIX terminology and are not
   intended for beginner workflows.
 - Broad theme polishing for external display resolutions is deferred until the
   handheld interface and behavior are stable.
-- Network settings in the September 15 failure became inconsistent with the
-  active NetworkManager connection. The next build derives the Wi-Fi switch
-  from live state, refuses empty SSID requests, and retains the last working
-  profile until replacement credentials authenticate successfully.
+- The current source derives Wi-Fi state from NetworkManager and applies
+  settings immediately. Use the keyboard's on-screen Enter to submit passwords.
+  Historical GUI/password issues should be reported with logs if they recur.
+- The next image hides untested Cloud/VPN groups unless Advanced Mode is on.
+  Their appearance does not establish a supported cloud/VPN workflow.
 
 Report issues with the ButterflyOS version, device revision, controller model,
 system/emulator, steps to reproduce, and whether the problem survives a reboot.

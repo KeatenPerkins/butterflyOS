@@ -1,11 +1,11 @@
 # ButterflyOS controls and hotkeys
 
-These shortcuts describe the tested Alpha 2 layout on the Miyoo Flip V2. `M`
-means the handheld's physical Menu button. A Bluetooth controller can use the
-same shortcuts after its Menu button is captured under Controller & Bluetooth
-settings.
+`M` means the handheld's physical Menu button, or the button captured for a
+Bluetooth controller under Controller & Bluetooth settings. These tables
+describe current source defaults. Confirm them on the final release image;
+the native built-in layout and external-controller command layout differ.
 
-## RetroArch games
+## RetroArch games: built-in controls, normal launch
 
 | Input | Action |
 |---|---|
@@ -37,10 +37,29 @@ additional memory and is not enabled for every system.
    timer expires.
 5. Use **Test Controller Menu Button** to verify it.
 
-The saved button acts as M for the shortcuts above. The mapping persists after
+The saved button acts as M. The mapping persists after
 reboot and reconnection. If the Player 1 Bluetooth controller disconnects,
 ButterflyOS returns Player 1 control to the built-in controls after device
 detection completes.
+
+The current tested 8BitDo SN30 Pro+ Xbox-mode external shortcut handler uses:
+
+| Input | Action |
+|---|---|
+| M alone, then release | Toggle Quick Menu |
+| M + R1 | Save state |
+| M + L1 | Load state |
+| M + R2 | Toggle fast-forward |
+| M + L2 | Rewind |
+| M + Right / Left | Next / previous state slot |
+| M + Start twice | Exit cleanly |
+
+After an externally controlled session falls back to the built-in pad, its
+command handler also uses **R1/L1 for save/load** and **R2/L2 for fast-forward/
+rewind**. This differs from normal built-in launches above. Capturing Menu does
+not learn every other button's raw event code; arbitrary controller models and
+modes require qualification. Four-controller ordering and multiplayer are not
+yet qualified. Do not assume universal mappings.
 
 ## Standalone-emulator exceptions
 
@@ -62,6 +81,16 @@ where available. Report the emulator, controller, and shortcut involved.
 | Up / Down | Seek forward or backward 60 seconds |
 | B or Menu | Stop playback and return to Media |
 
+Use the handheld's volume rocker to adjust volume.
+
 Opening an audio file automatically queues the other audio tracks in that
 folder. Playback advances to the next track when a song ends. After the final
 track, playback stops and returns to Media; the folder does not loop forever.
+
+## Home screen and Butterfly Link
+
+- **Start** opens Main Menu; selecting **Settings** opens the same menu.
+- **Select** opens the shutdown menu. Confirm shutdown before removing a card.
+- **Tools** opens the tool list directly; it is also available from Main Menu.
+- Butterfly Link: D-pad navigates, **A/Start** selects, **B/Menu** goes back.
+  Long notices in the next build can be scrolled with Up/Down.

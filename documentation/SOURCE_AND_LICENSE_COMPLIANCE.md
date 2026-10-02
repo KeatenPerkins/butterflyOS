@@ -68,8 +68,8 @@ attribution. Do not use their logos to suggest an official relationship.
 
 ## Current release blockers
 
-- Rebuild after the recovery-export addition, then repeat the clean-image audit
-  and a focused hardware smoke test.
+- Rebuild from the final committed source after all current changes, then repeat
+  the clean-image audit and focused hardware tests, including Butterfly Link.
 - Recheck the final package/license manifest and embedded firmware/font notices.
 - Publish the exact corresponding source and immutable release tag beside the
   final binary and checksum.

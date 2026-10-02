@@ -1,0 +1,93 @@
+--- a/include/mgba/internal/gba/sio/butterfly.h
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -23,5 +23,6 @@
+   bool connected;
+   bool haveRemoteSequence;
+   bool transferPending;
++  bool awaitingAck;
+   struct mTimingEvent pollEvent;
+   /* Optional diagnostics; budgets last for the lifetime of this driver. */
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -8,5 +8,6 @@
+ #define BF_VERSION 4u /* Same-sequence packets carry ready-state updates. */
+ #define BF_POLL_CYCLES 1024 /* About 61 microseconds at the GBA clock. */
+ #define BF_READY_WORD 0x8FFFu
++#define BF_ACK_FLAG 0x8000u
+ enum BFDiagnostic { BF_STATE, BF_MODE, BF_START, BF_FINISH, BF_POLL, BF_IDLE };
+ /* First 64 events per category, then every 256th; at most 512 lines per
+@@ -104,5 +105,6 @@
+ static void _reset(struct GBASIODriver* driver) {
+   struct GBASIOButterfly* link = (struct GBASIOButterfly*) driver;
+   link->transferPending = false; link->haveRemoteSequence = false;
++  link->awaitingAck = false;
+   link->pendingFrames = 0;
+   if (link->d.p) mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
+@@ -153,7 +155,7 @@
+   link->txOffset = link->txSize = 0;
+   return link->connected;
+ }
+-static void _queue(struct GBASIOButterfly* link, uint32_t sequence, uint16_t word) {
++static void _queue(struct GBASIOButterfly* link, uint32_t sequence, uint16_t word, bool ack) {
+   struct BFPacket packet = { htonl(BF_MAGIC), htons(BF_VERSION),
+-      htons((uint16_t) link->playerId), htonl(sequence), htons(word), 0 };
++      htons((uint16_t) link->playerId | (ack ? BF_ACK_FLAG : 0)), htonl(sequence), htons(word), 0 };
+   packet.checksum = htons(_checksum(&packet));
+   memcpy(link->txBuffer, &packet, sizeof(packet));
+@@ -185,7 +187,7 @@
+     link->transferPending = false;
+     return true;
+   }
+-  _queue(link, link->pendingSequence, link->localWord);
++  _queue(link, link->pendingSequence, link->localWord, false);
+   if (_diagnostic(link, BF_START)) mLOG(GBA_SIO, INFO,
+       "BF start p=%u f=%u n=%u seq=%u word=%04X queued=%u",
+@@ -269,7 +271,7 @@
+     uint16_t currentWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+     if (currentWord != link->localWord) {
+       link->localWord = currentWord;
+-      _queue(link, link->pendingSequence, link->localWord);
++      _queue(link, link->pendingSequence, link->localWord, false);
+       if (!_needsReadyRendezvous(link->localWord, link->remoteWord)) {
+         _complete(link);
+         return;
+@@ -294,13 +296,22 @@
+     }
+     memcpy(&packet, link->rxBuffer, sizeof(packet));
+     link->rxSize = 0;
+-    unsigned peer = ntohs(packet.player);
++    unsigned rawPeer = ntohs(packet.player);
++    bool ack = (rawPeer & BF_ACK_FLAG) != 0;
++    unsigned peer = rawPeer & 3u;
+     uint32_t sequence = ntohl(packet.sequence);
+     if (ntohl(packet.magic) != BF_MAGIC || ntohs(packet.version) != BF_VERSION ||
+         ntohs(packet.checksum) != _checksum(&packet) ||
+         peer != (link->playerId == 0 ? 1u : 0u) ||
+         link->d.p->mode != GBA_SIO_MULTI) continue;
+ 
++    if (ack) {
++      if (link->playerId != 0 && link->awaitingAck && sequence == link->pendingSequence) {
++        link->awaitingAck = false;
++        _complete(link);
++      }
++      continue;
++    }
+     if (link->playerId == 0) {
+       if (!link->transferPending || sequence != link->pendingSequence) continue;
+@@ -320,13 +331,15 @@
+         (!link->transferPending || previousRemoteWord != link->remoteWord ||
+          link->localWord != link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)])) {
+       link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+-      _queue(link, sequence, link->localWord);
++      _queue(link, sequence, link->localWord, false);
++      link->awaitingAck = true;
+     }
+     if (_diagnostic(link, BF_POLL)) mLOG(GBA_SIO, INFO,
+         "BF poll p=%u f=%u n=%u peer=%u seq=%u word=%04X local=%04X reply=%u",
+         link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_POLL],
+         peer, sequence, link->remoteWord, link->localWord, (unsigned) (link->playerId != 0));
+-    if (!_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++    if (link->playerId == 0 && !_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++      _queue(link, sequence, link->remoteWord, true);
+       _complete(link);
+     }

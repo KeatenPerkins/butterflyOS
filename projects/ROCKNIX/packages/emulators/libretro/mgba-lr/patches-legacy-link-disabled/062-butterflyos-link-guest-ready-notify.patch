@@ -1,0 +1,9 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -376,1 +376,5 @@
+-      _complete(link);
++      _complete(link);
++      if ((link->localWord == BF_READY_WORD) !=
++          (link->remoteWord == BF_READY_WORD)) {
++        link->pendingWordUpdate = true;
++      }

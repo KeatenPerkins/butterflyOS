@@ -1,0 +1,17 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -222,1 +222,13 @@
+-    data[link->playerId == 0 ? 1 : 0] = link->remoteWord;
++    uint16_t peerWord = link->remoteWord;
++    /* A ready transition is simultaneous on a physical cable.  If the
++     * host reaches 8FFF first, do not expose an impossible 8FFF/B9A0
++     * snapshot to the guest game: Pokémon treats that as a transmission
++     * error before it can publish its own ready word.  The host remains
++     * pending, while the guest receives the previous stable snapshot and
++     * can advance SIOMLT_SEND; its same-sequence 8FFF update then releases
++     * the host. */
++    if (link->playerId != 0 && link->localWord != BF_READY_WORD &&
++        peerWord == BF_READY_WORD) {
++      peerWord = link->localWord;
++    }
++    data[link->playerId == 0 ? 1 : 0] = peerWord;

@@ -65,6 +65,7 @@ def main():
                 "BUTTERFLY_LINK_RETROARCH": str(fake_retroarch),
                 "BUTTERFLY_LINK_CORE": str(core),
                 "BUTTERFLY_LINK_ANNOUNCEMENT": str(root / "announcement.json"),
+                "BUTTERFLY_LINK_BUFFERED_DEMO": "1",
             }
         )
         host_env = dict(common, BUTTERFLY_LINK_STATE_ROOT=str(root / "host"))

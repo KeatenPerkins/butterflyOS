@@ -3,11 +3,17 @@
 Alpha 2 is a hardware-tested Miyoo Flip V2 candidate focused on a clean,
 controller-first experience.
 
+This lists development capabilities, not a guarantee for every game or
+controller. See [current build status](CURRENT_BUILD_STATUS.md) for changes
+awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
+
 ## Console interface
 
 - ButterflyOS boot, shutdown, menu, and tool branding
 - Synthwave pixel-art home screen and system artwork
-- Games, Favorites, Media, Apps, and Settings destinations
+- Games, Favorites, Media, Tools, and Settings home destinations
+- Tools also remains accessible through the Start main menu; Settings opens
+  that same main menu
 - Systems shown only when recognized games are present
 - `FC`/`nes` and `SFC`/`snes` ROM-folder aliases
 - Larger status indicators for time, battery, Wi-Fi, Bluetooth, charging, and
@@ -19,12 +25,13 @@ controller-first experience.
 - Preinstalled emulator cores and tested defaults for classic systems
 - Built-in Menu-button shortcuts for exit, Quick Menu, save/load states,
   state-slot selection, fast-forward, rewind, FPS, and brightness
-- Controller-friendly Bluetooth Menu-button capture, test, and reset
+- Controller-friendly Bluetooth Menu-button capture, test, and reset;
+  shortcut layouts depend on the controller and launch path
 - Persistent Bluetooth controller reconnection
 - Automatic return to built-in Player 1 controls after controller disconnect
 - Favorites synchronized between EmulationStation and RetroArch without
   duplicate entries
-- Game-art scraping
+- Game-art scraping; provider availability and filename matches affect results
 - Combined game library across the ButterflyOS card and an optional second SD
   card, with internal-card files taking precedence over duplicate names
 
@@ -58,8 +65,26 @@ controller-first experience.
 - Guided restoration of stock boot behavior
 - Validated export of the device-specific recovery backup before SD reflashing
 - System Manager, Quick Start, and Controls Guide available on the device
-- Controller-operated Prepare Game Card tool for safe second-slot detection,
+- Controller-operated **Format 2nd SD Card** tool for second-slot detection,
   status, exFAT formatting, folder creation, and library refresh
+
+## Butterfly Link
+
+- SDL interface operated with D-pad, A/Start, and B/Menu
+- Save discovery on both SD cards; party preview and PC-box transfers
+- Same-generation local and same-Wi-Fi remote trade/copy for Gen I, II, and III
+- Gen I → II copies with Time Capsule conversion; remote Yellow → Crystal
+  persistence remains under investigation
+- Gen II → III one-way copies; the source is unchanged and held items are cleared
+- Local optional evolution prompts for supported trade evolutions, including
+  eligible copies; remote evolution prompts are not yet implemented
+- ROM-derived, per-ROM cached sprites and supported name/detail lookup;
+  Gen I/II sprites have a light backing for visibility
+- Backup copies retained before replacing selected original saves
+
+This app manipulates save files; it does not provide in-game cable sessions,
+battles, party transfers, Gen II → I conversion, or Gen III → II conversion.
+See [Butterfly Link](BUTTERFLY_LINK.md) for supported games, workflow, and limits.
 
 ButterflyOS does not include commercial games or proprietary console BIOS
 files. See [Known Issues](KNOWN_ISSUES.md) for Alpha limitations.

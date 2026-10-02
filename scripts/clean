@@ -22,14 +22,25 @@ clean_package() {
       . "${i}/.rocknix-unpack"
       if [ "${STAMP_PKG_NAME}" = "${1}" ]; then
         build_msg "CLR_WARNING" "*" "$(print_color "CLR_WARNING_DIM" "Removing ${i} ...")"
-        rm -rf "${i}"
+        # A firmware extraction worker can finish creating files just after an
+        # initial recursive delete has walked the directory. Retry the generated
+        # package cache a few times instead of failing the whole image build.
+        for attempt in 1 2 3; do
+          rm -rf "${i}" && break
+          [ "${attempt}" = 3 ] || sleep 1
+        done
+        [ ! -e "${i}" ] || exit 1
       fi
     elif [ -d "${i}" -a -f "${i}/.rocknix-package" ]; then
       # force clean if no stamp found (previous unpack failed)
       . "${i}/.rocknix-package"
       if [ "${INFO_PKG_NAME}" = "${1}" ]; then
         build_msg "CLR_WARNING" "*" "$(print_color "CLR_WARNING_DIM" "Removing ${i} ...")"
-        rm -rf "${i}"
+        for attempt in 1 2 3; do
+          rm -rf "${i}" && break
+          [ "${attempt}" = 3 ] || sleep 1
+        done
+        [ ! -e "${i}" ] || exit 1
       fi
     fi
   done

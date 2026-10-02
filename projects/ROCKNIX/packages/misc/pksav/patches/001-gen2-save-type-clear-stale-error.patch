@@ -1,0 +1,22 @@
+diff --git a/lib/gen2/save.c b/lib/gen2/save.c
+index 1d86930..c3f6c39 100644
+--- a/lib/gen2/save.c
++++ b/lib/gen2/save.c
+@@ -148,12 +148,13 @@ enum pksav_error pksav_gen2_get_buffer_save_type(
+             if(is_type_found)
+             {
+                 *p_save_type_out = save_type;
++                /* A failed earlier format probe must not make a later
++                 * successful Crystal probe appear invalid. */
++                error = PKSAV_ERROR_NONE;
+             }
+-            else
+-            {
+-                error = PKSAV_ERROR_INVALID_SAVE;
+-            }
+         }
++        if(!is_type_found)
++            error = PKSAV_ERROR_INVALID_SAVE;
+     }
+ 
+     return error;

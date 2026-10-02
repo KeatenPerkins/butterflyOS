@@ -1,0 +1,17 @@
+--- a/src/gba/sio/lockstep.c
++++ b/src/gba/sio/lockstep.c
+@@ -450,4 +450,7 @@
+ 	struct GBASIOLockstepPlayer* player = TableLookup(&coordinator->players, lockstep->lockstepId);
+ 	if (mode != player->mode) {
+ 		player->mode = mode;
++		if (player->playerId == 0 && coordinator->transferActive) {
++			mLOG(GBA_SIO, DEBUG, "Restoring mode while transfer is active");
++		}
+ 		struct GBASIOLockstepEvent event = {
+@@ -457,5 +460,5 @@
+ 			.mode = mode,
+ 		};
+ 		if (player->playerId == 0) {
+-			mASSERT_DEBUG(!coordinator->transferActive); // TODO
++			/* State restore may legitimately reload mode while a transfer is active. */
+ 			coordinator->transferMode = mode;

@@ -1,0 +1,27 @@
+--- a/src/gba/sio/lockstep.c
++++ b/src/gba/sio/lockstep.c
+@@ -329,11 +329,16 @@
+ 	for (i = 0; i < MAX_LOCKSTEP_EVENTS - 1; ++i) {
+ 		player->buffer[i].next = &player->buffer[i + 1];
+ 	}
++	player->buffer[MAX_LOCKSTEP_EVENTS - 1].next = NULL;
+ 	player->freeList = &player->buffer[0];
+ 	player->queue = NULL;
+ 
+ 	struct GBASIOLockstepEvent** lastEvent = &player->queue;
+-	for (i = 0; i < GBASIOLockstepSerializedFlagsGetNumEvents(flags) && i < MAX_LOCKSTEP_EVENTS; ++i) {
++	unsigned numEvents = GBASIOLockstepSerializedFlagsGetNumEvents(flags);
++	if (numEvents >= MAX_LOCKSTEP_EVENTS) {
++		numEvents = MAX_LOCKSTEP_EVENTS - 1;
++	}
++	for (i = 0; i < numEvents; ++i) {
+ 		struct GBASIOLockstepEvent* event = player->freeList;
+ 		const struct GBASIOLockstepSerializedEvent* stateEvent = &state->player.events[i];
+ 		player->freeList = player->freeList->next;
+@@ -358,6 +363,7 @@
+ 			break;
+ 		}
+ 	}
++	*lastEvent = NULL;
+ 
+ 	if (player->playerId == 0) {

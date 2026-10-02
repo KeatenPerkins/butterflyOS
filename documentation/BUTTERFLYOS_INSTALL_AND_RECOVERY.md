@@ -4,6 +4,14 @@ ButterflyOS aims to require no disassembly during normal installation or
 removal. Opening the Miyoo Flip and pressing its MASKROM button is a last-resort
 recovery method, not an onboarding step.
 
+This guide applies only to the **Miyoo Flip V2**. Use the current device-specific
+image and its matching checksum. The final public image is pending; see
+[current build status](CURRENT_BUILD_STATUS.md).
+
+Installation changes the internal preloader even though the OS runs from SD.
+Stock system partitions are preserved; this is not a zero-write installation.
+Exact reversal requires the backup from this particular device.
+
 ## Intended installation experience
 
 1. Write the device-specific ButterflyOS image to a microSD card.
@@ -20,9 +28,13 @@ recovery method, not an onboarding step.
 6. After shutdown, move the ButterflyOS card from the left-hand slot to the
    **right-hand slot**, then power on. The prepared card boots ButterflyOS.
 7. In ButterflyOS, open **Tools → ButterflyOS Boot Check**. This is read-only.
-8. Open **Tools → Export ButterflyOS Recovery Backup**. In Web File Transfer,
+8. Open **Tools → Export Recovery Backup**. In Web File Transfer,
    open **All Storage** and download both `ButterflyOS-Recovery-*.tar.gz` and
-   its matching `.sha256` file to another computer or drive.
+  its matching `.sha256` file to another computer or drive.
+
+Tools is available on the home screen and through Start. Keep the device
+adequately charged and use the front charging port if external power is needed.
+Normal onboarding does not require a USB connection to a computer.
 
 ### If the card or Setup app is not detected
 
@@ -67,6 +79,11 @@ nothing internally. The second launch performs the persistent change.
 | Run **ButterflyOS Setup** from stock Apps | Left-hand slot |
 | Boot and use ButterflyOS | Right-hand slot |
 | Boot the stock Miyoo system after setup | Remove the ButterflyOS card |
+| Optional games/media card while ButterflyOS is running | Left-hand slot |
+
+Power off fully before moving cards. Only the OS card is imaged with ButterflyOS;
+the optional game card is normally exFAT and must not be selected accidentally
+when writing an OS image.
 
 ## Returning to stock boot
 
@@ -105,7 +122,7 @@ The recovery pair initially lives on the ButterflyOS boot partition. Writing a
 new whole-card image erases that partition, the storage partition, and every
 copy stored on that microSD card.
 
-Open **Tools → Export ButterflyOS Recovery Backup**. The tool revalidates the
+Open **Tools → Export Recovery Backup**. The tool revalidates the
 backup's size and SHA-256 before creating these files at the top of **All
 Storage**:
 
@@ -123,6 +140,11 @@ After reflashing, verify and extract the archive on a computer. Copy the
 extracted `butterflyos-recovery` folder to the root of the `BUTTERFLYOS` boot
 partition. **Restore Stock Miyoo Boot** will independently check the 2 MiB
 image and its SHA-256 manifest before allowing a restore.
+
+The export protects the preloader recovery files, not your games, saves, media,
+or settings. Back those up separately. If SD boot remains enabled after a
+reflash, put the rewritten OS card in the right slot and boot it; the stock-side
+setup does not need to be rerun. Never substitute another unit's recovery archive.
 
 ## Recovery if installation is interrupted
 

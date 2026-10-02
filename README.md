@@ -6,12 +6,19 @@ ButterflyOS is a fast, friendly, controller-first operating system for the
 Miyoo Flip V2. Version 0.1.0 Alpha 2 is the current public-release candidate.
 It is intended for careful testers and is not yet a stable release.
 
+These guides describe the current development candidate, not a published
+stable image. Read the [build and test status](documentation/CURRENT_BUILD_STATUS.md)
+for the distinction between hardware-tested features and changes awaiting a
+new image. A public download URL and immutable release tag are not yet assigned.
+
 Start here:
 
 - [Quick Start](documentation/QUICK_START.md)
 - [Installation and recovery](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md)
 - [Controls and hotkeys](documentation/HOTKEYS.md)
 - [Features](documentation/FEATURES.md)
+- [Butterfly Link save trading](documentation/BUTTERFLY_LINK.md)
+- [Documentation index](documentation/README.md)
 - [Compatibility matrix](documentation/BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md)
 - [Known issues](documentation/KNOWN_ISSUES.md)
 - [Alpha 2 release notes](documentation/RELEASE_NOTES_v0.1.0-alpha.2.md)
@@ -30,6 +37,21 @@ Project direction is documented in the [vision](docs/VISION.md) and
 - Combined libraries from the OS card and an optional second game card
 - Reversible SD-card boot setup that preserves the internal Miyoo OS
 - Beginner-facing settings with optional Advanced Mode
+- Butterfly Link for local and same-Wi-Fi Pokémon save trades/copies across
+  supported Generation I, II, and III games; see its compatibility limits
+
+### Butterfly Link
+
+Butterfly Link edits selected save files; it does not launch a cable-linked
+game or provide battles. Same-generation local and remote trades/copies have
+passed development testing. Gen II → III is a one-way copy and clears held
+items. Gen I → II copies are implemented, but a remote Yellow → Crystal test
+lost the copied Pokémon after launching Crystal; that path remains under
+investigation. Transfers currently use PC-box Pokémon only.
+
+Sprites are extracted and cached from the user's matching ROM. The image
+contains no bundled Pokémon sprite cache, ROMs, or saves. Read the
+[Butterfly Link guide](documentation/BUTTERFLY_LINK.md) before using it.
 
 ### Media compatibility on Miyoo Flip V2
 
@@ -63,7 +85,8 @@ the image excludes the proprietary DraStic package. A complete
 install and exact-restore round trip passed on a second untouched Flip V2.
 Earlier Alpha 2 candidates passed regression and host-side image audits. Public
 distribution remains pending the final rebuilt-image audit, focused hardware
-test, and immutable release tag. See
+test, and immutable release tag. Previous audits apply only to their
+recorded images; later rebuilds require a fresh audit. See
 [Known Issues](documentation/KNOWN_ISSUES.md#distribution-licensing-gate).
 
 Release compliance status is tracked in
@@ -81,6 +104,10 @@ documentation are CC BY-SA 4.0, and the official name/logo use a separate
 identity policy. Inherited and third-party works retain their own licenses.
 
 **ROCKNIX** is a fork of [JELOS](https://github.com/JustEnoughLinuxOS/distribution/), all licenses apply and credit to the JELOS team. 
+
+The following inherited terms describe ROCKNIX material where applicable;
+they are not a single license for every component in the image. Consult the
+ButterflyOS policy and each component's license for the applicable scope.
 
 You are free to:
 

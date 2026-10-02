@@ -1,0 +1,75 @@
+diff --git a/libretro/libretro.c b/libretro/libretro.c
+index bfly001..bfly002 100644
+--- a/libretro/libretro.c
++++ b/libretro/libretro.c
+@@ -96,5 +96,11 @@ static bool geometry_updated = false;
+ static bool link_cable_emulation = false;
+ /*static bool infrared_emulation   = false;*/
++static bool butterfly_link_trace = false;
++static unsigned butterfly_link_trace_lines[2];
++static unsigned butterfly_link_trace_bits[2];
++static uint8_t butterfly_link_trace_tx[2];
++static uint8_t butterfly_link_trace_rx[2];
++#define BUTTERFLY_LINK_TRACE_MAX_LINES 4096
+ 
+ static struct {
+     int16_t *data;
+@@ -267,6 +273,30 @@ static void lcd_status_change_2(GB_gameboy_t *gb, bool on)
+     }
+ }
+ 
++static void butterfly_link_trace_reset(void)
++{
++    memset(butterfly_link_trace_lines, 0, sizeof(butterfly_link_trace_lines));
++    memset(butterfly_link_trace_bits, 0, sizeof(butterfly_link_trace_bits));
++    memset(butterfly_link_trace_tx, 0, sizeof(butterfly_link_trace_tx));
++    memset(butterfly_link_trace_rx, 0, sizeof(butterfly_link_trace_rx));
++}
++
++static void butterfly_link_trace_bit(unsigned device, bool tx, bool rx)
++{
++    butterfly_link_trace_tx[device] = (uint8_t)((butterfly_link_trace_tx[device] << 1) | (tx ? 1 : 0));
++    butterfly_link_trace_rx[device] = (uint8_t)((butterfly_link_trace_rx[device] << 1) | (rx ? 1 : 0));
++    if (++butterfly_link_trace_bits[device] < 8) return;
++    butterfly_link_trace_bits[device] = 0;
++    if (butterfly_link_trace && butterfly_link_trace_lines[device] < BUTTERFLY_LINK_TRACE_MAX_LINES) {
++        ++butterfly_link_trace_lines[device];
++        log_cb(RETRO_LOG_INFO, "BFGB byte d=%u n=%u tx=%02X rx=%02X\\n",
++               device, butterfly_link_trace_lines[device],
++               butterfly_link_trace_tx[device], butterfly_link_trace_rx[device]);
++    }
++    butterfly_link_trace_tx[device] = 0;
++    butterfly_link_trace_rx[device] = 0;
++}
++
+ static bool bit_to_send1 = true, bit_to_send2 = true;
+ 
+ static void serial_start1(GB_gameboy_t *gb, bool bit_received)
+@@ -278,5 +307,6 @@ static bool serial_end1(GB_gameboy_t *gb)
+ {
+     bool ret = GB_serial_get_data_bit(&gameboy[1]);
+     GB_serial_set_data_bit(&gameboy[1], bit_to_send1);
++    butterfly_link_trace_bit(0, bit_to_send1, ret);
+     return ret;
+ }
+@@ -290,5 +320,6 @@ static bool serial_end2(GB_gameboy_t *gb)
+ {
+     bool ret = GB_serial_get_data_bit(&gameboy[0]);
+     GB_serial_set_data_bit(&gameboy[0], bit_to_send2);
++    butterfly_link_trace_bit(1, bit_to_send2, ret);
+     return ret;
+ }
+@@ -476,3 +507,4 @@ static void set_link_cable_state(bool state)
+ {
+     if (state && emulated_devices == 2) {
++        butterfly_link_trace_reset();
+         GB_set_serial_transfer_bit_start_callback(&gameboy[0], serial_start1);
+@@ -1179,5 +1211,8 @@ void retro_init(void)
+     else {
+         log_cb = fallback_log;
+     }
++    const char *trace = getenv("BUTTERFLY_LINK_GB_TRACE");
++    butterfly_link_trace = trace && strcmp(trace, "1") == 0;
++    butterfly_link_trace_reset();
+ 
+     if (environ_cb(RETRO_ENVIRONMENT_GET_INPUT_BITMASKS, NULL)) {

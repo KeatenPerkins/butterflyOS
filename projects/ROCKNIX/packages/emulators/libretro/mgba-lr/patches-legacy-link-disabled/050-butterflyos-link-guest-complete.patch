@@ -1,0 +1,17 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -350,6 +350,14 @@
+       link->awaitingAck = false;
+       _queue(link, sequence, link->localWord, false);
+     }
++    if (link->playerId != 0 && newSequence &&
++        !_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++      /* The guest reply completes this emulated cable transfer.  Do not
++       * leave transferPending set until the timeout path; that advances the
++       * guest one sequence behind the host and produces a transmission error. */
++      _complete(link);
++      return;
++    }
+     if (_diagnostic(link, BF_POLL)) mLOG(GBA_SIO, INFO,
+         "BF poll p=%u f=%u n=%u peer=%u seq=%u word=%04X local=%04X reply=%u",
+         link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_POLL],

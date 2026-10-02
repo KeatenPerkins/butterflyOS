@@ -1,0 +1,22 @@
+--- a/src/platform/libretro/libretro.c
++++ b/src/platform/libretro/libretro.c
+@@ -1649,12 +1649,15 @@ static void _linkStartThreads(void) {
+ static bool _linkWaitForFrame(void) {
+ 	MutexLock(&linkFrameMutex);
+ 	while (!linkFrameDone[0] && !linkThreadsStopping) {
+-		if (ConditionWaitTimed(&linkFrameCondition, &linkFrameMutex, 50)) {
+-			MutexUnlock(&linkFrameMutex);
+-			return false;
+-		}
++		if (ConditionWaitTimed(&linkFrameCondition, &linkFrameMutex, 50)) {
++			linkFrameRelease[0] = true;
++			linkFrameRelease[1] = true;
++			ConditionWake(&linkFrameCondition);
++			MutexUnlock(&linkFrameMutex);
++			return false;
++		}
+ 	}
+ 	bool ready = linkFrameDone[0];
+ 	MutexUnlock(&linkFrameMutex);
+ 	return ready;
+ }

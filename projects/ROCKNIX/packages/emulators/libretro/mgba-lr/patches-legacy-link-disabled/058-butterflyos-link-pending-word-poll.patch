@@ -1,0 +1,5 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -297,1 +297,1 @@
+-  if (link->playerId != 0 && link->transferPending && !link->txSize &&
++  if (link->playerId != 0 && (link->transferPending || link->pendingWordUpdate) && !link->txSize &&

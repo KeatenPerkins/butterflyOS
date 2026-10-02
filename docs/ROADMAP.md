@@ -3,6 +3,11 @@
 This roadmap defines outcomes rather than fixed release dates. Hardware testing
 is performed on a Miyoo Flip V2 before a milestone is considered complete.
 
+Reviewed October 2, 2026. This is a backlog, not the current feature list.
+Use [Features](../documentation/FEATURES.md) and
+[current build status](../documentation/CURRENT_BUILD_STATUS.md) for implemented
+behavior. Older sprint notes below retain their historical dates.
+
 ## Milestone 0: Bootable foundation
 
 Status: **Alpha 2 public-release candidate; remaining limitations tracked**
@@ -16,9 +21,10 @@ Status: **Alpha 2 public-release candidate; remaining limitations tracked**
   reporting, charging, Wi-Fi, Bluetooth, both card slots, lid behavior, suspend,
   resume, and shutdown after the replacement shell is installed
 
-Alpha 1 established the bootable baseline. Alpha 2 has completed qualification
-on a second untouched device. Rumble, dedicated lid/suspend regression, and
-controlled battery-runtime measurement remain open known limitations.
+Alpha 1 established the bootable baseline. Alpha 2 onboarding has completed
+qualification on a second untouched device. Display-only lid handling passed
+development tests; hardware suspend remains disabled. Rumble and controlled
+battery-runtime measurement remain open known limitations.
 
 ### September 19 stability and crash-forensics sprint
 
@@ -89,8 +95,8 @@ not impose excessive SD wear or multi-gigabyte logging.
 ## Milestone 1: Console shell prototype
 
 - Create a ButterflyOS EmulationStation theme with large, readable targets
-- Organize the default experience around Games, Favorites, Recent,
-  Applications, and Settings
+- Organize the default experience around Games, Favorites, Media, Tools,
+  and Settings
 - Hide unused systems and advanced entries by default
 - Establish consistent button prompts, confirmation dialogs, and terminology
 - Preserve the level-filled battery icon while charging and render a separate,
@@ -203,91 +209,48 @@ ButterflyOS on the supported Miyoo Flip V2 revision.
 
 ## Flagship feature: Butterfly Link
 
-Create a game-focused application that recreates the handheld link-cable
-experience between two Miyoo Flip V2 systems over a direct or local wireless
-connection. The initial target is legitimate user-provided copies of the
-mainline GB/GBC monster-trading games, followed by compatible GBA titles.
+The current approach is **save-based trade/copy**, implemented in a native C
+helper backed by PKSav and a controller-operated SDL Python interface.
+The former netplay/USB cable emulation remains research history. The current
+application does not launch games or provide battles.
 
-### Alpha-era feasibility work
+Current capabilities and hardware evidence are documented in
+[Butterfly Link](../documentation/BUTTERFLY_LINK.md) and
+[current build status](../documentation/CURRENT_BUILD_STATUS.md).
 
-Feasibility was proven on September 19, 2026 with two physical Miyoo Flip V2
-units. Identical local Red/Blue content was launched through SameBoy's
-`gb_link_2p` subsystem and synchronized over RetroArch LAN netplay. Each Flip
-controlled a separate player, both prepared saves loaded, an in-game trade
-completed, and both post-trade SRAM files were written with changed hashes.
-The test used isolated copies; normal library saves were never opened for
-writing.
+### Implemented development scope
 
-A ButterflyOS SameBoy patch adds native **Game Boy #1 Only** and **Game Boy #2
-Only** output modes. Both emulated systems continue running for the link, while
-each device exposes only its local 160x144 framebuffer and its corresponding
-audio. This avoids displaying two cramped screens or stretching a cropped
-combined image. The dual-system audio rate is set to the hardware-facing 48
-kHz rate rather than SameBoy's desktop-oriented 384 kHz rate; physical testing
-showed substantially improved video and audio pacing. Link sessions should
-temporarily disable Wi-Fi power saving and restore it on exit.
+- Read supported Gen I/II/III saves on either SD card, preview party/boxes,
+  and transfer boxed Pokémon.
+- Same-generation local trade/copy and remote Host/Join over the same Wi-Fi.
+- Gen I → II converted copies; qualify the remote Yellow → Crystal persistence
+  issue before presenting that route as reliable.
+- Gen II → III one-way copies, keeping the source and clearing held items.
+- Cache sprites and supported name tables from the user's matching ROM.
+- Offer local evolution choices for supported rules.
+- Preserve original-save backups and require final confirmation.
+- Stage clearer wrapped result screens and verified file commits for the next build.
 
-- [x] Identify an emulator/core whose serial-link implementation can be
-  bridged reliably between two separate devices
-- [x] Prototype connection health and synchronized launch on two Flip V2 test
-  units; automatic discovery and pairing UI remain to be implemented
-- Determine which game regions, revisions, ROM hacks, save formats, and core
-  versions can interoperate safely
-- Verify that failed connections never corrupt or overwrite either player's
-  save; make automatic pre-session save backups mandatory
-- Keep the prototype behind an Experimental or Advanced switch and exclude it
-  from the Alpha 2 acceptance criteria
+### Next priorities
 
-### GB/GBC release scope
+1. Qualify the new image's ordinary save launch/exit behavior and the remote
+   Gen I → II result through an in-game save and reopen.
+2. Test cancellation, guest-network discovery failures, disconnects before and
+   during commit, and recovery from a one-sided remote trade.
+3. Provide a clear recovery workflow for retained session backups; guard
+   against concurrent writes by emulators or other tools.
+4. Add remote evolution choices and complete the intended held-item/Everstone
+   rules with in-game validation.
+   Review the current Gen III Trade same-format restriction before claiming
+   Ruby/Sapphire, Emerald, and FireRed/LeafGreen can all trade with each other.
+5. Unify built-in, Bluetooth, and fallback hotkey behavior and qualify more
+   controller modes; multiplayer player assignment remains separate testing.
+6. Consider party transfers with safeguards against an empty/unusable team.
+7. Consider historic-event unlock tools only after reviewing each data source
+   and implementation; do not bundle distribution ROMs, official event assets,
+   or assume every event is represented by a simple save flag.
 
-The save-safety backend is implemented and passes both workstation and live
-ButterflyOS tests using disposable two-card fixtures. It discovers and
-deduplicates saves across both cards, creates verified isolated working copies,
-detects concurrent changes, performs verified atomic commit/restore, and
-retains pre-session and post-session recovery copies. The controller-facing
-launcher now provides Host, Join, Connection Test, Session Status, Cancel, and
-Restore workflows. Real two-device broadcast discovery and core/protocol
-compatibility checks pass. Save exchange and coordinated emulator launch remain
-explicitly disabled until their failure recovery is implemented and tested.
-
-- Provide a controller-only **Butterfly Link** application with **Host** and
-  **Join** choices and plain-language status messages
-- Discover nearby ButterflyOS devices on the same network, with an IP/manual
-  connection fallback
-- Match compatible games and emulator versions before launch; explain a
-  mismatch instead of attempting an unsafe session
-- Support trading and battling in Red, Blue, Yellow, Gold, and Silver first,
-  then test Crystal and regional/revision variants separately
-- Launch both games into a synchronized link session and return cleanly to the
-  normal game library afterward
-- Preserve each user's normal saves and create recoverable backups before and
-  after every session
-- Document that ButterflyOS supplies no games, copyrighted firmware, or
-  online matchmaking service
-
-Acceptance: two clean ButterflyOS devices can discover one another, establish
-a stable session, trade and battle using supported user-provided games, retain
-valid saves after disconnects, and recover the pre-session saves after an
-interrupted or failed transfer.
-
-### Later GBA scope
-
-- Investigate link support and performance for Ruby, Sapphire, Emerald,
-  FireRed, and LeafGreen
-- Add GBA only after GB/GBC sessions are reliable; do not assume the GB/GBC
-  transport, timing, save handling, or emulator architecture will transfer
-  unchanged
-- Explore direct device-to-device setup only after local-network operation is
-  dependable and easy to diagnose
-
-## Deferred until after the first stable release
-
-- Add a game-audio mute shortcut and a controller-first background-music
-  overlay so users can browse and control their own music while a game is
-  running. Keep game and music volume independent, restore audio state on exit,
-  and avoid interfering with emulator hotkeys or save-state input.
-- Support for additional handheld models
-- A network catalog for optional ports, themes, and experimental emulators
-- Cloud accounts or online save synchronization
-- Major divergence from the ROCKNIX build system
-- Shipping any proprietary games or BIOS firmware
+Reverse generation conversion, save banks, true cable sessions, and battles
+are not promised release features. Expand them only after the existing transfer
+and recovery workflows are reliable. Compatible network transfer sends saves,
+not ROMs, and keeps copyrighted game artwork out of the OS image.

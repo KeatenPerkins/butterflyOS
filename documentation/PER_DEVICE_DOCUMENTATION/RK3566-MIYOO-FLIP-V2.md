@@ -1,5 +1,11 @@
 # Miyoo Flip V2 bring-up
 
+This is a historical engineering record, not the installation procedure.
+For the current device-local installer, use
+[Installation and recovery](../BUTTERFLYOS_INSTALL_AND_RECOVERY.md).
+Recorded preloader/image hashes apply only to the units/artifacts tested and
+must not be used as generic restore images or current release checksums.
+
 ButterflyOS targets the Miyoo Flip V2 with the RK3566
 `Miyoo_Flip_V2` image variant. This variant uses the shared RK3566 Specific
 U-Boot and selects `device_trees/rk3566-miyoo-flip.dtb` in the generated
