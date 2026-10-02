@@ -84,6 +84,13 @@ hardware qualification.
 
 ## Before publication
 
+The October 2 flashed-device test exposed missing artwork and misleading scrape
+completion after DNS failures. The live regular-game-list workaround restored
+artwork and was confirmed by the user. Frontend patches 041 and 042 stage the
+linked-list reader fix and scraper failure/retry feedback. They are not in the
+image identified above; see `SCREENSCRAPER.md`. A replacement build and focused
+test are required before publishing an image.
+
 - Confirm ScreenScraper in this image after flashing: scrape a game, restart
   the frontend, switch HDMI on and off, and verify artwork remains. See
   [ScreenScraper setup and verification](SCREENSCRAPER.md).

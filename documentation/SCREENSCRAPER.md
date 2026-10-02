@@ -61,3 +61,23 @@ game. Check that its artwork appears, restart the frontend normally, then
 connect/disconnect HDMI and check the same artwork again. Do not rename ROMs
 or saves to obtain artwork: the provider can identify supported games by name
 and/or ROM hashes. Do not publish logs containing account information.
+
+## Staged fixes after the October 2 image test
+
+- The user confirmed artwork appears after replacing linked `gamelist.xml`
+  files with regular copies on the live device. EmulationStation's file cache
+  rejects symlinks in its regular-file check, silently skipping second-card
+  metadata. Patch 041 checks the canonical file while retaining the original
+  system-relative paths, so the shared game lists do not need to be duplicated.
+- DNS failures were previously treated as successful empty scraper results.
+  Patch 042 propagates network I/O errors from both lookup and media download,
+  stops the batch with a readable Wi-Fi/retry message, and leaves failed and
+  unmatched games unmarked so an unscraped-only retry can select them again.
+- Completed batches report matched, not-found, and failed counts. Matched means
+  a metadata result was accepted, not proof that every possible artwork type
+  exists. Partial media-download failure does not accept the result.
+- Both patches pass zero-fuzz dry-run application to the current frontend
+  sources. They are staged source changes only: compilation, offline-scrape
+  error handling, successful retries, linked-list refresh, and HDMI/reboot
+  retention must be tested in the next build. No rebuild or live deployment of
+  these patches has been performed.
