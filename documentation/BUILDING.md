@@ -3,9 +3,8 @@
 These instructions build the Miyoo Flip V2 image from a clean ButterflyOS
 checkout. The build uses Podman and the pinned ROCKNIX build container.
 
-The public repository URL and immutable Alpha 2 tag have not been assigned
-yet. The following clone URL/tag are publication placeholders; do not present
-them as working downloads. Current image/test status is recorded in
+The public source repository is available. An immutable Alpha 2 release tag
+has not yet been assigned. Current image/test status is recorded in
 [CURRENT_BUILD_STATUS.md](CURRENT_BUILD_STATUS.md).
 
 ## Host requirements
@@ -17,14 +16,15 @@ them as working downloads. Current image/test status is recorded in
 ## Build
 
 ```sh
-git clone https://github.com/OWNER/butterflyos.git
-cd butterflyos
-git checkout v0.1.0-alpha.2
+git clone https://github.com/KeatenPerkins/butterflyOS.git
+cd butterflyOS
+git checkout butterfly-save-trade-prototype
 make docker-RK3566-Miyoo-Flip-V2-aarch64
 ```
 
-Replace `OWNER` with the final GitHub organization or username. Do not build a
-public release from an uncommitted working tree.
+This branch is the development snapshot, not an immutable release. For a
+published image, use its recorded source tag instead. Do not build a public
+release from an uncommitted working tree.
 
 The aarch64 target builds the Flip production image. The target without the
 `-aarch64` suffix additionally builds the compatibility ARM image. A clean
