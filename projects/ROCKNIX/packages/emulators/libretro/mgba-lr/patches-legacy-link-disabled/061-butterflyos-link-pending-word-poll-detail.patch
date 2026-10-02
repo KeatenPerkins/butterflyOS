@@ -1,0 +1,13 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -300,1 +300,2 @@
+-      link->localWord = currentWord;
++      bool alreadyComplete = link->pendingWordUpdate;
++      link->localWord = currentWord;
+@@ -302,1 +303,2 @@
+-      _queue(link, link->pendingSequence, link->localWord, false);
++      _queue(link, link->pendingSequence, link->localWord, false);
++      link->pendingWordUpdate = false;
+@@ -303,1 +305,1 @@
+-      if (!_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++      if (!alreadyComplete && !_needsReadyRendezvous(link, link->localWord, link->remoteWord)) {

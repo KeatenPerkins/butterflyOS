@@ -1350,10 +1350,11 @@
  * Disabled: fd840000 / fd8c0000 OHCI companions.
  * usb_host1_xhci stays on usb2phy0_host so it does not share a PHY with WiFi. */
 
-/* Lower USB-C: charge / gadget. */
+/* Lower USB-C: fixed peripheral/gadget side for the experimental Butterfly Link
+ * USB transport. The upper/rear USB-C connector remains the host side. */
 &usb_host0_xhci {
 	status = "okay";
-	dr_mode = "otg";
+	dr_mode = "peripheral";
 	extcon = <&usb2phy0>;
 	phys = <&usb2phy0_otg>;
 	phy-names = "usb2-phy";

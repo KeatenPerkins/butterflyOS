@@ -1,0 +1,31 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -329,11 +329,11 @@
+     }
+-    uint16_t previousRemoteWord = link->remoteWord;
+     link->remoteWord = ntohs(packet.word);
+     link->remoteSequence = sequence;
+     link->haveRemoteSequence = true;
+-    if (link->playerId != 0 && newSequence &&
+-        (!link->transferPending || previousRemoteWord != link->remoteWord ||
+-         link->localWord != link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)])) {
++    if (link->playerId != 0 && newSequence) {
+       link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+-      link->awaitingAck = true;
++      /* The incoming host packet is already a complete emulated cable
++       * transfer. Complete the guest immediately instead of waiting for a
++       * second network ACK, which can deadlock when the game repeats a word. */
++      link->awaitingAck = false;
+       _queue(link, sequence, link->localWord, false);
+     }
+@@ -347,7 +347,7 @@
+     if (_diagnostic(link, BF_POLL)) mLOG(GBA_SIO, INFO,
+         "BF poll p=%u f=%u n=%u peer=%u seq=%u word=%04X local=%04X reply=%u",
+         link->playerId, link->diagnosticFrame, link->diagnosticCalls[BF_POLL],
+         peer, sequence, link->remoteWord, link->localWord, (unsigned) (link->playerId != 0));
+-    if (link->playerId == 0 && !_needsReadyRendezvous(link->localWord, link->remoteWord)) {
+-      _queue(link, sequence, link->remoteWord, true);
++    if (!_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++      if (link->playerId == 0) _queue(link, sequence, link->remoteWord, true);
+       _complete(link);
+     }

@@ -1,0 +1,26 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -250,13 +250,23 @@
+   }
+   if (!link->d.p) return;
+   if (link->connected && link->transferPending && ++link->pendingFrames >= 300) {
++    /* The host can enter multiplayer before the peer's game has finished
++     * loading. Real hardware keeps the serial request pending in that case;
++     * completing with FFFF makes Pokémon report a transmission error. */
++    if (link->playerId == 0 && !link->haveRemoteSequence) {
++      link->pendingFrames = 0;
++      if (!link->txSize) _queue(link, link->pendingSequence, link->localWord, false);
++      if (_diagnostic(link, BF_STATE)) mLOG(GBA_SIO, INFO,
++          "BF transfer wait p=%u seq=%u", link->playerId, link->pendingSequence);
++    } else {
+     if (_diagnostic(link, BF_STATE)) mLOG(GBA_SIO, WARN,
+         "BF transfer timeout p=%u seq=%u", link->playerId, link->pendingSequence);
+     /* The other game may still be loading or entering the club. Complete
+      * as absent for this request, but leave the session usable for retry. */
+     link->haveRemoteSequence = false;
+     if (link->d.p->mode == GBA_SIO_MULTI) _complete(link);
+     else link->transferPending = false;
++    }
+   }
+   _poll(link);
+ }

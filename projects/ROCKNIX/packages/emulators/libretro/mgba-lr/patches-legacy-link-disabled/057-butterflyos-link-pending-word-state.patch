@@ -1,0 +1,23 @@
+--- a/include/mgba/internal/gba/sio/butterfly.h
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -23,5 +23,6 @@
+   bool connected;
+   bool haveRemoteSequence;
+   bool transferPending;
++  bool pendingWordUpdate;
+   bool awaitingAck;
+   struct mTimingEvent pollEvent;
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -109,4 +109,5 @@
+   link->transferPending = false; link->haveRemoteSequence = false;
+   link->awaitingAck = false;
+   link->pendingFrames = 0;
++  link->pendingWordUpdate = false;
+   if (link->d.p) mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
+@@ -139,4 +140,5 @@
+   } else {
+     link->transferPending = false;
++    link->pendingWordUpdate = false;
+     mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
+   }

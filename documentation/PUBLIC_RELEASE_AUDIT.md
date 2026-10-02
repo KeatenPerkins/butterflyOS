@@ -2,6 +2,11 @@
 
 This records technical release checks. It is not legal advice.
 
+The dated sections below apply only to their recorded images. They are not a
+clean-image audit of the October 2 candidate or the next rebuild. See
+[current build status](CURRENT_BUILD_STATUS.md); repeat the filesystem,
+privacy, component-license, and hardware checks on the final release artifact.
+
 ## Alpha 2 candidate policy
 
 - Target only `RK3566/Miyoo_Flip_V2`.

@@ -2,16 +2,24 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.1.0"
+PKG_VERSION="2.6.10"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
-PKG_DEPENDS_TARGET="toolchain dialog xxd Python3 fbalpha2012-lr fbalpha2019-lr \
+PKG_DEPENDS_TARGET="toolchain dialog SDL2 SDL2_ttf dejavu xxd Python3 pksav fbalpha2012-lr fbalpha2019-lr \
                     fbneo-lr genesis-plus-gx-lr genesis-plus-gx-wide-lr \
                     snes9x-lr snes9x2002-lr snes9x2005_plus-lr \
                     snes9x2010-lr supersnes9x-lr"
 PKG_LONGDESC="ButterflyOS guided Miyoo Flip multiboot setup and recovery tools"
 PKG_TOOLCHAIN="manual"
+
+make_target() {
+  cd "${PKG_BUILD}"
+  ${CC} ${CFLAGS} ${CPPFLAGS} -I${SYSROOT_PREFIX}/usr/include \
+    -o butterflyos-save-trade \
+    "${PKG_DIR}/sources/butterflyos-save-trade.c" \
+    -L${SYSROOT_PREFIX}/usr/lib -Wl,-Bstatic -lpksav -Wl,-Bdynamic -lm
+}
 
 makeinstall_target() {
   # Keep the project policy, audit notice, common license texts, and the exact
@@ -64,13 +72,16 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/sources/flip-onboarding.sh" \
         "${PKG_DIR}/sources/flip-onboarding.gptk" \
         "${PKG_DIR}/sources/game-card-ui.sh" \
-        "${PKG_DIR}/sources/link-ui.sh" \
+        "${PKG_DIR}/sources/save-trade.gptk" \
+        "${PKG_DIR}/sources/save-trade.dialogrc" \
+        "${PKG_DIR}/sources/save-trade-ui.sh" \
         "${INSTALL}/usr/share/butterflyos/"
   mkdir -p "${INSTALL}/usr/bin"
   cp -a "${PKG_DIR}/sources/butterflyos-game-card" \
-        "${PKG_DIR}/sources/butterflyos-link-agent" \
-        "${PKG_DIR}/sources/butterflyos-link-session" \
-        "${PKG_DIR}/sources/butterflyos-link-save" \
+        "${PKG_DIR}/sources/butterflyos-gb-sprite-cache.py" \
+        "${PKG_DIR}/sources/butterflyos-save-trade-sdl.py" \
+        "${PKG_DIR}/sources/butterflyos-gen3-sprite-cache.py" \
+        "${PKG_BUILD}/butterflyos-save-trade" \
         "${PKG_DIR}/sources/butterflyos-extended-diagnostics" \
         "${PKG_DIR}/sources/butterflyos-health-monitor" \
         "${PKG_DIR}/sources/butterflyos-lid-backlight" \
@@ -79,7 +90,6 @@ makeinstall_target() {
   mkdir -p "${INSTALL}/usr/lib/systemd/system/var-log.mount.d"
   cp -a "${PKG_DIR}/system.d/butterflyos-health-monitor.service" \
         "${PKG_DIR}/system.d/butterflyos-extended-diagnostics.service" \
-        "${PKG_DIR}/system.d/butterflyos-link-agent.service" \
         "${PKG_DIR}/system.d/butterflyos-lid-backlight.service" \
         "${INSTALL}/usr/lib/systemd/system/"
   cp -a "${PKG_DIR}/system.d/var-log.mount.d/butterflyos.conf" \
@@ -114,13 +124,14 @@ makeinstall_target() {
              "${INSTALL}/usr/config/modules/Restore Stock Miyoo Boot.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-onboarding.sh" \
              "${INSTALL}/usr/share/butterflyos/game-card-ui.sh" \
-             "${INSTALL}/usr/share/butterflyos/link-ui.sh" \
+             "${INSTALL}/usr/share/butterflyos/save-trade-ui.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/manage.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/patch-preloader.sh" \
              "${INSTALL}/usr/bin/butterflyos-game-card" \
-             "${INSTALL}/usr/bin/butterflyos-link-agent" \
-             "${INSTALL}/usr/bin/butterflyos-link-session" \
-             "${INSTALL}/usr/bin/butterflyos-link-save" \
+             "${INSTALL}/usr/bin/butterflyos-gb-sprite-cache.py" \
+             "${INSTALL}/usr/bin/butterflyos-save-trade-sdl.py" \
+             "${INSTALL}/usr/bin/butterflyos-gen3-sprite-cache.py" \
+             "${INSTALL}/usr/bin/butterflyos-save-trade" \
              "${INSTALL}/usr/bin/butterflyos-extended-diagnostics" \
              "${INSTALL}/usr/bin/butterflyos-health-monitor" \
              "${INSTALL}/usr/bin/butterflyos-lid-backlight" \
@@ -134,6 +145,5 @@ post_install() {
   enable_service var-log.mount
   enable_service butterflyos-extended-diagnostics.service
   enable_service butterflyos-health-monitor.service
-  enable_service butterflyos-link-agent.service
   enable_service butterflyos-lid-backlight.service
 }

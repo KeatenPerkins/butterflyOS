@@ -49,6 +49,8 @@ projects/**/*.old
 /.env
 /.es_cache
 /.config
+__pycache__/
+*.py[cod]
 
 # Device documentation (auto-generated)
 documentation/PER_DEVICE_DOCUMENTATION/RK3566/SUPPORTED_EMULATORS_AND_CORES.md

@@ -1715,6 +1715,11 @@ makeinstall_target() {
   ### Tools
   add_es_system tools
 
+  ### ButterflyOS Settings home destination
+  # This is a virtual carousel entry. Selecting it is handled by
+  # EmulationStation and opens the same menu reached from the device's
+  # Start button; it does not create a filesystem-backed game directory.
+
   ### Screenshots
   add_es_system imageviewer
 
@@ -1738,6 +1743,21 @@ makeinstall_target() {
     -s '/systemList/butterflyGames' -t elem -n platform -v ignore \
     -s '/systemList/butterflyGames' -t elem -n theme -v games \
     -r '/systemList/butterflyGames' -v system \
+    ${ESTMP}/es_systems.cfg
+
+  xmlstarlet ed --inplace \
+    -s '/systemList' -t elem -n butterflySettings -v '' \
+    -s '/systemList/butterflySettings' -t elem -n name -v settings \
+    -s '/systemList/butterflySettings' -t elem -n fullname -v Settings \
+    -s '/systemList/butterflySettings' -t elem -n manufacturer -v ButterflyOS \
+    -s '/systemList/butterflySettings' -t elem -n release -v 2026 \
+    -s '/systemList/butterflySettings' -t elem -n hardware -v System \
+    -s '/systemList/butterflySettings' -t elem -n path -v /storage/.config/butterflyos-settings \
+    -s '/systemList/butterflySettings' -t elem -n extension -v .butterfly \
+    -s '/systemList/butterflySettings' -t elem -n command -v /bin/false \
+    -s '/systemList/butterflySettings' -t elem -n platform -v ignore \
+    -s '/systemList/butterflySettings' -t elem -n theme -v settings \
+    -r '/systemList/butterflySettings' -v system \
     ${ESTMP}/es_systems.cfg
 
   # Replace the separate Gmu launcher with a unified, folder-aware Media

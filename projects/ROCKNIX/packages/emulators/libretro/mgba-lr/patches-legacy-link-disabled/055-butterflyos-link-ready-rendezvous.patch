@@ -1,0 +1,12 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -164,4 +164,4 @@
+ static bool _needsReadyRendezvous(uint16_t localWord, uint16_t remoteWord) {
+-  UNUSED(localWord); UNUSED(remoteWord);
+-  /* Pokémon owns the ready-state handshake; transport every completed word. */
+-  return false;
++  /* Do not expose a one-frame 8FFF/B9A0 mismatch to Pokémon.  The cable
++   * handshake is simultaneous: keep the transfer pending until both games
++   * have published the ready word. */
++  return (localWord == BF_READY_WORD) != (remoteWord == BF_READY_WORD);
+ }

@@ -1,5 +1,9 @@
 # ButterflyOS v0.1.0 Alpha 2 package license manifest
 
+Historical inventory from the earlier audited candidate. This is not the
+October 2 image's final package manifest. Regenerate it from the final release
+build, including PKSav and subsequent additions/removals, before publication.
+
 Generated from the completed target build job log and `package.mk` metadata.
 A declaration is an audit starting point, not proof that every bundled file has
 been licensed correctly. Dynamic shell expressions may require manual review.

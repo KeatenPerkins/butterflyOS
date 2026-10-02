@@ -59,8 +59,8 @@
 +/* Keep incomplete writes queued: TCP may accept fewer than 16 bytes. */
 +static bool _flush(struct GBASIOButterfly* link) {
 +  while (link->connected && link->txOffset < link->txSize) {
-+    ssize_t sent = SocketSend(link->socket, link->txBuffer + link->txOffset,
-+        link->txSize - link->txOffset);
++    ssize_t sent = send(link->socket, link->txBuffer + link->txOffset,
++        link->txSize - link->txOffset, MSG_NOSIGNAL);
 +    if (sent < 0 && errno == EINTR) continue;
 +    if (sent < 0 && SocketWouldBlock()) return false;
 +    if (sent <= 0) { _close(link); return false; }
@@ -117,7 +117,7 @@
 -  packet.checksum = htons(_checksum(&packet));
 -  link->localWord = ntohs(packet.word);
 -  link->transferPending = SocketSend(link->socket, &packet, sizeof(packet)) == sizeof(packet);
-+  _queue(link, link->pendingSequence, link->localWord);
++  _queue(link, link->pendingSequence, link->localWord, false);
    if (_diagnostic(link, BF_START)) mLOG(GBA_SIO, INFO,
 -      "BF start p=%u f=%u n=%u seq=%u word=%04X sent=%u cnt=%04X",
 +      "BF start p=%u f=%u n=%u seq=%u word=%04X queued=%u",

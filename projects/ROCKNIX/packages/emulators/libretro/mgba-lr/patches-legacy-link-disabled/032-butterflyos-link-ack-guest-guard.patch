@@ -1,0 +1,10 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -331,3 +331,4 @@
+-    if (!_needsReadyRendezvous(link->localWord, link->remoteWord)) {
+-      _complete(link);
+-    }
++    if (link->playerId == 0 && !_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++      _queue(link, sequence, link->remoteWord, true);
++      _complete(link);
++    }

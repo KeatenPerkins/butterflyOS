@@ -1,9 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101b38"/><stop offset="1" stop-color="#180d2d"/></linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#000000"/><stop offset="1" stop-color="#000000"/></linearGradient>
     <filter id="glow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
   <rect width="256" height="256" rx="36" fill="url(#bg)"/>
-  <rect x="13" y="13" width="230" height="230" rx="29" fill="none" stroke="#7c4dff" stroke-width="5"/>
+  <!-- The Tools game-card already supplies the themed gradient frame. Keep
+       this artwork frame-free so Controls Guide does not get a nested border. -->
   <image href="./snes-controller.png" x="20" y="55" width="216" height="145" preserveAspectRatio="xMidYMid meet" filter="url(#glow)"/>
 </svg>

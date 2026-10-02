@@ -1,0 +1,34 @@
+--- a/es-app/src/scrapers/ScreenScraper.h
++++ b/es-app/src/scrapers/ScreenScraper.h
+@@ -5,6 +5,7 @@
+ 
+ #include "scrapers/Scraper.h"
+ #include "EmulationStation.h"
++#include "ButterflyScreenScraperCredentials.h"
+ 
+ #if defined(SCREENSCRAPER_DEV_LOGIN)
+ 
+--- a/es-app/src/scrapers/Scraper.cpp
++++ b/es-app/src/scrapers/Scraper.cpp
+@@ -526,3 +526,3 @@
+ {
+-	LOG(LogDebug) << "downloadImageAsync : " << url << " -> " << saveAs;
++	LOG(LogDebug) << "downloadImageAsync -> " << saveAs;
+ 
+--- a/es-app/src/scrapers/ScreenScraper.cpp
++++ b/es-app/src/scrapers/ScreenScraper.cpp
+@@ -948,6 +948,15 @@
+ int ScreenScraperScraper::getThreadCount(std::string &result)
+ {
++	// ssuserInfos requires a personal login. Developer-only game lookup is
++	// supported without it; anonymous scraping uses one request thread.
++	result.clear();
++	if (Settings::getInstance()->getString("ScreenScraperUser").empty() ||
++		Settings::getInstance()->getString("ScreenScraperPass").empty())
++	{
++		return 1;
++	}
++
+ 	ScreenScraperRequest::ScreenScraperConfig ssConfig;
+ 	std::string url = ssConfig.getUserInfoUrl();
+ 

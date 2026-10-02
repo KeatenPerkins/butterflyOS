@@ -63,6 +63,19 @@ RK3566-Miyoo-Flip-V2:
 	IMAGE_SUBDEVICE=Miyoo_Flip_V2 DEVICE_ROOT=RK3566 PROJECT=ROCKNIX DEVICE=RK3566 ARCH=arm ./scripts/build_distro
 	IMAGE_SUBDEVICE=Miyoo_Flip_V2 DEVICE_ROOT=RK3566 PROJECT=ROCKNIX DEVICE=RK3566 ARCH=aarch64 ./scripts/build_distro
 
+# Faster developer iteration for the Flip: its production image is aarch64.
+# Keep the combined target above for compatibility, but avoid rebuilding the
+# unused 32-bit image when only the Flip image is being tested.
+RK3566-Miyoo-Flip-V2-aarch64:
+	unset DEVICE_ROOT
+	IMAGE_SUBDEVICE=Miyoo_Flip_V2 DEVICE_ROOT=RK3566 PROJECT=ROCKNIX DEVICE=RK3566 ARCH=aarch64 ./scripts/build_distro
+
+# Assemble from already-built aarch64 packages without the broad package-clean
+# pass. Use after rebuilding a single package during local Flip development.
+RK3566-Miyoo-Flip-V2-aarch64-incremental:
+	unset DEVICE_ROOT
+	DIRTY=1 IMAGE_SUBDEVICE=Miyoo_Flip_V2 DEVICE_ROOT=RK3566 PROJECT=ROCKNIX DEVICE=RK3566 ARCH=aarch64 ./scripts/build_distro
+
 RK3326:
 	unset DEVICE_ROOT
 	PROJECT=ROCKNIX DEVICE=RK3326 ARCH=arm ./scripts/build_distro

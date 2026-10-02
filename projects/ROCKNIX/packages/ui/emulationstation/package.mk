@@ -37,13 +37,16 @@ pre_configure_target() {
   cp -a ${PKG_DIR}/sources/butterflyos-splash.png \
     ${PKG_BUILD}/resources/butterflyos-splash.png
 
-  for key in SCREENSCRAPER_DEV_LOGIN \
-             GAMESDB_APIKEY \
+  ${TOOLCHAIN}/bin/python3 ${PKG_DIR}/sources/make-screenscraper-credentials.py \
+    ${ROOT}/.config/screenscraper.json \
+    ${PKG_BUILD}/es-app/src/scrapers/ButterflyScreenScraperCredentials.h
+
+  for key in GAMESDB_APIKEY \
              CHEEVOS_DEV_LOGIN; do
     if [ -z "${!key}" ]; then
       echo "WARNING: ${key} not declared, will not build support."
     else
-      echo "USING: ${key} = ${!key}"
+      echo "USING: ${key} (value hidden)"
     fi
   done
 

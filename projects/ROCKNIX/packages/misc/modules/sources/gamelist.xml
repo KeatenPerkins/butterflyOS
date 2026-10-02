@@ -3,7 +3,7 @@
     <game>
         <path>./Butterfly Link.sh</path>
         <name>Butterfly Link</name>
-        <desc>Prepare protected Pokemon save sessions and connect two ButterflyOS devices for local link-cable play.</desc>
+        <desc>Inspect compatible Pokemon saves and safely swap boxed Pokemon without unreliable cable emulation.</desc>
         <developer>ButterflyOS</developer>
         <publisher>ButterflyOS</publisher>
         <releasedate>2026</releasedate>
@@ -24,8 +24,8 @@
     </game>
     <game>
         <path>./Prepare Game Card.sh</path>
-        <name>Prepare Game Card</name>
-        <desc>Prepare, format, inspect, and refresh a second ButterflyOS game card.</desc>
+        <name>Format 2nd SD Card</name>
+        <desc>Format and set up a second SD card for games, saves, music, and video.</desc>
         <developer>ButterflyOS</developer>
         <publisher>ButterflyOS</publisher>
         <genre>Utility</genre>

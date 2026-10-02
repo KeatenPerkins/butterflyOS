@@ -1,5 +1,9 @@
 # ButterflyOS local link feature plan
 
+**Historical proposal (superseded).** Butterfly Link now edits saves locally
+or over Wi-Fi; the Gambatte/netplay cable experience proposed below is not the
+current released workflow. See [Butterfly Link](BUTTERFLY_LINK.md).
+
 Status: proposed for Alpha 3; not part of Alpha 2.
 
 ## Goal

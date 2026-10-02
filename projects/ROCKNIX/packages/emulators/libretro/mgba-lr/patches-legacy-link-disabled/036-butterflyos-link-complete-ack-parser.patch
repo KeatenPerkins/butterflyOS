@@ -1,0 +1,23 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -307,2 +307,4 @@
+-    unsigned peer = ntohs(packet.player);
++    unsigned rawPeer = ntohs(packet.player);
++    bool ack = (rawPeer & BF_ACK_FLAG) != 0;
++    unsigned peer = rawPeer & 3u;
+     uint32_t sequence = ntohl(packet.sequence);
+@@ -316,2 +318,9 @@
+         peer != (link->playerId == 0 ? 1u : 0u) ||
+         link->d.p->mode != GBA_SIO_MULTI) continue;
++    if (ack) {
++      if (link->playerId != 0 && link->awaitingAck && sequence == link->pendingSequence) {
++        link->awaitingAck = false;
++        _complete(link);
++      }
++      continue;
++    }
+@@ -331,2 +340,3 @@
+       link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+       _queue(link, sequence, link->localWord, false);
++      link->awaitingAck = true;
+     }

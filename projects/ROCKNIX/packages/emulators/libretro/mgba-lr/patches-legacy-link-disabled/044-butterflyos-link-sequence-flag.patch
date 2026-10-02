@@ -1,0 +1,17 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -291,3 +291,4 @@
+   for (unsigned budget = 0; budget < 8 && !link->txSize; ++budget) {
+     struct BFPacket packet;
++    bool newSequence = false;
+     while (link->rxSize < sizeof(packet)) {
+@@ -330,3 +330,4 @@
+         link->pendingSequence = sequence;
+         link->transferPending = true;
++        newSequence = true;
+       }
+@@ -338,3 +339,3 @@
+     link->remoteSequence = sequence;
+     link->haveRemoteSequence = true;
+-    if (link->playerId != 0 &&
++    if (link->playerId != 0 && newSequence &&

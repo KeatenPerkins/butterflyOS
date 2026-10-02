@@ -1,0 +1,9 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -213,1 +213,5 @@
+-  link->transferPending = false;
++  /* The guest may receive a local serial completion before the network ACK.
++   * Keep the transfer pending until the matching ACK arrives. */
++  if (!(link->playerId != 0 && link->awaitingAck)) {
++    link->transferPending = false;
++  }

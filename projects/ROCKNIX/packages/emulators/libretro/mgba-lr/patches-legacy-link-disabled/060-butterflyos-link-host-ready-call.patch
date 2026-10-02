@@ -1,0 +1,5 @@
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -379,1 +379,1 @@
+-    if (link->playerId == 0 && !_needsReadyRendezvous(link->localWord, link->remoteWord)) {
++    if (link->playerId == 0 && !_needsReadyRendezvous(link, link->localWord, link->remoteWord)) {

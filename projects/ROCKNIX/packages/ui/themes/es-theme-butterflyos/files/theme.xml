@@ -136,6 +136,7 @@
       <path>./assets/systems/${system.theme}.png</path>
       <path>./assets/menu/${system.theme}.svg</path>
       <path>./assets/menu/${system.theme}.png</path>
+      <path>./assets/menu/${system.theme}-card.png</path>
     </image>
     <text name="logoText">
       <fontPath>${fontBold}</fontPath>
@@ -153,6 +154,47 @@
       <path>./assets/butterflyos-logo.png</path>
       <zIndex>3</zIndex>
     </image>
+    <!-- Persistent cues for the Start and Select system menus. -->
+    <image name="start-menu-hint" extra="true">
+      <origin>0 1</origin>
+      <pos>0.735 0.965</pos>
+      <maxSize>0.11 0.06</maxSize>
+      <path>./assets/button_start.svg</path>
+      <zIndex>8</zIndex>
+    </image>
+    <text name="start-menu-hint-label" extra="true">
+      <origin>0 1</origin>
+      <pos>0.765 0.965</pos>
+      <size>0.20 0.06</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <forceUppercase>false</forceUppercase>
+      <alignment>right</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>d9e7ffff</color>
+      <text>Main Menu</text>
+      <zIndex>8</zIndex>
+    </text>
+    <image name="select-menu-hint" extra="true">
+      <origin>0 1</origin>
+      <pos>0.035 0.965</pos>
+      <maxSize>0.11 0.06</maxSize>
+      <path>/usr/config/emulationstation/resources/help/button_select.svg</path>
+      <zIndex>8</zIndex>
+    </image>
+    <text name="select-menu-hint-label" extra="true">
+      <origin>0 1</origin>
+      <pos>0.110 0.965</pos>
+      <size>0.32 0.06</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <forceUppercase>false</forceUppercase>
+      <alignment>left</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>d9e7ffff</color>
+      <text>Shut Down Menu</text>
+      <zIndex>8</zIndex>
+    </text>
   </view>
 
   <view name="basic,detailed">

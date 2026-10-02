@@ -1,0 +1,85 @@
+--- a/include/mgba/internal/gba/sio/butterfly.h
++++ b/include/mgba/internal/gba/sio/butterfly.h
+@@ -25,6 +25,7 @@
+   bool transferPending;
+   bool pendingWordUpdate;
+   unsigned pendingReplyPolls;
++  bool pendingCompletion;
+   bool awaitingAck;
+   struct mTimingEvent pollEvent;
+   /* Optional diagnostics; budgets last for the lifetime of this driver. */
+--- a/src/gba/sio/butterfly.c
++++ b/src/gba/sio/butterfly.c
+@@ -67,6 +67,7 @@
+   if (link->d.p) mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
+   if (!SOCKET_FAILED(link->socket)) SocketClose(link->socket);
+   link->socket = INVALID_SOCKET; link->connected = false;
++  link->pendingCompletion = false;
+   link->txSize = link->txOffset = 0;
+ }
+ void GBASIOButterflyCreate(struct GBASIOButterfly* link, unsigned playerId) {
+@@ -110,6 +111,7 @@
+   link->pendingFrames = 0;
+   link->pendingWordUpdate = false;
+   link->pendingReplyPolls = 0;
++  link->pendingCompletion = false;
+   if (link->d.p) mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
+   /* Keep the sequence and a partially sent frame intact across game reset. */
+ }
+@@ -140,6 +142,7 @@
+   } else {
+     link->transferPending = false;
+     link->pendingWordUpdate = false;
++    link->pendingCompletion = false;
+     mTimingDeschedule(&link->d.p->p->timing, &link->pollEvent);
+   }
+ }
+@@ -305,6 +308,18 @@
+     if (link->transferPending && link->d.p->mode == GBA_SIO_MULTI) _complete(link);
+     return;
+   }
++  /* Patch 054 correctly prevents mGBA's generic completion timer from
++   * completing guest transfers a second time.  It also means the guest
++   * does not get the normal busy-bit assertion from _start.  Give the game
++   * one real polling interval with SIOCNT busy high before completing the
++   * network-backed transfer, so it observes the hardware-like busy->done
++   * transition and receives the IRQ/data from _complete. */
++  if (link->playerId != 0 && link->pendingCompletion &&
++      link->d.p->mode == GBA_SIO_MULTI) {
++    link->pendingCompletion = false;
++    _complete(link);
++    return;
++  }
+   /* A guest may reach the ready word after its initial reply. Send the
+    * changed value on the same sequence instead of waiting for a new master
+    * transfer. */
+@@ -380,19 +395,22 @@
+     link->haveRemoteSequence = true;
+     if (link->playerId != 0 && newSequence) {
+       link->localWord = link->d.p->p->memory.io[GBA_REG(SIOMLT_SEND)];
+-      /* The incoming host packet is already a complete emulated cable
+-       * transfer. Complete the guest first, then let its game process the
+-       * received word before publishing the next reply. */
++      /* The incoming host packet is the guest's transfer start.  Patch 054
++       * intentionally keeps _start from scheduling generic completion, so
++       * explicitly reproduce the hardware busy assertion and defer the
++       * clear/data/IRQ transition to the next poll event. */
+       link->awaitingAck = false;
+     }
+     if (link->playerId != 0 && newSequence &&
+         !_needsReadyRendezvous(link, link->localWord, link->remoteWord)) {
+-      /* The guest reply completes this emulated cable transfer.  Do not
+-       * leave transferPending set until the timeout path; that advances the
+-       * guest one sequence behind the host and produces a transmission error. */
+-      _complete(link);
++      link->d.p->siocnt = GBASIOMultiplayerSetBusy(link->d.p->siocnt, true);
+       link->pendingWordUpdate = true;
+       link->pendingReplyPolls = 0;
++      link->pendingCompletion = true;
++      if (_diagnostic(link, BF_STATE)) mLOG(GBA_SIO, INFO,
++          "BF guest-busy p=%u f=%u seq=%u cnt=%04X",
++          link->playerId, link->diagnosticFrame, sequence,
++          link->d.p->siocnt);
+       return;
+     }
+     if (_diagnostic(link, BF_POLL)) mLOG(GBA_SIO, INFO,
