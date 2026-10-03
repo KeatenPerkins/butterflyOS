@@ -179,6 +179,8 @@ with the lid closed.
 ## Updating a test installation
 
 There is no qualified ButterflyOS online updater yet. A whole-card reflash
+remains necessary for the published image. See [Updates](UPDATES.md) for the
+implementation staged for a future release. Reflashing
 erases games, saves, settings, and the recovery backup on that card. Export the
 device recovery archive and separately back up all user files first. The SD-boot
 change stays in the device's internal preloader; do not reinstall it merely

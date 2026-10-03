@@ -94,6 +94,8 @@ EOF
   # it will enable SSH, so keep remote access disabled in the shipped config.
   if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]
   then
+    mkdir -p ${INSTALL}/usr/share/butterflyos
+    printf '%s\n' 'Miyoo_Flip_V2' > ${INSTALL}/usr/share/butterflyos/update-device
     sed -i "s#ssh.enabled=1#ssh.enabled=0#g" ${INSTALL}/usr/config/system/configs/system.cfg
     if grep -q '^system.hostname=' ${INSTALL}/usr/config/system/configs/system.cfg; then
       sed -i "s#^system.hostname=.*#system.hostname=butterflyos#g" ${INSTALL}/usr/config/system/configs/system.cfg

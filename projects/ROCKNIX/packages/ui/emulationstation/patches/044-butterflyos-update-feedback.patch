@@ -1,0 +1,38 @@
+diff --git a/es-app/src/guis/GuiUpdate.cpp b/es-app/src/guis/GuiUpdate.cpp
+--- a/es-app/src/guis/GuiUpdate.cpp
++++ b/es-app/src/guis/GuiUpdate.cpp
+@@ -6,6 +6,7 @@
+ #include "Settings.h"
+ #include "ApiSystem.h"
+ #include "utils/Platform.h"
++#include "utils/FileSystemUtil.h"
+ #include "LocaleES.h"
+ 
+ GuiUpdateState::State GuiUpdate::state = GuiUpdateState::State::NO_UPDATE;
+@@ -33,4 +34,5 @@
+-	if (ApiSystem::getInstance()->ping())
++	if (Utils::FileSystem::exists("/usr/share/butterflyos/update-device") ||
++		ApiSystem::getInstance()->ping())
+ 	{
+ 		std::vector<std::string> msgtbl;
+ 		if (ApiSystem::getInstance()->canUpdate(msgtbl))
+@@ -44,7 +46,11 @@
+ 			onUpdateAvailable();
+ 		}
+ 		else
++		{
++			if (Utils::FileSystem::exists("/usr/share/butterflyos/update-device") && !msgtbl.empty())
++				mUpdateVersion = msgtbl.front();
+ 			onNoUpdateAvailable();
++		}
+ 	}
+ 	else
+ 		onPingError();
+@@ -124,5 +135,6 @@
+ 			mState = 0;
+-			window->pushGui(new GuiMsgBox(window, _("NO UPDATE AVAILABLE"), _("OK"), [this] 
++			window->pushGui(new GuiMsgBox(window,
++				mUpdateVersion.empty() ? _("NO UPDATE AVAILABLE") : mUpdateVersion, _("OK"), [this]
+ 			{
+ 				mState = -1;
+ 			}));

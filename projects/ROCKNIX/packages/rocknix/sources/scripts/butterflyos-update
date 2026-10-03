@@ -1,0 +1,216 @@
+#!/usr/bin/env python3
+"""Stage approved ButterflyOS release archives for the inherited boot installer.
+
+SPDX-License-Identifier: GPL-2.0-only
+Copyright (C) 2026 Keaten Perkins
+"""
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path, PurePosixPath
+import re
+import shutil
+import sys
+import tarfile
+import urllib.request
+
+REPO = "KeatenPerkins/butterflyOS"
+DEVICE = "Miyoo_Flip_V2"
+IDENTITY = Path("/usr/share/butterflyos")
+STAGING = Path("/storage/.update")
+DOWNLOADS = Path("/storage/.cache/butterflyos-update")
+REQUIRED = {"KERNEL", "SYSTEM", "KERNEL.md5", "SYSTEM.md5"}
+
+
+def approved_url(url):
+    return (isinstance(url, str) and
+            url.startswith("https://github.com/" + REPO + "/releases/download/") and
+            "?" not in url and "#" not in url)
+
+
+def request(url):
+    return urllib.request.urlopen(urllib.request.Request(
+        url, headers={"User-Agent": "ButterflyOS-Updater", "Accept": "application/json"}),
+        timeout=45)
+
+
+def fetch_json(url):
+    with request(url) as response:
+        raw = response.read(1024 * 1024 + 1)
+    if len(raw) > 1024 * 1024:
+        raise ValueError("Update metadata is too large")
+    return json.loads(raw)
+
+
+def validate_manifest(data):
+    if not isinstance(data, dict):
+        raise ValueError("Invalid update metadata")
+    if (data.get("schema") != 1 or data.get("os") != "ButterflyOS" or
+            data.get("device") != DEVICE or data.get("arch") != "aarch64"):
+        raise ValueError("Update is not for ButterflyOS Miyoo Flip V2")
+    if not re.fullmatch(r"20[0-9]{6}", data.get("version", "")):
+        raise ValueError("Invalid update version")
+    if not approved_url(data.get("url")) or not data["url"].endswith(".tar"):
+        raise ValueError("Update archive must be an official ButterflyOS release asset")
+    if not re.fullmatch(r"[0-9a-f]{64}", data.get("sha256", "")):
+        raise ValueError("Invalid SHA-256")
+    for field in ("size", "unpacked_size"):
+        if type(data.get(field)) is not int or not 0 < data[field] <= 8 * 1024**3:
+            raise ValueError("Invalid package size")
+    return data
+
+
+def find_release():
+    # Stable releases only: alpha/test packages cannot silently reach users.
+    releases = fetch_json("https://api.github.com/repos/" + REPO + "/releases?per_page=30")
+    for release in releases:
+        if release.get("draft") or release.get("prerelease"):
+            continue
+        asset = next((a for a in release.get("assets", [])
+                      if a.get("name") == "butterflyos-update.json"), None)
+        if not asset:
+            continue
+        url = asset.get("browser_download_url")
+        if not approved_url(url):
+            raise ValueError("Unofficial update metadata URL")
+        manifest = validate_manifest(fetch_json(url))
+        prefix = url.rsplit("/", 1)[0] + "/"
+        if not manifest["url"].startswith(prefix):
+            raise ValueError("Archive and metadata must belong to the same release")
+        return manifest
+    return None
+
+
+def validate_archive(path, manifest):
+    """Never extract downloaded paths; reject links, traversal, and extra files."""
+    found = {}
+    with tarfile.open(path, "r:") as archive:
+        members = archive.getmembers()
+        if len(members) > 16:
+            raise ValueError("Unexpected archive contents")
+        for member in members:
+            parts = PurePosixPath(member.name).parts
+            if (member.name.startswith("/") or ".." in parts or
+                    not member.isfile() or len(parts) not in (2, 3)):
+                raise ValueError("Unsafe update archive entry")
+            name = parts[-1]
+            valid = ((len(parts) == 3 and parts[1] == "target" and name in REQUIRED) or
+                     (len(parts) == 2 and name == "butterflyos-update.json"))
+            if not valid or name in found:
+                raise ValueError("Unexpected or duplicate update file")
+            found[name] = member
+        if set(found) != REQUIRED | {"butterflyos-update.json"}:
+            raise ValueError("Incomplete update archive")
+        if len({PurePosixPath(m.name).parts[0] for m in members}) != 1:
+            raise ValueError("Multiple archive roots")
+        if sum(m.size for m in members) != manifest["unpacked_size"]:
+            raise ValueError("Expanded archive size differs from metadata")
+        if found["butterflyos-update.json"].size > 4096:
+            raise ValueError("Oversized archive identity")
+        identity = json.load(archive.extractfile(found["butterflyos-update.json"]))
+        for key in ("schema", "os", "device", "arch", "version"):
+            if identity.get(key) != manifest[key]:
+                raise ValueError("Archive identity mismatch")
+        for name in ("SYSTEM", "KERNEL"):
+            if found[name + ".md5"].size > 200:
+                raise ValueError("Oversized checksum entry")
+            checksum = archive.extractfile(found[name + ".md5"]).read().decode("ascii")
+            # These exact relative paths are consumed by the initramfs updater.
+            if not re.fullmatch(r"[0-9a-f]{32}  target/" + name + r"\n", checksum):
+                raise ValueError("Invalid boot-installer checksum format")
+            digest = hashlib.md5()
+            with archive.extractfile(found[name]) as source:
+                for block in iter(lambda: source.read(1024 * 1024), b""):
+                    digest.update(block)
+            if digest.hexdigest() != checksum[:32]:
+                raise ValueError("Archive internal checksum mismatch")
+
+
+def check_battery():
+    batteries = [p for p in Path("/sys/class/power_supply").glob("*")
+                 if (p / "type").is_file() and (p / "type").read_text().strip() == "Battery"]
+    if not batteries:
+        raise ValueError("Cannot verify battery state; nothing staged")
+    battery = batteries[0]
+    if int((battery / "capacity").read_text()) < 50:
+        raise ValueError("Charge the battery to at least 50% before updating")
+
+
+def stage(manifest):
+    check_battery()
+    STAGING.mkdir(parents=True, exist_ok=True)
+    if any(STAGING.iterdir()):
+        raise ValueError("An update or recovery flag is already staged; resolve it first")
+    DOWNLOADS.mkdir(parents=True, exist_ok=True)
+    needed = manifest["size"] + manifest["unpacked_size"] + 256 * 1024**2
+    if shutil.disk_usage(STAGING).free < needed:
+        raise ValueError("Not enough free storage for download and installation")
+    # The existing installer replaces boot files in-place, not using A/B slots.
+    boot_needed = manifest["unpacked_size"] + 32 * 1024**2
+    current = sum(p.stat().st_size for p in (Path("/flash/SYSTEM"), Path("/flash/KERNEL"))
+                  if p.is_file())
+    if shutil.disk_usage("/flash").free + current < boot_needed:
+        raise ValueError("Update does not fit on the boot partition")
+    temporary = DOWNLOADS / "download.part"
+    try:
+        print("Downloading ButterflyOS " + manifest["version"] + "...", flush=True)
+        digest = hashlib.sha256()
+        size = 0
+        with request(manifest["url"]) as response, temporary.open("wb") as output:
+            for block in iter(lambda: response.read(1024 * 1024), b""):
+                size += len(block)
+                if size > manifest["size"]:
+                    raise ValueError("Download exceeds expected size")
+                digest.update(block)
+                output.write(block)
+            output.flush()
+            os.fsync(output.fileno())
+        if size != manifest["size"] or digest.hexdigest() != manifest["sha256"]:
+            raise ValueError("Download size or SHA-256 mismatch; nothing staged")
+        print("Verifying device identity and archive contents...", flush=True)
+        validate_archive(temporary, manifest)
+        # Cache and staging are on the same /storage filesystem. Only a fully
+        # validated archive becomes visible to the boot installer.
+        os.replace(temporary, STAGING / ("ButterflyOS-" + manifest["version"] + ".tar"))
+        os.sync()
+        print("Verified. Restart to install. Keep power connected; do not remove the OS card.", flush=True)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def main():
+    if (IDENTITY / "update-device").read_text().strip() != DEVICE:
+        raise ValueError("This updater is only for ButterflyOS Miyoo Flip V2")
+    mode = sys.argv[1] if len(sys.argv) > 1 else "update"
+    if mode not in ("check", "update", "releases"):
+        raise ValueError("Use check, update, or releases; forced/downgrade updates are disabled")
+    current = (IDENTITY / "update-version").read_text().strip()
+    manifest = find_release()
+    if not re.fullmatch(r"20[0-9]{6}", current):
+        raise ValueError("Installed build has no supported update version")
+    if not manifest or manifest["version"] <= current:
+        if mode != "check":
+            print("No ButterflyOS update available.")
+        return 1
+    if mode in ("check", "releases"):
+        print(manifest["version"])
+        return 0
+    DOWNLOADS.mkdir(parents=True, exist_ok=True)
+    with (DOWNLOADS / "update.lock").open("a") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise ValueError("Another ButterflyOS update is running")
+        stage(manifest)
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except (OSError, ValueError, tarfile.TarError) as error:
+        # The frontend patch distinguishes a failed check from no update by
+        # reading this nonzero-exit diagnostic. Success stdout is version-only.
+        print("ButterflyOS update failed: " + str(error), flush=True)
+        sys.exit(1)

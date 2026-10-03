@@ -170,6 +170,12 @@ HW_CPU="${HW_CPU}"
 EOF
 fi
 
+if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+  # Stamp every image, even when the rocknix package came from the build cache.
+  mkdir -p "${INSTALL}/usr/share/butterflyos"
+  printf '%s\n' "${OS_VERSION}" > "${INSTALL}/usr/share/butterflyos/update-version"
+fi
+
 [ -n "${DEVICE}" ] && echo "DISTRO_DEVICE=\"${DEVICE}\"" >>${INSTALL}/etc/os-release
 [ -n "${BUILDER_NAME}" ] && echo "BUILDER_NAME=\"${BUILDER_NAME}\"" >>${INSTALL}/etc/os-release
 [ -n "${BUILDER_VERSION}" ] && echo "BUILDER_VERSION=\"${BUILDER_VERSION}\"" >>${INSTALL}/etc/os-release
