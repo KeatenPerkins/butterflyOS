@@ -1,0 +1,14 @@
+diff --git a/es-app/src/guis/GuiUpdate.cpp b/es-app/src/guis/GuiUpdate.cpp
+--- a/es-app/src/guis/GuiUpdate.cpp
++++ b/es-app/src/guis/GuiUpdate.cpp
+@@ -168,7 +168,9 @@ ThreadedUpdater::ThreadedUpdater(Window* window, const std::string source) : mWindow(window) {
+ 
+   mWndNotification = mWindow->createAsyncNotificationComponent();
+ 
+-  auto label = Utils::String::format(_("UPDATING %s").c_str(), ApiSystem::getInstance()->getApplicationName().c_str());
++  const auto applicationName = Utils::FileSystem::exists("/usr/share/butterflyos/update-device")
++    ? std::string("ButterflyOS") : ApiSystem::getInstance()->getApplicationName();
++  auto label = Utils::String::format(_("UPDATING %s").c_str(), applicationName.c_str());
+   mWndNotification->updateTitle(_U("\uF019 ") + label);
+ 
+   if(source == "LOCAL") {
