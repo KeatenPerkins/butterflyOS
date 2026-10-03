@@ -103,9 +103,10 @@ other lost scraper metadata were not reconstructed. All 1,505 image links were
 visible through the frontend API before and after two service restarts; a sample
 image from each system was successfully served on every check.
 
-A fresh single-game scrape followed by refresh/restart remains the live
-acceptance check for the newly patched scraper write path. A full replacement
-image has not yet been rebuilt or published.
+A fresh full-SNES scrape wrote a main game list containing 388 artwork entries,
+with no remaining recovery entries or reported save errors. The user then
+confirmed artwork and favorites remained after reboot. A full replacement
+image containing this patch has not yet been rebuilt or published.
 
 ## Staged fixes after the October 2 image test
 

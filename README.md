@@ -13,7 +13,10 @@ and installation instructions before flashing. This is not a stable image.
 
 Start here:
 
+<img src="documentation/assets/butterflyos-logo.png" alt="ButterflyOS: white butterfly with a retro-colored wordmark" width="320">
+
 - [Quick Start](documentation/QUICK_START.md)
+- [How to transfer games](documentation/TRANSFERRING_GAMES.md)
 - [Installation and recovery](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md)
 - [Controls and hotkeys](documentation/HOTKEYS.md)
 - [Features](documentation/FEATURES.md)

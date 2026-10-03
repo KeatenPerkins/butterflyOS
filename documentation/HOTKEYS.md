@@ -1,5 +1,7 @@
 # ButterflyOS controls and hotkeys
 
+<img src="assets/games-controller.png" alt="ButterflyOS Controls Guide controller icon" width="128">
+
 `M` means the handheld's physical Menu button, or the button captured for a
 Bluetooth controller under Controller & Bluetooth settings. These tables
 describe current source defaults. Confirm them on the final release image;

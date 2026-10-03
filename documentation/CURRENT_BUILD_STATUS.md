@@ -24,7 +24,9 @@ Games, flushes completed scrape batches, and preserves dirty recovery entries
 until merged into the main game list. The frontend package compiled and was
 deployed live on .17. Existing artwork links were recovered for 1,505 games and
 passed loaded-metadata/sample-image checks across two frontend restarts.
-A fresh scrape persistence test and full image rebuild remain pending. See
+A fresh full-SNES scrape wrote persistent metadata for 388 games. The user
+confirmed artwork and favorites remained after reboot. A full image rebuild
+and publication remain pending. See
 [ScreenScraper details](SCREENSCRAPER.md#october-3-grouped-system-persistence-fix).
 
 ## Current test image

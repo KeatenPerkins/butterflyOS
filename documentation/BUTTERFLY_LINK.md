@@ -1,5 +1,59 @@
 # Butterfly Link
 
+<img src="assets/butterfly-link.png" alt="Butterfly Link app icon" width="128">
+
+## What is Butterfly Link?
+
+Butterfly Link is ButterflyOS's built-in Pokémon **save-transfer application**.
+It lets you select Pokémon from an existing game's PC boxes and copy or exchange
+them with another compatible save, without entering the game's Cable Club.
+The receiving Pokémon is available when you next load the destination game's
+saved progress and open its PC.
+
+You can use it between two saves on **one Flip**, or between **two Flips over
+local Wi-Fi**. It is not an emulator or live multiplayer service: it does not
+simulate a link cable, require both games to be running, or support battles.
+No internet service or SSH login is required for its remote-transfer workflow.
+
+### What can it do?
+
+- **Trade:** exchange one boxed Pokémon from each save. Both saves change.
+- **Copy:** add a boxed Pokémon to the receiving save while keeping the source
+  Pokémon. The receiving box needs space; no Pokémon needs to be sent back.
+- **Local transfers:** select both saves on the same device. Saves may be on
+  the OS card or a mounted second game card.
+- **Remote transfers:** host or join a session on the same Wi-Fi network, select
+  compatible saves on the two devices, and approve the transfer on both.
+- **Same-generation transfers:** trade or copy within Gen I, Gen II, or Gen III,
+  subject to the compatibility restrictions below.
+- **Cross-generation copies:** copy Gen I Pokémon into Gen II, or convert and
+  copy Gen II Pokémon into Gen III. These are one-way copies, not exchanges.
+- **Optional local trade evolutions:** choose Keep or Evolve for supported
+  Pokémon when the app offers it. Remote transfers do not offer this prompt.
+- **Browse your collection:** preview party Pokémon and PC boxes, with sprites
+  and available Pokémon details such as level, moves, nature, and held item.
+  Available fields and name lookup vary by generation and ROM.
+- **Prepare protected working copies:** review a transfer before confirming it,
+  with pre-commit backups retained for troubleshooting or manual recovery.
+
+### What does it need?
+
+- A supported game's ordinary in-game save (`.srm` or `.sav`). Emulator save
+  states are not supported input files.
+- Your matching, legally obtained ROM for sprite/name extraction and conversion
+  checks. ButterflyOS does not include Pokémon games, artwork, or saves.
+- Pokémon stored in PC boxes. Party Pokémon can be viewed but cannot currently
+  be traded or copied directly; deposit them in a box and save first.
+- For remote transfers, another Flip running a compatible Butterfly Link build
+  and reachable on the same local Wi-Fi network.
+
+For example, you can copy a boxed Pikachu from Yellow into Crystal without
+removing it from Yellow, or exchange boxed Pokémon between Ruby and Sapphire.
+You cannot copy a Gen III Pokémon back into Gold, or use Butterfly Link to battle
+a friend. It is not a general-purpose Pokémon editor or event-unlock tool.
+
+## Opening Butterfly Link
+
 Butterfly Link copies or exchanges Pokémon between selected emulator save files.
 Open **Tools → Butterfly Link**, from the home screen or **Start → Tools**.
 Use the D-pad to navigate, **A/Start** to select, and **B/Menu** to go back.

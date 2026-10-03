@@ -9,6 +9,8 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 
 ## Console interface
 
+<img src="assets/tools.png" alt="ButterflyOS Tools icon" width="96">
+
 - ButterflyOS boot, shutdown, menu, and tool branding
 - Synthwave pixel-art home screen and system artwork
 - Games, Favorites, Media, Tools, and Settings home destinations
