@@ -1,5 +1,9 @@
 # ButterflyOS Alpha 2 Quick Start
 
+<img src="assets/home-screen.jpg" alt="Photo of ButterflyOS running on a Miyoo Flip V2, showing the home carousel and Start/Select hints" width="480">
+
+*Home-screen device photo. The carousel scrolls to reveal additional options.*
+
 ButterflyOS v0.1.0 Alpha 2 supports the **Miyoo Flip V2 only**. It is test
 software, not a stable release. Back up saves and other important files before
 testing it.
@@ -60,11 +64,21 @@ Keep the device adequately charged; use the front charging port for external
 power. The rear USB port is not the charging port.
 
 1. Put the prepared card in the **left-hand slot**.
+
+   <img src="assets/sd-left.png" alt="First installation: ButterflyOS SD card goes into the left-hand slot" width="240">
+
+   *Left-hand slot, viewed from the front of the device.*
+
 2. Boot the stock Miyoo OS and open **Apps → ButterflyOS Setup**.
 3. Read the warning. Launch **ButterflyOS Setup** a second time within five
    minutes to confirm.
 4. Do not remove power or the card while the setup runs.
 5. After the device powers off, move the card to the **right-hand slot**.
+
+   <img src="assets/sd-right.png" alt="After setup powers off the device, move the SD card into the right-hand slot to boot ButterflyOS" width="240">
+
+   *Right-hand slot, viewed from the front of the device.*
+
 6. Boot ButterflyOS and allow first-boot initialization to finish.
 7. Open **Tools → ButterflyOS Boot Check**. Tools is on the home screen and
    also in the Start main menu.
@@ -84,6 +98,9 @@ stock Miyoo OS when the card is removed. Read the complete
 starting, especially the current exact-restoration and licensing caveats.
 
 ## Add games and BIOS files
+
+See [How to transfer games](TRANSFERRING_GAMES.md) for step-by-step web uploads,
+SD-card copying, SMB, SFTP/SCP, and rsync instructions.
 
 Copy legally obtained games into `STORAGE/roms/<system>` (shown on-device as
 `/storage/roms/<system>`). Common aliases such
@@ -122,6 +139,8 @@ FAT32, NTFS, ext4, and btrfs, but these alternatives have not all received the
 same hardware testing. The OS card remains the image's FAT+ext4 layout.
 
 ## Add music and videos
+
+<img src="assets/media.png" alt="ButterflyOS Media icon" width="96">
 
 On the OS card, use `STORAGE/media/Music` and `STORAGE/media/Videos`.
 The Music/Videos links in Web File Transfer select these folders for you.

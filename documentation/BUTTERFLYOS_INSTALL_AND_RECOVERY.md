@@ -15,9 +15,16 @@ Exact reversal requires the backup from this particular device.
 
 ## Intended installation experience
 
+<img src="assets/boot-check.png" alt="ButterflyOS Boot Check icon" width="96">
+
 1. Write the device-specific ButterflyOS image to a microSD card.
 2. Leave the original Miyoo system installed internally. Put the ButterflyOS
    card in the **left-hand slot**, then start the stock Miyoo system.
+
+   <img src="assets/sd-left.png" alt="Insert the ButterflyOS SD card into the left-hand slot for initial setup in the stock Miyoo OS" width="240">
+
+   *First installation: left-hand slot, viewed from the front of the device.*
+
 3. Open **Apps**, then open **ButterflyOS Setup**.
 4. The first launch performs a read-only compatibility check, derives a patch
    from this unit's own preloader, and saves an exact verified backup to
@@ -28,6 +35,11 @@ Exact reversal requires the backup from this particular device.
    working.
 6. After shutdown, move the ButterflyOS card from the left-hand slot to the
    **right-hand slot**, then power on. The prepared card boots ButterflyOS.
+
+   <img src="assets/sd-right.png" alt="After setup and shutdown, move the ButterflyOS SD card into the right-hand slot to boot ButterflyOS" width="240">
+
+   *Boot ButterflyOS: right-hand slot, viewed from the front of the device.*
+
 7. In ButterflyOS, open **Tools → ButterflyOS Boot Check**. This is read-only.
 8. Open **Tools → Export Recovery Backup**. In Web File Transfer,
    open **All Storage** and download both `ButterflyOS-Recovery-*.tar.gz` and
@@ -88,6 +100,8 @@ when writing an OS image.
 
 ## Returning to stock boot
 
+<img src="assets/restore-stock.png" alt="Restore Stock Miyoo Boot icon" width="96">
+
 The stock-side installer creates these files on the ButterflyOS FAT boot
 partition before changing internal storage. ButterflyOS mounts that partition
 at `/flash`:
@@ -118,6 +132,8 @@ before installation. Without the verified device-specific pair, ButterflyOS
 refuses to restore.
 
 ## Export the recovery backup before reflashing
+
+<img src="assets/export-recovery.png" alt="Export Recovery Backup icon" width="96">
 
 The recovery pair initially lives on the ButterflyOS boot partition. Writing a
 new whole-card image erases that partition, the storage partition, and every

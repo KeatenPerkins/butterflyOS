@@ -1,5 +1,7 @@
 # ButterflyOS documentation
 
+<img src="assets/butterflyos-logo.png" alt="ButterflyOS logo" width="280">
+
 ButterflyOS currently targets the Miyoo Flip V2 only. These documents describe
 the Alpha 2 release for Miyoo Flip V2. Downloads are available from
 [GitHub Releases](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.1.0-alpha.2).
@@ -8,6 +10,8 @@ the Alpha 2 release for Miyoo Flip V2. Downloads are available from
 
 - [Quick Start](QUICK_START.md): download verification, card writing, first
   setup, adding files, and shutdown.
+- [How to transfer games](TRANSFERRING_GAMES.md): web uploads, SD-card copying,
+  SMB, SFTP/SCP, rsync, and device password setup.
 - [Installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md): the
   device-specific SD-boot change, backup export, reflashing, and exact restore.
 - [Features](FEATURES.md): current capabilities and their limits.
