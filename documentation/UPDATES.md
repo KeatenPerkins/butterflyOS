@@ -8,6 +8,11 @@ published for this release. Existing installations still require a backed-up
 reflash; the first Alpha 2 image's inherited updater must not be used to install
 a generic ROCKNIX release.
 
+The v0.2.2 package is prepared for the first online installation test from
+v0.2.1. Its explicit build identity is `20261004`; hardware qualification is
+pending. See [v0.2.2 release notes](RELEASE_NOTES_v0.2.2.md) for validation and
+version-assignment details.
+
 ## Planned user experience
 
 Once an updater-enabled image and a newer qualified update package are released:
