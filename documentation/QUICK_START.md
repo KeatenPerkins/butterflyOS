@@ -1,9 +1,5 @@
 # ButterflyOS Alpha 2 Quick Start
 
-<img src="assets/home-screen.jpg" alt="Photo of ButterflyOS running on a Miyoo Flip V2, showing the home carousel and Start/Select hints" width="480">
-
-*Home-screen device photo. The carousel scrolls to reveal additional options.*
-
 ButterflyOS v0.1.0 Alpha 2 supports the **Miyoo Flip V2 only**. It is test
 software, not a stable release. Back up saves and other important files before
 testing it.
