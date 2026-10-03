@@ -4,9 +4,9 @@ ButterflyOS v0.1.0 Alpha 2 supports the **Miyoo Flip V2 only**. It is test
 software, not a stable release. Back up saves and other important files before
 testing it.
 
-Read [current build status](CURRENT_BUILD_STATUS.md) before testing. The final
-public download and tag remain pending; the filename below is the intended
-release name, not an already-published asset.
+Read [current build status](CURRENT_BUILD_STATUS.md) before testing. Download
+the image and matching checksum from the
+[Alpha 2 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.1.0-alpha.2).
 
 ## What you need
 

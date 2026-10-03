@@ -1,19 +1,19 @@
 # ButterflyOS v0.1.0 Alpha 2
 
-Alpha 2 is the first public-release candidate for the Miyoo Flip V2. It remains
+Alpha 2 is the first public alpha release for the Miyoo Flip V2. It remains
 test software and is not a stable release.
 
-This is a draft for the future public release. See
-[current build status](CURRENT_BUILD_STATUS.md) for the October 2 test image
-and changes awaiting a rebuild. A development image's checksum must not be
-substituted for the final release checksum.
+See [Quick Start](QUICK_START.md) and
+[Installation and Recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md) before flashing.
+Writing the image erases the selected card. Export your device-specific recovery
+backup off-card before reflashing an existing ButterflyOS installation.
 
 ## Release record
 
-- Source tag: `v0.1.0-alpha.2` (create only after qualification)
-- Exact image source commit: pending final qualification build
-- Image: pending final qualification build
-- SHA-256: pending final qualification build
+- Source tag: `v0.1.0-alpha.2` (includes final release documentation)
+- Exact image source commit: `39bb3a803bd481b7a610cf2b19509b2c13d39891`
+- Image: `ButterflyOS-v0.1.0-alpha.2-Miyoo-Flip-V2.img.gz`
+- SHA-256: `24eb2a762b55fb6aae77caf49c5450f3b3f1bf874b5cbc01016469dc0ab3aede`
 - Target: Miyoo Flip V2 (`RK3566` / `Miyoo_Flip_V2`)
 
 ## Historical September pre-release records
@@ -64,9 +64,14 @@ replacement image and focused physical test.
 - Added display-only lid handling and bounded optional Extended Diagnostics;
   unsafe hardware suspend remains disabled.
 
-The next build additionally includes wrapped confirmation/result text,
+This release additionally includes wrapped confirmation/result text,
 clearer trade/copy completion wording, save-write hash checks and fresh
 timestamps, tighter Start-icon spacing, and Advanced-only Cloud/VPN groups.
+ScreenScraper is the default on fresh installations. Linked game-list metadata
+is loaded correctly, and scraper network failures produce an error instead of
+appearing to succeed. The prior build passed user-confirmed artwork testing;
+this image's fresh boot passed, and its packaged ScreenScraper default was
+verified independently. All 668 main-image build steps passed.
 
 ## Important limitations
 
@@ -75,8 +80,9 @@ timestamps, tighter Start-icon spacing, and Advanced-only Cloud/VPN groups.
 - Nintendo DS with the open-source melonDS default passed controls, audio,
   and clean-exit testing on physical hardware. Lid close/open does not suspend
   emulation.
-- Remote Yellow → Crystal copy persistence remains under investigation;
-  see [Butterfly Link](BUTTERFLY_LINK.md). Remote Gen II → III copy passed.
+- The Gen II banked-box persistence and converted-name terminator fixes are
+  included. Crystal PC-open/save/exit/reopen passed with the corrected helper;
+  this does not qualify every save/game revision. Remote Gen II → III copy passed.
 - Party transfers, remote trade-evolution prompts, battles, and reverse
   generation conversions are unavailable.
 - Bluetooth hotkeys/controller modes and multiplayer have qualification limits;

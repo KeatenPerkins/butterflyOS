@@ -2,10 +2,31 @@
 
 This records technical release checks. It is not legal advice.
 
-The dated sections below apply only to their recorded images. They are not a
-clean-image audit of the October 2 candidate or the next rebuild. See
-[current build status](CURRENT_BUILD_STATUS.md); repeat the filesystem,
-privacy, component-license, and hardware checks on the final release artifact.
+The dated sections below apply only to their recorded images. Later rebuilds
+require fresh checks; none of these records proves universal compatibility.
+
+## October 2, 2026 public Alpha 2 artifact
+
+- Image source: `39bb3a803bd481b7a610cf2b19509b2c13d39891`.
+- Compressed SHA-256: `24eb2a762b55fb6aae77caf49c5450f3b3f1bf874b5cbc01016469dc0ab3aede`.
+- All 668 main-image steps passed. Gzip integrity and checksum checks passed.
+- The exact compressed image was decompressed; read-only FAT and ext4 checks
+  passed. STORAGE contains only `lost+found` and `.please_resize_me`.
+- SYSTEM extracted from that image matches its embedded MD5 record.
+- The installed Mali vendor binary matches its upstream build input byte-for-byte;
+  the full included EULA also matches. Wrapper modifications do not change it.
+- The SYSTEM contains 86 ButterflyOS license/notice files. The package inventory
+  was regenerated from this build's completed job log.
+- No ROMs, save files, test music/video, SSH host keys, private credential JSON,
+  device recovery backups, DraStic binary, or ZeroTier executable were found in
+  the filesystem filename scan. Developer credentials are deliberately included
+  in obfuscated client form; this is not cryptographic secrecy.
+- The user confirmed this flashed image works. The preceding image passed
+  scraper/artwork testing; this rebuild's packaged default selects ScreenScraper.
+- The final SD read-back check was cancelled; it is not claimed as passed.
+- Historical install/restore and broader gameplay tests remain the qualification
+  baseline; a complete two-device suite was not repeated after this default-only
+  change. This release is labelled an alpha, not stable.
 
 ## Alpha 2 candidate policy
 

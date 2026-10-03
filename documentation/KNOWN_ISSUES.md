@@ -3,9 +3,9 @@
 Alpha software may contain defects and can change incompatibly. Keep backups of
 games, saves, BIOS files, and any device-specific recovery data.
 
-Reviewed against the October 2 development source. See
-[current build status](CURRENT_BUILD_STATUS.md) for the image/staged-change split.
-Historical checks do not qualify a later rebuilt image.
+Reviewed for the October 2 Alpha 2 release. See
+[current build status](CURRENT_BUILD_STATUS.md) for the exact image and test record.
+Historical checks do not qualify every game or save combination.
 
 ## Distribution licensing gate
 
@@ -19,8 +19,9 @@ second untouched Flip V2. The clean image containing the runtime-dependency
 fixes then repeated the full workflow without live intervention. The Alpha 2
 candidate excludes proprietary DraStic. The restored ROCKNIX Mali stack carries
 its EULA and uses the upstream no-blob-modification mapping fix. Distribution
-remains on hold until the final image, refreshed package audit, and post-build
-hardware smoke test are complete.
+checks for the October 2 artifact and refreshed package inventory are recorded
+in [the public-release audit](PUBLIC_RELEASE_AUDIT.md). This is an alpha release,
+not a guarantee of universal compatibility or legal advice.
 
 ## Installation and recovery
 
@@ -123,9 +124,9 @@ hardware smoke test are complete.
   A subsequent PC white screen exposed malformed converted name terminators;
   the helper now writes the required 0x50 terminators. Crystal was repaired
   from its backup with Pikachu retained. The source fixes pass 48 expanded
-  persistence/name regression cases and are deployed live on
-  both test devices; it still needs an in-game save/exit/reopen retest and a new
-  image. Fresh timestamps and file hashes alone cannot fix a save-format error.
+  persistence/name regression cases. The corrected Crystal PC-open/save/exit/
+  reopen test passed, and these fixes are included in the release image.
+  Fresh timestamps and file hashes alone cannot fix a save-format error.
 - Local evolution prompts are implemented for supported rules. Remote
   evolution prompts, complete Everstone/held-item rules, and arbitrary ROM
   hacks/languages are not qualified.
@@ -152,7 +153,7 @@ hardware smoke test are complete.
 - The current source derives Wi-Fi state from NetworkManager and applies
   settings immediately. Use the keyboard's on-screen Enter to submit passwords.
   Historical GUI/password issues should be reported with logs if they recur.
-- The next image hides untested Cloud/VPN groups unless Advanced Mode is on.
+- The release hides untested Cloud/VPN groups unless Advanced Mode is on.
   Their appearance does not establish a supported cloud/VPN workflow.
 
 Report issues with the ButterflyOS version, device revision, controller model,

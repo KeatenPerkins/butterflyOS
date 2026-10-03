@@ -3,13 +3,13 @@
 <p align="center"><img src="artwork/branding/icons/butterflyos-emblem-transparent-1024.png" width="192" alt="ButterflyOS butterfly emblem"></p>
 
 ButterflyOS is a fast, friendly, controller-first operating system for the
-Miyoo Flip V2. Version 0.1.0 Alpha 2 is the current public-release candidate.
+Miyoo Flip V2. Version 0.1.0 Alpha 2 is the first public alpha release.
 It is intended for careful testers and is not yet a stable release.
 
-These guides describe the current development candidate, not a published
-stable image. Read the [build and test status](documentation/CURRENT_BUILD_STATUS.md)
-for the distinction between hardware-tested features and changes awaiting a
-new image. A public download URL and immutable release tag are not yet assigned.
+Download the image and matching checksum from
+[the Alpha 2 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.1.0-alpha.2).
+Read the [build and test status](documentation/CURRENT_BUILD_STATUS.md)
+and installation instructions before flashing. This is not a stable image.
 
 Start here:
 
@@ -83,17 +83,16 @@ those images and derives the SD-boot patch from each user's own preloader. Its
 Mali stack includes the applicable EULA and avoids modifying the vendor blob;
 the image excludes the proprietary DraStic package. A complete
 install and exact-restore round trip passed on a second untouched Flip V2.
-Earlier Alpha 2 candidates passed regression and host-side image audits. Public
-distribution remains pending the final rebuilt-image audit, focused hardware
-test, and immutable release tag. Previous audits apply only to their
-recorded images; later rebuilds require a fresh audit. See
+The October 2 release image passed host-side filesystem/content checks and a
+user-confirmed boot test; the preceding image passed scraper/artwork testing.
+Previous audits apply only to their recorded images; later rebuilds require a
+fresh audit. See
 [Known Issues](documentation/KNOWN_ISSUES.md#distribution-licensing-gate).
 
 Release compliance status is tracked in
 [Third-Party Notices](THIRD_PARTY_NOTICES.md) and the
 [source and license compliance guide](documentation/SOURCE_AND_LICENSE_COMPLIANCE.md).
-The generated Alpha 2 package manifest will be refreshed from the final clean
-build before publication.
+The generated Alpha 2 package manifest records the release build's packages.
 
 ## Licenses
 
