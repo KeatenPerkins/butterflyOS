@@ -12,7 +12,7 @@
     <fontBold>/usr/share/fonts/liberation/LiberationSans-Bold.ttf</fontBold>
     <!-- Keep Start-to-label spacing proportional to text height, not screen
          width. Matches the approved 640x480 position and tightens on HDMI. -->
-    <variable name="startHintX" value="0.965 - 0.3066667 * ${screen.height} / ${screen.width}" />
+    <startHintX>0.965 - 0.3066667 * ${screen.height} / ${screen.width}</startHintX>
   </variables>
 
   <!-- Keep global status indicators inside the Flip's visible safe area. -->
