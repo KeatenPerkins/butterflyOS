@@ -4,6 +4,11 @@
 
 . /etc/profile
 
+# ButterflyOS must never fetch a generic ROCKNIX update for the Flip.
+if [ -f /usr/share/butterflyos/update-device ]; then
+    exec python3 /usr/bin/butterflyos-update "$@"
+fi
+
 BRANCH="$(get_setting updates.branch)"
 FORCE="$(get_setting updates.force)"
 

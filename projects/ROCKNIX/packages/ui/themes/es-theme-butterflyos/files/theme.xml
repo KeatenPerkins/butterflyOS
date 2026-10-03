@@ -10,6 +10,9 @@
   <variables>
     <fontRegular>/usr/share/fonts/liberation/LiberationSans-Regular.ttf</fontRegular>
     <fontBold>/usr/share/fonts/liberation/LiberationSans-Bold.ttf</fontBold>
+    <!-- Keep Start-to-label spacing proportional to text height, not screen
+         width. Matches the approved 640x480 position and tightens on HDMI. -->
+    <variable name="startHintX" value="0.965 - 0.3066667 * ${screen.height} / ${screen.width}" />
   </variables>
 
   <!-- Keep global status indicators inside the Flip's visible safe area. -->
@@ -115,8 +118,8 @@
     </text>
     <carousel name="systemcarousel">
       <origin>0 0</origin>
-      <pos>0.025 0.205</pos>
-      <size>0.95 0.61</size>
+      <pos>0.01 0.205</pos>
+      <size>0.98 0.61</size>
       <type>horizontal</type>
       <logoSize>0.205 0.49</logoSize>
       <logoScale>1.10</logoScale>
@@ -157,7 +160,7 @@
     <!-- Persistent cues for the Start and Select system menus. -->
     <image name="start-menu-hint" extra="true">
       <origin>0 1</origin>
-      <pos>0.735 0.965</pos>
+      <pos>${startHintX} 0.965</pos>
       <maxSize>0.11 0.06</maxSize>
       <path>./assets/button_start.svg</path>
       <zIndex>8</zIndex>

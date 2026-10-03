@@ -15,6 +15,8 @@ the Alpha 2 release for Miyoo Flip V2. Downloads are available from
 - [Installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md): the
   device-specific SD-boot change, backup export, reflashing, and exact restore.
 - [Features](FEATURES.md): current capabilities and their limits.
+- [Updates](UPDATES.md): the staged online updater, safety limits, and release
+  qualification checklist.
 - [Controls and hotkeys](HOTKEYS.md): built-in controls, Bluetooth differences,
   and media playback.
 - [Butterfly Link](BUTTERFLY_LINK.md): local/remote save transfers and supported
