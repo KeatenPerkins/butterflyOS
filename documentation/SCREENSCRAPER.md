@@ -73,6 +73,40 @@ ScreenScraper as the default on fresh installations. Its compressed SHA-256 is
 The staged-fix notes below describe the earlier development point, not the
 publication status of these fixes.
 
+## October 3 grouped-system persistence fix
+
+The published Alpha 2 image can download artwork without preserving its game
+metadata across frontend restarts. On .17, images remained on the OS card but
+the five populated console directories had no `gamelist.xml` files. HDMI was
+used during scraping, but has not been established as the cause.
+
+The upstream recovery writer checks `isVisible()`, which is false for systems
+grouped under ButterflyOS's Games container. Patch 043 instead checks explicit
+system hiding, so grouped games can save their recovery metadata. Completed
+scrapes flush dirty game lists on the UI thread after queued metadata imports.
+Loaded recovery entries remain dirty until merged into the main list, including
+when the main list does not yet exist.
+
+The frontend package compiled successfully. The fixed executable was deployed
+live on .17 at
+`/storage/.config/butterflyos/emulationstation-scraper-persistence-20261003`,
+bind-mounted over `/usr/bin/emulationstation`. Its SHA-256 is
+`3d66e4fbcbb0688f51fa5ee2e852b77e5ba2a0de63ab24768c3c77902ba5ba78`.
+The executable override disappears on reboot; the source patch is ready for
+the next image build.
+
+Existing downloads were reconnected with
+`/home/keaten/Documents/butterflyOS-tools/recover-scraped-artwork.py`, using exact
+ROM stems and downloaded image suffixes. This recovered 399 GB, 374 GBC, 231 GBA,
+388 SNES, and 113 PS1 artwork links. No ROM or save was modified. Descriptions and
+other lost scraper metadata were not reconstructed. All 1,505 image links were
+visible through the frontend API before and after two service restarts; a sample
+image from each system was successfully served on every check.
+
+A fresh single-game scrape followed by refresh/restart remains the live
+acceptance check for the newly patched scraper write path. A full replacement
+image has not yet been rebuilt or published.
+
 ## Staged fixes after the October 2 image test
 
 - The user confirmed artwork appears after replacing linked `gamelist.xml`

@@ -141,6 +141,11 @@ not a guarantee of universal compatibility or legal advice.
 
 ## Updates and interface
 
+- The published Alpha 2 frontend can lose scraped metadata after restarting
+  systems grouped under Games, while downloaded images remain on the card.
+  The October 3 source fix compiled and passed recovered-artwork restart checks
+  live on .17; it requires a replacement release image. See
+  [ScreenScraper](SCREENSCRAPER.md#october-3-grouped-system-persistence-fix).
 - There is not yet a tested ButterflyOS online-update channel or rollback
   workflow. Reflashing remains the Alpha upgrade method.
 - Reflashing erases the device-specific recovery backup stored on the card.

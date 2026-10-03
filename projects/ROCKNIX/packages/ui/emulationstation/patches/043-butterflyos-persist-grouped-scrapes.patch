@@ -1,0 +1,40 @@
+--- a/es-app/src/Gamelist.cpp
++++ b/es-app/src/Gamelist.cpp
+@@ -250,5 +250,11 @@
+ 	auto files = Utils::FileSystem::getDirContent(getGamelistRecoveryPath(system), true);
+ 	for (auto file : files)
+-		loadGamelistFile(file, system, fileMap, size, true);
++	{
++		// Recovery entries must be merged into the main list, even when that
++		// list does not exist yet. Otherwise a clean exit can discard them.
++		auto recovered = loadGamelistFile(file, system, fileMap, size, true);
++		for (auto entry : recovered)
++			entry->getMetadata().setDirty();
++	}
+ 
+ 	if (size != SIZE_MAX)
+@@ -329,3 +335,5 @@
+ 	SystemData* system = file->getSourceFileData()->getSystem();
+-	if (!Settings::HiddenSystemsShowGames() && !system->isVisible())
++	// Group children are absent from the home carousel but are usable games.
++	// Only an explicitly hidden system should suppress persistence.
++	if (!Settings::HiddenSystemsShowGames() && system->isHidden())
+ 		return false;
+--- a/es-app/src/scrapers/ThreadedScraper.cpp
++++ b/es-app/src/scrapers/ThreadedScraper.cpp
+@@ -8,2 +8,3 @@
+ #include "Log.h"
++#include "SystemData.h"
+ 
+@@ -230,3 +230,10 @@
+ 		Window* w = mWindow;
+-		mWindow->postToUiThread([w, summary]() { w->pushGui(new GuiMsgBox(w, summary)); });
++		mWindow->postToUiThread([w, summary]() {
++			// This runs after the queued metadata imports. Persist the batch
++			// before reporting completion, including systems under Games.
++			for (auto system : SystemData::sSystemVector)
++				if (!system->isCollection())
++					updateGamelist(system);
++			w->pushGui(new GuiMsgBox(w, summary));
++		});
+ 	}
