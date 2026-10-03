@@ -6,11 +6,16 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import sys
 import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
+
+# The updater lives in a package source directory that installs every script.
+# Do not create a __pycache__ directory there while importing it for tests.
+sys.dont_write_bytecode = True
 
 path = Path(__file__).resolve().parents[1] / "projects/ROCKNIX/packages/rocknix/sources/scripts/butterflyos-update"
 loader = importlib.machinery.SourceFileLoader("updater", str(path))
