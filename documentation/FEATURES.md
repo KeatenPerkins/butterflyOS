@@ -1,6 +1,6 @@
-# ButterflyOS v0.1.0 Alpha 2 features
+# ButterflyOS v0.2.1 features
 
-Alpha 2 is a hardware-tested Miyoo Flip V2 candidate focused on a clean,
+ButterflyOS is a hardware-tested Miyoo Flip V2 release focused on a clean,
 controller-first experience.
 
 This lists development capabilities, not a guarantee for every game or

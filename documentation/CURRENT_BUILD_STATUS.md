@@ -2,16 +2,16 @@
 
 Reviewed: 2026-10-03.
 
-## Published Alpha 2.1 follow-up
+## Published v0.2.1
 
 - Image source: `8ba1f47590a329ba602a11219ed6fe87d46108cc`.
-- Asset: `ButterflyOS-v0.1.0-alpha.2.1-Miyoo-Flip-V2.img.gz`.
+- Asset: `ButterflyOS-v0.2.1-Miyoo-Flip-V2.img.gz`.
 - SHA-256: `d7d855ec41a41018139cf1a1ad58f1d8d077f1b55b3abdebc6b62593bb0e5228`.
 - Full build and compressed-image checks passed. Full SD read-back hash matched.
 - User confirmed the narrower carousel/HDMI hint layout looks better and works.
 - Scraper persistence fix and ButterflyOS updater are included. Online updating
   awaits a subsequent-build test; no update manifest is published yet.
-- See [Alpha 2.1 release notes](RELEASE_NOTES_v0.1.0-alpha.2.1.md).
+- See [v0.2.1 release notes](RELEASE_NOTES_v0.2.1.md).
 
 ## Published Alpha 2 baseline
 
@@ -28,7 +28,7 @@ Reviewed: 2026-10-03.
 The sections below retain historical development evidence. References there
 to pending rebuilds describe earlier candidates, not the release above.
 
-## October 3 scraper fix included in Alpha 2.1
+## October 3 scraper fix included in v0.2.1
 
 Patch 043 fixes scraper metadata persistence for console systems grouped under
 Games, flushes completed scrape batches, and preserves dirty recovery entries

@@ -1,9 +1,9 @@
-# ButterflyOS v0.1.0 Alpha 2 known issues
+# ButterflyOS v0.2.1 known issues
 
-Alpha software may contain defects and can change incompatibly. Keep backups of
+Keep backups of
 games, saves, BIOS files, and any device-specific recovery data.
 
-Reviewed for the October 2 Alpha 2 release. See
+Based on the Alpha 2 qualification, with the October 3 scraper fix included. See
 [current build status](CURRENT_BUILD_STATUS.md) for the exact image and test record.
 Historical checks do not qualify every game or save combination.
 

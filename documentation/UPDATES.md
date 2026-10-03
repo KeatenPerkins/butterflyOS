@@ -2,7 +2,7 @@
 
 ## Current status
 
-The ButterflyOS-specific updater is included in **Alpha 2.1**, but online
+The ButterflyOS-specific updater is included in **v0.2.1**, but online
 installation is **not yet qualified on hardware**. No online-update manifest is
 published for this release. Existing installations still require a backed-up
 reflash; the first Alpha 2 image's inherited updater must not be used to install

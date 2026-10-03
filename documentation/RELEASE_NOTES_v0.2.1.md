@@ -1,4 +1,4 @@
-# ButterflyOS v0.1.0 Alpha 2.1
+# ButterflyOS v0.2.1
 
 This October 3 update targets **Miyoo Flip V2**. The user confirmed the flashed
 image looks better and works well. It is a follow-up to the public Alpha 2;
@@ -32,7 +32,7 @@ public update packages are offered; see [Updates](UPDATES.md).
 
 - Image source: `8ba1f47590a329ba602a11219ed6fe87d46108cc`.
 - Built image: `ROCKNIX-RK3566.aarch64-20261003-Miyoo_Flip_V2.img.gz`.
-- Download: `ButterflyOS-v0.1.0-alpha.2.1-Miyoo-Flip-V2.img.gz`.
+- Download: `ButterflyOS-v0.2.1-Miyoo-Flip-V2.img.gz`.
 - Compressed SHA-256: `d7d855ec41a41018139cf1a1ad58f1d8d077f1b55b3abdebc6b62593bb0e5228`.
 - All 668 main-image steps completed; gzip/checksum verification passed.
 - Full flashed-image read-back SHA-256:
