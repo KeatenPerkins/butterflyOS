@@ -68,7 +68,11 @@
     <menuBackground name="menubg">
       <color>110b1fff</color>
       <centerColor>081426ff</centerColor>
-      <cornerSize>0.025 0.025</cornerSize>
+      <!-- MenuComponent passes these values directly as texture pixels,
+           despite the theme schema calling them normalized. Keep the
+           frame.png native 16px corners: fractional corners sample its
+           transparent edges across the panel, especially on HDMI. -->
+      <cornerSize>16 16</cornerSize>
       <scrollbarColor>10d9ffff</scrollbarColor>
       <scrollbarSize>0.0075</scrollbarSize>
       <scrollbarCorner>0.004</scrollbarCorner>
