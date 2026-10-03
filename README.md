@@ -7,7 +7,7 @@ Miyoo Flip V2. Version 0.1.0 Alpha 2 is the first public alpha release.
 It is intended for careful testers and is not yet a stable release.
 
 Download the image and matching checksum from
-[the Alpha 2 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.1.0-alpha.2).
+[the Alpha 2.1 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.1.0-alpha.2.1).
 Read the [build and test status](documentation/CURRENT_BUILD_STATUS.md)
 and installation instructions before flashing. This is not a stable image.
 
@@ -24,7 +24,7 @@ Start here:
 - [Documentation index](documentation/README.md)
 - [Compatibility matrix](documentation/BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md)
 - [Known issues](documentation/KNOWN_ISSUES.md)
-- [Alpha 2 release notes](documentation/RELEASE_NOTES_v0.1.0-alpha.2.md)
+- [Alpha 2.1 release notes](documentation/RELEASE_NOTES_v0.1.0-alpha.2.1.md)
 - [Building from source](documentation/BUILDING.md)
 
 Project direction is documented in the [vision](docs/VISION.md) and

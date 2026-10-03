@@ -1,6 +1,17 @@
 # Current build and test status
 
-Reviewed: 2026-10-02.
+Reviewed: 2026-10-03.
+
+## Published Alpha 2.1 follow-up
+
+- Image source: `8ba1f47590a329ba602a11219ed6fe87d46108cc`.
+- Asset: `ButterflyOS-v0.1.0-alpha.2.1-Miyoo-Flip-V2.img.gz`.
+- SHA-256: `d7d855ec41a41018139cf1a1ad58f1d8d077f1b55b3abdebc6b62593bb0e5228`.
+- Full build and compressed-image checks passed. Full SD read-back hash matched.
+- User confirmed the narrower carousel/HDMI hint layout looks better and works.
+- Scraper persistence fix and ButterflyOS updater are included. Online updating
+  awaits a subsequent-build test; no update manifest is published yet.
+- See [Alpha 2.1 release notes](RELEASE_NOTES_v0.1.0-alpha.2.1.md).
 
 ## Published Alpha 2 baseline
 
@@ -17,7 +28,7 @@ Reviewed: 2026-10-02.
 The sections below retain historical development evidence. References there
 to pending rebuilds describe earlier candidates, not the release above.
 
-## October 3 fix queued for the next image
+## October 3 scraper fix included in Alpha 2.1
 
 Patch 043 fixes scraper metadata persistence for console systems grouped under
 Games, flushes completed scrape batches, and preserves dirty recovery entries
@@ -25,8 +36,8 @@ until merged into the main game list. The frontend package compiled and was
 deployed live on .17. Existing artwork links were recovered for 1,505 games and
 passed loaded-metadata/sample-image checks across two frontend restarts.
 A fresh full-SNES scrape wrote persistent metadata for 388 games. The user
-confirmed artwork and favorites remained after reboot. A full image rebuild
-and publication remain pending. See
+confirmed artwork and favorites remained after reboot. The successful October 3
+image includes the fix. See
 [ScreenScraper details](SCREENSCRAPER.md#october-3-grouped-system-persistence-fix).
 
 ## Current test image

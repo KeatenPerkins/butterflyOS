@@ -4,7 +4,7 @@
 
 ButterflyOS currently targets the Miyoo Flip V2 only. These documents describe
 the Alpha 2 release for Miyoo Flip V2. Downloads are available from
-[GitHub Releases](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.1.0-alpha.2).
+[GitHub Releases](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.1.0-alpha.2.1).
 
 ## For users and testers
 
@@ -26,7 +26,7 @@ the Alpha 2 release for Miyoo Flip V2. Downloads are available from
   systems, sample titles, emulator choices, and exceptions.
 - [Current build status](CURRENT_BUILD_STATUS.md): existing image versus
   changes staged for the next build.
-- [Alpha 2 release notes](RELEASE_NOTES_v0.1.0-alpha.2.md): release scope and
+- [Alpha 2.1 release notes](RELEASE_NOTES_v0.1.0-alpha.2.1.md): release scope and
   publication status.
 
 ## For builders and maintainers
