@@ -3,8 +3,9 @@
 These instructions build the Miyoo Flip V2 image from a clean ButterflyOS
 checkout. The build uses Podman and the pinned ROCKNIX build container.
 
-The public source repository is available. An immutable Alpha 2 release tag
-has not yet been assigned. Current image/test status is recorded in
+The public source repository is available. The Alpha 2 image source revision is
+`39bb3a803bd481b7a610cf2b19509b2c13d39891`; the `v0.1.0-alpha.2` tag also
+includes final release documentation. Current image/test status is recorded in
 [CURRENT_BUILD_STATUS.md](CURRENT_BUILD_STATUS.md).
 
 ## Host requirements

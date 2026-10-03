@@ -1,6 +1,21 @@
 # Current build and test status
 
-Reviewed: 2026-10-02. This records development evidence, not a public release.
+Reviewed: 2026-10-02.
+
+## Published Alpha 2 baseline
+
+- Image source: `39bb3a803bd481b7a610cf2b19509b2c13d39891`.
+- Asset: `ButterflyOS-v0.1.0-alpha.2-Miyoo-Flip-V2.img.gz`.
+- SHA-256: `24eb2a762b55fb6aae77caf49c5450f3b3f1bf874b5cbc01016469dc0ab3aede`.
+- All 668 main-image steps passed; image integrity and filesystem checks passed.
+- The user confirmed the flashed image boots successfully. The preceding image
+  passed scraper/artwork testing; this rebuild adds the fresh-install
+  ScreenScraper default, confirmed in the packaged SYSTEM filesystem.
+- See [release notes](RELEASE_NOTES_v0.1.0-alpha.2.md) and the October 2 section
+  of [the artifact audit](PUBLIC_RELEASE_AUDIT.md). This remains test software.
+
+The sections below retain historical development evidence. References there
+to pending rebuilds describe earlier candidates, not the release above.
 
 ## Current test image
 

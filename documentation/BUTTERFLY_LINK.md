@@ -22,7 +22,7 @@ ROM hacks, and unrecognized revisions are not generally qualified.
 | Gen I → Gen I | Trade or copy | Trade or copy | PC-box Pokémon |
 | Gen II → Gen II | Trade or copy | Trade or copy | PC-box Pokémon |
 | Gen III → Gen III | Trade or copy | Trade or copy | PC-box Pokémon; Trade requires matching save-format families |
-| Gen I → Gen II | Copy | Copy, qualification pending | Time Capsule conversion; remote Yellow → Crystal persistence failure under investigation |
+| Gen I → Gen II | Copy | Copy | Time Capsule conversion; banked-box/name fixes included, not every save pairing qualified |
 | Gen II → Gen III | Copy | Copy | One-way conversion; held items cleared |
 | Gen II → Gen I | Unavailable | Unavailable | No reverse Time Capsule conversion |
 | Gen III → earlier generations | Unavailable | Unavailable | No reverse conversion |
@@ -126,7 +126,7 @@ but Crystal's live save no longer contained it after the game ran. The cause was
 an edited active PC box that had not been synchronized to the banked box the
 game loads on Continue. Opening the PC after the initial fix exposed a second
 format error: converted names lacked the game's required 0x50 terminator.
-Both source fixes pass expanded regression tests and are deployed live, but
-need an in-game PC-open/persistence retest and the next image.
+Both fixes pass expanded regression tests and are included in Alpha 2.
+The corrected Crystal PC-open/save/exit/reopen test passed during development.
 Same-generation remote trade/copy and remote Gen II → III
 copy passed user testing. See [current build status](CURRENT_BUILD_STATUS.md).

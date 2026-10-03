@@ -11,8 +11,8 @@
   developer credentials retain the RetroArch Thumbnails fallback.
 
 The immediately preceding image's scraper/artwork test passed user testing.
-This rebuild adds the fresh-install provider default; it has not yet been
-flashed, hardware-tested, or uploaded as a public downloadable release.
+This rebuild adds the fresh-install provider default. The user confirmed the
+flashed image works and approved public alpha publication on October 2.
 Existing installations retain their saved provider selection.
 
 Before publishing, verify a fresh boot selects ScreenScraper and confirm the

@@ -64,6 +64,15 @@ connect/disconnect HDMI and check the same artwork again. Do not rename ROMs
 or saves to obtain artwork: the provider can identify supported games by name
 and/or ROM hashes. Do not publish logs containing account information.
 
+## Public Alpha 2 result
+
+Patches 041 and 042 were compiled into the October 2 build and user-tested
+successfully with fresh NES, SNES, and GB entries. The release rebuild adds
+ScreenScraper as the default on fresh installations. Its compressed SHA-256 is
+`24eb2a762b55fb6aae77caf49c5450f3b3f1bf874b5cbc01016469dc0ab3aede`.
+The staged-fix notes below describe the earlier development point, not the
+publication status of these fixes.
+
 ## Staged fixes after the October 2 image test
 
 - The user confirmed artwork appears after replacing linked `gamelist.xml`
