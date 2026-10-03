@@ -2,10 +2,11 @@
 
 ## Current status
 
-The ButterflyOS-specific updater is **implemented in source but not yet included
-in a published image or qualified on hardware**. Existing Alpha 2 installations
-still require a backed-up reflash. Do not use their inherited update option to
-install a generic ROCKNIX release.
+The ButterflyOS-specific updater is included in **Alpha 2.1**, but online
+installation is **not yet qualified on hardware**. No online-update manifest is
+published for this release. Existing installations still require a backed-up
+reflash; the first Alpha 2 image's inherited updater must not be used to install
+a generic ROCKNIX release.
 
 ## Planned user experience
 

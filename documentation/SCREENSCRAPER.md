@@ -105,8 +105,8 @@ image from each system was successfully served on every check.
 
 A fresh full-SNES scrape wrote a main game list containing 388 artwork entries,
 with no remaining recovery entries or reported save errors. The user then
-confirmed artwork and favorites remained after reboot. A full replacement
-image containing this patch has not yet been rebuilt or published.
+confirmed artwork and favorites remained after reboot. The October 3 replacement
+image contains this patch and is released as Alpha 2.1.
 
 ## Staged fixes after the October 2 image test
 

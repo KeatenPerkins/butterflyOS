@@ -6,7 +6,7 @@ testing it.
 
 Read [current build status](CURRENT_BUILD_STATUS.md) before testing. Download
 the image and matching checksum from the
-[Alpha 2 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.1.0-alpha.2).
+[Alpha 2.1 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.1.0-alpha.2.1).
 
 ## What you need
 
