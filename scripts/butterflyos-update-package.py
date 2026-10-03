@@ -11,6 +11,7 @@ from pathlib import Path
 import re
 import subprocess
 import tarfile
+import tempfile
 
 
 def main():
@@ -23,8 +24,13 @@ def main():
     if not re.fullmatch(r"[A-Za-z0-9._-]+", args.tag):
         parser.error("Invalid release tag")
     def read_stamp(name):
-        return subprocess.check_output(["unsquashfs", "-cat", str(args.system),
-                                        "usr/share/butterflyos/" + name], text=True).strip()
+        # Older squashfs-tools releases support extraction but not -cat.
+        with tempfile.TemporaryDirectory(prefix="butterflyos-stamp-") as folder:
+            destination = Path(folder) / "system"
+            relative = "usr/share/butterflyos/" + name
+            subprocess.run(["unsquashfs", "-no-progress", "-d", str(destination),
+                            str(args.system), relative], check=True, stdout=subprocess.DEVNULL)
+            return (destination / relative).read_text().strip()
     device = read_stamp("update-device")
     version = read_stamp("update-version")
     if device != "Miyoo_Flip_V2" or not re.fullmatch(r"20[0-9]{6}", version):
