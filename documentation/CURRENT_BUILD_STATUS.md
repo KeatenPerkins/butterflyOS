@@ -17,6 +17,16 @@ Reviewed: 2026-10-02.
 The sections below retain historical development evidence. References there
 to pending rebuilds describe earlier candidates, not the release above.
 
+## October 3 fix queued for the next image
+
+Patch 043 fixes scraper metadata persistence for console systems grouped under
+Games, flushes completed scrape batches, and preserves dirty recovery entries
+until merged into the main game list. The frontend package compiled and was
+deployed live on .17. Existing artwork links were recovered for 1,505 games and
+passed loaded-metadata/sample-image checks across two frontend restarts.
+A fresh scrape persistence test and full image rebuild remain pending. See
+[ScreenScraper details](SCREENSCRAPER.md#october-3-grouped-system-persistence-fix).
+
 ## Current test image
 
 - Image: `ROCKNIX-RK3566.aarch64-20261002-Miyoo_Flip_V2.img.gz`
