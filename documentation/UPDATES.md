@@ -8,10 +8,13 @@ published for this release. Existing installations still require a backed-up
 reflash; the first Alpha 2 image's inherited updater must not be used to install
 a generic ROCKNIX release.
 
-The v0.2.2 package is prepared for the first online installation test from
-v0.2.1. Its explicit build identity is `20261004`; hardware qualification is
-pending. See [v0.2.2 release notes](RELEASE_NOTES_v0.2.2.md) for validation and
-version-assignment details.
+The v0.2.2 test failed at the inherited boot installer's archive filename gate;
+it is now a prerelease and is skipped. The corrected v0.2.3 package uses build
+identity `20261004` and includes both a legacy-compatible staging name and an
+updated boot filename rule. Hardware qualification is pending. The original
+v0.2.1 updater needs a staging fix before this transition; the .20 test device
+has that fix active for its current session. See
+[v0.2.3 release notes](RELEASE_NOTES_v0.2.3.md) for validation and migration details.
 
 ## Planned user experience
 
@@ -63,13 +66,17 @@ The next full build must include the updater and device/version stamps under
 when packages came from cache. Rebuild the `rocknix` package when first adding
 the updater to an existing build tree.
 
-Use the completed build's matching `.system` and `.kernel` files, not files from
-different builds. With `unsquashfs` installed on the build computer:
+Use the completed build's matching SYSTEM and KERNEL, not files from different
+builds. Image assembly deletes raw `.system`/`.kernel` outputs during cleanup,
+so run a release build and extract its matching pair from the generated `.tar`.
+With `unsquashfs` installed on the build computer:
 
 ```sh
+mkdir -p /path/to/build-output
+tar -xf target/<image-name>.tar -C /path/to/build-output <image-name>/target
 python3 scripts/butterflyos-update-package.py \
-  --system target/<image-name>.system \
-  --kernel target/<image-name>.kernel \
+  --system /path/to/build-output/<image-name>/target/SYSTEM \
+  --kernel /path/to/build-output/<image-name>/target/KERNEL \
   --tag <release-tag> \
   --output /path/to/new-update-output-directory
 ```
