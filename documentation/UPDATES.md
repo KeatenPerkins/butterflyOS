@@ -2,11 +2,11 @@
 
 ## Current status
 
-The ButterflyOS-specific updater is included in **v0.2.1**, but online
-installation is **not yet qualified on hardware**. No online-update manifest is
-published for this release. Existing installations still require a backed-up
-reflash; the first Alpha 2 image's inherited updater must not be used to install
-a generic ROCKNIX release.
+The ButterflyOS-specific updater is included from **v0.2.1**. The prepared
+Flip V2 test device successfully installed **v0.2.3** online. Broader hardware
+qualification is still pending; original v0.2.1 installations need the migration
+fix described below. The first Alpha 2 image's inherited updater must not be
+used to install a generic ROCKNIX release.
 
 The v0.2.2 test failed at the inherited boot installer's archive filename gate;
 it is now a prerelease and is skipped. The corrected v0.2.3 package uses build
@@ -18,8 +18,11 @@ staging fix before this transition; the new installed SYSTEM contains the fix
 permanently. Broader acceptance testing is still pending. See
 [v0.2.3 release notes](RELEASE_NOTES_v0.2.3.md) for validation and migration details.
 
-The next build adds **Start → System Settings → Update ButterflyOS**, available
-without Advanced Mode. Installed v0.2.3 still uses **Updates & Downloads**.
+**v0.2.4** uses build identity `20261005` and adds
+**Start → System Settings → Update ButterflyOS**, available without Advanced
+Mode, along with menu polish and PortMaster in Tools. Installed v0.2.3 still
+uses **Updates & Downloads** to install it. See
+[v0.2.4 release notes](RELEASE_NOTES_v0.2.4.md).
 
 ## Planned user experience
 
@@ -28,7 +31,8 @@ Once an updater-enabled image and a newer qualified update package are released:
 1. Save and exit any running game or Butterfly Link session.
 2. Back up important saves and export your device's recovery backup.
 3. Connect to Wi-Fi, charge to at least 50%, and connect front-port power.
-4. Enable Advanced Mode if Updates & Downloads is hidden. Open
+4. On v0.2.4 or newer, open **Start → System Settings → Update ButterflyOS**.
+   On v0.2.3, enable Advanced Mode if needed and open
    **Start → Updates & Downloads → Start Update**.
 5. Confirm the offered version. The updater downloads the official ButterflyOS
    package and checks its size, SHA-256, device identity, and internal checksums.

@@ -22,7 +22,7 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
   connected controller count
 - Simplified normal mode with optional Advanced Mode
 - PortMaster available from Tools for browsing and installing game ports
-  (included in the next image; Flip V2 game compatibility testing is pending)
+  (included in v0.2.4; Flip V2 game compatibility testing is pending)
 
 ## Games and controls
 
