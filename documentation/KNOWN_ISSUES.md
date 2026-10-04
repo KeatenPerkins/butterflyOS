@@ -118,15 +118,6 @@ not a guarantee of universal compatibility or legal advice.
   emulation, battles, or party transfers.
 - Same-generation local/remote trade and copy passed user testing. Remote
   Gen II → III copy also passed; source saves are unchanged and held items cleared.
-- Remote Yellow → Crystal produced a prepared save containing Pikachu and
-  logged a destination commit, but the live Crystal save lacked Pikachu after
-  the game ran. The cause was traced to an unsynchronized Gen II banked PC box.
-  A subsequent PC white screen exposed malformed converted name terminators;
-  the helper now writes the required 0x50 terminators. Crystal was repaired
-  from its backup with Pikachu retained. The source fixes pass 48 expanded
-  persistence/name regression cases. The corrected Crystal PC-open/save/exit/
-  reopen test passed, and these fixes are included in the release image.
-  Fresh timestamps and file hashes alone cannot fix a save-format error.
 - Local evolution prompts are implemented for supported rules. Remote
   evolution prompts, complete Everstone/held-item rules, and arbitrary ROM
   hacks/languages are not qualified.
