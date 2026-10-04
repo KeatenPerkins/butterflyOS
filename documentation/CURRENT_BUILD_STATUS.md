@@ -1,6 +1,21 @@
 # Current build and test status
 
-Reviewed: 2026-10-03.
+Reviewed: 2026-10-04.
+
+## First stable release: v1.0.0
+
+- Public version: `v1.0.0`; numeric device/updater identity: `20261006`.
+- Target: Miyoo Flip V2 only.
+- The user completed system-by-system checks, verified PortMaster, and found
+  no additional UI issues on the v0.2.4 testing baseline.
+- The release adds corrected X/Y hints, proper update reboot, normal update
+  confirmation, Ports icon matching, and eight dedicated system artworks.
+- Exact source revision and completed build audit are recorded after assembly;
+  earlier hardware tests are not represented as testing this new binary.
+- See [v1.0.0 release notes](RELEASE_NOTES_v1.0.0.md) and
+  [release procedure](RELEASE_PROCEDURE.md).
+
+The sections below are historical build and testing records.
 
 ## Published v0.2.1
 

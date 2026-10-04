@@ -1,11 +1,11 @@
 # ButterflyOS Quick Start
 
-ButterflyOS v0.2.1 supports the **Miyoo Flip V2 only**. Back up saves and other
+ButterflyOS v1.0.0 supports the **Miyoo Flip V2 only**. Back up saves and other
 important files before installation or reflashing.
 
 Read [current build status](CURRENT_BUILD_STATUS.md) before testing. Download
 the image and matching checksum from the
-[v0.2.1 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.2.1).
+[v1.0.0 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.0).
 
 ## What you need
 
@@ -22,7 +22,7 @@ ButterflyOS does not contain games or proprietary console BIOS files.
 Keep the image and checksum file in the same directory. On Linux, run:
 
 ```sh
-sha256sum -c ButterflyOS-v0.1.0-alpha.2-Miyoo-Flip-V2.img.gz.sha256
+sha256sum -c ButterflyOS-v1.0.0-Miyoo-Flip-V2.img.gz.sha256
 ```
 
 The result must say `OK`. If it does not, delete the download and obtain it
@@ -181,7 +181,7 @@ On v0.2.3 or newer, follow [How to update](UPDATES.md#how-to-update). For v0.2.4
 allow at least **3 GB free on the OS card**, connect Wi-Fi and front-port power,
 and charge to at least 50%. Wait for **Update is ready / Reboot to apply**, then
 choose **Start → Quit → Restart System** to install. After boot, verify version
-**20261005** and check your games and saves. Original v0.2.1 installations need
+**20261005** and check your games and saves. Original v1.0.0 installations need
 the migration fix explained in that guide before using online updates.
 
 If you need to reflash instead, reflashing erases games, saves, settings, and

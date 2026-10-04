@@ -1,9 +1,10 @@
-# ButterflyOS v0.2.1 known issues
+# ButterflyOS v1.0.0 known issues
 
 Keep backups of
 games, saves, BIOS files, and any device-specific recovery data.
 
-Based on the Alpha 2 qualification, with the October 3 scraper fix included. See
+Based on the Alpha 2/v0.2.x qualification and October 4 system-by-system,
+PortMaster, and interface testing. See
 [current build status](CURRENT_BUILD_STATUS.md) for the exact image and test record.
 Historical checks do not qualify every game or save combination.
 
@@ -20,8 +21,8 @@ fixes then repeated the full workflow without live intervention. The Alpha 2
 candidate excludes proprietary DraStic. The restored ROCKNIX Mali stack carries
 its EULA and uses the upstream no-blob-modification mapping fix. Distribution
 checks for the October 2 artifact and refreshed package inventory are recorded
-in [the public-release audit](PUBLIC_RELEASE_AUDIT.md). This is an alpha release,
-not a guarantee of universal compatibility or legal advice.
+in [the public-release audit](PUBLIC_RELEASE_AUDIT.md). The stable designation covers the documented Flip V2 scope; compatibility
+still depends on the game and peripheral.
 
 ## Installation and recovery
 
@@ -132,20 +133,18 @@ not a guarantee of universal compatibility or legal advice.
 
 ## Updates and interface
 
-- The published Alpha 2 frontend can lose scraped metadata after restarting
-  systems grouped under Games, while downloaded images remain on the card.
-  The October 3 source fix compiled and passed recovered-artwork restart checks
-  live on .17; it requires a replacement release image. See
-  [ScreenScraper](SCREENSCRAPER.md#october-3-grouped-system-persistence-fix).
-- There is not yet a tested ButterflyOS online-update channel or rollback
-  workflow. Reflashing remains the Alpha upgrade method.
+- Grouped-system scraper persistence is corrected. Artwork and favorites
+  survived reboot during user testing.
+- Online updating passed the v0.2.3 and v0.2.4 device transitions. v1.0.0
+  corrects the misleading unofficial-modification warning and makes Restart
+  to Apply reboot the whole device. There is no A/B rollback; see [Updates](UPDATES.md).
 - Reflashing erases the device-specific recovery backup stored on the card.
   Use **Export Recovery Backup** and download the result to another
   physical device before writing a new image.
 - Some inherited Advanced Mode screens retain ROCKNIX terminology and are not
   intended for beginner workflows.
-- Broad theme polishing for external display resolutions is deferred until the
-  handheld interface and behavior are stable.
+- The wider-screen menu layout was corrected. No additional UI issues were
+  found in the latest user tests; every display resolution is not qualified.
 - The current source derives Wi-Fi state from NetworkManager and applies
   settings immediately. Use the keyboard's on-screen Enter to submit passwords.
   Historical GUI/password issues should be reported with logs if they recur.

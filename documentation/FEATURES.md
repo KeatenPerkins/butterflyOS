@@ -1,4 +1,4 @@
-# ButterflyOS v0.2.1 features
+# ButterflyOS v1.0.0 features
 
 ButterflyOS is a hardware-tested Miyoo Flip V2 release focused on a clean,
 controller-first experience.
@@ -16,13 +16,16 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 - Games, Favorites, Media, Tools, and Settings home destinations
 - Tools also remains accessible through the Start main menu; Settings opens
   that same main menu
+- Correct game-list hints: **Y: Search**, **X: Add/Remove Favorite**
+- Matching system art for Atari 2600, PC Engine CD, Sega CD, and distinct
+  Arcade, Final Burn Neo, and CPS-I/II/III cabinets
 - Systems shown only when recognized games are present
 - `FC`/`nes` and `SFC`/`snes` ROM-folder aliases
 - Larger status indicators for time, battery, Wi-Fi, Bluetooth, charging, and
   connected controller count
 - Simplified normal mode with optional Advanced Mode
 - PortMaster available from Tools for browsing and installing game ports
-  (included in v0.2.4; Flip V2 game compatibility testing is pending)
+  (installation and offered games passed user testing on the Flip V2)
 
 ## Games and controls
 
@@ -38,6 +41,13 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 - Game-art scraping; provider availability and filename matches affect results
 - Combined game library across the ButterflyOS card and an optional second SD
   card, with internal-card files taking precedence over duplicate names
+
+## Online updates
+
+- **Start → System Settings → Update ButterflyOS** in normal mode
+- Device-specific package and checksum verification before installation
+- Restart to Apply reboots the device after verification
+- See [How to update](UPDATES.md#how-to-update) for space and power requirements
 
 ## Connectivity and files
 
@@ -92,4 +102,4 @@ battles, party transfers, Gen II → I conversion, or Gen III → II conversion.
 See [Butterfly Link](BUTTERFLY_LINK.md) for supported games, workflow, and limits.
 
 ButterflyOS does not include commercial games or proprietary console BIOS
-files. See [Known Issues](KNOWN_ISSUES.md) for Alpha limitations.
+files. See [Known Issues](KNOWN_ISSUES.md) for compatibility limitations.
