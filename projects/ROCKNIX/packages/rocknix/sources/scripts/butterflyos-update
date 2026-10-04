@@ -172,7 +172,10 @@ def stage(manifest):
         validate_archive(temporary, manifest)
         # Cache and staging are on the same /storage filesystem. Only a fully
         # validated archive becomes visible to the boot installer.
-        os.replace(temporary, STAGING / ("ButterflyOS-" + manifest["version"] + ".tar"))
+        # Existing Flip V2 initramfs rejects archives without ROCKNIX in their
+        # staged filename, before inspecting their contents. Keep that legacy
+        # handoff name while the manifest/GUI retain ButterflyOS identity.
+        os.replace(temporary, STAGING / ("ROCKNIX-ButterflyOS-" + manifest["version"] + ".tar"))
         os.sync()
         print("Verified. Restart to install. Keep power connected; do not remove the OS card.", flush=True)
     finally:

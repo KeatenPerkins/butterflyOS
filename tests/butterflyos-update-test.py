@@ -96,8 +96,11 @@ class UpdateTests(unittest.TestCase):
                 self.assertEqual(list((root / "staging").iterdir()), [])
                 self.assertFalse((root / "cache/download.part").exists())
                 updater.stage(self.manifest)
-                staged = root / "staging/ButterflyOS-20261004.tar"
+                staged = root / "staging/ROCKNIX-ButterflyOS-20261004.tar"
                 self.assertEqual(staged.read_bytes(), raw)
+                # The installed ROCKNIX initramfs checks the filename before
+                # opening the archive and deletes unrecognized updates.
+                self.assertIn("ROCKNIX", staged.name)
                 with self.assertRaises(ValueError):
                     updater.stage(self.manifest)
 
