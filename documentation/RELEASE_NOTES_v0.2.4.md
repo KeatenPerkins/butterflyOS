@@ -22,9 +22,16 @@ menus and PortMaster on the device.
 
 On an installed v0.2.3 device, save and exit games, connect to Wi-Fi and
 front-port power, then use **Start → Updates & Downloads → Start Update**
-(enable Advanced Mode if necessary). Restart when downloading and verification
-finish. After installation, confirm version `20261005`; subsequent updates
+(enable Advanced Mode if necessary). Wait for **Update is ready / Reboot to
+apply**, then use **Start → Quit → Restart System** after downloading and
+verification finish. The update menu's Apply Update shortcut only restarts the
+menu in this release; its device-reboot correction is queued for the next build.
+After installation, confirm version `20261005`; subsequent updates
 can be started from **Start → System Settings → Update ButterflyOS**.
+
+The download is about **1.3 GB**; allow **at least 3 GB free on the OS card**
+for download and installation. See [How to update](UPDATES.md#how-to-update)
+for the full procedure.
 
 Back up important saves before updating. Keep power connected and leave the
 OS card inserted during installation. Older v0.2.1 installations require the
