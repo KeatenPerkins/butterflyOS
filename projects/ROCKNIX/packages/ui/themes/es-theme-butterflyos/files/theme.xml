@@ -247,6 +247,47 @@
     </textlist>
   </view>
 
+  <view name="basic,detailed">
+    <image name="search-button-hint" extra="true">
+      <origin>0 1</origin>
+      <pos>0.045 0.965</pos>
+      <maxSize>0.05 0.06</maxSize>
+      <path>/usr/config/emulationstation/resources/help/button_x.svg</path>
+      <zIndex>8</zIndex>
+    </image>
+    <text name="search-button-hint-label" extra="true">
+      <origin>0 1</origin>
+      <pos>0.105 0.965</pos>
+      <size>0.22 0.06</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <alignment>left</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>d9e7ffff</color>
+      <text>Search</text>
+      <zIndex>8</zIndex>
+    </text>
+    <image name="favorite-button-hint" extra="true">
+      <origin>0 1</origin>
+      <pos>0.40 0.965</pos>
+      <maxSize>0.05 0.06</maxSize>
+      <path>/usr/config/emulationstation/resources/help/button_y.svg</path>
+      <zIndex>8</zIndex>
+    </image>
+    <text name="favorite-button-hint-label" extra="true">
+      <origin>0 1</origin>
+      <pos>0.46 0.965</pos>
+      <size>0.495 0.06</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <alignment>left</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>d9e7ffff</color>
+      <text>Add/Remove Favorite</text>
+      <zIndex>8</zIndex>
+    </text>
+  </view>
+
   <view name="basic">
     <textlist name="gamelist">
       <size>0.91 0.65</size>
@@ -276,8 +317,10 @@
     </image>
     <image name="game-artwork" extra="true">
       <origin>0.5 0.5</origin>
-      <pos>0.75 0.475</pos>
+      <pos>0.75 0.49</pos>
       <maxSize>0.36 0.46</maxSize>
+      <horizontalAlignment>center</horizontalAlignment>
+      <verticalAlignment>center</verticalAlignment>
       <path>{game:image}</path>
       <roundCorners>0.018</roundCorners>
       <zIndex>4</zIndex>
@@ -285,7 +328,7 @@
     <text name="no-artwork" extra="true">
       <visible>false</visible>
       <origin>0.5 0.5</origin>
-      <pos>0.75 0.475</pos>
+      <pos>0.75 0.49</pos>
       <size>0.32 0.15</size>
       <text>NO ARTWORK</text>
       <fontPath>${fontBold}</fontPath>
