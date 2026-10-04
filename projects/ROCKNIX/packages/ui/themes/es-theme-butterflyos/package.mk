@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="es-theme-butterflyos"
-PKG_VERSION="0.1.6"
+PKG_VERSION="0.1.7"
 PKG_LICENSE="GPL-2.0-only"
 PKG_SITE="https://github.com/KeatenPerkins/butterflyOS"
 PKG_URL=""
@@ -19,6 +19,8 @@ makeinstall_target() {
     ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/systems
   ln -sf genesis.png \
     ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/systems/megadrive.png
+  ln -sf pcenginecd.png \
+    ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/systems/pce-cd.png
   cp ${ROOT}/artwork/branding/master/butterflyos-logo-master-transparent.png \
     ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/butterflyos-logo.png
 }
