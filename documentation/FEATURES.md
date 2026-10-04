@@ -21,6 +21,8 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 - Larger status indicators for time, battery, Wi-Fi, Bluetooth, charging, and
   connected controller count
 - Simplified normal mode with optional Advanced Mode
+- PortMaster available from Tools for browsing and installing game ports
+  (included in the next image; Flip V2 game compatibility testing is pending)
 
 ## Games and controls
 
