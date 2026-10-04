@@ -1,0 +1,29 @@
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -1470,6 +1470,25 @@ void GuiMenu::openSystemSettings()
+ 	// System informations
+ 	s->addEntry(_("INFORMATION"), true, [this] { openSystemInformations(); });
+ 
++	if (Utils::FileSystem::exists("/usr/share/butterflyos/update-device") &&
++		ApiSystem::getInstance()->isScriptingSupported(ApiSystem::UPGRADE))
++	{
++		s->addEntry(GuiUpdate::state == GuiUpdateState::State::UPDATE_READY
++			? _("RESTART TO APPLY UPDATE") : _("UPDATE BUTTERFLYOS"), true, [this]
++		{
++			if (GuiUpdate::state == GuiUpdateState::State::UPDATE_READY)
++				Utils::Platform::quitES(Utils::Platform::QuitMode::RESTART);
++			else if (GuiUpdate::state == GuiUpdateState::State::UPDATER_RUNNING)
++				mWindow->pushGui(new GuiMsgBox(mWindow, _("UPDATER IS ALREADY RUNNING")));
++			else
++			{
++				if (!checkNetwork())
++					return;
++				mWindow->pushGui(new GuiUpdate(mWindow));
++			}
++		});
++	}
++
+ 	// language choice
+ 	auto language_choice = std::make_shared<OptionListComponent<std::string> >(window, _("LANGUAGE"), false);
+ 

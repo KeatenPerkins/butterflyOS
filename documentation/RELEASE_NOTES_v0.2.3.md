@@ -21,7 +21,18 @@ All seven offline updater tests pass. The finished archive passed size,
 SHA-256, manifest, device identity, and internal checksum validation. Extracted
 files matched the corrected updater, rebuilt menu executable, and theme. The
 Flip device tree and updated filename rule in the kernel's generated initramfs
-were checked. End-to-end installation qualification is still pending.
+were checked.
+
+The prepared .20 test device successfully downloaded, installed, and rebooted
+into `20261004`. Installed source identity and permanent updater matched the
+package; staging was empty and the updater offered no repeat update. All 42
+pre-recorded files under `/storage/roms` retained their hashes, with none missing;
+one gamelist was added. Of 1,927 pre-recorded configuration files, 1,915 retained
+their hashes; six changed and six were removed across the session/reboot, including
+runtime/display settings, logs, metadata recovery files, and a resource override.
+Two configuration files were added, including the temporary migration helper.
+This is one successful prepared-device transition, not completion of every
+acceptance check in the update guide.
 
 The original v0.2.1 updater needs the staging fix for this initial transition.
 On test device `192.168.1.20`, the corrected script was copied to
@@ -33,7 +44,8 @@ should wait for qualification and documented migration instructions.
 For the prepared test device, keep front-port power connected and use
 **Start → Updates & Downloads → Start Update**. After reboot, verify version
 `20261004`, widescreen menus, games, saves, artwork, and settings.
-The normal-mode System Settings entry is deferred until installation succeeds.
+The next build adds **Start → System Settings → Update ButterflyOS** in normal
+mode. This installed test build still uses the Advanced Mode update menu.
 
 Archive SHA-256:
 

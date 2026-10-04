@@ -11,10 +11,15 @@ a generic ROCKNIX release.
 The v0.2.2 test failed at the inherited boot installer's archive filename gate;
 it is now a prerelease and is skipped. The corrected v0.2.3 package uses build
 identity `20261004` and includes both a legacy-compatible staging name and an
-updated boot filename rule. Hardware qualification is pending. The original
-v0.2.1 updater needs a staging fix before this transition; the .20 test device
-has that fix active for its current session. See
+updated boot filename rule. The prepared .20 device successfully installed and
+rebooted into `20261004`, retained all 42 pre-recorded files under `/storage/roms`,
+and was not offered the same update again. The original v0.2.1 updater needs a
+staging fix before this transition; the new installed SYSTEM contains the fix
+permanently. Broader acceptance testing is still pending. See
 [v0.2.3 release notes](RELEASE_NOTES_v0.2.3.md) for validation and migration details.
+
+The next build adds **Start → System Settings → Update ButterflyOS**, available
+without Advanced Mode. Installed v0.2.3 still uses **Updates & Downloads**.
 
 ## Planned user experience
 
