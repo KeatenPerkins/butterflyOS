@@ -177,10 +177,15 @@ with the lid closed.
 
 ## Updating a test installation
 
-There is no qualified ButterflyOS online updater yet. A whole-card reflash
-remains necessary for the published image. See [Updates](UPDATES.md) for the
-implementation staged for a future release. Reflashing
-erases games, saves, settings, and the recovery backup on that card. Export the
+On v0.2.3 or newer, follow [How to update](UPDATES.md#how-to-update). For v0.2.4,
+allow at least **3 GB free on the OS card**, connect Wi-Fi and front-port power,
+and charge to at least 50%. Wait for **Update is ready / Reboot to apply**, then
+choose **Start → Quit → Restart System** to install. After boot, verify version
+**20261005** and check your games and saves. Original v0.2.1 installations need
+the migration fix explained in that guide before using online updates.
+
+If you need to reflash instead, reflashing erases games, saves, settings, and
+the recovery backup on that card. Export the
 device recovery archive and separately back up all user files first. The SD-boot
 change stays in the device's internal preloader; do not reinstall it merely
 because you rewrote the OS card. Restore the correct device's recovery folder

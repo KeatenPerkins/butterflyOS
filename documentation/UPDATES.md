@@ -1,5 +1,76 @@
 # ButterflyOS updates
 
+## How to update
+
+These instructions apply to installations with the corrected ButterflyOS
+updater, including v0.2.3 and newer. Older v0.2.1 installations need the
+migration fix described under [Current status](#current-status).
+
+### Before downloading
+
+- Save and exit any running game or Butterfly Link session.
+- Back up important saves and export your device's recovery backup.
+- Connect to Wi-Fi, charge the battery to **at least 50%**, and connect power
+  through the **front USB-C port**. Keep the device powered throughout the update.
+- For **v0.2.4**, have **at least 3 GB free on the ButterflyOS SD card's storage
+  partition**. This means unused space, not the card's total capacity. Free
+  space on a second game card does not count toward this requirement.
+
+The v0.2.4 download is about **1.3 GB**. Installation also needs room to unpack
+it: the updater requires about **2.83 GB free** in total for this release.
+It calculates the requirement from the download size plus unpacked size plus
+256 MiB of working space; future releases may need more. It also checks that
+the update fits the separate boot partition before starting.
+
+### Download and verify
+
+1. Open the update menu:
+   - **v0.2.4 or newer:** **Start → System Settings → Update ButterflyOS**.
+   - **v0.2.3:** **Start → Updates & Downloads → Start Update**. Enable
+     **Advanced Mode** in User Interface Settings if that menu is hidden.
+2. Check the offered version and confirm the download. For example, v0.2.4
+   appears as device version **20261005**.
+3. **Wait for the entire package to download and verify.** The device downloads
+   the OS update automatically; you do not need to copy or flash an SD-card
+   image. Download time depends on Wi-Fi and server speed and can take several
+   minutes or longer. The display may show status text without a percentage.
+4. Wait for **Update is ready / Reboot to apply**. Finding an update or finishing
+   its download does not install it; the package must pass verification first.
+   Do not restart while downloading or verifying. If an error appears, resolve
+   it and retry instead of proceeding to installation.
+
+v0.2.3 and v0.2.4 may show **Unofficial system modifications detected** when
+asking for confirmation. This is an inherited warning about the `community`
+build label, not a check of your files. Confirm the expected ButterflyOS
+version; the updater still verifies the official package. The next build
+removes this misleading warning.
+
+### Restart to install
+
+1. Once the verified update is ready, choose **Start → Quit → Restart System**
+   and confirm. Use **Restart System**, which reboots the whole device.
+   **Restart EmulationStation** only restarts the menu and does not install
+   the update. The update menu's Apply Update / Restart to Apply shortcut in
+   v0.2.3 and v0.2.4 also only restarts the menu; this is corrected in the next
+   build.
+2. The device shows an update progress screen during startup. **Keep power
+   connected and leave the OS card inserted** while it works through the steps.
+   Wait for installation and startup to finish; do not interrupt them.
+3. Check the version at the bottom of the Start menu. After installing v0.2.4,
+   it should read **ButterflyOS 20261005**. Check your games, saves, favorites,
+   artwork, and settings before resuming normal use.
+
+The update replaces OS files and is intended to retain games, saves, media,
+and settings. It does not reformat the storage partition. Keep backups:
+preservation has been checked on one prepared test-device transition, and
+broader testing is still pending. A power interruption while replacing boot
+files can require a backed-up reflash to recover.
+
+If the version stays unchanged, check that the package was verified and that
+you used **Restart System**. If no update is offered, your installed build may
+already be current. Do not delete staged update files or reflash simply to
+retry a failed download; read the error and resolve its cause first.
+
 ## Current status
 
 The ButterflyOS-specific updater is included from **v0.2.1**. The prepared
@@ -29,27 +100,6 @@ modifications detected" because the inherited ROCKNIX interface classifies
 `community` builds that way. It does not inspect files for modifications.
 The next build uses the normal version confirmation for ButterflyOS; package
 identity, size, and checksum validation remain unchanged.
-
-## Planned user experience
-
-Once an updater-enabled image and a newer qualified update package are released:
-
-1. Save and exit any running game or Butterfly Link session.
-2. Back up important saves and export your device's recovery backup.
-3. Connect to Wi-Fi, charge to at least 50%, and connect front-port power.
-4. On v0.2.4 or newer, open **Start → System Settings → Update ButterflyOS**.
-   On v0.2.3, enable Advanced Mode if needed and open
-   **Start → Updates & Downloads → Start Update**.
-5. Confirm the offered version. The updater downloads the official ButterflyOS
-   package and checks its size, SHA-256, device identity, and internal checksums.
-6. Restart when the verified package is ready. Do not remove the OS card or
-   disconnect power during installation.
-7. After boot, check your games, saves, settings, and artwork.
-
-The inherited boot installer replaces OS-card kernel/system files and updates
-SD boot device trees. It does not reformat the storage partition. Games, saves,
-media, settings, and artwork are intended to remain intact. This preservation
-still needs an end-to-end device test before public availability.
 
 This is **not an A/B updater**: loss of power during replacement of boot files
 can leave an unbootable card. Recovery may require backing up readable storage

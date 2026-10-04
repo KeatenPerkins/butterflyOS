@@ -17,6 +17,7 @@ Start here:
 
 - [Quick Start](documentation/QUICK_START.md)
 - [How to transfer games](documentation/TRANSFERRING_GAMES.md)
+- [How to update](documentation/UPDATES.md#how-to-update)
 - [Installation and recovery](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md)
 - [Controls and hotkeys](documentation/HOTKEYS.md)
 - [Features](documentation/FEATURES.md)

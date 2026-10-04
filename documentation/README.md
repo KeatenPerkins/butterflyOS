@@ -2,9 +2,12 @@
 
 <img src="assets/butterflyos-logo.png" alt="ButterflyOS logo" width="280">
 
-ButterflyOS currently targets the Miyoo Flip V2 only. These documents describe
-the v0.2.1 release for Miyoo Flip V2. Downloads are available from
-[GitHub Releases](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.2.1).
+ButterflyOS currently targets the Miyoo Flip V2 only. The full installation
+image is available from the
+[v0.2.1 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v0.2.1).
+Newer online update packages, including v0.2.4, are available for installations
+with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
+version requirements, download instructions, and the older-build migration.
 
 ## For users and testers
 
@@ -15,8 +18,8 @@ the v0.2.1 release for Miyoo Flip V2. Downloads are available from
 - [Installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md): the
   device-specific SD-boot change, backup export, reflashing, and exact restore.
 - [Features](FEATURES.md): current capabilities and their limits.
-- [Updates](UPDATES.md): the staged online updater, safety limits, and release
-  qualification checklist.
+- [How to update](UPDATES.md#how-to-update): free SD-card space, downloading,
+  verification, restarting to install, and checking the new version.
 - [Controls and hotkeys](HOTKEYS.md): built-in controls, Bluetooth differences,
   and media playback.
 - [Butterfly Link](BUTTERFLY_LINK.md): local/remote save transfers and supported
