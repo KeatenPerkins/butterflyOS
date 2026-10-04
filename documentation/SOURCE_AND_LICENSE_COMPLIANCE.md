@@ -19,8 +19,8 @@ For every published image:
 6. Verify that a clean checkout plus documented prerequisites can reproduce the
    device-specific build.
 
-Alpha 1 was an internal artifact. The exact Alpha 2 source commit and image
-SHA-256 will be inserted into its release notes after the clean build. Later
+Alpha 1 was an internal artifact. Published release notes and artifact audits
+record the exact source commit and image SHA-256. Later
 documentation commits must not be represented as the exact binary source
 revision.
 
@@ -66,7 +66,7 @@ Public pages and images should state:
 Use third-party names only as needed to identify compatibility or provide
 attribution. Do not use their logos to suggest an official relationship.
 
-## Current release blockers
+## Checks for each subsequent release
 
 - Rebuild from the final committed source after all current changes, then repeat
   the clean-image audit and focused hardware tests, including Butterfly Link.

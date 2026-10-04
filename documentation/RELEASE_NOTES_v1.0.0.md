@@ -56,5 +56,19 @@ Source, build instructions, and licenses remain available in the `v1.0.0` tag,
 [Building](BUILDING.md), [Third-party notices](../THIRD_PARTY_NOTICES.md), and
 [source compliance](SOURCE_AND_LICENSE_COMPLIANCE.md).
 
-Exact source revision, hashes, sizes, and final verification will be recorded
-in the release audit after the build completes.
+Binary source: `efcc19513baa5ea2b756b619fe81196873e8aebc`. All 668 build steps and all seven
+updater tests passed. Gzip, partition/filesystem integrity, clean storage,
+matching image/update payloads, identity, checksums, packaged features/artwork,
+Mali EULA/blob, and private-content checks passed. The manifest resolves all
+549 target packages and the image retains 86 license/notice files. The exact
+new binary has not yet been boot-tested; earlier user tests qualify the
+preceding baseline. See [release audit](PUBLIC_RELEASE_AUDIT.md).
+
+Image SHA-256: `8b167f25ebba69ff24e5904f4c99068b6b5eb2b357905905a24aabc3d661ecaa`.
+
+Update SHA-256: `a223780485543e05d8a6fb4f6aaf0d6e0c6e582181a2167b30b2fe30dbfdbb66`.
+
+Image download: 1.27 GB. Online update: 1.28 GB.
+The updater requires about 2.83 GB of working space;
+leave at least 3 GB free. Builds reused the existing package/source cache;
+a clean-checkout reproducibility test was not repeated.

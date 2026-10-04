@@ -5,6 +5,53 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## October 4, 2026 first stable release: v1.0.0
+
+- Binary source: `efcc19513baa5ea2b756b619fe81196873e8aebc`. The release tag also includes later
+  final audit documentation; the recorded binary source remains unchanged.
+- Device: Miyoo Flip V2 only; updater identity: `20261006`.
+- Build: `CUSTOM_VERSION=20261006 make docker-RK3566-Miyoo-Flip-V2-aarch64`.
+  Exit 0; all 668 package steps completed. Existing package/source caches were
+  reused; clean-checkout and bit-for-bit reproducibility were not retested.
+- Container digest: `sha256:43dac3d6d7e59801b7797bf06b970c7c056d97185d19cb909d502ce8ded754ed`.
+- Image: `ButterflyOS-v1.0.0-Miyoo-Flip-V2.img.gz`, 1265374844 bytes.
+  SHA-256: `8b167f25ebba69ff24e5904f4c99068b6b5eb2b357905905a24aabc3d661ecaa`.
+- Update: `ButterflyOS-Miyoo-Flip-V2-20261006.tar`, 1279580160 bytes.
+  SHA-256: `a223780485543e05d8a6fb4f6aaf0d6e0c6e582181a2167b30b2fe30dbfdbb66`.
+- Generated image checksum, gzip integrity, GPT, FAT, and ext4 checks passed.
+  GPT verification reported no problems. STORAGE contains only `lost+found`
+  and `.please_resize_me` in addition to directory entries.
+- Image and update contain matching SYSTEM and KERNEL. Embedded MD5 records,
+  update manifest, device/version identity, archive members, sizes, and SHA-256
+  validation passed using the current updater's verification routines.
+- Extracted SYSTEM has the exact source build ID, current updater and theme,
+  corrected X/Y hints, PortMaster runtime/launcher, matching Ports/Tools ship
+  icon, and all eight new system illustrations. The `pce-cd` alias resolves.
+- Packaged EmulationStation includes ButterflyOS update/restart labels and
+  the device marker; the recorded source includes warning/reboot patches 048/049.
+- Mali g29p1 vendor-library SHA-256 matches the upstream build input:
+  `605e3a5caf1be62bb48d97b1168434257355d56db5e3be9b515cfa742c173118`. The packaged EULA is identical to its build input.
+- The target manifest resolves all 549 packages. The image retains 86
+  ButterflyOS license/notice files. Previously reviewed non-commercial cores
+  remain; Art Book Next, ZeroTier, and the DraStic program remain excluded.
+- Filename/content scans found no game ROMs, proprietary console BIOS files,
+  test media, private SSH keys, Wi-Fi connection profiles, device-specific
+  preloader images/recovery archives, or plaintext private scraper credentials.
+  The two inherited Anbernic RG DS DraStic stop/continue shell helpers are not
+  the DraStic program. Markdown documentation is not Mega Drive ROM content.
+- Online update working-space requirement: 2827579600 bytes
+  (about 2.83 GB); recommend at least 3 GB free on the OS card.
+- Hardware baseline: the user completed individual checks of the 30 populated
+  system/arcade groups, verified PortMaster offered-game installation/play,
+  and reported no further UI issues. Earlier v0.2.3/v0.2.4 OTA installations
+  succeeded on the prepared Flip V2. These observations apply to the preceding
+  device build. The exact v1.0.0 image has passed host-side checks; its new
+  warning/reboot behavior and artwork still need an installed-device check.
+
+Publication verification is recorded with the release assets. Stable is the
+maintainer's designation for the documented Flip V2 scope, not universal game
+compatibility or an LTS support promise.
+
 ## October 2, 2026 public Alpha 2 artifact
 
 - Image source: `39bb3a803bd481b7a610cf2b19509b2c13d39891`.

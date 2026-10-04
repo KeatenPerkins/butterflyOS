@@ -81,6 +81,12 @@ endorsed by Miyoo, ROCKNIX, Nintendo, Sega, Sony, or any other platform owner.
 
 ## Distribution status
 
+The v1.0.0 stable image and update passed the exact artifact checks recorded in
+[the release audit](documentation/PUBLIC_RELEASE_AUDIT.md). User testing covered
+the preceding system/PortMaster/UI baseline; the new image is separately
+verified on the build host. Remaining limits are recorded in Known Issues.
+
+
 The Alpha 1 source baseline remains an internal test artifact because it
 bundled vendor-derived preloader images. The Alpha 2 release candidate removes
 those images and derives the SD-boot patch from each user's own preloader. Its

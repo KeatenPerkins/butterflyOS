@@ -10,8 +10,13 @@ Reviewed: 2026-10-04.
   no additional UI issues on the v0.2.4 testing baseline.
 - The release adds corrected X/Y hints, proper update reboot, normal update
   confirmation, Ports icon matching, and eight dedicated system artworks.
-- Exact source revision and completed build audit are recorded after assembly;
-  earlier hardware tests are not represented as testing this new binary.
+- Binary source: `efcc19513baa5ea2b756b619fe81196873e8aebc`; build completed with all
+  668 steps passing. Image/update checksums and filesystem/content checks passed.
+- Image SHA-256: `8b167f25ebba69ff24e5904f4c99068b6b5eb2b357905905a24aabc3d661ecaa`.
+- Update SHA-256: `a223780485543e05d8a6fb4f6aaf0d6e0c6e582181a2167b30b2fe30dbfdbb66`.
+- Earlier hardware tests are not represented as testing the exact new binary;
+  its warning/reboot changes and new artwork still need an installed-device check.
+- See [the exact artifact audit](PUBLIC_RELEASE_AUDIT.md#october-4-2026-first-stable-release-v100).
 - See [v1.0.0 release notes](RELEASE_NOTES_v1.0.0.md) and
   [release procedure](RELEASE_PROCEDURE.md).
 

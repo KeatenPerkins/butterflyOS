@@ -1,12 +1,14 @@
 # Building ButterflyOS from source
 
 These instructions build the Miyoo Flip V2 image from a clean ButterflyOS
-checkout. The build uses Podman and the pinned ROCKNIX build container.
+checkout. The build uses Podman and the ROCKNIX build container. The stable build used the container digest
+recorded below; the Makefile default `latest` tag can change.
 
-The public source repository is available. The Alpha 2 image source revision is
-`39bb3a803bd481b7a610cf2b19509b2c13d39891`; the `v0.1.0-alpha.2` tag also
-includes final release documentation. Current image/test status is recorded in
-[CURRENT_BUILD_STATUS.md](CURRENT_BUILD_STATUS.md).
+The first stable release is `v1.0.0`, with updater build identity `20261006`.
+Its exact binary source is `efcc19513baa5ea2b756b619fe81196873e8aebc`;
+the release tag also includes final build/audit documentation. See
+[CURRENT_BUILD_STATUS.md](CURRENT_BUILD_STATUS.md) and the release notes for
+artifact hashes and verification limits.
 
 ## Host requirements
 
@@ -19,13 +21,19 @@ includes final release documentation. Current image/test status is recorded in
 ```sh
 git clone https://github.com/KeatenPerkins/butterflyOS.git
 cd butterflyOS
-git checkout butterfly-save-trade-prototype
-make docker-RK3566-Miyoo-Flip-V2-aarch64
+git checkout efcc19513baa5ea2b756b619fe81196873e8aebc
+CUSTOM_VERSION=20261006 make docker-RK3566-Miyoo-Flip-V2-aarch64 \
+  DOCKER_IMAGE=ghcr.io/rocknix/rocknix-build@sha256:43dac3d6d7e59801b7797bf06b970c7c056d97185d19cb909d502ce8ded754ed
 ```
 
-This branch is the development snapshot, not an immutable release. For a
-published image, use its recorded source tag instead. Do not build a public
+Use the recorded binary source revision to rebuild a published image. The
+release tag may include later documentation changes. Do not build a public
 release from an uncommitted working tree.
+
+The published stable build reused the existing package/source cache. A full
+clean-checkout rebuild and bit-for-bit reproducibility comparison were not
+repeated. Custom version `20261006` is the reserved updater identity; do not
+publish a second, different update with the same identity.
 
 The aarch64 target builds the Flip production image. The target without the
 `-aarch64` suffix additionally builds the compatibility ARM image. A clean
