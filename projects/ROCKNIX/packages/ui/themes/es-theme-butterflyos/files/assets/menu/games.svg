@@ -4,7 +4,6 @@
     <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
   <rect x="4" y="4" width="152" height="232" rx="12" fill="#090d20" stroke="url(#frame)" stroke-width="4"/>
-  <path d="M14 170h132M22 158h116M33 146h94" fill="none" stroke="#159dff" stroke-opacity=".22" stroke-width="2"/>
   <image href="./snes-controller.png" x="10" y="50" width="140" height="100" preserveAspectRatio="xMidYMid meet" filter="url(#glow)"/>
   <rect x="14" y="181" width="132" height="43" rx="7" fill="#121a36" stroke="#304565" stroke-width="2"/>
   <text x="80" y="209" text-anchor="middle" fill="#fff" font-family="Liberation Sans, sans-serif" font-size="22" font-weight="700">Games</text>
