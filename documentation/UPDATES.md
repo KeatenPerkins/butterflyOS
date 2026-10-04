@@ -12,11 +12,11 @@ migration fix described under [Current status](#current-status).
 - Back up important saves and export your device's recovery backup.
 - Connect to Wi-Fi, charge the battery to **at least 50%**, and connect power
   through the **front USB-C port**. Keep the device powered throughout the update.
-- For **v0.2.4**, have **at least 3 GB free on the ButterflyOS SD card's storage
+- For **v1.0.0**, have **at least 3 GB free on the ButterflyOS SD card's storage
   partition**. This means unused space, not the card's total capacity. Free
   space on a second game card does not count toward this requirement.
 
-The v0.2.4 download is about **1.3 GB**. Installation also needs room to unpack
+The v1.0.0 download is about **1.3 GB**. Installation also needs room to unpack
 it: the updater requires about **2.83 GB free** in total for this release.
 It calculates the requirement from the download size plus unpacked size plus
 256 MiB of working space; future releases may need more. It also checks that
@@ -28,8 +28,8 @@ the update fits the separate boot partition before starting.
    - **v0.2.4 or newer:** **Start → System Settings → Update ButterflyOS**.
    - **v0.2.3:** **Start → Updates & Downloads → Start Update**. Enable
      **Advanced Mode** in User Interface Settings if that menu is hidden.
-2. Check the offered version and confirm the download. For example, v0.2.4
-   appears as device version **20261005**.
+2. Check the offered version and confirm the download. The first stable release, v1.0.0,
+   appears as device version **20261006**.
 3. **Wait for the entire package to download and verify.** The device downloads
    the OS update automatically; you do not need to copy or flash an SD-card
    image. Download time depends on Wi-Fi and server speed and can take several
@@ -42,8 +42,7 @@ the update fits the separate boot partition before starting.
 v0.2.3 and v0.2.4 may show **Unofficial system modifications detected** when
 asking for confirmation. This is an inherited warning about the `community`
 build label, not a check of your files. Confirm the expected ButterflyOS
-version; the updater still verifies the official package. The next build
-removes this misleading warning.
+version; the updater still verifies the official package. v1.0.0 removes this misleading warning.
 
 ### Restart to install
 
@@ -51,13 +50,12 @@ removes this misleading warning.
    and confirm. Use **Restart System**, which reboots the whole device.
    **Restart EmulationStation** only restarts the menu and does not install
    the update. The update menu's Apply Update / Restart to Apply shortcut in
-   v0.2.3 and v0.2.4 also only restarts the menu; this is corrected in the next
-   build.
+   v0.2.3 and v0.2.4 also only restarts the menu; this is corrected in v1.0.0.
 2. The device shows an update progress screen during startup. **Keep power
    connected and leave the OS card inserted** while it works through the steps.
    Wait for installation and startup to finish; do not interrupt them.
-3. Check the version at the bottom of the Start menu. After installing v0.2.4,
-   it should read **ButterflyOS 20261005**. Check your games, saves, favorites,
+3. Check the version at the bottom of the Start menu. After installing v1.0.0,
+   it should read **ButterflyOS 20261006**. Check your games, saves, favorites,
    artwork, and settings before resuming normal use.
 
 The update replaces OS files and is intended to retain games, saves, media,
@@ -72,6 +70,14 @@ already be current. Do not delete staged update files or reflash simply to
 retry a failed download; read the error and resolve its cause first.
 
 ## Current status
+
+**v1.0.0** is the first stable release, using updater build identity `20261006`.
+It includes a full installation image and online update package, corrected
+X/Y hints, Ports artwork, eight new system illustrations, normal update
+confirmation, and a full-device Restart to Apply action. User testing of the
+preceding build covered each populated system, PortMaster, and the interface.
+See [v1.0.0 release notes](RELEASE_NOTES_v1.0.0.md) for exact build validation.
+
 
 The ButterflyOS-specific updater is included from **v0.2.1**. The prepared
 Flip V2 test device successfully installed **v0.2.3** online. Broader hardware
@@ -98,7 +104,7 @@ uses **Updates & Downloads** to install it. See
 The update confirmation in v0.2.3 and v0.2.4 can show "Unofficial system
 modifications detected" because the inherited ROCKNIX interface classifies
 `community` builds that way. It does not inspect files for modifications.
-The next build uses the normal version confirmation for ButterflyOS; package
+v1.0.0 uses the normal version confirmation for ButterflyOS; package
 identity, size, and checksum validation remain unchanged.
 
 This is **not an A/B updater**: loss of power during replacement of boot files
