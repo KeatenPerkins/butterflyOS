@@ -2,7 +2,7 @@ diff --git a/es-app/src/FileData.cpp b/es-app/src/FileData.cpp
 index 6ece911..9ad149f 100644
 --- a/es-app/src/FileData.cpp
 +++ b/es-app/src/FileData.cpp
-@@ -1077,6 +1077,19 @@ const std::vector<FileData*> FolderData::getChildrenListToDisplay()
+@@ -1077,6 +1077,20 @@ const std::vector<FileData*> FolderData::getChildrenListToDisplay()
  
  	for (auto it = items->cbegin(); it != items->cend(); it++)
  	{
@@ -16,6 +16,7 @@ index 6ece911..9ad149f 100644
 +			(*it)->getName() != "Quick Start" &&
 +			(*it)->getName() != "Controls Guide" &&
 +			(*it)->getName() != "Butterfly Link" &&
++			(*it)->getName() != "PortMaster" &&
 +			(*it)->getName() != "Format 2nd SD Card")
 +			continue;
 +

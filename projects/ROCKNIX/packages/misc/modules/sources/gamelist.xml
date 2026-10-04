@@ -131,14 +131,14 @@
     <game>
         <path>./Start PortMaster.sh</path>
         <name>PortMaster</name>
-        <desc>PortMaster is a simple tool that allows you to download various game ports that are available for ROCKNIX and other ARM based devices. You can find details at portmaster.games</desc>
+        <desc>Browse, download, and install game ports. Installed games appear under Games > Ports. Some games require files from a copy you own; check each game's instructions.</desc>
         <developer>Portmaster</developer>
         <publisher>Portmaster</publisher>
         <rating>5.0</rating>
         <releasedate>2022</releasedate>         
-        <genre>Advanced</genre>
+        <genre>Utility</genre>
         <players>1</players>
-        <image>./images/portmaster.svg</image>
+        <image>./images/portmaster.png</image>
     </game>
     <game>
         <path>./cloud_backup.sh</path>
