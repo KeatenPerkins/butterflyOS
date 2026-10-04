@@ -866,6 +866,15 @@ do_cleanup() {
   StopProgress "done"
 }
 
+is_supported_update_filename() {
+  # Keep accepting inherited release names while allowing ButterflyOS's
+  # dated staged archives. Contents still undergo checksum and hardware checks.
+  case "${1##*/}" in
+    *@DISTRONAME@*|ButterflyOS-20[0-9][0-9][0-9][0-9][0-9][0-9].tar) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 check_update() {
   progress "Checking for updates"
   UPDATE_TAR=$(ls -1 "${UPDATE_DIR}"/*.tar 2>/dev/null | head -n 1)
@@ -879,10 +888,11 @@ check_update() {
 
   hdmi_con
 
-  echo "${UPDATE_TAR} ${UPDATE_IMG} ${UPDATE_IMG_GZ}" 2>&1 | grep @DISTRONAME@ 2>&1 >/dev/null
-  if [ "$?" -ne "0" ]
+  if ! is_supported_update_filename "${UPDATE_TAR}" &&
+     ! is_supported_update_filename "${UPDATE_IMG}" &&
+     ! is_supported_update_filename "${UPDATE_IMG_GZ}"
   then
-    echo "Unsupported operating system update.  Please only use @DISTRONAME@ update packages with this distribution."
+    echo "Unsupported operating system update. Use a ButterflyOS or @DISTRONAME@ update package for this device."
     do_cleanup
     StartProgress countdown "Reboot in 5s... " 5 "now"
     reboot

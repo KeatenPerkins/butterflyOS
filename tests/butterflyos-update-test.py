@@ -7,6 +7,7 @@ import io
 import json
 from pathlib import Path
 import sys
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -25,6 +26,24 @@ loader.exec_module(updater)
 
 
 class UpdateTests(unittest.TestCase):
+    def test_boot_installer_filename_gate(self):
+        init = path.parents[3] / "sysutils/busybox/scripts/init"
+        source = init.read_text().replace("@DISTRONAME@", "ROCKNIX")
+        function = source.split("is_supported_update_filename() {", 1)[1].split("\n}\n", 1)[0]
+        script = "is_supported_update_filename() {" + function + "\n}\nis_supported_update_filename \"$1\"\n"
+        for name, accepted in (
+            ("/storage/.update/ButterflyOS-20261004.tar", True),
+            ("/storage/.update/ROCKNIX-ButterflyOS-20261004.tar", True),
+            ("/storage/.update/ROCKNIX-RK3566.aarch64-20261004.tar", True),
+            ("/storage/.update/OtherOS-20261004.tar", False),
+            ("/storage/.update/ButterflyOS-invalid.tar", False),
+            ("/tmp/ROCKNIX/OtherOS.tar", False),
+            ("", False),
+        ):
+            with self.subTest(name=name):
+                result = subprocess.run(["sh", "-c", script, "filename-gate", name])
+                self.assertEqual(result.returncode == 0, accepted)
+
     def setUp(self):
         self.identity = dict(schema=1, os="ButterflyOS", device="Miyoo_Flip_V2",
                              arch="aarch64", version="20261004")
