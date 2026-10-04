@@ -24,6 +24,12 @@ Mode, along with menu polish and PortMaster in Tools. Installed v0.2.3 still
 uses **Updates & Downloads** to install it. See
 [v0.2.4 release notes](RELEASE_NOTES_v0.2.4.md).
 
+The update confirmation in v0.2.3 and v0.2.4 can show "Unofficial system
+modifications detected" because the inherited ROCKNIX interface classifies
+`community` builds that way. It does not inspect files for modifications.
+The next build uses the normal version confirmation for ButterflyOS; package
+identity, size, and checksum validation remain unchanged.
+
 ## Planned user experience
 
 Once an updater-enabled image and a newer qualified update package are released:

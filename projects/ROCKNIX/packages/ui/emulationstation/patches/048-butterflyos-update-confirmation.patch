@@ -1,0 +1,15 @@
+diff --git a/es-app/src/guis/GuiUpdate.cpp b/es-app/src/guis/GuiUpdate.cpp
+--- a/es-app/src/guis/GuiUpdate.cpp
++++ b/es-app/src/guis/GuiUpdate.cpp
+@@ -95,7 +95,10 @@ void GuiUpdate::update(int deltaTime)
+ 			if (!mUpdateVersion.empty()) 
+ 			{
+ 				std::string versionExtra = ApiSystem::getInstance()->getVersion(true);
+-				if (versionExtra == "official" || versionExtra == "nightly")
++				// ROCKNIX's build category is not a modification check. ButterflyOS
++				// community builds use their own device-specific, verified updater.
++				const bool butterflyOS = Utils::FileSystem::exists("/usr/share/butterflyos/update-device");
++				if (butterflyOS || versionExtra == "official" || versionExtra == "nightly")
+ 					message = Utils::String::format(_("YOU ARE CURRENTLY USING VERSION %s\nDO YOU WANT TO UPDATE TO VERSION %s?").c_str(), ApiSystem::getInstance()->getVersion().c_str(), mUpdateVersion.c_str());
+ 				else
+ 					message = Utils::String::format(_("UNOFFICIAL SYSTEM MODIFICATIONS DETECTED.\nUPGRADING COULD BREAK YOUR SYSTEM.\nDO YOU WANT TO UPDATE TO VERSION %s?").c_str(), mUpdateVersion.c_str());
