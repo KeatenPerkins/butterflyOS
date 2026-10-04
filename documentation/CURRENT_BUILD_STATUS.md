@@ -4,7 +4,12 @@ Reviewed: 2026-10-04.
 
 ## First stable release: v1.0.0
 
-- Public version: `v1.0.0`; numeric device/updater identity: `20261006`.
+- Published [v1.0.0 stable release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.0),
+  marked Latest and not a prerelease; device/updater identity: `20261006`.
+- All nine uploaded asset sizes and GitHub SHA-256 digests matched the verified
+  local files. The downloaded public update manifest matched.
+- The prepared .20 device updater check returned `20261006`; download and
+  installation were left for the user to initiate.
 - Target: Miyoo Flip V2 only.
 - The user completed system-by-system checks, verified PortMaster, and found
   no additional UI issues on the v0.2.4 testing baseline.

@@ -48,7 +48,11 @@ require fresh checks; none of these records proves universal compatibility.
   device build. The exact v1.0.0 image has passed host-side checks; its new
   warning/reboot behavior and artwork still need an installed-device check.
 
-Publication verification is recorded with the release assets. Stable is the
+Publication: v1.0.0 was published as Latest without draft/prerelease flags.
+All nine release asset sizes and GitHub SHA-256 digests matched local files;
+the downloaded public manifest matched. The prepared .20 device discovered
+`20261006`. No download or installation was initiated during discovery testing.
+Upload verification is recorded with the release assets. Stable is the
 maintainer's designation for the documented Flip V2 scope, not universal game
 compatibility or an LTS support promise.
 
