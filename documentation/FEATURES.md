@@ -72,11 +72,12 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 
 ## Butterfly Link
 
+<img src="assets/butterfly-link.png" alt="Butterfly Link app icon" width="96">
+
 - SDL interface operated with D-pad, A/Start, and B/Menu
 - Save discovery on both SD cards; party preview and PC-box transfers
 - Same-generation local and same-Wi-Fi remote trade/copy for Gen I, II, and III
-- Gen I → II copies with Time Capsule conversion; remote Yellow → Crystal
-  persistence remains under investigation
+- Gen I → II copies with Time Capsule conversion
 - Gen II → III one-way copies; the source is unchanged and held items are cleared
 - Local optional evolution prompts for supported trade evolutions, including
   eligible copies; remote evolution prompts are not yet implemented

@@ -172,15 +172,7 @@ Cancellation before commit leaves originals unchanged. Remote commits occur
 separately on each device; interruption after one commit can leave a one-sided
 result. Inspect both saves and preserve session backups before repeating a trade.
 
-The October 2 rebuild verifies the committed file hash and uses fresh timestamps.
-These checks do not establish that loading an emulator state or an in-game
-redundant save block will preserve the file. In the October 2 Yellow → Crystal
-remote test, the prepared file contained Pikachu and the joiner logged a commit,
-but Crystal's live save no longer contained it after the game ran. The cause was
-an edited active PC box that had not been synchronized to the banked box the
-game loads on Continue. Opening the PC after the initial fix exposed a second
-format error: converted names lacked the game's required 0x50 terminator.
-Both fixes pass expanded regression tests and are included in Alpha 2.
-The corrected Crystal PC-open/save/exit/reopen test passed during development.
-Same-generation remote trade/copy and remote Gen II → III
-copy passed user testing. See [current build status](CURRENT_BUILD_STATUS.md).
+Remote Yellow → Crystal transfers passed testing, including opening the PC,
+saving, exiting, and reopening the game. Same-generation remote trade/copy and
+remote Gen II → III copy also passed user testing.
+See [current build status](CURRENT_BUILD_STATUS.md).
