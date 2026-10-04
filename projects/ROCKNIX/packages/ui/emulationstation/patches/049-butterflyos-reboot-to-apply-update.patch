@@ -1,0 +1,23 @@
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -1325,7 +1325,9 @@ void GuiMenu::openUpdatesSettings()
+ 		updateGui->addEntry(GuiUpdate::state == GuiUpdateState::State::UPDATE_READY ? _("APPLY UPDATE") : _("START UPDATE"), true, [this]
+ 		{
+ 			if (GuiUpdate::state == GuiUpdateState::State::UPDATE_READY)
+-				Utils::Platform::quitES(Utils::Platform::QuitMode::RESTART);
++				Utils::Platform::quitES(Utils::FileSystem::exists("/usr/share/butterflyos/update-device")
++					? Utils::Platform::QuitMode::REBOOT
++					: Utils::Platform::QuitMode::RESTART);
+ 			else if (GuiUpdate::state == GuiUpdateState::State::UPDATER_RUNNING)
+ 				mWindow->pushGui(new GuiMsgBox(mWindow, _("UPDATER IS ALREADY RUNNING")));
+ 			else
+@@ -1479,7 +1481,7 @@ void GuiMenu::openSystemSettings()
+ 			? _("RESTART TO APPLY UPDATE") : _("UPDATE BUTTERFLYOS"), true, [this]
+ 		{
+ 			if (GuiUpdate::state == GuiUpdateState::State::UPDATE_READY)
+-				Utils::Platform::quitES(Utils::Platform::QuitMode::RESTART);
++				Utils::Platform::quitES(Utils::Platform::QuitMode::REBOOT);
+ 			else if (GuiUpdate::state == GuiUpdateState::State::UPDATER_RUNNING)
+ 				mWindow->pushGui(new GuiMsgBox(mWindow, _("UPDATER IS ALREADY RUNNING")));
+ 			else
