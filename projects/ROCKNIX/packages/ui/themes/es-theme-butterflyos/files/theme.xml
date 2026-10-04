@@ -66,12 +66,13 @@
   <!-- Carry the ButterflyOS palette through Start and nested settings menus. -->
   <view name="menu">
     <menuBackground name="menubg">
-      <color>110b1fff</color>
+      <path>./assets/menu-panel.svg</path>
+      <color>081426ff</color>
       <centerColor>081426ff</centerColor>
       <!-- MenuComponent passes these values directly as texture pixels,
            despite the theme schema calling them normalized. Keep the
-           frame.png native 16px corners: fractional corners sample its
-           transparent edges across the panel, especially on HDMI. -->
+           panel's native 16px corners. Its white fill and identical edge/center
+           colors keep the rounded panel uniformly blue without a dark rim. -->
       <cornerSize>16 16</cornerSize>
       <scrollbarColor>10d9ffff</scrollbarColor>
       <scrollbarSize>0.0075</scrollbarSize>

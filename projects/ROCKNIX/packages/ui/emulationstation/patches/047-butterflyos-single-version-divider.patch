@@ -1,0 +1,35 @@
+diff --git a/es-core/src/components/MenuComponent.h b/es-core/src/components/MenuComponent.h
+--- a/es-core/src/components/MenuComponent.h
++++ b/es-core/src/components/MenuComponent.h
+@@ -45,1 +45,1 @@
+-	void setButtonGrid(std::shared_ptr<GuiComponent> grid);
++	void setButtonGrid(std::shared_ptr<GuiComponent> grid, bool drawTopBorder = true);
+diff --git a/es-core/src/components/MenuComponent.cpp b/es-core/src/components/MenuComponent.cpp
+--- a/es-core/src/components/MenuComponent.cpp
++++ b/es-core/src/components/MenuComponent.cpp
+@@ -466,7 +466,7 @@
+-void MenuComponent::setButtonGrid(std::shared_ptr<GuiComponent> grid)
++void MenuComponent::setButtonGrid(std::shared_ptr<GuiComponent> grid, bool drawTopBorder)
+ {
+ 	if (mButtonGrid)
+ 		mGrid.removeEntry(mButtonGrid);
+ 
+ 	mButtonGrid.reset();
+ 
+@@ -475,3 +475,4 @@
+ 		mButtonGrid = grid;
+-		mGrid.setEntry(mButtonGrid, Vector2i(0, 3), true, false, Vector2i(1, 1), GridFlags::BORDER_TOP);
++		mGrid.setEntry(mButtonGrid, Vector2i(0, 3), true, false, Vector2i(1, 1),
++			drawTopBorder ? GridFlags::BORDER_TOP : GridFlags::BORDER_NONE);
+ 	}
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -407,4 +407,6 @@
+ 			mVersion->setText(label);
+-			mMenu.setButtonGrid(mVersion);
++			// The menu list already draws the line below Quit. The version footer
++			// must not draw a second line at that same boundary.
++			mMenu.setButtonGrid(mVersion, false);
+ 		}
+ 	}
