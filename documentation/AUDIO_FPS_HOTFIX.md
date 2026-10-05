@@ -14,9 +14,11 @@ normal speed. All three systems were confirmed working by device testing.
    to `/storage/.config/modules/`. After copying over the network, run
    `chmod +x "/storage/.config/modules/ButterflyOS Audio Fix.sh"` over SSH
    so the Tools menu can launch it.
-4. Start butterflyOS, refresh the game list if needed, open **Tools**, and
-   launch **ButterflyOS Audio Fix**.
-5. Return to your games and confirm normal speed. If the tool requests a
+4. Enable **Start → User Interface Settings → Advanced Mode**. The v1.0.0
+   Tools menu hides newly added scripts in normal mode.
+5. Refresh the game list if needed, open **Tools**, and launch
+   **ButterflyOS Audio Fix**. You can turn Advanced Mode off afterward.
+6. Return to your games and confirm normal speed. If the tool requests a
    restart, save and exit your games, then restart the whole device.
 
 The download contains no games or BIOS files and does not reflash the card.
