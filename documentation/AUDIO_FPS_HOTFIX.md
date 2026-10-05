@@ -9,9 +9,11 @@ normal speed. All three systems were confirmed working by device testing.
 1. Download `ButterflyOS-v1.0.0-Audio-Fix.zip` from the
    [v1.0.0 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.0).
 2. Unzip it on your computer.
-3. Copy `ButterflyOS Audio Fix.sh` into the `roms/tools/` folder on your
+3. Copy `ButterflyOS Audio Fix.sh` into the hidden `.config/modules/` folder on your
    main OS card's **STORAGE** partition. You can also copy it over the network
-   to `/storage/roms/tools/`.
+   to `/storage/.config/modules/`. After copying over the network, run
+   `chmod +x "/storage/.config/modules/ButterflyOS Audio Fix.sh"` over SSH
+   so the Tools menu can launch it.
 4. Start butterflyOS, refresh the game list if needed, open **Tools**, and
    launch **ButterflyOS Audio Fix**.
 5. Return to your games and confirm normal speed. If the tool requests a
