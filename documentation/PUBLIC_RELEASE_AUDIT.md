@@ -7,6 +7,11 @@ require fresh checks; none of these records proves universal compatibility.
 
 ## October 5, 2026 bundled maintenance release: v1.0.1
 
+- Published as Latest stable, with no draft/prerelease flag. All nine uploaded
+  asset sizes and GitHub SHA-256 digests matched local verified files. The public
+  update manifest matched, and `.17` returned `20261007` from its update check.
+  No device download, installation, or reboot was initiated.
+
 - Binary source: `886a8696d438ef9ec428de72c68ca48e63a51418`; updater build ID `20261007`.
 - Build: `CUSTOM_VERSION=20261007 make docker-RK3566-Miyoo-Flip-V2-aarch64`.
   Exit 0; all 668 package steps passed. EmulationStation and the system package

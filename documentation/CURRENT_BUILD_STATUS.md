@@ -4,6 +4,10 @@ Reviewed: 2026-10-05.
 
 ## Bundled v1.0.1 maintenance release
 
+- Published [v1.0.1](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.1)
+  as Latest stable. All nine uploaded assets passed checksum/size verification;
+  `.17` discovers build `20261007` without initiating installation.
+
 - Public version `v1.0.1`; updater build ID `20261007`; Miyoo Flip V2 only.
 - Includes the confirmed GB/GBA/NES audio pacing fix, normal-mode
   **Start → Game Settings → RetroAchievements Settings**, and a cyan
