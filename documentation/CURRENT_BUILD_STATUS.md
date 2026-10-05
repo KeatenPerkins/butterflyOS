@@ -2,17 +2,19 @@
 
 Reviewed: 2026-10-05.
 
-## Pending v1.0.1 changes
+## Bundled v1.0.1 maintenance release
 
-- The audio pacing fix has been confirmed live for GB, GBA, and NES.
-- RetroAchievements account settings are exposed in normal mode at
-  **Start → Game Settings → RetroAchievements Settings**, including builds
-  without frontend API credentials. Login and unlocking need tester verification.
-- SSH logins use a cyan ButterflyOS block-letter wordmark,
-  followed by the existing version and build details.
-- The earlier local v1.0.1 image predates this menu change and must be rebuilt.
-  The bundled rebuild and release verification are in progress. See
-  [release notes](RELEASE_NOTES_v1.0.1.md).
+- Public version `v1.0.1`; updater build ID `20261007`; Miyoo Flip V2 only.
+- Includes the confirmed GB/GBA/NES audio pacing fix, normal-mode
+  **Start → Game Settings → RetroAchievements Settings**, and a cyan
+  ButterflyOS SSH wordmark with existing version/build details.
+- Full rebuild and host artifact checks passed. The packaged menu and banner
+  match the rebuilt source; all three changes are included in the same image.
+- This exact image has not been installed on hardware. RetroAchievements login
+  and unlocking still need tester verification; the live FPS fix was confirmed
+  before the full rebuild.
+- See [release notes](RELEASE_NOTES_v1.0.1.md) and
+  [exact artifact audit](PUBLIC_RELEASE_AUDIT.md#october-5-2026-bundled-maintenance-release-v101).
 
 ## First stable release: v1.0.0
 
