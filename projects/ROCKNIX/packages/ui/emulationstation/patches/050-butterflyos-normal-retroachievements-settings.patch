@@ -1,0 +1,82 @@
+diff --git a/es-app/src/guis/GuiMenu.cpp b/es-app/src/guis/GuiMenu.cpp
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -3855,17 +3855,18 @@
+ 	}
+ 	
+ 
+-	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RETROACHIVEMENTS) || (SystemData::isNetplayActivated() && ApiSystem::getInstance()->isScriptingSupported(ApiSystem::NETPLAY)))
+-		s->addGroup(_("ACCOUNTS"));
++	}
++
++	// In-game achievements use the player account, not frontend API credentials.
++	s->addGroup(_("ACCOUNTS"));
+ 
+ 	// Retroachievements
+-	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RETROACHIVEMENTS))
+-		s->addEntry(_("RETROACHIEVEMENTS SETTINGS"), true, [this] { openRetroachievementsSettings(); });
++	s->addEntry(_("RETROACHIEVEMENTS SETTINGS"), true, [this] { openRetroachievementsSettings(); });
+ 
+ 	// Netplay
+-	if (SystemData::isNetplayActivated() && ApiSystem::getInstance()->isScriptingSupported(ApiSystem::NETPLAY))
++	if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1" &&
++		SystemData::isNetplayActivated() && ApiSystem::getInstance()->isScriptingSupported(ApiSystem::NETPLAY))
+ 		s->addEntry(_("NETPLAY SETTINGS"), true, [this] { openNetplaySettings(); }, "iconNetplay");
+-	}
+ 
+ 	// Missing Bios
+ 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::BIOSINFORMATION))
+diff --git a/es-app/src/guis/GuiRetroAchievementsSettings.cpp b/es-app/src/guis/GuiRetroAchievementsSettings.cpp
+--- a/es-app/src/guis/GuiRetroAchievementsSettings.cpp
++++ b/es-app/src/guis/GuiRetroAchievementsSettings.cpp
+@@ -35,8 +35,8 @@
+ 	addSwitch(_("RICH PRESENCE"), "global.retroachievements.richpresence", false);
+ 	addSwitch(_("ENCORE MODE"), _("Unlocked achievements can be earned again."), "global.retroachievements.encore", false, nullptr);
+ 	addSwitch(_("AUTOMATIC SCREENSHOT"), _("Automatically take a screenshot when an achievement is earned."), "global.retroachievements.screenshot", false, nullptr);
+-	addSwitch(_("CHALLENGE INDICATORS"), _("Shows icons in the bottom right corner when eligible achievements can be earned."), "global.retroachievements.challenge_indicators", false, nullptr);
+-	addSwitch(_("UNOFFICIAL ACHIEVEMENTS"), _("Enable unlocking of unofficial achievements."), "global.retroachievements.unofficial", false, nullptr);
++	addSwitch(_("CHALLENGE INDICATORS"), _("Shows icons in the bottom right corner when eligible achievements can be earned."), "global.retroachievements.challengeindicators", false, nullptr);
++	addSwitch(_("UNOFFICIAL ACHIEVEMENTS"), _("Enable unlocking of unofficial achievements."), "global.retroachievements.testunofficial", false, nullptr);
+ 
+ 	// Unlock sound
+ 	auto installedRSounds = ApiSystem::getInstance()->getRetroachievementsSoundsList();
+@@ -71,16 +71,20 @@
+                 });
+         }
+ #endif
+-	// retroachievements_hardcore_mode
+-	addSwitch(_("SHOW RETROACHIEVEMENTS ENTRY IN MAIN MENU"), _("View your RetroAchievements stats right from the main menu!"), "RetroachievementsMenuitem", true, nullptr);
++	// The frontend browser/indexer requires separate API credentials.
++	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RETROACHIVEMENTS))
++	{
++		// retroachievements_hardcore_mode
++		addSwitch(_("SHOW RETROACHIEVEMENTS ENTRY IN MAIN MENU"), _("View your RetroAchievements stats right from the main menu!"), "RetroachievementsMenuitem", true, nullptr);
+ 
+-	addGroup(_("GAME INDEXES"));
+-	addSwitch(_("INDEX NEW GAMES AT STARTUP"), "CheevosCheckIndexesAtStart", true);
+-	addEntry(_("INDEX GAMES"), true, [this]
+-	{
+-		if (ThreadedHasher::checkCloseIfRunning(mWindow))
+-			mWindow->pushGui(new GuiHashStart(mWindow, ThreadedHasher::HASH_CHEEVOS_MD5));
+-	});
++		addGroup(_("GAME INDEXES"));
++		addSwitch(_("INDEX NEW GAMES AT STARTUP"), "CheevosCheckIndexesAtStart", true);
++		addEntry(_("INDEX GAMES"), true, [this]
++		{
++			if (ThreadedHasher::checkCloseIfRunning(mWindow))
++				mWindow->pushGui(new GuiHashStart(mWindow, ThreadedHasher::HASH_CHEEVOS_MD5));
++		});
++	}
+ 
+ 	addSaveFunc([retroachievementsEnabled, retroachievements_enabled, username, password, window]
+ 	{
+@@ -109,7 +109,8 @@
+ 			SystemConf::getInstance()->set("global.retroachievements.token", "");
+ 
+ 		if (SystemConf::getInstance()->setBool("global.retroachievements", newState))
+-			if (!ThreadedHasher::isRunning() && newState)
++			if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RETROACHIVEMENTS) &&
++				!ThreadedHasher::isRunning() && newState)
+ 				ThreadedHasher::start(window, ThreadedHasher::HASH_CHEEVOS_MD5, false, true);
+ 	});
+ }

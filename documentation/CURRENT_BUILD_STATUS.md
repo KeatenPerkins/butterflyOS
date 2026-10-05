@@ -1,6 +1,18 @@
 # Current build and test status
 
-Reviewed: 2026-10-04.
+Reviewed: 2026-10-05.
+
+## Pending v1.0.1 changes
+
+- The audio pacing fix has been confirmed live for GB, GBA, and NES.
+- RetroAchievements account settings are exposed in normal mode at
+  **Start → Game Settings → RetroAchievements Settings**, including builds
+  without frontend API credentials. Login and unlocking need tester verification.
+- SSH logins use a cyan ButterflyOS block-letter wordmark,
+  followed by the existing version and build details.
+- The earlier local v1.0.1 image predates this menu change and must be rebuilt.
+  The bundled rebuild and release verification are in progress. See
+  [release notes](RELEASE_NOTES_v1.0.1.md).
 
 ## First stable release: v1.0.0
 
