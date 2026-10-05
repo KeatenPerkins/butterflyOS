@@ -175,6 +175,18 @@ if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
   # Stamp every image, even when the rocknix package came from the build cache.
   mkdir -p "${INSTALL}/usr/share/butterflyos"
   printf '%s\n' "${OS_VERSION}" > "${INSTALL}/usr/share/butterflyos/update-version"
+  # Login metadata must follow the final image identity, not cached package
+  # timestamps or the package build's calendar-date version.
+  cat <<EOF > "${INSTALL}/etc/issue"
+... Version: ${OS_VERSION} (${OS_BUILD})
+... Built: ${BUILD_DATE}
+
+EOF
+  cp "${PROJECT_DIR}/${PROJECT}/packages/rocknix/sources/motd" "${INSTALL}/etc/motd"
+  cat "${INSTALL}/etc/issue" >> "${INSTALL}/etc/motd"
+  # Include the hostname correction even if the systemd package is cached.
+  cp -p "${PROJECT_DIR}/${PROJECT}/packages/sysutils/systemd/scripts/network-base-setup" \
+    "${INSTALL}/usr/sbin/network-base-setup"
 fi
 
 [ -n "${DEVICE}" ] && echo "DISTRO_DEVICE=\"${DEVICE}\"" >>${INSTALL}/etc/os-release

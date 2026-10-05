@@ -2,6 +2,18 @@
 
 Reviewed: 2026-10-05.
 
+## Pending SSH branding corrections
+
+- Use explicit light-blue RGB color for the login wordmark instead of the
+  terminal's named cyan palette color.
+- Stamp the SSH banner version/build details during final image assembly so
+  cached package metadata cannot disagree with the updater build number.
+- Apply the saved ButterflyOS hostname directly; transient-only hostnamed
+  changes were overridden by the inherited static ROCKNIX hostname on `.20`.
+- `.20` has a temporary live banner/hostname preview without a reboot. Its
+  banner now shows `20261007`. The preview lasts until reboot; permanent
+  source changes still require a future image build and release.
+
 ## Bundled v1.0.1 maintenance release
 
 - Published [v1.0.1](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.1)

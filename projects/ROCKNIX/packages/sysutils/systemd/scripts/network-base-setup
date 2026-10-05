@@ -2,7 +2,13 @@
 . /etc/profile
 HOSTNAME=$(get_setting system.hostname)
 echo ${HOSTNAME} >/proc/sys/kernel/hostname
-hostnamectl --transient hostname ${HOSTNAME}
+if [ -f /usr/share/butterflyos/update-device ]; then
+  # hostnamed restores the inherited static name over transient-only changes.
+  # Apply the saved name directly; /etc/hostname belongs to the read-only OS.
+  hostname "${HOSTNAME}"
+else
+  hostnamectl --transient hostname ${HOSTNAME}
+fi
 avahi-set-host-name ${HOSTNAME}
 
 rm -f /run/rocknix/hosts
