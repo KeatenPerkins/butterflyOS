@@ -5,6 +5,38 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## October 5, 2026 bundled maintenance release: v1.0.1
+
+- Binary source: `886a8696d438ef9ec428de72c68ca48e63a51418`; updater build ID `20261007`.
+- Build: `CUSTOM_VERSION=20261007 make docker-RK3566-Miyoo-Flip-V2-aarch64`.
+  Exit 0; all 668 package steps passed. EmulationStation and the system package
+  were cleaned and rebuilt to include the menu and SSH branding changes.
+- Image: `ButterflyOS-v1.0.1-Miyoo-Flip-V2.img.gz`, 1265376106 bytes.
+  SHA-256: `76e51ebb54454a212025b8cc852630ff58d6ae64f48ccb1db861eb27dc0137a2`.
+- Update: `ButterflyOS-Miyoo-Flip-V2-20261007.tar`, 1279580160 bytes.
+  SHA-256: `4abae08fd3d435ec974435abac7e411ac409ba49dd8e6bffa41183371927909d`.
+- Image SHA-256, gzip integrity, GPT, FAT, and ext4 checks passed. STORAGE has
+  the empty first-boot scaffold and resize marker. Image and narrow update
+  contain matching SYSTEM/KERNEL and verified MD5s; manifest identity, sizes,
+  archive members, and SHA-256 passed.
+- Packaged PipeWire defaults match the committed 512-sample default/min/max.
+  SSH MOTD matches the cyan ButterflyOS wordmark and retains build details.
+- RetroAchievements normal-mode settings and launcher option names are present
+  in rebuilt source; the installed EmulationStation matches that rebuilt package.
+  Frontend browser/indexing retains its API credential requirement.
+- PortMaster launcher/runtime and 86 license/notice files are retained.
+  Filename exclusions found no ROMs, saves, personal BIOS collections, private
+  SSH identities, known_hosts, authorized keys, or device backups. The package
+  license manifest has no unresolved target package definitions.
+- Updater working space: 2827579600 bytes; recommend at least
+  3 GB free on the OS card.
+- Hardware limits: the user confirmed live GB/GBA/NES speed after the audio fix.
+  This exact full image has not been installed on hardware. RetroAchievements
+  account login/unlocking and Bluetooth/PortMaster audio regression checks remain
+  tester tasks; host checks are not represented as device qualification.
+- Release assets include build-verification.json and build-environment.txt.
+  Later documentation commits do not change the recorded binary source.
+
 ## October 5, 2026 superseded local v1.0.1 candidate
 
 This audio-only candidate was not published. It predates the RetroAchievements
