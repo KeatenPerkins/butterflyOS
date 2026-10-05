@@ -14,7 +14,8 @@ prerelease flag, then selected as Latest.
    versioning convention, not a claim of stable APIs for inherited components.
 3. Commit the source and documentation. Reserve a numeric updater build ID
    greater than every published update; the updater currently uses YYYYMMDD
-   values independently of the public version. v1.0.0 reserves `20261006`.
+   values independently of the public version. v1.0.0 reserves `20261006`;
+   v1.0.1 reserves `20261007`.
 4. Build the full Flip V2 image from that recorded commit. Extract matching
    SYSTEM/KERNEL from the release tar and generate the narrow update package
    using `scripts/butterflyos-update-package.py`.

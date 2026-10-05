@@ -6,10 +6,6 @@ labels: ISSUE NEEDS REVIEW
 assignees: ''
 
 ---
-### Have you first reported the issue on the rocknix discord and checked rocknix.org for a solution?
-[ROCKNIX DISCORD](https://discord.gg/NG6wGmSe)
-<!-- Any issue created without first being discussed on our discord server will be closed automatically. -->
-
 ### Describe the bug
 <!-- A clear description of what the bug is. -->
 
@@ -20,8 +16,8 @@ Steps to reproduce the behavior:
 3. See error
 
 ### Information
- - ROCKNIX Version: [e.g. 20240517]
- - Hardware Platform: [e.g. Powkiddy RGB20SX]
+ - butterflyOS Version: [e.g. 1.0.0 / build 20261006]
+ - Hardware Platform: [e.g. Miyoo Flip V2]
 
 ### Log file
 <!-- Add debug log files that we can search for errors. -->
