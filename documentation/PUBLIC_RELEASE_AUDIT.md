@@ -5,6 +5,38 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## October 5, 2026 maintenance release: v1.0.1
+
+- Binary source: `96666f1199eddda88f0db52db32ed0cfd5df3835`; updater build ID `20261007`.
+- Build: `CUSTOM_VERSION=20261007 make docker-RK3566-Miyoo-Flip-V2-aarch64`.
+  Exit 0; all 668 package steps completed using existing source/package caches.
+- Image: `ButterflyOS-v1.0.1-Miyoo-Flip-V2.img.gz`, 1265374886 bytes.
+  SHA-256: `ca90b4c57267013d842f99b75a57bcee77d9a44613a62e66844abd142e9ed4d0`.
+- Update: `ButterflyOS-Miyoo-Flip-V2-20261007.tar`, 1279580160 bytes.
+  SHA-256: `67b032dbcadc8d4b342115366416ce598c0b8ebbc4c7a936b2e2c4cb2151125b`.
+- Generated checksum, gzip integrity, GPT, FAT, and ext4 checks passed.
+  STORAGE retains only the empty first-boot scaffold and resize marker.
+- Image and narrow update contain matching SYSTEM/KERNEL and embedded MD5s.
+  Update manifest identity, sizes, members, and SHA-256 were verified.
+- The exact SYSTEM contains the corrected 512-sample default/minimum/maximum
+  PipeWire setting, identical to the committed source. PortMaster launcher
+  and runtime assets and 86 ButterflyOS license/notice files are retained.
+- Filename exclusions found no ROMs, saves, personal BIOS directory, private
+  SSH identities, authorized keys, known_hosts, or device backups.
+- License manifest regenerated from all target packages with no unresolved
+  package definitions. The packaged EmulationStation binary is unchanged
+  from v1.0.0; no new scraper credential integration was introduced.
+- Required updater working space: 2827579600 bytes;
+  continue recommending at least 3 GB free on the OS card.
+- Device qualification: live GB measured around 47 FPS before the fix and
+  60 FPS afterward. The user confirmed GB, GBA, and NES work with the fix.
+  Both device configurations were validated; .17 was subsequently reverted
+  at the user's request to test the published Tools installer. The new full
+  image has passed host checks but has not yet been installed on hardware.
+- Full check records are supplied as build-verification.json. The release
+  tag includes later issue-template/hotfix instruction and audit documentation
+  commits; the recorded binary source above remains unchanged.
+
 ## October 4, 2026 first stable release: v1.0.0
 
 - Binary source: `efcc19513baa5ea2b756b619fe81196873e8aebc`. The release tag also includes later
