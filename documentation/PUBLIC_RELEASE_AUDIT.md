@@ -5,7 +5,10 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
-## October 5, 2026 maintenance release: v1.0.1
+## October 5, 2026 superseded local v1.0.1 candidate
+
+This audio-only candidate was not published. It predates the RetroAchievements
+menu and SSH banner changes; its hashes do not identify the bundled release.
 
 - Binary source: `96666f1199eddda88f0db52db32ed0cfd5df3835`; updater build ID `20261007`.
 - Build: `CUSTOM_VERSION=20261007 make docker-RK3566-Miyoo-Flip-V2-aarch64`.

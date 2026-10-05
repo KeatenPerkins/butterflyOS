@@ -1,11 +1,28 @@
-# ButterflyOS v1.0.1 — audio pacing fix
+# ButterflyOS v1.0.1 — audio pacing fix and interface improvements
 
 Maintenance release for **Miyoo Flip V2**, with updater build ID `20261007`.
 This ID follows v1.0.0's `20261006`; it is a monotonic update identifier,
 independent of the calendar date.
 
+The full image bundles the audio fix, RetroAchievements account settings,
+and ButterflyOS SSH branding.
+
+## RetroAchievements
+
+- **Start → Game Settings → RetroAchievements Settings** is available without
+  Advanced Mode. The Settings home destination opens the same Start menu.
+- Enable RetroAchievements and enter your own account username and password.
+  Connect to Wi-Fi, save the settings, and launch a supported game to test.
+- In-game achievements do not require frontend developer credentials. The
+  separate frontend statistics browser and game indexer retain their credential
+  requirement. Account login and achievement unlocking still need device testing.
+- Corrected the Challenge Indicators and Unofficial Achievements setting names
+  to match the emulator configuration generator.
+
 ## Fixes
 
+- Replaced the inherited ROCKNIX SSH login artwork with a cyan
+  ButterflyOS wordmark, retaining the version and build information.
 - Corrected the inherited PipeWire audio cycle size that held GB, GBA, and
   NES games near 47 FPS. The user confirmed all three systems returned to
   normal speed after the live configuration fix.
@@ -24,8 +41,7 @@ system to apply the update. Confirm build `20261007` after installation.
 See [update instructions](UPDATES.md).
 
 For a quick fix on v1.0.0 without a full OS update, use the separate
-[Tools-menu audio hotfix](AUDIO_FPS_HOTFIX.md). Devices `.17` and `.20`
-already received this configuration fix directly.
+[Tools-menu audio hotfix](AUDIO_FPS_HOTFIX.md).
 
 ## Validation scope
 
