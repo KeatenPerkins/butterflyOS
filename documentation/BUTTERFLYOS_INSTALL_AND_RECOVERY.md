@@ -6,7 +6,7 @@ recovery method, not an onboarding step.
 
 This guide applies only to the **Miyoo Flip V2**. Use the current device-specific
 image and its matching checksum from the
-[v1.0.0 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.0); see
+[latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest); see
 [current build status](CURRENT_BUILD_STATUS.md).
 
 Installation changes the internal preloader even though the OS runs from SD.

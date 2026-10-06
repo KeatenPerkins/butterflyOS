@@ -1,4 +1,4 @@
-# ButterflyOS v1.0.0 known issues
+# ButterflyOS known issues
 
 Keep backups of
 games, saves, BIOS files, and any device-specific recovery data.

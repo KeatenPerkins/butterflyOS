@@ -1,4 +1,4 @@
-# ButterflyOS v1.0.0 features
+# ButterflyOS features
 
 ButterflyOS is a hardware-tested Miyoo Flip V2 release focused on a clean,
 controller-first experience.
