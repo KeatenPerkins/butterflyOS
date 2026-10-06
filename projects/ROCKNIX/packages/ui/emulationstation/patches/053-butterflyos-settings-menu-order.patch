@@ -1,0 +1,35 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -158,6 +158,16 @@
+ 	}, "iconKodi");	
+ #endif
+ 
++#if defined(BATOCERA) || defined(ROCKNIX)
++	// Put the most-used ButterflyOS settings before optional account entries.
++	if (isFullUI)
++	{
++		addEntry(_("GAME SETTINGS").c_str(), true, [this] { openGamesSettings(); }, "iconGames");
++		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::WIFI))
++			addEntry(_("NETWORK SETTINGS").c_str(), true, [this] { openNetworkSettings(); }, "iconNetwork");
++	}
++#endif
++
+ 	if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::RETROACHIVEMENTS) &&
+ 		SystemConf::getInstance()->getBool("global.retroachievements") &&
+ 		Settings::getInstance()->getBool("RetroachievementsMenuitem") && 
+@@ -170,15 +180,12 @@
+ 	if (isFullUI)
+ 	{
+ #if defined(BATOCERA) || defined(ROCKNIX)
+-		addEntry(_("GAME SETTINGS").c_str(), true, [this] { openGamesSettings(); }, "iconGames");
+ 		addEntry(GuiControllersSettings::getControllersSettingsLabel(), true, [window] { GuiControllersSettings::openControllersSettings(window); }, "iconControllers");
+ 		addEntry(_("USER INTERFACE SETTINGS").c_str(), true, [this] { openUISettings(); }, "iconUI");
+ 		if (SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1")
+ 			addEntry(_("GAME COLLECTION SETTINGS").c_str(), true, [this] { openCollectionSystemSettings(); }, "iconAdvanced");
+ 		addEntry(_("SOUND SETTINGS").c_str(), true, [this] { openSoundSettings(); }, "iconSound");
+ 
+-		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::WIFI))
+-			addEntry(_("NETWORK SETTINGS").c_str(), true, [this] { openNetworkSettings(); }, "iconNetwork");
+ #else
+ 		if (ApiSystem::getInstance()->isScriptingSupported(ApiSystem::GAMESETTINGS))
+ 			addEntry(_("GAME SETTINGS").c_str(), true, [this] { openGamesSettings(); }, "iconGames");

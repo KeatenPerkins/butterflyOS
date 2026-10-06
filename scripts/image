@@ -187,6 +187,10 @@ EOF
   # Include the hostname correction even if the systemd package is cached.
   cp -p "${PROJECT_DIR}/${PROJECT}/packages/sysutils/systemd/scripts/network-base-setup" \
     "${INSTALL}/usr/sbin/network-base-setup"
+  # Bound the unsynced journal window even when systemd is built from cache.
+  # Keep the existing compression, retention, and storage limits.
+  sed -i '/^[[:space:]#]*SyncIntervalSec[[:space:]]*=/d' "${INSTALL}/etc/systemd/journald.conf"
+  printf '\nSyncIntervalSec=30s\n' >> "${INSTALL}/etc/systemd/journald.conf"
 fi
 
 [ -n "${DEVICE}" ] && echo "DISTRO_DEVICE=\"${DEVICE}\"" >>${INSTALL}/etc/os-release

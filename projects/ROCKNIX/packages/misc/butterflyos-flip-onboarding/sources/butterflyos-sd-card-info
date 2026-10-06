@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 Keaten Perkins
+"""Report mounted-card capacity without scanning files or changing mounts."""
+import argparse
+import datetime
+import json
+import os
+import re
+from pathlib import Path
+
+GIB = 1024 ** 3
+BLOCK_ROOT = Path('/sys/class/block')
+
+
+def read(path):
+    try:
+        return Path(path).read_text().strip()
+    except OSError:
+        return ''
+
+
+def unescape(value):
+    return re.sub(r'\\([0-7]{3})', lambda m: chr(int(m.group(1), 8)), value)
+
+
+def parse_mounts(text):
+    mounts = {}
+    for line in text.splitlines():
+        try:
+            before, after = line.split(' - ', 1)
+            fields, extra = before.split(), after.split()
+            mounts[unescape(fields[4])] = {
+                'source': unescape(extra[1]), 'filesystem': extra[0],
+                'device_id': fields[2],
+                'readonly': 'ro' in set(fields[5].split(',') + extra[2].split(',')),
+            }
+        except (ValueError, IndexError):
+            continue
+    return mounts
+
+
+def parent_device(source):
+    name = Path(source).name
+    block = BLOCK_ROOT / name
+    if (block / 'partition').exists():
+        return block.resolve().parent.name
+    return name if block.exists() else ''
+
+
+def device_info(name):
+    block = BLOCK_ROOT / name
+    try:
+        capacity = int(read(block / 'size')) * 512
+    except ValueError:
+        capacity = None
+    return {'device': '/dev/' + name if name else '', 'present': bool(name and block.exists()),
+            'capacity_bytes': capacity, 'model': read(block / 'device/name')}
+
+
+def card_info(title, mountpoint, default_device, mounts):
+    mount = mounts.get(mountpoint)
+    device = parent_device(mount['source']) if mount else default_device
+    result = dict(device_info(device), title=title, mountpoint=mountpoint,
+                  mounted=mount is not None)
+    if mount:
+        result.update(mount)
+        try:
+            stats = os.statvfs(mountpoint)
+            unit = stats.f_frsize or stats.f_bsize
+            result.update(total_bytes=stats.f_blocks * unit,
+                          used_bytes=(stats.f_blocks - stats.f_bfree) * unit,
+                          available_bytes=stats.f_bavail * unit,
+                          reserved_bytes=max(0, stats.f_bfree - stats.f_bavail) * unit)
+        except OSError as exc:
+            result['error'] = str(exc)
+    return result
+
+
+def collect():
+    mounts = parse_mounts(read('/proc/self/mountinfo'))
+    cards = [card_info('OS card', '/storage', 'mmcblk0', mounts),
+             card_info('Second game card', '/storage/games-external', 'mmcblk1', mounts)]
+    seen = set()
+    combined = 0
+    for card in cards:
+        if 'available_bytes' in card and card['device_id'] not in seen:
+            seen.add(card['device_id'])
+            combined += card['available_bytes']
+    return {'checked': datetime.datetime.now().astimezone().isoformat(), 'cards': cards,
+            'combined_available_bytes': combined, 'boot_partition': mounts.get('/flash'),
+            'method': 'Mount table, filesystem counters, and sysfs only; no directory scans.'}
+
+
+def size(value):
+    return '{:.1f} GiB'.format(value / GIB) if value is not None else 'Unknown'
+
+
+def render(report):
+    lines = ['SD CARD INFO', 'Checked: ' + report['checked'], '']
+    for card in report['cards']:
+        lines.append(card['title'].upper())
+        if not card['mounted']:
+            lines.append('Status: inserted but not mounted' if card['present'] else 'Status: no card detected')
+            if card['present']:
+                lines.append('Card capacity: ' + size(card['capacity_bytes']))
+            lines.append('Available space: unavailable')
+            lines.append('')
+            continue
+        lines.append('Status: mounted ' + ('read-only' if card['readonly'] else 'read/write'))
+        lines.append('Card capacity: ' + size(card['capacity_bytes']))
+        if 'available_bytes' in card:
+            lines.append('Storage size: ' + size(card['total_bytes']))
+            lines.append('Used: ' + size(card['used_bytes']) + '    Available: ' + size(card['available_bytes']))
+            if card['total_bytes']:
+                lines.append('Used: {:.0f}% of storage'.format(100 * card['used_bytes'] / card['total_bytes']))
+        else:
+            lines.append('Space check failed: ' + card.get('error', 'Unknown error'))
+        lines.append('Filesystem: ' + card['filesystem'])
+        lines.append('Location: ' + card['mountpoint'])
+        lines.append('Device: ' + card['source'])
+        lines.append('')
+    lines.append('Combined available: ' + size(report['combined_available_bytes']))
+    os_card = report['cards'][0]
+    lines.append('')
+    lines.append('OS UPDATE SPACE')
+    if os_card.get('readonly'):
+        lines.append('OS storage is read-only; updates need writable storage.')
+    elif 'available_bytes' in os_card:
+        lines.append('OS card available: ' + size(os_card['available_bytes']))
+        lines.append('Usual guide: at least 3 GiB on the OS card.')
+        if os_card['available_bytes'] < 3 * GIB:
+            lines.append('Free more OS-card space before updating.')
+        lines.append('The updater checks the exact release requirement.')
+    else:
+        lines.append('OS-card update space could not be checked.')
+    lines.extend(['Second-card free space cannot be used for OS updates.', '',
+                  'The boot partition may normally be read-only.',
+                  'Space is shown in GiB; formatted space is smaller than',
+                  'the card capacity. No files were scanned or modified.'])
+    return '\n'.join(lines) + '\n'
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--json', action='store_true')
+    args = parser.parse_args()
+    report = collect()
+    print(json.dumps(report, indent=2) if args.json else render(report), end='\n' if args.json else '')
+
+
+if __name__ == '__main__':
+    main()

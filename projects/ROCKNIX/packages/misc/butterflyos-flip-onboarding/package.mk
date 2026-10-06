@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.10"
+PKG_VERSION="2.6.12"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
@@ -62,6 +62,7 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/sources/ButterflyOS Boot Check.sh" \
         "${PKG_DIR}/sources/Butterfly Link.sh" \
         "${PKG_DIR}/sources/Extended Diagnostics.sh" \
+        "${PKG_DIR}/sources/SD Card Info.sh" \
         "${PKG_DIR}/sources/Export ButterflyOS Recovery Backup.sh" \
         "${PKG_DIR}/sources/Prepare Game Card.sh" \
         "${PKG_DIR}/sources/Restore Stock Miyoo Boot.sh" \
@@ -84,6 +85,10 @@ makeinstall_target() {
         "${PKG_BUILD}/butterflyos-save-trade" \
         "${PKG_DIR}/sources/butterflyos-extended-diagnostics" \
         "${PKG_DIR}/sources/butterflyos-health-monitor" \
+        "${PKG_DIR}/sources/butterflyos-sd-card-info" \
+        "${PKG_DIR}/sources/butterflyos-tool-ui.py" \
+        "${PKG_DIR}/sources/butterflyos-sd-card-info-sdl.py" \
+        "${PKG_DIR}/sources/butterflyos-game-card-sdl.py" \
         "${PKG_DIR}/sources/butterflyos-lid-backlight" \
         "${INSTALL}/usr/bin/"
 
@@ -119,6 +124,7 @@ makeinstall_target() {
   chmod 0755 "${INSTALL}/usr/config/modules/ButterflyOS Boot Check.sh" \
              "${INSTALL}/usr/config/modules/Butterfly Link.sh" \
              "${INSTALL}/usr/config/modules/Extended Diagnostics.sh" \
+             "${INSTALL}/usr/config/modules/SD Card Info.sh" \
              "${INSTALL}/usr/config/modules/Export ButterflyOS Recovery Backup.sh" \
              "${INSTALL}/usr/config/modules/Prepare Game Card.sh" \
              "${INSTALL}/usr/config/modules/Restore Stock Miyoo Boot.sh" \
@@ -134,6 +140,10 @@ makeinstall_target() {
              "${INSTALL}/usr/bin/butterflyos-save-trade" \
              "${INSTALL}/usr/bin/butterflyos-extended-diagnostics" \
              "${INSTALL}/usr/bin/butterflyos-health-monitor" \
+             "${INSTALL}/usr/bin/butterflyos-sd-card-info" \
+             "${INSTALL}/usr/bin/butterflyos-tool-ui.py" \
+             "${INSTALL}/usr/bin/butterflyos-sd-card-info-sdl.py" \
+             "${INSTALL}/usr/bin/butterflyos-game-card-sdl.py" \
              "${INSTALL}/usr/bin/butterflyos-lid-backlight" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/launch.sh" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/install.sh" \

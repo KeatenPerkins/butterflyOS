@@ -9,7 +9,10 @@ DEVICE=/dev/mmcblk1
 PARTITION=/dev/mmcblk1p1
 MOUNT=/storage/games-external
 INDEXER=/usr/bin/butterflyos-game-card
-CONTROLLER_CONFIG=/usr/share/butterflyos/flip-onboarding.gptk
+CONTROLLER_CONFIG=/usr/share/butterflyos/save-trade.gptk
+GRAPHICAL_BACKEND=0
+[[ "${1:-}" == --graphical-backend ]] && GRAPHICAL_BACKEND=1
+[[ -f /usr/share/butterflyos/save-trade.dialogrc ]] && export DIALOGRC=/usr/share/butterflyos/save-trade.dialogrc
 CONTROLLER_PID=
 
 stop_controller_input() {
@@ -29,14 +32,31 @@ start_controller_input() {
   fi
 }
 
+# The graphical frontend owns input and rendering; the backend retains all
+# card checks and both erase confirmations. Each request requires a reply.
+ui_request() {
+  local reply
+  printf 'UI_%s\t%s\n' "$1" "$(printf '%b' "$2" | base64 -w 0)"
+  IFS= read -r reply || return 1
+  [[ "$reply" == yes ]]
+}
+
 message() {
+  if [[ "$GRAPHICAL_BACKEND" == 1 ]]; then
+    ui_request MESSAGE "$1"
+    return
+  fi
   dialog --clear --title "${TITLE}" --msgbox "$1" 18 62 \
     </dev/tty >/dev/tty 2>/dev/tty
 }
 
 confirm() {
+  if [[ "$GRAPHICAL_BACKEND" == 1 ]]; then
+    ui_request CONFIRM "$1"
+    return
+  fi
   dialog --clear --title "${TITLE}" --yes-label "Continue" --no-label "Cancel" \
-    --yesno "$1" 20 66 </dev/tty >/dev/tty 2>/dev/tty
+    --defaultno --yesno "$1" 20 66 </dev/tty >/dev/tty 2>/dev/tty
 }
 
 device_size() {
@@ -112,16 +132,26 @@ prepare_existing() {
 format_card() {
   local partitions
   safety_check || return
-  confirm "ERASE SECOND CARD?\n\nTarget: ${DEVICE}\nSize: $(device_size)\n\nEVERYTHING on the second card will be permanently erased. The ButterflyOS card will not be touched." || return
-  confirm "FINAL CONFIRMATION\n\nErase the entire second card and format it as exFAT?\n\nThis cannot be undone." || return
+  confirm "ERASE SECOND CARD?\n\nTarget: ${DEVICE}\nSize: $(device_size)\n\nEVERYTHING on the second card will be permanently erased. The ButterflyOS card will not be touched." || return 0
+  confirm "FINAL CONFIRMATION\n\nErase the entire second card and format it as exFAT?\n\nThis cannot be undone." || return 0
 
-  dialog --clear --title "${TITLE}" --infobox \
-    "Preparing the second card...\n\nDo not power off or remove either card." 9 58 \
-    </dev/tty >/dev/tty 2>/dev/tty
+  # Recheck the target after the user has read both confirmation screens.
+  safety_check || return
+  if [[ "$GRAPHICAL_BACKEND" == 1 ]]; then
+    ui_request PROGRESS "Preparing the second card...\n\nDo not power off or remove either card." || return
+  else
+    dialog --clear --title "${TITLE}" --infobox \
+      "Preparing the second card...\n\nDo not power off or remove either card." 9 58 \
+      </dev/tty >/dev/tty 2>/dev/tty
+  fi
 
   "${INDEXER}" cleanup >/dev/null 2>&1 || true
   umount "${MOUNT}" 2>/dev/null || true
   umount "${PARTITION}" 2>/dev/null || true
+  if awk -v target="${PARTITION}" '$1==target {found=1} END {exit !found}' /proc/mounts; then
+    message "CARD IS IN USE\n\nThe second card could not be unmounted. Close games and transfers, then try again. Nothing was formatted."
+    return 1
+  fi
 
   partitions=$(awk '$4 ~ /^mmcblk1p[0-9]+$/ {count++} END {print count+0}' /proc/partitions)
   if [[ "${partitions}" != 1 || ! -b "${PARTITION}" ]]; then
@@ -154,6 +184,20 @@ show_status() {
   text=$("${INDEXER}" status 2>&1)
   message "SECOND GAME CARD\n\n${text}\n\nOS-card files have priority when both cards contain the same relative filename."
 }
+
+if [[ "$GRAPHICAL_BACKEND" == 1 ]]; then
+  case "${2:-}" in
+    prepare) prepare_existing ;;
+    format) format_card ;;
+    refresh)
+      safety_check && mount_card && create_library &&
+        message "LIBRARY REFRESHED\n\nGames and media from both cards are now available. Run Update Gamelists if the menu was already open."
+      ;;
+    status) show_status ;;
+    *) exit 2 ;;
+  esac
+  exit $?
+fi
 
 trap stop_controller_input EXIT INT TERM
 start_controller_input

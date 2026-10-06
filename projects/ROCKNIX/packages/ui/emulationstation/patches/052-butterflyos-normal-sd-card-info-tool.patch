@@ -1,0 +1,11 @@
+diff --git a/es-app/src/FileData.cpp b/es-app/src/FileData.cpp
+--- a/es-app/src/FileData.cpp
++++ b/es-app/src/FileData.cpp
+@@ -1090,6 +1090,7 @@
+ 			SystemConf::getInstance()->get("ButterflyAdvancedMode") != "1" &&
+ 			(*it)->getMetadata(MetaDataId::Genre) != "Recovery" &&
+ 			(*it)->getName() != "System Manager" &&
++			(*it)->getName() != "SD Card Info" &&
+ 			(*it)->getName() != "Quick Start" &&
+ 			(*it)->getName() != "Controls Guide" &&
+ 			(*it)->getName() != "Butterfly Link" &&
