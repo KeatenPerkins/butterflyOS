@@ -2,9 +2,9 @@
 
 <img src="assets/butterflyos-logo.png" alt="ButterflyOS logo" width="280">
 
-ButterflyOS currently targets the Miyoo Flip V2 only. The full installation
-image is available from the
-[v1.0.0 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.0).
+ButterflyOS currently targets the Miyoo Flip V2 only. Download the latest installation
+image and its matching checksum from the
+[latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest).
 The stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
@@ -29,7 +29,7 @@ version requirements, download instructions, and the older-build migration.
   systems, sample titles, emulator choices, and exceptions.
 - [Current build status](CURRENT_BUILD_STATUS.md): existing image versus
   changes staged for the next build.
-- [v1.0.0 release notes](RELEASE_NOTES_v1.0.0.md): release scope and
+- [Latest release notes](https://github.com/KeatenPerkins/butterflyOS/releases/latest): release scope and
   publication status.
 
 ## For builders and maintainers

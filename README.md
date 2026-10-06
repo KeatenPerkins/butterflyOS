@@ -3,11 +3,10 @@
 <p align="center"><img src="artwork/branding/icons/butterflyos-emblem-transparent-1024.png" width="192" alt="ButterflyOS butterfly emblem"></p>
 
 ButterflyOS is a fast, friendly, controller-first operating system for the
-Miyoo Flip V2. The first stable release is **v1.0.0**, built on the tested Alpha 2 and
-v0.2.x baseline, with online updates and PortMaster support.
+Miyoo Flip V2, with online updates and PortMaster support.
 
 Download the image and matching checksum from
-[the v1.0.0 stable release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.0).
+[the latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest).
 Read the [build and test status](documentation/CURRENT_BUILD_STATUS.md)
 and installation instructions before flashing.
 
@@ -25,7 +24,7 @@ Start here:
 - [Documentation index](documentation/README.md)
 - [Compatibility matrix](documentation/BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md)
 - [Known issues](documentation/KNOWN_ISSUES.md)
-- [v1.0.0 release notes](documentation/RELEASE_NOTES_v1.0.0.md)
+- [Latest release notes](https://github.com/KeatenPerkins/butterflyOS/releases/latest)
 - [Building from source](documentation/BUILDING.md)
 
 Project direction is documented in the [vision](docs/VISION.md) and
@@ -81,10 +80,10 @@ endorsed by Miyoo, ROCKNIX, Nintendo, Sega, Sony, or any other platform owner.
 
 ## Distribution status
 
-The v1.0.0 stable image and update passed the exact artifact checks recorded in
-[the release audit](documentation/PUBLIC_RELEASE_AUDIT.md). User testing covered
-the preceding system/PortMaster/UI baseline; the new image is separately
-verified on the build host. Remaining limits are recorded in Known Issues.
+Build checks and hardware testing are recorded for each published image in
+[the release audit](documentation/PUBLIC_RELEASE_AUDIT.md). Read the
+[latest release notes](https://github.com/KeatenPerkins/butterflyOS/releases/latest) for the release-specific
+validation and changes. Remaining limits are recorded in Known Issues.
 
 
 The Alpha 1 source baseline remains an internal test artifact because it

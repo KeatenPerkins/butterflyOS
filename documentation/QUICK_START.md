@@ -1,11 +1,11 @@
 # ButterflyOS Quick Start
 
-ButterflyOS v1.0.0 supports the **Miyoo Flip V2 only**. Back up saves and other
+ButterflyOS supports the **Miyoo Flip V2 only**. Back up saves and other
 important files before installation or reflashing.
 
 Read [current build status](CURRENT_BUILD_STATUS.md) before testing. Download
 the image and matching checksum from the
-[v1.0.0 release](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.0).
+[latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest).
 
 ## What you need
 
@@ -19,10 +19,11 @@ ButterflyOS does not contain games or proprietary console BIOS files.
 
 ## Verify the download
 
-Keep the image and checksum file in the same directory. On Linux, run:
+Keep the downloaded image and its matching checksum file in the same directory.
+Run this command from that directory on Linux:
 
 ```sh
-sha256sum -c ButterflyOS-v1.0.0-Miyoo-Flip-V2.img.gz.sha256
+sha256sum -c ButterflyOS-*-Miyoo-Flip-V2.img.gz.sha256
 ```
 
 The result must say `OK`. If it does not, delete the download and obtain it
@@ -177,12 +178,14 @@ with the lid closed.
 
 ## Updating a test installation
 
-On v0.2.3 or newer, follow [How to update](UPDATES.md#how-to-update). For v0.2.4,
-allow at least **3 GB free on the OS card**, connect Wi-Fi and front-port power,
-and charge to at least 50%. Wait for **Update is ready / Reboot to apply**, then
-choose **Start → Quit → Restart System** to install. After boot, verify version
-**20261005** and check your games and saves. Original v1.0.0 installations need
-the migration fix explained in that guide before using online updates.
+Follow [How to update](UPDATES.md#how-to-update). Allow at least **3 GB free on
+the OS card**, or more if the updater requests it. Connect Wi-Fi and front-port
+power, and charge to at least 50%. Wait for **Update is ready / Reboot to apply**,
+then choose **Start → Quit → Restart System** to install. After boot, compare
+the installed version with the updater build identity in the
+[latest release notes](https://github.com/KeatenPerkins/butterflyOS/releases/latest) and check your games
+and saves. Original v0.2.1 installations need the migration fix explained in
+the update guide before using online updates.
 
 If you need to reflash instead, reflashing erases games, saves, settings, and
 the recovery backup on that card. Export the

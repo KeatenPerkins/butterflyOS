@@ -12,15 +12,16 @@ migration fix described under [Current status](#current-status).
 - Back up important saves and export your device's recovery backup.
 - Connect to Wi-Fi, charge the battery to **at least 50%**, and connect power
   through the **front USB-C port**. Keep the device powered throughout the update.
-- For **v1.0.0**, have **at least 3 GB free on the ButterflyOS SD card's storage
+- Have **at least 3 GB free on the ButterflyOS SD card's storage
   partition**. This means unused space, not the card's total capacity. Free
   space on a second game card does not count toward this requirement.
 
-The v1.0.0 download is about **1.3 GB**. Installation also needs room to unpack
-it: the updater requires about **2.83 GB free** in total for this release.
-It calculates the requirement from the download size plus unpacked size plus
-256 MiB of working space; future releases may need more. It also checks that
-the update fits the separate boot partition before starting.
+Update downloads are typically about **1.3 GB**, with about **3 GB free** needed
+for downloading and installation. Exact requirements vary by release; check
+the [latest release notes](https://github.com/KeatenPerkins/butterflyOS/releases/latest). The updater
+calculates the requirement from the download size plus unpacked size plus
+256 MiB of working space and requests more space when needed. It also checks
+that the update fits the separate boot partition before starting.
 
 ### Download and verify
 
@@ -28,8 +29,9 @@ the update fits the separate boot partition before starting.
    - **v0.2.4 or newer:** **Start → System Settings → Update ButterflyOS**.
    - **v0.2.3:** **Start → Updates & Downloads → Start Update**. Enable
      **Advanced Mode** in User Interface Settings if that menu is hidden.
-2. Check the offered version and confirm the download. The first stable release, v1.0.0,
-   appears as device version **20261006**.
+2. Check the offered version against the updater build identity in the
+   [latest release notes](https://github.com/KeatenPerkins/butterflyOS/releases/latest).
+   Confirm the download.
 3. **Wait for the entire package to download and verify.** The device downloads
    the OS update automatically; you do not need to copy or flash an SD-card
    image. Download time depends on Wi-Fi and server speed and can take several
@@ -54,9 +56,10 @@ version; the updater still verifies the official package. v1.0.0 removes this mi
 2. The device shows an update progress screen during startup. **Keep power
    connected and leave the OS card inserted** while it works through the steps.
    Wait for installation and startup to finish; do not interrupt them.
-3. Check the version at the bottom of the Start menu. After installing v1.0.0,
-   it should read **ButterflyOS 20261006**. Check your games, saves, favorites,
-   artwork, and settings before resuming normal use.
+3. Check the version at the bottom of the Start menu. It should match the
+   updater build identity in the release notes for the update you installed.
+   Check your games, saves, favorites, artwork, and settings before resuming
+   normal use.
 
 The update replaces OS files and is intended to retain games, saves, media,
 and settings. It does not reformat the storage partition. Keep backups:
@@ -71,12 +74,13 @@ retry a failed download; read the error and resolve its cause first.
 
 ## Current status
 
-**v1.0.0** is the first stable release, using updater build identity `20261006`.
-It includes a full installation image and online update package, corrected
-X/Y hints, Ports artwork, eight new system illustrations, normal update
-confirmation, and a full-device Restart to Apply action. User testing of the
-preceding build covered each populated system, PortMaster, and the interface.
-See [v1.0.0 release notes](RELEASE_NOTES_v1.0.0.md) for exact build validation.
+The [latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest) includes a
+fresh-install image, its matching checksum, and an online update package.
+Its release notes record the public version, updater build identity, changes,
+and validation. See [current build status](CURRENT_BUILD_STATUS.md) for
+published builds and changes awaiting the next image.
+
+### Older-build compatibility
 
 
 The ButterflyOS-specific updater is included from **v0.2.1**. The prepared
