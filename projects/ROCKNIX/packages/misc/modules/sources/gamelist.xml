@@ -1,6 +1,16 @@
 <?xml version="1.0"?>
 <gameList>
     <game>
+        <path>./SD Card Info.sh</path>
+        <name>SD Card Info</name>
+        <desc>Check both SD cards for capacity, used and available space, mount status, and OS update working space. Fast checks without scanning game files.</desc>
+        <developer>ButterflyOS</developer>
+        <publisher>ButterflyOS</publisher>
+        <genre>Utility</genre>
+        <players>1</players>
+        <image>./images/sd-card-info.png</image>
+    </game>
+    <game>
         <path>./Butterfly Link.sh</path>
         <name>Butterfly Link</name>
         <desc>Inspect compatible Pokemon saves and safely swap boxed Pokemon without unreliable cable emulation.</desc>

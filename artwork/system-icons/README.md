@@ -1,8 +1,9 @@
 # ButterflyOS system artwork
 
-Original 16-bit-style hardware illustrations for ButterflyOS. These assets
-were generated specifically for this project and do not contain manufacturer
-logos or wordmarks.
+Original 16-bit-style hardware illustrations and game-engine artwork for
+ButterflyOS. The hardware illustrations were generated specifically for this
+project and do not contain manufacturer logos or wordmarks. The portrait
+game-engine artwork includes the corresponding software titles.
 
 ## Runtime names
 
@@ -14,6 +15,9 @@ logos or wordmarks.
 | `gba.png` | `gba` |
 | `genesis.png` | `genesis`, `megadrive` |
 | `psx.png` | `psx` |
+| `openbor.png` | `openbor` |
+| `easyrpg.png` | `easyrpg` |
+| `ports.png` | `ports` |
 | `dreamcast.png` | `dreamcast` |
 | `atari2600.png` | `atari2600` |
 | `atari7800.png` | `atari7800` |
@@ -36,8 +40,12 @@ logos or wordmarks.
 | `saturn.png` | `saturn` |
 | `wonderswan.png`, `wonderswancolor.png` | `wonderswan`, `wonderswancolor` |
 
-`source/` contains the full-resolution generated originals. `runtime/`
-contains reduced RGBA copies intended for the 640x480 Miyoo Flip V2 display.
+`source/` contains the full-resolution originals. Most `runtime/` assets
+are reduced RGBA copies intended for the 640x480 Miyoo Flip V2 display.
+OpenBOR and EasyRPG use the supplied 1024x1536 portrait PNGs unchanged,
+matching the portrait format used by Ports; the theme scales them to fit.
+They were supplied as `Documents/openBOR.png` and `Documents/easyRPG.png`
+on 2026-10-05 and installed under lowercase system theme names.
 `runtime/_default.png` is the temporary generic controller shown when a system
 does not have dedicated ButterflyOS artwork yet.
 

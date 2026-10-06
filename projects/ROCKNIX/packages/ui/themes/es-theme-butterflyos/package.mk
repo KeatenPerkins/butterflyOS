@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="es-theme-butterflyos"
-PKG_VERSION="0.1.7"
+PKG_VERSION="0.1.8"
 PKG_LICENSE="GPL-2.0-only"
 PKG_SITE="https://github.com/KeatenPerkins/butterflyOS"
 PKG_URL=""

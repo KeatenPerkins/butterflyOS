@@ -1,6 +1,114 @@
 # Current build and test status
 
-Reviewed: 2026-10-05.
+Reviewed: 2026-10-06.
+
+The user authorized committing/pushing the pending changes and starting the next
+full Miyoo Flip V2 aarch64 build with updater ID `20261008`. Publication remains
+pending the image audit and device validation.
+
+## Next-build scope and readiness review
+
+- Include the SSH branding/hostname corrections, supplied OpenBOR/EasyRPG and
+  Quick Start artwork, 30-second journal sync, RetroAchievements browser gate,
+  new SD Card Info tool with its supplied transparent icon, and the
+  graphical Format 2nd SD Card conversion. Settings puts Game Settings first
+  and Network Settings second, ahead of optional RetroAchievements entries.
+- Performance experiments are complete for this review. The user chose to
+  retain current performance settings and archive the temporary tester and its
+  six completed recordings on the local PC. The tester and logs are not part
+  of the OS build; no CPU/GPU/memory/audio/wireless tuning is staged.
+- All 43 EmulationStation patches apply in sequence to a clean upstream source
+  checkout. Four SD-card storage edge cases and script/package syntax checks
+  pass. The graphical helper's bridge-key, selection, and cancellation logic
+  checks pass; physical A/B controls and SD Card Info layout still need a
+  device check.
+- SD Card Info and Format 2nd SD Card have prepared graphical conversions. Quick
+  Start, Controls Guide, System Manager, diagnostics, and recovery conversions
+  remain future work. The performance tester is excluded from that work.
+- The next image still requires a full build, fresh artifact audit, and device
+  smoke checks before stable publication. Its updater identity must advance
+  beyond `20261007`. `.17` is being kept on its existing release for a direct
+  update that skips the intermediate release.
+
+## Pending SD Card Info tool
+
+- SD Card Info is the first tool converted to the Butterfly Link graphical
+  style. Its shared UI helper reuses the existing Link renderer and controller
+  bridge, with A to select and B to go back. A themed dialog fallback uses the
+  same controller profile. Physical-button and graphical device testing remain
+  pending; Format 2nd SD Card also uses the shared graphical helper.
+- Tools → SD Card Info shows both card capacities, filesystem space used and
+  available, mount/read-only status, filesystem type, and combined available
+  space. It reports the OS-card space used for updates separately.
+- The tool reads filesystem counters, mount information, and sysfs without
+  scanning ROM folders. It handles an absent or unmounted second card without
+  reporting the OS filesystem's free space as second-card capacity.
+- SD Card Info uses the supplied `sdSpace.png` artwork as its dedicated menu icon.
+- Controller-operated Refresh and Save Report actions need no keyboard.
+  Normal-mode Tools visibility is included in the frontend patch.
+- Source/package changes are prepared for the next build. No OS rebuild or
+  tuning changes have been made; `.20` performance testing is unaffected.
+- The reporter ran on `.17` in about 0.86 seconds and matched `df`: 21.4 GiB
+  available on the OS card and 14.5 GiB on the second card. Four automated
+  storage edge-case checks, launcher/package syntax, frontend patch application,
+  and XML registration passed. Controller UI testing is still pending.
+
+## Pending Format 2nd SD Card appearance and controls
+
+- The existing Tools entry uses the shared Butterfly Link graphical renderer
+  and controller bridge: A selects and B cancels or returns.
+- Existing-card setup, library refresh, status, and exFAT formatting still use
+  the original shell backend. Both erase confirmations remain mandatory, with
+  Cancel selected by default. The target identity is checked again after the
+  confirmations; formatting stops if the partition remains mounted.
+- The progress screen warns against powering off or removing either card.
+  The dialog fallback uses the Link theme and input profile too.
+- Automated checks exercise cancellation at each confirmation, target-check
+  failure, and successful protocol completion with mocked disk commands.
+  A backed-up preview is installed in the existing Tools entry on `.20`.
+  Its SDL renderer, fonts, and controller bridge initialized successfully;
+  the read-only status check reported no second card present. The user
+  approved the live appearance. Physical A/B confirmation and formatting a
+  disposable card remain validation items.
+  No live card was formatted; the next full build is now authorized.
+
+## Pending Settings menu order
+
+- In the full Settings menu, Game Settings appears first and Network Settings
+  second when networking is supported. Remaining options retain their order.
+- Existing callbacks, icons, capability checks, and restricted-mode visibility
+  are preserved. This change requires rebuilding EmulationStation; the live
+  `.20` preview only changes the Format 2nd SD Card tool.
+
+## Pending RetroAchievements stats-browser correction
+
+- The advanced Game Settings stats-browser entry now requires frontend API
+  support, matching the existing main-menu entry. Builds without the separate
+  API credentials no longer expose a browser that returns "Unauthenticated".
+- Player account settings and in-game achievements remain available. The user
+  confirmed that Pokémon Crystal on `.20` logs in and loads its achievements.
+- This source fix requires the next EmulationStation rebuild and OS release;
+  no live device or released image has been changed.
+
+## Pending crash-log durability improvement
+
+- Miyoo Flip V2 image assembly sets journald's disk sync interval to 30 seconds,
+  including builds that reuse the systemd package cache. Existing compression,
+  10 MB storage target, and seven-day retention are unchanged.
+- This reduces the window of unsynced journal entries during a forced reboot;
+  it cannot guarantee the final messages survive a hard lockup or power loss.
+- No device setting or released image has been changed. Performance validation
+  on the Flip is pending the next build.
+
+## Pending system artwork
+
+- Quick Start uses the new supplied `quickStart.png` artwork for its Tools
+  menu icon. The image is preserved unchanged.
+- OpenBOR and EasyRPG have dedicated supplied portrait artwork, mapped to
+  the `openbor` and `easyrpg` theme names. The originals are preserved under
+  `artwork/system-icons/source/` and included in the runtime artwork directory.
+- Theme package version `0.1.8` picks up the new assets on the next rebuild.
+  No image rebuild or device installation has been performed for this change.
 
 ## Pending SSH branding corrections
 
@@ -26,9 +134,9 @@ Reviewed: 2026-10-05.
   ButterflyOS SSH wordmark with existing version/build details.
 - Full rebuild and host artifact checks passed. The packaged menu and banner
   match the rebuilt source; all three changes are included in the same image.
-- This exact image has not been installed on hardware. RetroAchievements login
-  and unlocking still need tester verification; the live FPS fix was confirmed
-  before the full rebuild.
+- The user updated `.20` and confirmed Pokémon Crystal logs in to
+  RetroAchievements and loads its achievement set. Unlocking is not yet
+  confirmed. The live FPS fix was confirmed before the full rebuild.
 - See [release notes](RELEASE_NOTES_v1.0.1.md) and
   [exact artifact audit](PUBLIC_RELEASE_AUDIT.md#october-5-2026-bundled-maintenance-release-v101).
 
