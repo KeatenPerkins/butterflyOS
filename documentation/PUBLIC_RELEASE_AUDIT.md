@@ -5,10 +5,13 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
-## October 6, 2026 maintenance release candidate: v1.0.2
+## October 6, 2026 stable maintenance release: v1.0.2
 
-- Candidate approved by the user after boot-testing the full image. GitHub
-  draft upload and asset verification are in progress; publication is authorized.
+- Published as Latest stable, with no draft/prerelease flag, after the user
+  boot-tested and approved the full image. All nine uploaded asset sizes and
+  GitHub SHA-256 digests matched local verified files. The public update
+  manifest matched, and `.17` discovered `20261008` via a read-only check.
+  No device download, installation, or reboot was initiated.
 - Binary source: `4db62112ad358dc290f47c4cbe6fd157e0e6afb4`.
 - Build: `CUSTOM_VERSION=20261008 make docker-RK3566-Miyoo-Flip-V2-aarch64`;
   exit 0. EmulationStation was explicitly cleaned before the full build.
