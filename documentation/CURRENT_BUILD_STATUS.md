@@ -2,7 +2,7 @@
 
 Reviewed: 2026-10-06.
 
-## v1.0.2 stable release candidate
+## v1.0.2 stable release
 
 - Public version `v1.0.2`; updater identity `20261008`; Miyoo Flip V2 only.
   Binary source: `4db62112ad358dc290f47c4cbe6fd157e0e6afb4`.
@@ -13,7 +13,11 @@ Reviewed: 2026-10-06.
 - The 32 GB test card was reflashed with both partitions confirmed unmounted
   through the host desktop disk service. Complete direct-I/O read-back SHA-256
   matched the audited image. The user boot-tested the full image, approved the
-  UI, and authorized stable publication. Draft asset verification is in progress.
+  UI, and authorized stable publication. Published as
+  [Latest stable](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.2).
+  All nine uploaded asset sizes/GitHub SHA-256 digests matched, and the public
+  update manifest matched. `.17` discovered `20261008` with a read-only check;
+  no device download, installation, or reboot was initiated.
 - Includes SD Card Info and the Format 2nd SD Card graphical conversion using
   Butterfly Link's renderer/controls; Game Settings first and Network Settings
   second; RetroAchievements statistics-browser API gate; 30-second journal sync;
