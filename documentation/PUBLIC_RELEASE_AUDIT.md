@@ -5,6 +5,41 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## October 6, 2026 maintenance release candidate: v1.0.2
+
+- Candidate approved by the user after boot-testing the full image. GitHub
+  draft upload and asset verification are in progress; publication is authorized.
+- Binary source: `4db62112ad358dc290f47c4cbe6fd157e0e6afb4`.
+- Build: `CUSTOM_VERSION=20261008 make docker-RK3566-Miyoo-Flip-V2-aarch64`;
+  exit 0. EmulationStation was explicitly cleaned before the full build.
+- Image: `ButterflyOS-v1.0.2-Miyoo-Flip-V2.img.gz`, 1271244940 bytes.
+  SHA-256: `0eca31c520928abe97d1d157ec59d1bd2f0a5579830154343be5cff574f8c2f4`.
+- Update: `ButterflyOS-Miyoo-Flip-V2-20261008.tar`, 1285447680 bytes.
+  SHA-256: `a605022a596aba3f2356bfee7f1b29b24f7c00b9a1876e8dec04d37e3b0e077c`.
+- Image SHA-256/gzip, GPT/FAT/ext4, first-boot scaffold and resize marker,
+  SYSTEM/KERNEL MD5s, image/update payload equality, archive membership,
+  manifest identity/sizes/checksum, and content filename exclusions passed.
+- Packaged SD Card Info reporter/UI, shared graphical helper, Format 2nd SD
+  Card launcher/backend/UI, and all new artwork match committed source bytes.
+  Journal interval is 30 seconds; SSH banner uses explicit light-blue RGB with
+  the final updater identity. Hostname initialization matches corrected source.
+- Installed EmulationStation matches the rebuilt package. Source verification
+  confirms the Settings order, normal SD Card Info visibility, normal-mode
+  RetroAchievements account settings, and stats-browser API capability gate.
+- PortMaster support, 512-sample PipeWire defaults, and 86 notice/license files
+  remain present. The package license manifest has no unresolved definitions.
+- All 43 frontend patches applied to clean source; 10 automated storage and
+  mocked-formatting safety checks passed. No real disk is touched by those tests.
+- Final flash verification: the confirmed-unmounted test card matched all
+  2198863872 raw-image bytes using direct-I/O SHA-256:
+  `d0e3efc9f978ff8047cf2725e9655b847070deba28c8647eb7382c04125a7950`.
+  The user approved the full image after boot testing. This does not establish
+  exhaustive emulator/peripheral or version-skipping-update coverage.
+- Updater working space: 2839320784 bytes; recommend at least 3 GB free on
+  the OS card. The temporary performance tester is excluded; no tuning changed.
+- Uploaded audit records retain the exact binary source; later documentation
+  commits do not change that source identity.
+
 ## October 5, 2026 bundled maintenance release: v1.0.1
 
 - Published as Latest stable, with no draft/prerelease flag. All nine uploaded

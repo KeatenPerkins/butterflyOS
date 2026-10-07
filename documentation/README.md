@@ -14,7 +14,7 @@ version requirements, download instructions, and the older-build migration.
 - [Quick Start](QUICK_START.md): download verification, card writing, first
   setup, adding files, and shutdown.
 - [SD Card Info](SD_CARD_INFO.md): fast space and mount-status checks for both
-  cards, prepared for the next build.
+  cards, available starting with v1.0.2.
 - [How to transfer games](TRANSFERRING_GAMES.md): web uploads, SD-card copying,
   SMB, SFTP/SCP, rsync, and device password setup.
 - [Installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md): the
