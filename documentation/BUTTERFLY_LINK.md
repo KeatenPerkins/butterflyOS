@@ -50,7 +50,40 @@ No internet service or SSH login is required for its remote-transfer workflow.
 For example, you can copy a boxed Pikachu from Yellow into Crystal without
 removing it from Yellow, or exchange boxed Pokémon between Ruby and Sapphire.
 You cannot copy a Gen III Pokémon back into Gold, or use Butterfly Link to battle
-a friend. It is not a general-purpose Pokémon editor or event-unlock tool.
+a friend. It is not a general-purpose Pokémon editor.
+
+### Gen I event gifts (next build; unreleased)
+
+The Gen 1 menu lists detected game saves first. Select a game for the normal
+trade/copy flow; Gen 1 Gifts and Stadium Gifts appear below the game list.
+
+Open **Tools → Butterfly Link → Local transfer → Gen 1 → Gen 1 Gifts** to add a generated level-5
+Mew, Surfing/Flying Pikachu, Dragon Rage Magikarp, or Pay Day Fearow/Rapidash
+to a free PC slot. This first version accepts only the
+verified English retail Red, Blue and Yellow ROM revisions; other revisions,
+languages and modified ROMs are refused.
+
+Exit the game and make an independent backup first. Select the destination
+save, gift and free PC slot, review the preview, then choose **Add Gift**.
+All six gifts arrive at level 5. Pay Day replaces Rapidash's fourth starting
+move, Growl; the other special moves use an empty starting-move slot.
+Cancel leaves the original unchanged. Commit retains a pre-write backup and
+refuses a save that changed after preparation. Load the game and withdraw the
+gift from the selected box.
+
+These are generated equivalents using your trainer identity, not replicas of
+original official distributions. Data and artwork come from your matching ROM;
+no donor records or Pokémon game assets are bundled. No story flags or map
+encounters are changed. Yellow's Surfing Pikachu uses the player identity
+required by its beach checks, but the minigame still needs an in-game test.
+The next build also provides **Local transfer → Gen 1 → Stadium Gifts**: Amnesia
+Psyduck, Bulbasaur, Charmander, Squirtle, Hitmonlee, Hitmonchan, Eevee, Omanyte
+and Kabuto. These also arrive at level 5 with your trainer identity and
+ROM-derived starting moves; Psyduck additionally knows Amnesia. They do not
+reproduce Stadium distribution levels, original trainer metadata or all
+historical movesets, and do not mark Stadium challenges as completed. Gen II/III
+event features are not yet implemented.
+See the [event inventory and validation notes](BUTTERFLY_LINK_GEN1_EVENTS_PLAN.md).
 
 ## Opening Butterfly Link
 
@@ -77,7 +110,7 @@ ROM hacks, and unrecognized revisions are not generally qualified.
 | Gen II → Gen II | Trade or copy | Trade or copy | PC-box Pokémon |
 | Gen III → Gen III | Trade or copy | Trade or copy | PC-box Pokémon; Trade requires matching save-format families |
 | Gen I → Gen II | Copy | Copy | Time Capsule conversion; banked-box/name fixes included, not every save pairing qualified |
-| Gen II → Gen III | Copy | Copy | One-way conversion; held items cleared |
+| Gen II → Gen III | Copy | Copy | One-way conversion; verified held-item equivalents preserved in the next build |
 | Gen II → Gen I | Unavailable | Unavailable | No reverse Time Capsule conversion |
 | Gen III → earlier generations | Unavailable | Unavailable | No reverse conversion |
 
@@ -89,9 +122,39 @@ Do not interpret the table as qualification of every Gen III game pairing.
 
 Gen II → III is a Butterfly Link conversion, not an original-game cable feature.
 Compatible identity/training data is converted; generation-specific fields need
-newly derived values. **All held items are currently cleared**, even if a Gen III
-counterpart exists. The app rejects Pokémon it cannot identify safely from the
-source ROM. It does not provide an unrestricted species, move, or item editor.
+newly derived values. **The next build preserves verified Gen III held-item
+equivalents.** Items without a verified equivalent are cleared on the destination
+copy. Existing releases through v1.0.2 clear all held items. In every version,
+the original Gen II Pokémon and its held item remain unchanged.
+
+The mapping uses explicit item IDs, never the same numeric ID across generations.
+Most shared items keep their identity (for example, Leftovers, Everstone and
+Metal Coat). Renamed berries use the following equivalents:
+
+| Gen II | Gen III |
+| --- | --- |
+| Berry | Oran Berry |
+| Gold Berry | Sitrus Berry |
+| PSNCureBerry | Pecha Berry |
+| PRZCureBerry | Cheri Berry |
+| Burnt Berry | Rawst Berry |
+| Ice Berry | Aspear Berry |
+| Bitter Berry | Persim Berry |
+| Mint Berry | Chesto Berry |
+| MiracleBerry | Lum Berry |
+| MysteryBerry | Leppa Berry |
+
+TMs are matched by their taught move, not their TM number. Gen-II-only items
+(including Berserk Gene, apricorn balls, Pink Bow and Polkadot Bow), mail,
+unsupported TMs, HMs, key items and unused/invalid item IDs are cleared. The tool
+does not substitute a merely similar item for a missing one.
+
+Item IDs were checked against the [Gen II reference tables](https://github.com/pret/pokecrystal/blob/master/constants/item_constants.asm)
+and the [Gen III reference tables](https://github.com/pret/pokeemerald/blob/master/include/constants/items.h),
+including Ruby/Sapphire and FireRed/LeafGreen agreement for mapped IDs. These
+tables target the supported retail games; arbitrary ROM hacks are not qualified.
+The app rejects Pokémon it cannot identify safely from the source ROM. It does
+not provide an unrestricted species, move, or item editor.
 
 **Trade** exchanges two boxed Pokémon and changes both saves. **Copy** adds the
 source Pokémon to a free destination PC slot; only the destination changes.

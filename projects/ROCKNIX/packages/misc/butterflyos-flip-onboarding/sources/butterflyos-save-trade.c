@@ -22,10 +22,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "butterflyos-gen2-gen3-items.h"
+
 static void usage(FILE* stream) {
     fprintf(stream,
         "Usage:\n"
         "  butterflyos-save-trade inspect --save FILE\n"
+        "  butterflyos-save-trade gift-gen1 --destination FILE --destination-box N\n"
+        "      --destination-slot N --record FILE --national-species N\n"
+        "      --nickname NAME --rom-family red-blue|yellow --output-destination FILE\n"
         "  butterflyos-save-trade swap-gen1 --left FILE --left-box N --left-slot N\n"
         "      --right FILE --right-box N --right-slot N\n"
         "      --output-left FILE --output-right FILE\n"
@@ -686,6 +691,121 @@ fail:
     return 1;
 }
 
+/* The ROM reader supplies a locally generated record. This writer only appends
+ * a supported gift to an isolated output, never the input. */
+static int gift_gen1(const char* destination_path, unsigned box_num,
+                     unsigned slot, const char* record_path, unsigned national,
+                     const char* nickname, const char* family, const char* output) {
+    struct pksav_gen1_save save;
+    struct pksav_gen1_pc_pokemon gift;
+    struct pksav_gen1_pokemon_box* box;
+    struct stat existing;
+    enum pksav_error error;
+    FILE* file;
+    memset(&save, 0, sizeof(save));
+    /* Numeric recipe validation; names, stats and PP are read from the ROM. */
+    static const unsigned recipes[][6] = {
+        {151, 21, 1, 0, 0, 0}, {25, 84, 84, 45, 57, 0},
+        {25, 84, 84, 45, 19, 0}, {129, 133, 150, 82, 0, 0},
+        {22, 35, 64, 45, 43, 6}, {78, 164, 52, 39, 23, 6},
+        {54, 47, 10, 133, 0, 0}, {1, 153, 33, 45, 0, 0},
+        {4, 176, 10, 45, 0, 0}, {7, 177, 33, 39, 0, 0},
+        {106, 43, 24, 96, 0, 0}, {107, 44, 4, 97, 0, 0},
+        {133, 102, 33, 28, 0, 0}, {133, 102, 33, 39, 0, 0},
+        {138, 98, 55, 110, 0, 0},
+        {140, 90, 10, 106, 0, 0}
+    };
+    if (!nickname[0] || strlen(nickname) > 10) return 2;
+    if (lstat(output, &existing) == 0 || errno != ENOENT) {
+        fprintf(stderr, "error=gift-output-must-be-new\n"); return 1;
+    }
+    file = fopen(record_path, "rb");
+    if (!file) { fprintf(stderr, "error=gift-record-unreadable\n"); return 1; }
+    size_t length = fread(&gift, 1, sizeof(gift), file);
+    int extra = fgetc(file);
+    fclose(file);
+    bool supported = false;
+    if (length == sizeof(gift)) {
+        for (unsigned r = 0; r < sizeof(recipes) / sizeof(recipes[0]); ++r) {
+            if (national != recipes[r][0] || gift.species != recipes[r][1]) continue;
+            bool matches = true;
+            for (unsigned i = 0; i < 4; ++i) if (gift.moves[i] != recipes[r][i + 2]) matches = false;
+            if (matches) supported = true;
+        }
+    }
+    if (length != sizeof(gift) || extra != EOF || gift.level != 5 ||
+        gift.condition != 0 || !pksav_bigendian16(gift.current_hp) || !supported) {
+        fprintf(stderr, "error=unsupported-gift-record\n"); return 1;
+    }
+    for (unsigned i = 0; i < 4; ++i) {
+        if ((gift.moves[i] && (!gift.move_pps[i] || gift.move_pps[i] > 40)) ||
+            (!gift.moves[i] && gift.move_pps[i])) {
+            fprintf(stderr, "error=invalid-gift-pp\n"); return 1;
+        }
+    }
+    if (!copy_file(destination_path, output)) return 1;
+    if ((error = pksav_gen1_load_save_from_file(output, &save)) != PKSAV_ERROR_NONE) goto fail;
+    if ((save.save_type == PKSAV_GEN1_SAVE_TYPE_YELLOW && strcmp(family, "yellow")) ||
+        (save.save_type == PKSAV_GEN1_SAVE_TYPE_RED_BLUE && strcmp(family, "red-blue"))) {
+        fprintf(stderr, "error=gift-rom-save-family-mismatch\n"); goto reject;
+    }
+    unsigned current = *save.pokemon_storage.p_current_box_num &
+                       PKSAV_GEN1_CURRENT_POKEMON_BOX_NUM_MASK;
+    if (current >= PKSAV_GEN1_NUM_POKEMON_BOXES) {
+        fprintf(stderr, "error=gift-invalid-current-box\n"); goto reject;
+    }
+    /* Before the player's first box switch, SRAM box headers are uninitialized.
+     * Follow the game's initialization and retain the active box contents. */
+    if (!(*save.pokemon_storage.p_current_box_num & 0x80)) {
+        for (unsigned i = 0; i < PKSAV_GEN1_NUM_POKEMON_BOXES; ++i) {
+            save.pokemon_storage.pp_boxes[i]->count = 0;
+            save.pokemon_storage.pp_boxes[i]->species[0] = 0xFF;
+        }
+        *save.pokemon_storage.p_current_box_num |= 0x80;
+    }
+    if ((error = pksav_gen1_pokemon_storage_set_current_box(&save.pokemon_storage,
+                                                           (uint8_t)box_num)) != PKSAV_ERROR_NONE) goto fail;
+    box = save.pokemon_storage.p_current_box;
+    if (box->count >= PKSAV_GEN1_BOX_NUM_POKEMON || slot != box->count) {
+        fprintf(stderr, "error=gift-box-not-ready-for-append\n"); goto reject;
+    }
+    gift.ot_id = *save.trainer_info.p_id;
+    box->entries[slot] = gift;
+    box->species[slot] = gift.species;
+    memset(box->otnames[slot], 0x50, sizeof(box->otnames[slot]));
+    memcpy(box->otnames[slot], save.trainer_info.p_name, PKSAV_GEN1_TRAINER_NAME_LENGTH);
+    if ((error = export_gb_name(nickname, box->nicknames[slot], sizeof(box->nicknames[slot]), 1)) != PKSAV_ERROR_NONE) goto fail;
+    ++box->count;
+    box->species[box->count] = 0xFF;
+    /* Flush the updated active box into its banked copy before saving. */
+    *save.pokemon_storage.pp_boxes[box_num] = *box;
+    /* Gen I SRAM has a whole-bank checksum and six individual box checksums. */
+    for (unsigned half = 0; half < 2; ++half) {
+        uint8_t* bank = (uint8_t*)save.pokemon_storage.pp_boxes[half * 6];
+        const size_t box_size = sizeof(struct pksav_gen1_pokemon_box);
+        unsigned sum = 0;
+        for (size_t i = 0; i < box_size * 6; ++i) sum += bank[i];
+        bank[box_size * 6] = (uint8_t)~sum;
+        for (unsigned i = 0; i < 6; ++i) {
+            sum = 0;
+            for (size_t j = 0; j < box_size; ++j) sum += bank[i * box_size + j];
+            bank[box_size * 6 + 1 + i] = (uint8_t)~sum;
+        }
+    }
+    if ((error = pksav_set_pokedex_bit(save.pokedex_lists.p_seen, national, true)) != PKSAV_ERROR_NONE ||
+        (error = pksav_set_pokedex_bit(save.pokedex_lists.p_owned, national, true)) != PKSAV_ERROR_NONE ||
+        (error = pksav_gen1_save_save(output, &save)) != PKSAV_ERROR_NONE) goto fail;
+    pksav_gen1_free_save(&save);
+    printf("generation=1\ngift_species=%u\ndestination_output=%s\n", national, output);
+    return 0;
+fail:
+    fprintf(stderr, "error=gift-save:%s\n", pksav_strerror(error));
+reject:
+    pksav_gen1_free_save(&save);
+    unlink(output);
+    return 1;
+}
+
 static int swap_gen2(const char* left_path, unsigned left_box_num,
                      unsigned left_slot, const char* right_path,
                      unsigned right_box_num, unsigned right_slot,
@@ -932,15 +1052,6 @@ static int transfer_gen1_to_gen2(const char* source_path, unsigned source_box_nu
 fail:
     pksav_gen1_free_save(&source); pksav_gen2_free_save(&destination);
     unlink(output_destination); return 1;
-}
-
-/* Gen II and Gen III have incompatible item ID tables.  This first migration
- * implementation intentionally clears held items rather than ever assigning
- * an unrelated Gen III item.  A later name-based mapping can opt individual
- * items back in after each mapping has tests. */
-static uint16_t gen2_held_item_to_gen3(uint8_t item, unsigned* cleared) {
-    if (cleared) *cleared = item ? 1u : 0u;
-    return 0;
 }
 
 static uint8_t scaled_gen2_ev(uint16_t raw) {
@@ -1329,6 +1440,31 @@ int main(int argc, char** argv) {
     unsigned destination_box = 0, destination_slot = 0;
 
     if (argc < 2) { usage(stderr); return 2; }
+    if (!strcmp(argv[1], "gift-gen1")) {
+        const char* record = NULL;
+        const char* nickname = NULL;
+        const char* family = NULL;
+        unsigned national = 0;
+        bool have_box = false, have_slot = false;
+        if (argc % 2) return 2;
+        for (int i = 2; i + 1 < argc; i += 2) {
+            const char* key = argv[i];
+            const char* value = argv[i + 1];
+            if (!strcmp(key, "--destination")) destination = value;
+            else if (!strcmp(key, "--output-destination")) output_destination = value;
+            else if (!strcmp(key, "--record")) record = value;
+            else if (!strcmp(key, "--nickname")) nickname = value;
+            else if (!strcmp(key, "--rom-family")) family = value;
+            else if (!strcmp(key, "--national-species")) { if (!parse_index(value, 151, &national)) return 2; }
+            else if (!strcmp(key, "--destination-box")) { if (!parse_index(value, 11, &destination_box)) return 2; have_box = true; }
+            else if (!strcmp(key, "--destination-slot")) { if (!parse_index(value, 19, &destination_slot)) return 2; have_slot = true; }
+            else return 2;
+        }
+        if (!destination || !output_destination || !record || !nickname || !family ||
+            !have_box || !have_slot) { usage(stderr); return 2; }
+        return gift_gen1(destination, destination_box, destination_slot, record, national,
+                         nickname, family, output_destination);
+    }
     if (!strcmp(argv[1], "inspect")) {
         for (int i = 2; i + 1 < argc; i += 2) {
             if (!strcmp(argv[i], "--save")) save = argv[i + 1];

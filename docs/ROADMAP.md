@@ -225,7 +225,8 @@ Current capabilities and hardware evidence are documented in
 - Same-generation local trade/copy and remote Host/Join over the same Wi-Fi.
 - Gen I → II converted copies; qualify the remote Yellow → Crystal persistence
   issue before presenting that route as reliable.
-- Gen II → III one-way copies, keeping the source and clearing held items.
+- Gen II → III one-way copies, keeping the source unchanged. The next build
+  preserves verified held-item equivalents and clears unmatched items.
 - Cache sprites and supported name tables from the user's matching ROM.
 - Offer local evolution choices for supported rules.
 - Preserve original-save backups and require final confirmation.

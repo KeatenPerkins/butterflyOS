@@ -115,10 +115,24 @@ still depends on the game and peripheral.
 
 ## Butterfly Link
 
+- Gen I event gifts are implemented locally for the next build, with generated
+  level-5 Mew, Surfing/Flying Pikachu, Dragon Rage Magikarp and Pay Day
+  Fearow/Rapidash for verified English Red/Blue/Yellow ROM
+  revisions. Save reload, box persistence, full-box refusal, backups and cancel
+  checks pass; Yellow's beach minigame still needs an in-game test. Stadium
+  gifts are also implemented locally as level-5 equivalents; they do
+  not reproduce historical distribution metadata. Gen II/III events are not
+  implemented.
+
 - The current app performs save-based transfers; it does not provide cable
   emulation, battles, or party transfers.
 - Same-generation local/remote trade and copy passed user testing. Remote
   Gen II → III copy also passed; source saves are unchanged and held items cleared.
+- The next build adds verified Gen II → III held-item equivalents. All 256 item
+  IDs have automated mapping coverage. Another 150 disposable-save transfers
+  across Gold/Silver/Crystal and all five Gen III games passed reload/item checks,
+  with originals unchanged. The new preservation behavior still needs in-game
+  testing. Existing releases clear held items on cross-generation copies.
 - Local evolution prompts are implemented for supported rules. Remote
   evolution prompts, complete Everstone/held-item rules, and arbitrary ROM
   hacks/languages are not qualified.
