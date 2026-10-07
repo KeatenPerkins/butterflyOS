@@ -93,6 +93,25 @@ PAGES = {
         ],
     )
 }
+GEN1_GIFTS = [
+    ("mew", "MEW", "Starting move: Pound"),
+    ("surf-pikachu", "SURFING PIKACHU", "Special move: Surf"),
+    ("fly-pikachu", "FLYING PIKACHU", "Special move: Fly"),
+    ("dragon-rage-magikarp", "MAGIKARP", "Special move: Dragon Rage"),
+    ("pay-day-fearow", "FEAROW", "Special move: Pay Day"),
+    ("pay-day-rapidash", "RAPIDASH", "Special move: Pay Day; replaces Growl"),
+]
+STADIUM_GIFTS = [
+    ("amnesia-psyduck", "AMNESIA PSYDUCK", "Special move: Amnesia"),
+    ("stadium-bulbasaur", "BULBASAUR", "Gym Leader Castle gift equivalent"),
+    ("stadium-charmander", "CHARMANDER", "Gym Leader Castle gift equivalent"),
+    ("stadium-squirtle", "SQUIRTLE", "Gym Leader Castle gift equivalent"),
+    ("stadium-hitmonlee", "HITMONLEE", "Gym Leader Castle gift equivalent"),
+    ("stadium-hitmonchan", "HITMONCHAN", "Gym Leader Castle gift equivalent"),
+    ("stadium-eevee", "EEVEE", "Gym Leader Castle gift equivalent"),
+    ("stadium-omanyte", "OMANYTE", "Gym Leader Castle gift equivalent"),
+    ("stadium-kabuto", "KABUTO", "Gym Leader Castle gift equivalent"),
+]
 
 # Butterfly Link never opens a router port or contacts an Internet service.
 # Discovery and the short-lived pairing socket are intentionally limited to
@@ -1438,7 +1457,7 @@ Cancel at any review screen: every original save stays unchanged.
 Same generation: boxed Pokemon can be copied or traded.
 Gen 1 to Gen 2: Time Capsule transfer for Gen 1-compatible Pokemon only.
 Gen 2 to Gen 3: one-way copy only; the Gen 2 source never changes.
-Gen 2 to Gen 3 currently clears held items rather than risking a wrong item.
+Gen 2 to Gen 3 keeps matching held items; unmatched items are cleared.
 Moves, nickname, OT, level, experience, IVs and EVs are converted safely.
 Gen 3 Pokemon cannot move backward to earlier generations.
 """)
@@ -1449,7 +1468,7 @@ Supported trade evolutions are optional and apply only to the protected copy.
 Gen 2 to Gen 3 uses a documented conversion, not an official link cable.
 Wi-Fi supports same-generation trades/copies, Gen 1 to 2 copies,
 and Gen 2 to 3 copies. Cross-generation copies keep the source unchanged.
-Gen 2 to 3 clears held items, matching the local conversion rules.
+Gen 2 to 3 keeps matching held items, using the same local conversion rules.
 Both Flips must approve before applying a remote transfer.
 Every operation requires an explicit final Commit confirmation.
 """)
@@ -2035,6 +2054,12 @@ def commit_copy(session: str) -> tuple[bool, str]:
     try:
         with open(os.path.join(session, "destination-original"), encoding="utf-8") as handle:
             destination = handle.read().strip()
+        fingerprint = os.path.join(session, "original-destination-sha256")
+        if os.path.isfile(fingerprint):
+            with open(fingerprint, encoding="utf-8") as handle:
+                expected_original = handle.read().strip()
+            if _file_digest(destination) != expected_original:
+                return False, "The destination save changed after preparation. Prepare the gift again."
         output = next(os.path.join(session, item) for item in os.listdir(session)
                       if item.startswith("destination-") and item != "destination-original")
         backup = os.path.join(session, "original-destination-backup")
@@ -2044,6 +2069,109 @@ def commit_copy(session: str) -> tuple[bool, str]:
         return True, "The copy was committed. A verified original is in this Butterfly Link session."
     except (OSError, StopIteration) as error:
         return False, "Copy commit failed safely: %s" % error
+
+
+def prepare_gen1_gift(destination: tuple[str, int, int], rom: str,
+                      preset: str) -> tuple[Optional[str], str]:
+    """Stage a ROM-derived gift without writing the selected original save."""
+    path, box, slot = destination
+    session = new_session()
+    try:
+        original_hash = _file_digest(path)
+        record_path = os.path.join(session, "gift-record.bin")
+        result = subprocess.run(["python3", "/usr/bin/butterflyos-gen1-gift.py", rom,
+                                 "--preset", preset, "--output-record", record_path],
+                                text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                check=False)
+        if result.returncode:
+            raise ValueError(result.stderr.strip() or "The ROM gift generator refused this game.")
+        data = json.loads(result.stdout)
+        output = os.path.join(session, "destination-" + os.path.basename(path))
+        success, message = helper_run([
+            "gift-gen1", "--destination", path, "--destination-box", str(box),
+            "--destination-slot", str(slot), "--record", record_path,
+            "--national-species", str(data["national_species"]),
+            "--nickname", data["nickname"], "--rom-family",
+            "yellow" if data["rom_title"] == "POKEMON YELLOW" else "red-blue",
+            "--output-destination", output])
+        if not success:
+            raise ValueError(message or "The save helper refused this gift.")
+        if _file_digest(path) != original_hash:
+            raise ValueError("The selected save changed while preparing the gift. Try again after closing the game.")
+        write_session_value(session, "destination-original", path)
+        write_session_value(session, "original-destination-sha256", original_hash)
+        write_session_value(session, "state", "READY")
+        return session, data["nickname"]
+    except (OSError, ValueError, KeyError) as error:
+        shutil.rmtree(session, ignore_errors=True)
+        return None, str(error)
+
+
+def gen1_gift_workflow(frontend: SDLFrontEnd, stadium: bool = False) -> None:
+    gifts = STADIUM_GIFTS if stadium else GEN1_GIFTS
+    notice(frontend, "STADIUM GIFTS" if stadium else "GEN 1 EVENT GIFTS",
+           "Generated equivalents, not original official distributions. Gifts use your ROM's data and your trainer identity. Choose a free PC slot, review, then Commit. Close the game first. No story flags are changed.")
+    destination = choose_save(frontend, 1, "GIFT DESTINATION SAVE")
+    if not destination:
+        return
+    cache = ensure_sprite_cache(frontend, 1, destination[0])
+    if not cache:
+        return
+    try:
+        with open(os.path.join(cache, "manifest.json"), encoding="utf-8") as handle:
+            manifest = json.load(handle)
+        rom = next(path for path in _rom_candidates(1, destination[0])
+                   if _file_digest(path) == manifest.get("rom_sha256"))
+    except (OSError, ValueError, StopIteration):
+        notice(frontend, "MATCHING ROM NEEDED", "The cached art's matching ROM was not found. No save was changed.")
+        return
+    choice = choose_list(frontend, "CHOOSE STADIUM GIFT" if stadium else "CHOOSE GEN 1 GIFT",
+                         "Generated level-5 equivalents; not original distribution records.",
+                         [(label, description) for _preset, label, description in gifts])
+    if choice is None:
+        return
+    target = choose_copy_destination(frontend, 1, destination)
+    if not target:
+        return
+    box, slot = target
+    session, message = prepare_gen1_gift((destination[0], box, slot), rom,
+                                        gifts[choice][0])
+    if not session:
+        notice(frontend, "GIFT NOT PREPARED", message)
+        return
+    try:
+        working = session_output(session)
+        metadata = save_metadata(working)
+        gift = next(record for record in metadata[3] if record["box"] == box and record["slot"] == slot)
+        _enrich_rom_names([gift], cache)
+        sprite = _read_cache_png(os.path.join(cache, "front", "%03d.png" % gift["species"]))
+        while True:
+            frontend.draw_sprite_browser("GENERATED GIFT PREVIEW", "A Continue  B Cancel", [gift], 0, sprite)
+            key = frontend.next_key()
+            if key in (KEY_ESCAPE, KEY_B, ord("B"), KEY_CANCEL, ord("X")):
+                return
+            if key in (KEY_RETURN, KEY_A, ord("A"), KEY_CONFIRM, ord("Z")):
+                break
+        approved = choose_list(frontend, "COMMIT GIFT?",
+                               "Add %s to Box %d. Trainer: %s. A backup is kept." %
+                               (message, box + 1, destination[1]),
+                               [("CANCEL", "Leave the original save unchanged"),
+                                ("ADD GIFT", "Commit the reviewed gift to this save")], selected=0)
+        if approved == 1:
+            success, result = commit_copy(session)
+            if success:
+                result = "Gift added to Box %d. Your original save is backed up. Withdraw it in-game." % (box + 1)
+                if gifts[choice][0] == "surf-pikachu" and destination[2] == "Yellow":
+                    result += " Surfing Pikachu can then be tested at the beach minigame."
+            notice(frontend, "GIFT COMPLETE" if success else "GIFT NOT COMMITTED", result, completion=success)
+    except (OSError, ValueError, StopIteration) as error:
+        notice(frontend, "GIFT PREVIEW FAILED", "No gift was committed: %s" % error)
+    finally:
+        if os.path.isfile(os.path.join(session, "state")):
+            with open(os.path.join(session, "state"), encoding="utf-8") as handle:
+                committed = handle.read().strip() == "COMMITTED"
+            if not committed:
+                shutil.rmtree(session, ignore_errors=True)
 
 
 def time_capsule_workflow(frontend: SDLFrontEnd) -> None:
@@ -2127,7 +2255,7 @@ def gen2_to_gen3_workflow(frontend: SDLFrontEnd) -> None:
     destination_box, destination_slot = destination
     placeholder = {"name": "Empty PC slot", "box": destination_box, "slot": destination_slot}
     notice(frontend, "GEN 2 TO GEN 3 COPY",
-           "One-way copy only. The Gen 2 source remains unchanged. In this first safe pass, held items are cleared rather than risking a wrong Gen 3 item.")
+           "One-way copy only. The Gen 2 source remains unchanged. Matching held items become their Gen 3 equivalents; items without a verified equivalent are cleared on the copy.")
     if not confirm_transfer(frontend, "MIGRATION PREVIEW", (source_save[0], source_record),
                             (destination_save[0], placeholder), action="copy"):
         return
@@ -2144,7 +2272,7 @@ def gen2_to_gen3_workflow(frontend: SDLFrontEnd) -> None:
         return
     warnings = []
     if "held_item_cleared=1" in output:
-        warnings.append("Held item will be cleared.")
+        warnings.append("Held item has no verified Gen 3 equivalent and will be cleared on the copy.")
     if "ev_points_reduced=0" not in output:
         warnings.append("EVs were normalized to Gen 3 limits.")
     if "moves_cleared=0" not in output:
@@ -2159,6 +2287,27 @@ def gen2_to_gen3_workflow(frontend: SDLFrontEnd) -> None:
     else:
         shutil.rmtree(session, ignore_errors=True)
         notice(frontend, "MIGRATION CANCELLED", "Original saves are unchanged.")
+
+
+def choose_gen1_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
+    """Keep Gen I saves and its gift actions together, with games listed first."""
+    while True:
+        saves = generation_saves(1)
+        items = []
+        for path, trainer, _save_type, records in saves:
+            card = "Game Card" if path.startswith("/storage/games-external/") else "OS Card"
+            game = os.path.splitext(os.path.basename(path))[0]
+            items.append(("GAME", "%s | %s | %s | PC %d" % (game, trainer, card, len(records))))
+        items.extend([("GEN 1 GIFTS", "Six generated event gifts"),
+                      ("STADIUM GIFTS", "Amnesia Psyduck and eight Castle gifts")])
+        prompt = ("Choose a game to trade/copy, or a gift option. B returns." if saves else
+                  "No Gen 1 saves found. Gifts also need an in-game save. B returns.")
+        choice = choose_list(frontend, "GEN 1", prompt, items)
+        if choice is None:
+            return None
+        if choice < len(saves):
+            return saves[choice]
+        gen1_gift_workflow(frontend, stadium=choice == len(saves) + 1)
 
 
 def local_swap_workflow(frontend: SDLFrontEnd) -> None:
@@ -2180,7 +2329,8 @@ def local_swap_workflow(frontend: SDLFrontEnd) -> None:
         return
     generation = generation_choice + 1
     debug("generation selected: %d" % generation)
-    left_save = choose_save(frontend, generation, "FIRST SAVE")
+    left_save = (choose_gen1_local_save(frontend) if generation == 1 else
+                 choose_save(frontend, generation, "FIRST SAVE"))
     if not left_save:
         return
     left_cache = ensure_sprite_cache(frontend, generation, left_save[0])

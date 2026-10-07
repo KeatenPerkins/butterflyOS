@@ -90,12 +90,18 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 - Save discovery on both SD cards; party preview and PC-box transfers
 - Same-generation local and same-Wi-Fi remote trade/copy for Gen I, II, and III
 - Gen I → II copies with Time Capsule conversion
-- Gen II → III one-way copies; the source is unchanged and held items are cleared
+- Gen II → III one-way copies; the source is unchanged. The next build preserves
+  verified held-item equivalents; unmatched items are cleared on the copy
 - Local optional evolution prompts for supported trade evolutions, including
   eligible copies; remote evolution prompts are not yet implemented
 - ROM-derived, per-ROM cached sprites and supported name/detail lookup;
   Gen I/II sprites have a light backing for visibility
 - Backup copies retained before replacing selected original saves
+- Next build: a separate Stadium Gifts group with Amnesia Psyduck and eight
+  generated Gym Leader Castle gift equivalents
+- Next build: generated level-5 Mew, Surfing/Flying Pikachu, Dragon Rage Magikarp,
+  and Pay Day Fearow/Rapidash gifts for verified
+  English Red/Blue/Yellow ROM revisions, with PC-slot preview and backed-up Commit
 
 This app manipulates save files; it does not provide in-game cable sessions,
 battles, party transfers, Gen II → I conversion, or Gen III → II conversion.

@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.12"
+PKG_VERSION="2.6.16"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
@@ -80,6 +80,7 @@ makeinstall_target() {
   mkdir -p "${INSTALL}/usr/bin"
   cp -a "${PKG_DIR}/sources/butterflyos-game-card" \
         "${PKG_DIR}/sources/butterflyos-gb-sprite-cache.py" \
+        "${PKG_DIR}/sources/butterflyos-gen1-gift.py" \
         "${PKG_DIR}/sources/butterflyos-save-trade-sdl.py" \
         "${PKG_DIR}/sources/butterflyos-gen3-sprite-cache.py" \
         "${PKG_BUILD}/butterflyos-save-trade" \
