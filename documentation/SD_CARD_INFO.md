@@ -38,4 +38,4 @@ Folder sizes, game counts, duplicate detection, speed benchmarks, and card
 health checks are not part of this fast overview. Those need separate scans or
 additional diagnostics. Free space alone does not establish card health.
 
-This tool is prepared for the next build; existing releases do not include it.
+This tool is included starting with ButterflyOS v1.0.2 (build `20261008`).
