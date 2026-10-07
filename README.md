@@ -47,14 +47,13 @@ Project direction is documented in the [vision](docs/VISION.md) and
 
 ### Butterfly Link
 
-Butterfly Link is a tool for trading Pokemon for Generations 1, 2, and 3. Butterfly Link edits selected save files; it does not launch a cable-linked
+Butterfly Link is a tool for trading Pokemon for Generations 1, 2, and 3 games.
+Butterfly Link edits selected save files; it does not launch a cable-linked
 game or provide battles. Same-generation local and remote trades/copies have
-passed development testing. Gen II → III is a one-way copy and clears held
-items. Gen I → II copies include the confirmed Gen II PC-box persistence fix. Transfers currently use PC-box Pokémon only.
-
-Sprites are extracted and cached from the user's matching ROM. The image
-contains no bundled Pokémon sprite cache, ROMs, or saves. Read the
-[Butterfly Link guide](documentation/BUTTERFLY_LINK.md) before using it.
+passed development testing. This means you can "trade" Pokemon with a friend
+who also has ButterflyOS. Gen II → III is a one-way copy and clears held
+items. Gen I → II copies include the confirmed Gen II PC-box persistence fix.
+Transfers currently use PC-box Pokémon only.
 
 ### Media compatibility on Miyoo Flip V2
 
