@@ -1,0 +1,19 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -1822,9 +1822,15 @@
+ 		lidShutdown->addRange({ { _("OFF"), "0" }, { _("15 MINUTES"), "15" }, { _("30 MINUTES"), "30" }, { _("60 MINUTES"), "60" } }, minutes);
+-		s->addWithLabel(_("LID-CLOSED SHUTDOWN"), lidShutdown);
++		s->addWithDescription(_("LID-CLOSED SHUTDOWN"), _("Shut down after the lid stays closed. Running games wait unless save-and-shutdown is enabled."), lidShutdown);
+ 		s->addSaveFunc([lidShutdown] {
+ 			SystemConf::getInstance()->set("system.lid.shutdown_minutes", lidShutdown->getSelected());
+ 		});
++		auto lidSave = std::make_shared<SwitchComponent>(mWindow);
++		lidSave->setState(SystemConf::getInstance()->get("system.lid.save_shutdown") == "1");
++		s->addWithDescription(_("SAVE GAME BEFORE LID SHUTDOWN"), _("RetroArch only: verify a fresh auto-save, then exit and shut down. Replaces the auto-save; keeps its previous copy and leaves numbered slots unchanged. Unsupported games stay running."), lidSave);
++		s->addSaveFunc([lidSave] {
++			SystemConf::getInstance()->set("system.lid.save_shutdown", lidSave->getState() ? "1" : "0");
++		});
+ 	}
+ #endif
+ 
+ 	// brightness

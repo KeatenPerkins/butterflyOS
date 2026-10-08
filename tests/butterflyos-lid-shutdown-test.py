@@ -6,6 +6,7 @@ import importlib.util
 from pathlib import Path
 import struct
 import tempfile
+import zlib
 import unittest
 from unittest.mock import patch
 
@@ -113,16 +114,6 @@ class ShutdownTests(unittest.TestCase):
             self.assertIn('update', lid.Shutdown().attempt())
         self.request.assert_called_once_with('/runningGame')
 
-    def test_game_exit_then_frontend_shutdown(self):
-        shutdown = lid.Shutdown()
-        self.request.return_value = (200, b'{"name":"Game"}')
-        self.running.return_value = True
-        with patch.object(lid.socket, 'socket'):
-            self.assertIn('normally', shutdown.attempt())
-        self.running.return_value = False
-        self.request.side_effect = [(201, b'{"msg":"NO GAME RUNNING"}'), (200, b'')]
-        self.assertEqual(shutdown.attempt(), 'Shutdown requested')
-
     def test_bad_or_unreachable_frontend_never_powers_off(self):
         for reply in ((403, b''), (201, b'bad json'), (201, b'[]'), (500, b'')):
             self.request.reset_mock()
@@ -132,24 +123,120 @@ class ShutdownTests(unittest.TestCase):
         self.request.side_effect = OSError('offline')
         self.assertIn('Waiting', lid.Shutdown().attempt())
 
-    def test_retroarch_gets_normal_quit_once_and_no_forced_shutdown(self):
-        self.request.return_value = (200, b'{"name":"Game"}')
-        self.running.return_value = True
-        shutdown = lid.Shutdown()
-        with patch.object(lid.socket, 'socket') as socket:
-            self.assertIn('normally', shutdown.attempt())
-            self.assertIn('normally', shutdown.attempt())
-            socket.return_value.__enter__.return_value.sendto.assert_called_once_with(b'QUIT\n', ('127.0.0.1', 55355))
-            shutdown.reset()
-            shutdown.attempt()
-            self.assertEqual(socket.call_count, 2)
-        self.assertTrue(all(call.args[0] == '/runningGame' for call in self.request.call_args_list))
-
     def test_retroarch_saving_blocks_shutdown_even_if_frontend_idle(self):
         self.request.return_value = (201, b'{"msg":"NO GAME RUNNING"}')
         self.running.return_value = True
         self.assertIn('saving', lid.Shutdown().attempt())
         self.request.assert_called_once_with('/runningGame')
+
+
+class SaveShutdownTests(unittest.TestCase):
+    def setUp(self):
+        for name, value in [('update_busy', False), ('retroarch_running', True)]:
+            mock = patch.object(lid, name, return_value=value)
+            active = mock.start()
+            if name == 'retroarch_running': self.running = active
+            self.addCleanup(mock.stop)
+        frontend = patch.object(lid, 'frontend_request')
+        self.request = frontend.start()
+        self.addCleanup(frontend.stop)
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.path = Path(self.directory.name) / 'Crystal.state.auto'
+        self.session = ('100', '200', str(self.path), 'gambatte,Crystal,crc32=123')
+        self.running.return_value = True
+        self.request.return_value = (200, b'{"name":"Game"}')
+        for name, value in [('save_shutdown_enabled', True), ('retroarch_session', self.session)]:
+            mock = patch.object(lid, name, return_value=value)
+            mock.start()
+            self.addCleanup(mock.stop)
+        self.commands = patch.object(lid, 'retroarch_command')
+        self.command = self.commands.start()
+        self.addCleanup(self.commands.stop)
+        sleeper = patch.object(lid.time, 'sleep')
+        sleeper.start()
+        self.addCleanup(sleeper.stop)
+
+    def write_state(self, compressed=False):
+        raw = b'RASTATE\x01' + struct.pack('<4sI', b'MEM ', 4) + b'test' + b'\0'*4 + struct.pack('<4sI', b'END ', 0)
+        if compressed:
+            payload = zlib.compress(raw)
+            raw = b'#RZIPv\x01#' + struct.pack('<IQI', 131072, len(raw), len(payload)) + payload
+        self.path.write_bytes(raw)
+        return raw
+
+    def test_verified_save_then_two_quits_then_normal_shutdown(self):
+        shutdown = lid.Shutdown()
+        self.assertIn('requested', shutdown.attempt())
+        self.command.assert_called_once_with('SAVE_STATE_SLOT -1')
+        self.write_state(True)
+        self.assertIn('verified', shutdown.attempt())
+        self.assertIn('normally', shutdown.attempt())
+        self.assertEqual([call.args[0] for call in self.command.call_args_list], ['SAVE_STATE_SLOT -1', 'QUIT', 'QUIT'])
+        self.running.return_value = False
+        self.request.side_effect = [(201, b'{"msg":"NO GAME RUNNING"}'), (200, b'')]
+        self.assertEqual(shutdown.attempt(), 'Shutdown requested')
+
+    def test_option_off_never_saves_or_quits(self):
+        with patch.object(lid, 'save_shutdown_enabled', return_value=False):
+            self.assertIn('off', lid.Shutdown().attempt())
+        self.command.assert_not_called()
+
+    def test_old_state_alone_cannot_authorize_quit(self):
+        old = self.write_state()
+        shutdown = lid.Shutdown()
+        shutdown.attempt()
+        self.assertEqual(self.path.with_name(self.path.name + '.lid-backup').read_bytes(), old)
+        shutdown.attempt()
+        shutdown.attempt()
+        self.assertEqual(self.command.call_count, 1)
+        with patch.object(lid.time, 'monotonic', return_value=shutdown.started + 31):
+            self.assertIn('could not be verified', shutdown.attempt())
+        self.assertTrue(shutdown.failed)
+
+    def test_partial_save_never_quits(self):
+        shutdown = lid.Shutdown()
+        shutdown.attempt()
+        self.path.write_bytes(b'RASTATE\x01')
+        shutdown.attempt()
+        shutdown.attempt()
+        self.assertEqual(self.command.call_count, 1)
+
+    def test_cancel_after_new_state_never_quits(self):
+        shutdown = lid.Shutdown()
+        shutdown.attempt()
+        self.write_state()
+        shutdown.attempt()
+        self.assertIn('cancelled', shutdown.attempt(lambda: False))
+        self.assertEqual(self.command.call_count, 1)
+
+    def test_changed_game_cannot_be_quit(self):
+        shutdown = lid.Shutdown()
+        shutdown.attempt()
+        with patch.object(lid, 'retroarch_session', return_value=('101', '201', str(self.path), 'other')):
+            self.assertIn('changed', shutdown.attempt())
+        self.assertEqual(self.command.call_count, 1)
+
+    def test_complete_compressed_and_raw_states_and_truncation(self):
+        for compressed in (False, True):
+            raw = self.write_state(compressed)
+            self.assertTrue(lid.valid_state(self.path))
+            self.path.write_bytes(raw[:-1])
+            self.assertFalse(lid.valid_state(self.path))
+
+    def test_invalid_final_state_blocks_shutdown(self):
+        shutdown = lid.Shutdown()
+        shutdown.session = self.session
+        self.path.write_bytes(b'broken')
+        self.running.return_value = False
+        self.request.return_value = (201, b'{"msg":"NO GAME RUNNING"}')
+        self.assertIn('deferred', shutdown.attempt())
+        self.request.assert_called_once_with('/runningGame')
+
+    def test_backup_failure_never_saves(self):
+        with patch.object(lid, 'backup_auto_state', side_effect=OSError('disk full')):
+            self.assertIn('Waiting', lid.Shutdown().attempt())
+        self.command.assert_not_called()
 
 
 if __name__ == '__main__':

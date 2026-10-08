@@ -9,11 +9,14 @@ import logging
 import os
 from pathlib import Path
 import socket
+import shutil
+import zlib
 import struct
 import time
 
 CONFIG = Path('/storage/.config/system/configs/system.cfg')
 KEY = 'system.lid.shutdown_minutes'
+SAVE_KEY = 'system.lid.save_shutdown'
 UPDATE_LOCK = Path('/storage/.cache/butterflyos-update/update.lock')
 POLL_SECONDS = 5
 
@@ -28,6 +31,121 @@ def read_minutes(path=CONFIG):
         return int(value) if value in ('0', '15', '30', '60') else 0
     except OSError:
         return 0
+
+
+def save_shutdown_enabled(path=CONFIG):
+    try:
+        values = dict(line.strip().split('=', 1) for line in path.read_text().splitlines()
+                      if '=' in line and not line.lstrip().startswith('#'))
+        return values.get(SAVE_KEY, '').strip() == '1'
+    except OSError:
+        return False
+
+
+def retroarch_command(command, reply=True):
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as connection:
+        connection.settimeout(2)
+        connection.connect(('127.0.0.1', 55355))
+        connection.send((command + '\n').encode())
+        return connection.recv(8192).decode().strip() if reply else ''
+
+
+def retroarch_session():
+    # Refuse ambiguous/multiple RetroArch processes and unknown content paths.
+    sessions = []
+    for name in Path('/proc').glob('[0-9]*/comm'):
+        try:
+            if name.read_text().strip() in ('retroarch', 'retroarch32'):
+                fields = (name.parent / 'stat').read_text().rsplit(') ', 1)[1].split()
+                sessions.append((name.parent.name, fields[19]))
+        except OSError:
+            continue
+    if len(sessions) != 1:
+        raise ValueError('No unique RetroArch session')
+    status = retroarch_command('GET_STATUS')
+    if not status.startswith(('GET_STATUS PLAYING ', 'GET_STATUS PAUSED ')):
+        raise ValueError('RetroArch has no game')
+    content = status.split(' ', 2)[2].split(',', 1)[1].rsplit(',crc32=', 1)[0]
+    directory = retroarch_command('GET_CONFIG_PARAM savestate_directory')
+    prefix = 'GET_CONFIG_PARAM savestate_directory '
+    if not directory.startswith(prefix):
+        raise ValueError('Unknown state directory')
+    root = Path(directory[len(prefix):]).resolve()
+    if not str(root).startswith('/storage/') or not content or Path(content).name != content:
+        raise ValueError('Unknown auto-save path')
+    return sessions[0] + (str(root / (content + '.state.auto')), status.split(' ', 2)[2])
+
+
+def state_fingerprint(path):
+    try:
+        stat = path.stat()
+        return stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
+    except FileNotFoundError:
+        return None
+
+
+def valid_state(path):
+    # Check the complete RetroArch container, including compressed chunk lengths,
+    # a nonempty core memory block and END marker. Limit allocation on failure.
+    limit = 64 * 1024 * 1024
+    try:
+        if path.stat().st_size > limit:
+            return False
+        data = path.read_bytes()
+        if data.startswith(b'#RZIPv\x01#'):
+            chunk, total = struct.unpack_from('<IQ', data, 8)
+            if not 0 < chunk <= limit or not 0 < total <= limit:
+                return False
+            offset, parts, length = 20, [], 0
+            while offset < len(data):
+                size, = struct.unpack_from('<I', data, offset)
+                offset += 4
+                if not size or offset + size > len(data):
+                    return False
+                decoder = zlib.decompressobj()
+                part = decoder.decompress(data[offset:offset + size], chunk + 1)
+                if not decoder.eof or decoder.unused_data or not 0 < len(part) <= chunk:
+                    return False
+                parts.append(part)
+                length += len(part)
+                if length > total:
+                    return False
+                offset += size
+            if length != total:
+                return False
+            data = b''.join(parts)
+        if not data.startswith(b'RASTATE\x01'):
+            return False
+        offset, memory = 8, False
+        while offset + 8 <= len(data):
+            kind, size = struct.unpack_from('<4sI', data, offset)
+            offset += 8
+            if kind == b'END ':
+                return memory and size == 0 and offset == len(data)
+            if offset + size > len(data):
+                return False
+            if kind == b'MEM ' and size:
+                memory = True
+            offset += (size + 7) & ~7
+        return False
+    except (OSError, ValueError, struct.error, zlib.error):
+        return False
+
+
+def backup_auto_state(path):
+    if not path.exists():
+        return
+    backup = path.with_name(path.name + '.lid-backup')
+    temporary = backup.with_name(backup.name + '.tmp')
+    shutil.copyfile(path, temporary)
+    with temporary.open('rb') as stream:
+        os.fsync(stream.fileno())
+    temporary.replace(backup)
+    directory = os.open(str(path.parent), os.O_RDONLY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
 
 
 class LidSensor:
@@ -123,9 +241,19 @@ def retroarch_running():
 class Shutdown:
     def __init__(self):
         self.quit_sent = False
+        self.session = None
+        self.before = None
+        self.last = None
+        self.started = None
+        self.failed = False
 
     def reset(self):
         self.quit_sent = False
+        self.session = None
+        self.before = None
+        self.last = None
+        self.started = None
+        self.failed = False
 
     def attempt(self, still_due=lambda: True):
         if update_busy():
@@ -137,6 +265,12 @@ class Shutdown:
             if status == 201 and json.loads(body).get('msg') == 'NO GAME RUNNING':
                 if retroarch_running():
                     return 'Waiting for RetroArch to finish saving'
+                if self.session is not None:
+                    path = Path(self.session[2])
+                    if not valid_state(path):
+                        return 'Final auto-save invalid; shutdown deferred'
+                    with path.open('rb') as stream:
+                        os.fsync(stream.fileno())
                 if not still_due():
                     return 'Lid timer cancelled'
                 if update_busy():
@@ -145,14 +279,47 @@ class Shutdown:
                 return 'Shutdown requested' if status == 200 else 'Shutdown request declined'
             if status != 200:
                 return 'Waiting for frontend'
-            if not retroarch_running():
-                return 'Waiting for active game or tool to exit'
-            if not self.quit_sent:
-                with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as command:
-                    command.sendto(b'QUIT\n', ('127.0.0.1', 55355))
+            if not retroarch_running() or not save_shutdown_enabled():
+                return 'Waiting for active game or tool to exit (game save-and-shutdown is off)'
+            if self.failed:
+                return 'Auto-save could not be verified; keeping game running'
+            if not still_due():
+                return 'Lid timer cancelled'
+            session = retroarch_session()
+            if self.session is not None and session != self.session:
+                self.failed = True
+                return 'Game changed during auto-save; keeping game running'
+            path = Path(session[2])
+            if self.session is None:
+                backup_auto_state(path)
+                self.session = session
+                self.before = state_fingerprint(path)
+                self.started = time.monotonic()
+                retroarch_command('SAVE_STATE_SLOT -1')
+                return 'Auto-save requested; waiting for verified state'
+            if self.quit_sent:
+                return 'Waiting for RetroArch to exit normally'
+            fingerprint = state_fingerprint(path)
+            if fingerprint and fingerprint != self.before and fingerprint == self.last and valid_state(path):
+                with path.open('rb') as stream:
+                    os.fsync(stream.fileno())
+                if not still_due() or update_busy():
+                    return 'Lid timer cancelled or update active'
+                retroarch_command('QUIT', reply=False)
+                # RetroArch normally requires two quit presses within three
+                # seconds. Keep that user protection enabled for normal play.
+                time.sleep(0.25)
+                if still_due() and not update_busy() and retroarch_session() == session:
+                    retroarch_command('QUIT', reply=False)
                 self.quit_sent = True
-            return 'Waiting for RetroArch to exit normally'
-        except (OSError, http.client.HTTPException, ValueError, AttributeError):
+                logging.info('Verified lid auto-save: %s', path)
+                return 'Waiting for RetroArch to exit normally'
+            self.last = fingerprint
+            if time.monotonic() - self.started > 30:
+                self.failed = True
+                return 'Auto-save could not be verified; keeping game running'
+            return 'Waiting for verified auto-save'
+        except (OSError, http.client.HTTPException, ValueError, AttributeError, IndexError):
             return 'Waiting for frontend'
 
 

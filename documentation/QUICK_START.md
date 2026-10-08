@@ -1,5 +1,41 @@
 # ButterflyOS Quick Start
 
+**ATTENTION**
+
+Your Miyoo Flip V2 comes with Miyoo's original operating system installed inside the
+console. A small startup program, called the **bootloader** (or **preloader**),
+tells it where to find the system when you turn it on.
+
+To let it start ButterflyOS from an SD card, ButterflyOS Setup makes a small
+change to that startup program. It keeps the original Miyoo operating system installed:
+with the ButterflyOS card removed, the console can still start Miyoo's operating system.
+
+**Before making that change, Setup saves a copy of your device's original
+preloader and a checksum.** The checksum lets the recovery tool check that the
+backup is intact. This backup is what lets you undo the change and return to
+stock Miyoo boot behavior. Installation and restoring the original preloader
+have been tested on real Flip V2 devices, using their verified backups.
+
+<img src="assets/export-recovery.png" alt="Export Recovery Backup tool icon" width="96">
+
+**Do not skip exporting your recovery backup.** After your first ButterflyOS
+boot, open **Tools → Export Recovery Backup** and follow the download steps
+below. Keep both the exported archive and its `.sha256` checksum on your PC or
+another safe drive. A copy left only on the SD card can be lost if that card
+fails or is formatted. Keep each device's backup clearly labeled.
+
+<img src="assets/restore-stock.png" alt="Restore Stock Miyoo Boot tool icon" width="96">
+
+If you want to undo the setup, **Tools → Restore Stock Miyoo Boot** uses your
+verified original backup. **Keep that backup even if everything works today—
+it is your way back if you need recovery later.**
+
+**Switching to another operating system?** It may work with the ButterflyOS
+preloader change still installed, but another OS may expect the original Miyoo
+preloader. We strongly recommend using **Tools → Restore Stock Miyoo Boot**
+before switching away from ButterflyOS, then following the new operating
+system's installation instructions.
+
 ButterflyOS supports the **Miyoo Flip V2 only**. Back up saves and other
 important files before installation or reflashing.
 
@@ -193,3 +229,26 @@ device recovery archive and separately back up all user files first. The SD-boot
 change stays in the device's internal preloader; do not reinstall it merely
 because you rewrote the OS card. Restore the correct device's recovery folder
 to the new boot partition as described in the installation guide.
+
+## Lid-closed shutdown
+
+Closing the lid turns off the display; the system continues running.
+In **System Settings → Hardware → Lid-Closed Shutdown**, choose Off (the default),
+15, 30, or 60 minutes. Reopening the lid resets the countdown.
+
+With **Save Game Before Lid Shutdown** off (the default), return to the
+menu before closing the lid. Running games and tools defer shutdown.
+
+Enable **Save Game Before Lid Shutdown** to let supported RetroArch games
+save their current position when the timer expires. ButterflyOS requests a
+fresh auto-save, verifies that the complete file was written, exits RetroArch
+normally, then uses normal system shutdown to save frontend metadata.
+This replaces the game's auto-save, keeps its previous file as
+`.state.auto.lid-backup`, and leaves numbered manual slots unchanged.
+Choose **Auto Save** in the Save State Manager to resume after booting.
+The backup is the previous auto-save, not an extra entry in that menu.
+
+If the emulator does not support this operation, the command connection fails,
+or a complete new save cannot be verified, the game stays running and shutdown
+is deferred. Other emulators and active tools also defer shutdown. Save-state
+creation remains subject to the core's support and RetroAchievements restrictions.
