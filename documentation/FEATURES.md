@@ -71,9 +71,11 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
   restores it without suspending the CPU, GPU, storage, networking, or game
 - Optional **System Settings → Hardware → Lid-Closed Shutdown** timer: Off
   (default), 15, 30, or 60 minutes. Opening the lid cancels the countdown;
-  changing the setting or rebooting starts a fresh countdown. RetroArch exits
-  normally before shutdown. Updates and other active games/tools delay shutdown
-  until they finish or are closed. Save your game before closing the lid.
+  changing the setting or rebooting starts a fresh countdown. The optional
+  **Save Game Before Lid Shutdown** setting verifies a fresh RetroArch auto-save
+  before normal exit and shutdown, backs up the previous auto-save and leaves
+  numbered slots unchanged. Both settings default to Off. Updates, failed saves
+  and unsupported active games/tools delay shutdown. Save in-game regularly.
 
 ## Setup and recovery
 
@@ -95,20 +97,20 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 - Save discovery on both SD cards; party preview and PC-box transfers
 - Same-generation local and same-Wi-Fi remote trade/copy for Gen I, II, and III
 - Gen I → II copies with Time Capsule conversion
-- Gen II → III one-way copies; the source is unchanged. The next build preserves
+- Gen II → III one-way copies; the source is unchanged. Version 1.0.3 preserves
   verified held-item equivalents; unmatched items are cleared on the copy
 - Local optional evolution prompts for supported trade evolutions, including
   eligible copies; remote evolution prompts are not yet implemented
 - ROM-derived, per-ROM cached sprites and supported name/detail lookup;
   Gen I/II sprites have a light backing for visibility
 - Backup copies retained before replacing selected original saves
-- Next build: a separate Stadium Gifts group with Amnesia Psyduck and eight
+- From v1.0.3: a separate Stadium Gifts group with Amnesia Psyduck and eight
   generated Gym Leader Castle gift equivalents
-- Next build: generated level-5 Mew, Surfing/Flying Pikachu, Dragon Rage Magikarp,
+- From v1.0.3: generated level-5 Mew, Surfing/Flying Pikachu, Dragon Rage Magikarp,
   and Pay Day Fearow/Rapidash gifts for verified
   English Red/Blue/Yellow ROM revisions, with PC-slot preview and backed-up Commit
 
-Next build: **Local transfer → Gen 2 → Crystal Events** enables or replays
+From v1.0.3: **Local transfer → Gen 2 → Crystal Events** enables or replays
 Crystal's native GS Ball/Celebi quest with a reviewed, backed-up Commit.
 Enable and Replay passed user testing on .17; the normal Kurt wait is retained.
 The Gen 2 menu also adds **Gen 2 Gifts** (Mew) and **Stadium 2 Gifts**
