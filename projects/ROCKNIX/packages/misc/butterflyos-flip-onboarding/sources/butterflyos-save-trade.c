@@ -105,6 +105,11 @@ static void print_gen1_details(const struct pksav_gen1_pc_pokemon* pokemon) {
            (unsigned) pokemon->level);
 }
 
+static bool gen2_pokemon_is_shiny(const struct pksav_gen2_pc_pokemon* pokemon) {
+    uint16_t dvs = pksav_bigendian16(pokemon->iv_data);
+    return (dvs & 0x0FFF) == 0x0AAA && (dvs & 0x2000) != 0;
+}
+
 static void print_gen2_details(const struct pksav_gen2_pc_pokemon* pokemon) {
     printf("\tmoves=%u,%u,%u,%u\theld=%u\tlevel=%u\n",
            (unsigned) pokemon->moves[0], (unsigned) pokemon->moves[1],
@@ -493,8 +498,10 @@ static int inspect_gen2_save(const char* path) {
         decoded_gen2_text(save.pokemon_storage.p_party->nicknames[slot],
                           PKSAV_GEN2_POKEMON_NICKNAME_LENGTH,
                           nickname, sizeof(nickname));
-        printf("party_record\t%u\t%u\t0\t%s\tno",
-               slot, (unsigned) pokemon->pc_data.species, nickname);
+        printf("party_record\t%u\t%u\t0\t%s\t%s",
+               slot, (unsigned) pokemon->pc_data.species, nickname,
+               gen2_pokemon_is_shiny(&pokemon->pc_data) ? "yes" : "no");
+        printf("\tegg=%s", save.pokemon_storage.p_party->species[slot] == 0xFD ? "yes" : "no");
         print_gen2_details(&pokemon->pc_data);
     }
     for (unsigned box = 0; box < PKSAV_GEN2_NUM_POKEMON_BOXES; ++box) {
@@ -509,9 +516,10 @@ static int inspect_gen2_save(const char* path) {
                               PKSAV_GEN2_POKEMON_NICKNAME_LENGTH,
                               nickname, sizeof(nickname));
             ++occupied;
-            printf("box_record\t%u\t%u\t%u\t0\t%s\tno",
+            printf("box_record\t%u\t%u\t%u\t0\t%s\t%s",
                    box, slot, (unsigned) current->entries[slot].species,
-                   nickname);
+                   nickname, gen2_pokemon_is_shiny(&current->entries[slot]) ? "yes" : "no");
+            printf("\tegg=%s", current->species[slot] == 0xFD ? "yes" : "no");
             print_gen2_details(&current->entries[slot]);
         }
     }
@@ -1129,6 +1137,9 @@ static int copy_gen2_to_gen3(const char* source_path, unsigned source_box_num,
     source_box = source.pokemon_storage.p_current_box;
     if (!gen2_box_slot_present(source_box, source_slot)) {
         fprintf(stderr, "error=empty-source-slot\n"); goto fail;
+    }
+    if (source_box->species[source_slot] == 0xFD) {
+        fprintf(stderr, "error=hatch-gen2-egg-before-gen3-transfer\n"); goto fail;
     }
     destination_pokemon = &destination.pokemon_storage.p_pc->boxes[destination_box_num]
                                .entries[destination_slot];

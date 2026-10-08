@@ -1,0 +1,37 @@
+--- a/es-app/src/guis/GuiSaveState.cpp
++++ b/es-app/src/guis/GuiSaveState.cpp
+@@ -10,7 +10,8 @@
+ 
+ #define WINDOW_HEIGHT Renderer::getScreenHeight() * 0.40f
+ 
+-static int slots = 6; // 5;
++// Wider tiles keep launch choices readable on the Flip screen.
++static int slots = 4;
+ 
+ GuiSaveState::GuiSaveState(Window* window, FileData* game, const std::function<void(SaveState* state)>& callback) :
+ 	GuiComponent(window), mGrid(nullptr), mBackground(window, ":/frame.png"),
+@@ -71,7 +72,7 @@
+ 		"  <fontSize>" + std::to_string(sh) + "</fontSize>"
+ 		"  <alignment>center</alignment>"
+ 		"  <singleLineScroll>false</singleLineScroll>"
+-		"  <size>1 0.30</size>"
++		"  <size>1 0.45</size>"
+ 		"</text>"
+ 		"<text name=\"gridtile:selected\">"
+ 		"  <color>" + Utils::String::toHexString(theme->Text.selectedColor) + "</color>"
+@@ -122,13 +123,13 @@
+ 		});
+ 
+ 
+-	mGrid->add(_("START NEW GAME"), ":/freeslot.svg", SaveStateItem(mRepository->getDefaultNewGameSaveState()));
++	mGrid->add(_("START GAME") + std::string("\r\n") + _("AUTO SAVE OFF"), ":/freeslot.svg", SaveStateItem(mRepository->getDefaultNewGameSaveState()));
+ 
+ 	if (mRepository->supportsAutoSave() && mGame->getCurrentGameSetting("autosave") == "1")
+ 	{
+ 		auto autoSave = std::find_if(states.cbegin(), states.cend(), [](SaveState* x) { return x->slot == -1; });
+ 		if (autoSave == states.cend())
+-			mGrid->add(_("START NEW AUTO SAVE"), ":/freeslot.svg", SaveStateItem(mRepository->getDefaultAutoSaveSaveState()));
++			mGrid->add(_("START GAME") + std::string("\r\n") + _("AUTO SAVE ON"), ":/freeslot.svg", SaveStateItem(mRepository->getDefaultAutoSaveSaveState()));
+ 	}
+ 
+ 	for (auto item : states)

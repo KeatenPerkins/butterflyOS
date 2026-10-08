@@ -1,0 +1,183 @@
+#!/usr/bin/python3
+# SPDX-License-Identifier: GPL-2.0-or-later
+"""Optional Flip lid timer. Never suspend or forcibly kill an application."""
+import array
+import fcntl
+import http.client
+import json
+import logging
+import os
+from pathlib import Path
+import socket
+import struct
+import time
+
+CONFIG = Path('/storage/.config/system/configs/system.cfg')
+KEY = 'system.lid.shutdown_minutes'
+UPDATE_LOCK = Path('/storage/.cache/butterflyos-update/update.lock')
+POLL_SECONDS = 5
+
+
+def read_minutes(path=CONFIG):
+    try:
+        value = '0'
+        for line in path.read_text().splitlines():
+            name, separator, setting = line.strip().partition('=')
+            if separator and name.strip() == KEY:
+                value = setting.strip()
+        return int(value) if value in ('0', '15', '30', '60') else 0
+    except OSError:
+        return 0
+
+
+class LidSensor:
+    def __init__(self):
+        self.fd = None
+
+    def closed(self):
+        # Retain the event descriptor so even a brief opening between polls
+        # cancels the timer. Also query the switch bitmap for the initial state.
+        try:
+            if self.fd is None:
+                for name in Path('/sys/class/input').glob('event*/device/name'):
+                    if name.read_text().strip() == 'gpio-keys-hall':
+                        self.fd = os.open(str(Path('/dev/input', name.parent.parent.name)),
+                                          os.O_RDONLY | os.O_NONBLOCK)
+                        break
+            if self.fd is None:
+                return None
+            opened = False
+            event = struct.Struct('@llHHi')  # native Linux input_event
+            while True:
+                try:
+                    events = os.read(self.fd, event.size * 64)
+                except BlockingIOError:
+                    break
+                if not events:
+                    raise OSError('Lid sensor disconnected')
+                for offset in range(0, len(events), event.size):
+                    _, _, kind, code, value = event.unpack_from(events, offset)
+                    if kind == 5 and code == 0 and value == 0:  # EV_SW/SW_LID
+                        opened = True
+            switches = array.array('I', [0])
+            fcntl.ioctl(self.fd, 0x8004451b, switches, True)  # EVIOCGSW(4)
+            return False if opened else bool(switches[0] & 1)
+        except (OSError, struct.error):
+            if self.fd is not None:
+                os.close(self.fd)
+                self.fd = None
+            return None  # Unknown sensor cancels countdown.
+
+
+class LidTimer:
+    def __init__(self):
+        self.minutes = 0
+        self.closed_since = None
+
+    def expired(self, closed, minutes, now):
+        if minutes != self.minutes:
+            self.closed_since = None
+            self.minutes = minutes
+        if closed is not True or not minutes:
+            self.closed_since = None
+            return False
+        if self.closed_since is None:
+            self.closed_since = now
+        return now - self.closed_since >= minutes * 60
+
+
+def update_busy(path=UPDATE_LOCK):
+    try:
+        with path.open('r') as lock:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return True
+        return False
+    except FileNotFoundError:
+        return False
+    except OSError:
+        return True  # Unknown update state: defer.
+
+
+def frontend_request(endpoint):
+    connection = http.client.HTTPConnection('127.0.0.1', 1234, timeout=2)
+    try:
+        connection.request('GET', endpoint)
+        response = connection.getresponse()
+        return response.status, response.read(65536)
+    finally:
+        connection.close()
+
+
+def retroarch_running():
+    for name in Path('/proc').glob('[0-9]*/comm'):
+        try:
+            if name.read_text().strip() in ('retroarch', 'retroarch32'):
+                return True
+        except OSError:
+            pass
+    return False
+
+
+class Shutdown:
+    def __init__(self):
+        self.quit_sent = False
+
+    def reset(self):
+        self.quit_sent = False
+
+    def attempt(self, still_due=lambda: True):
+        if update_busy():
+            return 'Waiting for system update'
+        try:
+            status, body = frontend_request('/runningGame')
+            # ES tracks launched tools as well as games. An unreachable frontend
+            # or unexpected reply must never fall back to a forced poweroff.
+            if status == 201 and json.loads(body).get('msg') == 'NO GAME RUNNING':
+                if retroarch_running():
+                    return 'Waiting for RetroArch to finish saving'
+                if not still_due():
+                    return 'Lid timer cancelled'
+                if update_busy():
+                    return 'Waiting for system update'
+                status, _ = frontend_request('/shutdown')
+                return 'Shutdown requested' if status == 200 else 'Shutdown request declined'
+            if status != 200:
+                return 'Waiting for frontend'
+            if not retroarch_running():
+                return 'Waiting for active game or tool to exit'
+            if not self.quit_sent:
+                with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as command:
+                    command.sendto(b'QUIT\n', ('127.0.0.1', 55355))
+                self.quit_sent = True
+            return 'Waiting for RetroArch to exit normally'
+        except (OSError, http.client.HTTPException, ValueError, AttributeError):
+            return 'Waiting for frontend'
+
+
+def main():
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    timer, shutdown, sensor = LidTimer(), Shutdown(), LidSensor()
+    last_message = None
+    requested = False
+    while True:
+        def still_due():
+            return timer.expired(sensor.closed(), read_minutes(), time.monotonic())
+
+        if still_due():
+            if not requested:
+                message = shutdown.attempt(still_due)
+                if message != last_message:
+                    logging.info(message)
+                    last_message = message
+                requested = message == 'Shutdown requested'
+        else:
+            shutdown.reset()
+            requested = False
+            last_message = None
+        time.sleep(POLL_SECONDS)
+
+
+if __name__ == '__main__':
+    main()

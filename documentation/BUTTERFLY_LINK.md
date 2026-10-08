@@ -81,9 +81,152 @@ Psyduck, Bulbasaur, Charmander, Squirtle, Hitmonlee, Hitmonchan, Eevee, Omanyte
 and Kabuto. These also arrive at level 5 with your trainer identity and
 ROM-derived starting moves; Psyduck additionally knows Amnesia. They do not
 reproduce Stadium distribution levels, original trainer metadata or all
-historical movesets, and do not mark Stadium challenges as completed. Gen II/III
-event features are not yet implemented.
+historical movesets, and do not mark Stadium challenges as completed.
 See the [event inventory and validation notes](BUTTERFLY_LINK_GEN1_EVENTS_PLAN.md).
+
+### Gen II event gifts (next build; unreleased)
+
+The **Local transfer → Gen 2** menu lists game saves first, then **Gen 2 Gifts**,
+**Stadium 2 Gifts**, **Crystal Events**, **Mystery Eggs** and **PCNY Gifts**. Gen 2 Gifts offers a generated level-5
+Mew with Pound. For Gold/Silver saves it also offers a level-5 Celebi with
+Leech Seed, Confusion, Heal Bell and Recover. Crystal retains its native
+Celebi quest rather than this boxed gift. Stadium 2 Gifts offers level-5 Farfetch'd with Baton Pass,
+Swords Dance, Agility and Slash holding Gold Berry, and Gligar with Earthquake,
+Poison Sting, Counter and Wing Attack holding MysteryBerry.
+
+**Mystery Eggs** offers fifteen actual egg recipes, beginning with AncientPower
+Bulbasaur, Crunch Charmander, Submission Totodile, Night Shade Hoothoot and Sing Pichu. Add one to
+a free PC slot, withdraw it and walk with it in your party to hatch it normally.
+The preview shows the hatchling. Hatch counters come from your ROM; DVs are
+random, including the normal shiny chance. Eggs are not registered in the
+Pokédex before hatching, and Blink requires hatching before transfer selection.
+The user confirmed all fifteen egg recipes work in-game in Crystal on .17. These are generated equivalents, rather than
+an emulation of the Japanese distribution hardware.
+The additions are Petal Dance Psyduck, Chikorita, Pichu, Cleffa, Igglybuff and
+Smoochum; Swift Cleffa; Belly Drum Wooper; Encore Phanpy; and Metronome Smoochum.
+Campaign repeats share one recipe; distinct special moves remain separate choices.
+See the [documented campaign recipes](https://bulbapedia.bulbagarden.net/wiki/List_of_Japanese_event_Pok%C3%A9mon_distributions_in_Generation_II).
+
+These are player-owned generated equivalents, not original distribution records.
+The hatched gifts use your trainer name/ID, random DVs, no stat experience,
+initial friendship and ROM-derived names, growth rates and move PP. Eggs use
+the native hatch counter in place of initial friendship. Only the qualified English
+retail Gold, Silver and Crystal revisions are accepted. No Stadium completion
+flags or story progress are changed.
+
+Exit the game, select the gift and a free PC box, review the Pokémon preview,
+then explicitly **Add Gift**. The writer appends to the next empty slot and
+refuses occupied/full boxes. Cancel leaves the original unchanged; Commit
+retains a verified original backup and refuses a save changed since preparation.
+Both SRAM box representations are updated when adding to the current box;
+native primary/backup checksums and gift Pokédex bits are maintained.
+
+Automated gift checks cover all fourteen boxes across all three games. The user
+confirmed all three gifts work in Crystal on .17. Gold/Silver have automated
+and disposable-save device coverage. The Celebi gift passed user testing in
+Gold on .17, including withdrawal and save/reload persistence; Silver Celebi
+and broader Gold/Silver gift gameplay still need qualification.
+
+### PCNY gifts (catalog expansion; unreleased)
+
+**Local transfer → Gen 2 → PCNY Gifts** now offers 104 actual eggs and 16 shiny adult gifts.
+The first batch includes:
+Zap Cannon Squirtle, Growth Eevee, Lovely Kiss Snorlax, Hydro Pump Dratini and
+Double-Edge Cyndaquil. Review the hatchling, choose a free PC slot and confirm
+Add Gift; withdraw and hatch in-game. These are player-owned generated
+special-move equivalents. They retain the user's preferred random DVs and
+natural shiny chance rather than recreating the historical machine's enhanced
+shiny odds. Specifically named shiny adult gifts are guaranteed shiny and use
+their documented levels, rather than being eggs. The documented PCNY recipes are implemented except the incomplete non-shiny
+Suicune entry; overlapping Mystery Egg recipes
+are already offered separately. The first fifteen PCNY eggs passed user testing in Crystal on .17, including
+hatching, special moves and save/reload. The second batch was:
+
+| Egg | Special move |
+| --- | --- |
+| Igglybuff | Mimic |
+| Elekid | Pursuit |
+| Magby | Faint Attack |
+| Tyrogue | Rage |
+| Sentret | Dizzy Punch |
+| Ledyba | Barrier |
+| Spinarak | Growth |
+| Chinchou | Light Screen |
+| Natu | Safeguard |
+| Marill | Dizzy Punch |
+
+The third batch adds ten recipes, all confirmed working by user testing in
+Crystal on .17:
+
+| Egg | Special move |
+| --- | --- |
+| Pichu | Dizzy Punch |
+| Pichu | Scary Face |
+| Cleffa | Scary Face |
+| Igglybuff | Scary Face |
+| Marill | Hydro Pump |
+| Marill | Scary Face |
+| Sudowoodo | Substitute |
+| Hoppip | Agility |
+| Wooper | Scary Face |
+| Elekid | Dizzy Punch |
+
+The remaining documented catalog adds 79 eggs and 16 shiny adults, all
+confirmed working by user testing in Crystal on .17. Choose **Special-Move Eggs** (104 recipes) or **Shiny Adult Gifts**
+(16 recipes). New eggs append after the first 25 within the egg list. See the [remaining-gift test checklist](BUTTERFLY_LINK_GEN2_PCNY_CHECKLIST.md)
+for every addition, levels, testing steps and catalog coverage.
+
+[Historical recipe catalog](https://bulbapedia.bulbagarden.net/wiki/List_of_PCNY_event_Pok%C3%A9mon_distributions_in_Generation_II).
+
+### Crystal Odd Egg replay (unreleased)
+
+Use **Local transfer → Gen 2 → Crystal Events → Odd Egg**. If you have not
+received the Odd Egg, Blink reports that it is already available and makes no
+save changes. Otherwise review and confirm Replay, then load the ordinary
+in-game save and speak to the Day-Care Man **inside** the Day Care on Route 34,
+south of Goldenrod, with a free party slot. Save states can restore the old flag.
+If the man is outside with an ordinary breeding egg, collect that egg first.
+The tool refuses replay while that breeding egg is waiting.
+
+Replay clears only the received-event bit and updates its backup and checksums.
+Existing eggs, Pokemon, items, breeding progress and Celebi quest state remain
+unchanged. The qualified retail ROM supplies the dialogue, egg choice, Dizzy
+Punch movesets, shiny odds and hatching. No donor egg records are bundled.
+Automated preservation and protected-Commit checks pass. Native Odd Egg
+delivery and replay also passed user testing on .17.
+[Native Day-Care script](https://github.com/pret/pokecrystal/blob/master/maps/DayCare.asm).
+
+### Crystal Celebi quest (next build; unreleased)
+
+Open **Local transfer → Gen 2 → Crystal Events**. The development version offers
+**Enable** for a quest that has not started and **Replay** to restart its native
+GS Ball delivery, Kurt and shrine sequence. Replay keeps existing Pokémon,
+including a previously caught Celebi. This accepts only the qualified English
+retail Crystal revision; Gold, Silver and modified ROMs are refused.
+
+Save outside Goldenrod Pokémon Center, Azalea Town, Kurt's house and Ilex Forest,
+then exit the game. Finish and collect any apricorn work first. Choose the save
+and action, review the current quest state, then explicitly **Commit**. Cancel
+leaves the original unchanged. Commit retains an original backup and refuses
+a save that changed since preparation.
+
+Load the ordinary in-game save rather than a save state. Enter Goldenrod Pokémon
+Center and leave through its front door to receive the GS Ball. Take it to Kurt
+and follow the game's normal timing and quest progression to Ilex Forest.
+The tool changes verified quest state; the game supplies the dialogue,
+animation and encounter. It bundles no ROM content or Pokémon records.
+
+Enable and Replay both passed user testing on .17: Goldenrod delivery, Kurt
+progression and the shrine encounter. Kurt's waiting timer was cleared manually
+for testing; the normal next-day wait is retained in the tool. Automated save,
+backup, cancellation and preservation tests also pass. All fifteen documented Japanese Mystery Egg species/moveset recipes are
+implemented and passed user testing in Crystal on .17. Odd Egg delivery and
+replay also passed user testing. Gold/Silver Celebi and the documented PCNY gifts
+are implemented; Celebi passed the user
+PC/save/reload test in Gold on .17. All 104 PCNY eggs, 16 shiny adult gifts and the split egg/adult menu passed
+user testing in Crystal on .17. Silver Celebi still needs gameplay qualification. Non-shiny Suicune lacks documented recipe data; Gen III events
+are not yet implemented.
+See [Gen II event scope and validation](BUTTERFLY_LINK_GEN2_EVENTS_PLAN.md).
 
 ## Opening Butterfly Link
 

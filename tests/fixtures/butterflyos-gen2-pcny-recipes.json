@@ -1,0 +1,1997 @@
+[
+  {
+    "preset": "shiny-venusaur",
+    "species": 3,
+    "moves": [
+      77,
+      79,
+      75,
+      230
+    ],
+    "pp": [
+      35,
+      15,
+      25,
+      20
+    ],
+    "level": 40,
+    "experience": 56660,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-charizard",
+    "species": 6,
+    "moves": [
+      99,
+      184,
+      53,
+      17
+    ],
+    "pp": [
+      20,
+      10,
+      15,
+      35
+    ],
+    "level": 40,
+    "experience": 56660,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-blastoise",
+    "species": 9,
+    "moves": [
+      55,
+      44,
+      229,
+      182
+    ],
+    "pp": [
+      25,
+      25,
+      40,
+      10
+    ],
+    "level": 40,
+    "experience": 56660,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "sonicboom-spearow-egg",
+    "species": 21,
+    "moves": [
+      64,
+      45,
+      49,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 15,
+    "shiny": false
+  },
+  {
+    "preset": "lovely-kiss-nidoran-female-egg",
+    "species": 29,
+    "moves": [
+      45,
+      33,
+      142,
+      0
+    ],
+    "pp": [
+      40,
+      35,
+      10,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "moonlight-nidoran-female-egg",
+    "species": 29,
+    "moves": [
+      45,
+      33,
+      236,
+      0
+    ],
+    "pp": [
+      40,
+      35,
+      5,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "sweet-kiss-nidoran-female-egg",
+    "species": 29,
+    "moves": [
+      45,
+      33,
+      186,
+      0
+    ],
+    "pp": [
+      40,
+      35,
+      10,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "lovely-kiss-nidoran-male-egg",
+    "species": 32,
+    "moves": [
+      43,
+      33,
+      142,
+      0
+    ],
+    "pp": [
+      30,
+      35,
+      10,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "morning-sun-nidoran-male-egg",
+    "species": 32,
+    "moves": [
+      43,
+      33,
+      234,
+      0
+    ],
+    "pp": [
+      30,
+      35,
+      5,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "sweet-kiss-nidoran-male-egg",
+    "species": 32,
+    "moves": [
+      43,
+      33,
+      186,
+      0
+    ],
+    "pp": [
+      30,
+      35,
+      10,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "flail-zubat-egg",
+    "species": 41,
+    "moves": [
+      141,
+      175,
+      0,
+      0
+    ],
+    "pp": [
+      15,
+      15,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 15,
+    "shiny": false
+  },
+  {
+    "preset": "leech-seed-oddish-egg",
+    "species": 43,
+    "moves": [
+      71,
+      73,
+      0,
+      0
+    ],
+    "pp": [
+      20,
+      10,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "synthesis-paras-egg",
+    "species": 46,
+    "moves": [
+      10,
+      235,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      5,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "tri-attack-psyduck-egg",
+    "species": 54,
+    "moves": [
+      10,
+      39,
+      161,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      10,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "growth-poliwag-egg",
+    "species": 60,
+    "moves": [
+      145,
+      74,
+      0,
+      0
+    ],
+    "pp": [
+      30,
+      40,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "lovely-kiss-poliwag-egg",
+    "species": 60,
+    "moves": [
+      145,
+      142,
+      0,
+      0
+    ],
+    "pp": [
+      30,
+      10,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "sweet-kiss-poliwag-egg",
+    "species": 60,
+    "moves": [
+      145,
+      186,
+      0,
+      0
+    ],
+    "pp": [
+      30,
+      10,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "foresight-abra-egg",
+    "species": 63,
+    "moves": [
+      100,
+      193,
+      0,
+      0
+    ],
+    "pp": [
+      20,
+      40,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "false-swipe-machop-egg",
+    "species": 66,
+    "moves": [
+      67,
+      43,
+      206,
+      0
+    ],
+    "pp": [
+      20,
+      30,
+      40,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "thrash-machop-egg",
+    "species": 66,
+    "moves": [
+      67,
+      43,
+      37,
+      0
+    ],
+    "pp": [
+      20,
+      30,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "lovely-kiss-bellsprout-egg",
+    "species": 69,
+    "moves": [
+      22,
+      142,
+      0,
+      0
+    ],
+    "pp": [
+      10,
+      10,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "sweet-kiss-bellsprout-egg",
+    "species": 69,
+    "moves": [
+      22,
+      186,
+      0,
+      0
+    ],
+    "pp": [
+      10,
+      10,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "confuse-ray-tentacool-egg",
+    "species": 72,
+    "moves": [
+      40,
+      109,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      10,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "rapid-spin-geodude-egg",
+    "species": 74,
+    "moves": [
+      33,
+      229,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 15,
+    "shiny": false
+  },
+  {
+    "preset": "low-kick-ponyta-egg",
+    "species": 77,
+    "moves": [
+      33,
+      45,
+      67,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "agility-magnemite-egg",
+    "species": 81,
+    "moves": [
+      33,
+      97,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "fury-cutter-farfetchd-egg",
+    "species": 83,
+    "moves": [
+      64,
+      210,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      20,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "low-kick-doduo-egg",
+    "species": 84,
+    "moves": [
+      64,
+      45,
+      67,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "flail-seel-egg",
+    "species": 86,
+    "moves": [
+      29,
+      45,
+      175,
+      0
+    ],
+    "pp": [
+      15,
+      40,
+      15,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "sharpen-onix-egg",
+    "species": 95,
+    "moves": [
+      33,
+      103,
+      159,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      30,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 25,
+    "shiny": false
+  },
+  {
+    "preset": "amnesia-drowzee-egg",
+    "species": 96,
+    "moves": [
+      1,
+      95,
+      133,
+      0
+    ],
+    "pp": [
+      35,
+      20,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "metal-claw-krabby-egg",
+    "species": 98,
+    "moves": [
+      145,
+      43,
+      232,
+      0
+    ],
+    "pp": [
+      30,
+      30,
+      35,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "agility-voltorb-egg",
+    "species": 100,
+    "moves": [
+      33,
+      97,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "sweet-scent-exeggcute-egg",
+    "species": 102,
+    "moves": [
+      140,
+      95,
+      230,
+      0
+    ],
+    "pp": [
+      20,
+      20,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "fury-attack-cubone-egg",
+    "species": 104,
+    "moves": [
+      45,
+      39,
+      31,
+      0
+    ],
+    "pp": [
+      40,
+      30,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "doubleslap-lickitung-egg",
+    "species": 108,
+    "moves": [
+      122,
+      3,
+      0,
+      0
+    ],
+    "pp": [
+      30,
+      10,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "sweet-scent-chansey-egg",
+    "species": 113,
+    "moves": [
+      1,
+      230,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      20,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 100,
+    "egg": true,
+    "hatch_cycles": 40,
+    "shiny": false
+  },
+  {
+    "preset": "synthesis-tangela-egg",
+    "species": 114,
+    "moves": [
+      132,
+      79,
+      235,
+      0
+    ],
+    "pp": [
+      35,
+      15,
+      5,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "faint-attack-kangaskhan-egg",
+    "species": 115,
+    "moves": [
+      4,
+      185,
+      0,
+      0
+    ],
+    "pp": [
+      15,
+      20,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "haze-horsea-egg",
+    "species": 116,
+    "moves": [
+      145,
+      114,
+      0,
+      0
+    ],
+    "pp": [
+      30,
+      30,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "swords-dance-goldeen-egg",
+    "species": 118,
+    "moves": [
+      64,
+      39,
+      14,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      30,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "twister-staryu-egg",
+    "species": 120,
+    "moves": [
+      33,
+      106,
+      239,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "mind-reader-mr-mime-egg",
+    "species": 122,
+    "moves": [
+      112,
+      170,
+      0,
+      0
+    ],
+    "pp": [
+      30,
+      5,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 25,
+    "shiny": false
+  },
+  {
+    "preset": "sonicboom-scyther-egg",
+    "species": 123,
+    "moves": [
+      98,
+      43,
+      49,
+      0
+    ],
+    "pp": [
+      30,
+      30,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 25,
+    "shiny": false
+  },
+  {
+    "preset": "rock-throw-pinsir-egg",
+    "species": 127,
+    "moves": [
+      11,
+      88,
+      0,
+      0
+    ],
+    "pp": [
+      30,
+      15,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 25,
+    "shiny": false
+  },
+  {
+    "preset": "quick-attack-tauros-egg",
+    "species": 128,
+    "moves": [
+      33,
+      39,
+      98,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      30,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "bubble-magikarp-egg",
+    "species": 129,
+    "moves": [
+      150,
+      145,
+      0,
+      0
+    ],
+    "pp": [
+      40,
+      30,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 5,
+    "shiny": false
+  },
+  {
+    "preset": "reversal-magikarp-egg",
+    "species": 129,
+    "moves": [
+      150,
+      179,
+      0,
+      0
+    ],
+    "pp": [
+      40,
+      15,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 5,
+    "shiny": false
+  },
+  {
+    "preset": "bite-lapras-egg",
+    "species": 131,
+    "moves": [
+      55,
+      45,
+      47,
+      44
+    ],
+    "pp": [
+      25,
+      40,
+      15,
+      25
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 40,
+    "shiny": false
+  },
+  {
+    "preset": "future-sight-lapras-egg",
+    "species": 131,
+    "moves": [
+      55,
+      45,
+      47,
+      248
+    ],
+    "pp": [
+      25,
+      40,
+      15,
+      15
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 40,
+    "shiny": false
+  },
+  {
+    "preset": "barrier-porygon-egg",
+    "species": 137,
+    "moves": [
+      33,
+      160,
+      176,
+      112
+    ],
+    "pp": [
+      35,
+      30,
+      30,
+      30
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "rock-throw-omanyte-egg",
+    "species": 138,
+    "moves": [
+      132,
+      110,
+      88,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      15,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 30,
+    "shiny": false
+  },
+  {
+    "preset": "rock-throw-kabuto-egg",
+    "species": 140,
+    "moves": [
+      10,
+      106,
+      88,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      15,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 30,
+    "shiny": false
+  },
+  {
+    "preset": "rock-throw-aerodactyl-egg",
+    "species": 142,
+    "moves": [
+      17,
+      88,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      15,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 35,
+    "shiny": false
+  },
+  {
+    "preset": "splash-snorlax-egg",
+    "species": 143,
+    "moves": [
+      33,
+      150,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 40,
+    "shiny": false
+  },
+  {
+    "preset": "sweet-kiss-snorlax-egg",
+    "species": 143,
+    "moves": [
+      33,
+      186,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      10,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 40,
+    "shiny": false
+  },
+  {
+    "preset": "shiny-articuno",
+    "species": 144,
+    "moves": [
+      54,
+      97,
+      170,
+      58
+    ],
+    "pp": [
+      30,
+      30,
+      5,
+      10
+    ],
+    "level": 50,
+    "experience": 156250,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-zapdos",
+    "species": 145,
+    "moves": [
+      86,
+      97,
+      197,
+      65
+    ],
+    "pp": [
+      20,
+      30,
+      5,
+      20
+    ],
+    "level": 50,
+    "experience": 156250,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-moltres",
+    "species": 146,
+    "moves": [
+      83,
+      97,
+      203,
+      53
+    ],
+    "pp": [
+      15,
+      30,
+      10,
+      15
+    ],
+    "level": 50,
+    "experience": 156250,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-mewtwo",
+    "species": 150,
+    "moves": [
+      244,
+      248,
+      54,
+      94
+    ],
+    "pp": [
+      10,
+      15,
+      30,
+      10
+    ],
+    "level": 70,
+    "experience": 428750,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-mew",
+    "species": 151,
+    "moves": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      0,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-meganium",
+    "species": 154,
+    "moves": [
+      115,
+      77,
+      235,
+      34
+    ],
+    "pp": [
+      20,
+      35,
+      5,
+      15
+    ],
+    "level": 40,
+    "experience": 56660,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-typhlosion",
+    "species": 157,
+    "moves": [
+      108,
+      52,
+      98,
+      172
+    ],
+    "pp": [
+      20,
+      25,
+      30,
+      25
+    ],
+    "level": 40,
+    "experience": 56660,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-feraligatr",
+    "species": 160,
+    "moves": [
+      55,
+      44,
+      184,
+      163
+    ],
+    "pp": [
+      25,
+      25,
+      10,
+      20
+    ],
+    "level": 40,
+    "experience": 56660,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "mimic-aipom-egg",
+    "species": 190,
+    "moves": [
+      10,
+      39,
+      102,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      10,
+      0
+    ],
+    "level": 5,
+    "experience": 100,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "splash-sunkern-egg",
+    "species": 191,
+    "moves": [
+      71,
+      74,
+      150,
+      0
+    ],
+    "pp": [
+      20,
+      40,
+      40,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "steel-wing-yanma-egg",
+    "species": 193,
+    "moves": [
+      33,
+      193,
+      211,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      25,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "sweet-kiss-yanma-egg",
+    "species": 193,
+    "moves": [
+      33,
+      193,
+      186,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      10,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "beat-up-murkrow-egg",
+    "species": 198,
+    "moves": [
+      64,
+      251,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      10,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "hypnosis-misdreavus-egg",
+    "species": 200,
+    "moves": [
+      45,
+      149,
+      95,
+      0
+    ],
+    "pp": [
+      40,
+      15,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 100,
+    "egg": true,
+    "hatch_cycles": 25,
+    "shiny": false
+  },
+  {
+    "preset": "mimic-wobbuffet-egg",
+    "species": 202,
+    "moves": [
+      243,
+      219,
+      194,
+      102
+    ],
+    "pp": [
+      20,
+      25,
+      5,
+      10
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "substitute-pineco-egg",
+    "species": 204,
+    "moves": [
+      33,
+      182,
+      164,
+      0
+    ],
+    "pp": [
+      35,
+      10,
+      10,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "fury-attack-dunsparce-egg",
+    "species": 206,
+    "moves": [
+      99,
+      111,
+      31,
+      0
+    ],
+    "pp": [
+      20,
+      40,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "horn-drill-dunsparce-egg",
+    "species": 206,
+    "moves": [
+      99,
+      111,
+      32,
+      0
+    ],
+    "pp": [
+      20,
+      40,
+      5,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "lovely-kiss-snubbull-egg",
+    "species": 209,
+    "moves": [
+      33,
+      184,
+      39,
+      142
+    ],
+    "pp": [
+      35,
+      10,
+      30,
+      10
+    ],
+    "level": 5,
+    "experience": 100,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "double-edge-qwilfish-egg",
+    "species": 211,
+    "moves": [
+      33,
+      40,
+      38,
+      0
+    ],
+    "pp": [
+      35,
+      35,
+      15,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "seismic-toss-heracross-egg",
+    "species": 214,
+    "moves": [
+      33,
+      43,
+      69,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 25,
+    "shiny": false
+  },
+  {
+    "preset": "moonlight-sneasel-egg",
+    "species": 215,
+    "moves": [
+      10,
+      43,
+      236,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      5,
+      0
+    ],
+    "level": 5,
+    "experience": 135,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "sweet-scent-teddiursa-egg",
+    "species": 216,
+    "moves": [
+      10,
+      43,
+      230,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "whirlwind-swinub-egg",
+    "species": 220,
+    "moves": [
+      33,
+      18,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      20,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "amnesia-remoraid-egg",
+    "species": 223,
+    "moves": [
+      55,
+      133,
+      0,
+      0
+    ],
+    "pp": [
+      25,
+      20,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "mist-remoraid-egg",
+    "species": 223,
+    "moves": [
+      55,
+      54,
+      0,
+      0
+    ],
+    "pp": [
+      25,
+      30,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "pay-day-delibird-egg",
+    "species": 225,
+    "moves": [
+      217,
+      6,
+      0,
+      0
+    ],
+    "pp": [
+      15,
+      20,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 100,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "spikes-delibird-egg",
+    "species": 225,
+    "moves": [
+      217,
+      191,
+      0,
+      0
+    ],
+    "pp": [
+      15,
+      20,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 100,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "gust-mantine-egg",
+    "species": 226,
+    "moves": [
+      33,
+      145,
+      16,
+      0
+    ],
+    "pp": [
+      35,
+      30,
+      35,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 25,
+    "shiny": false
+  },
+  {
+    "preset": "fury-cutter-skarmory-egg",
+    "species": 227,
+    "moves": [
+      43,
+      64,
+      210,
+      0
+    ],
+    "pp": [
+      30,
+      35,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 25,
+    "shiny": false
+  },
+  {
+    "preset": "absorb-phanpy-egg",
+    "species": 231,
+    "moves": [
+      33,
+      45,
+      71,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 125,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "safeguard-stantler-egg",
+    "species": 234,
+    "moves": [
+      33,
+      219,
+      0,
+      0
+    ],
+    "pp": [
+      35,
+      25,
+      0,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "mega-kick-miltank-egg",
+    "species": 241,
+    "moves": [
+      33,
+      45,
+      25,
+      0
+    ],
+    "pp": [
+      35,
+      40,
+      5,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 20,
+    "shiny": false
+  },
+  {
+    "preset": "shiny-raikou",
+    "species": 243,
+    "moves": [
+      43,
+      84,
+      46,
+      98
+    ],
+    "pp": [
+      30,
+      30,
+      20,
+      30
+    ],
+    "level": 40,
+    "experience": 80000,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-entei",
+    "species": 244,
+    "moves": [
+      43,
+      52,
+      46,
+      83
+    ],
+    "pp": [
+      30,
+      25,
+      20,
+      15
+    ],
+    "level": 40,
+    "experience": 80000,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-suicune",
+    "species": 245,
+    "moves": [
+      43,
+      55,
+      46,
+      16
+    ],
+    "pp": [
+      30,
+      25,
+      20,
+      35
+    ],
+    "level": 40,
+    "experience": 80000,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "rage-larvitar-egg",
+    "species": 246,
+    "moves": [
+      44,
+      43,
+      99,
+      0
+    ],
+    "pp": [
+      25,
+      30,
+      20,
+      0
+    ],
+    "level": 5,
+    "experience": 156,
+    "egg": true,
+    "hatch_cycles": 40,
+    "shiny": false
+  },
+  {
+    "preset": "shiny-lugia",
+    "species": 249,
+    "moves": [
+      177,
+      219,
+      16,
+      105
+    ],
+    "pp": [
+      5,
+      25,
+      35,
+      20
+    ],
+    "level": 40,
+    "experience": 80000,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  },
+  {
+    "preset": "shiny-ho-oh",
+    "species": 250,
+    "moves": [
+      221,
+      219,
+      16,
+      105
+    ],
+    "pp": [
+      5,
+      25,
+      35,
+      20
+    ],
+    "level": 40,
+    "experience": 80000,
+    "egg": false,
+    "hatch_cycles": null,
+    "shiny": true
+  }
+]
