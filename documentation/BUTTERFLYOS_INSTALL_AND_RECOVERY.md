@@ -1,5 +1,41 @@
 # ButterflyOS installation and recovery
 
+**ATTENTION**
+
+Your Miyoo Flip V2 comes with Miyoo's original operating system installed inside the
+console. A small startup program, called the **bootloader** (or **preloader**),
+tells it where to find the system when you turn it on.
+
+To let it start ButterflyOS from an SD card, ButterflyOS Setup makes a small
+change to that startup program. It keeps the original Miyoo operating system installed:
+with the ButterflyOS card removed, the console can still start Miyoo's operating system.
+
+**Before making that change, Setup saves a copy of your device's original
+preloader and a checksum.** The checksum lets the recovery tool check that the
+backup is intact. This backup is what lets you undo the change and return to
+stock Miyoo boot behavior. Installation and restoring the original preloader
+have been tested on real Flip V2 devices, using their verified backups.
+
+<img src="assets/export-recovery.png" alt="Export Recovery Backup tool icon" width="96">
+
+**Do not skip exporting your recovery backup.** After your first ButterflyOS
+boot, open **Tools → Export Recovery Backup** and follow the download steps
+below. Keep both the exported archive and its `.sha256` checksum on your PC or
+another safe drive. A copy left only on the SD card can be lost if that card
+fails or is formatted. Keep each device's backup clearly labeled.
+
+<img src="assets/restore-stock.png" alt="Restore Stock Miyoo Boot tool icon" width="96">
+
+If you want to undo the setup, **Tools → Restore Stock Miyoo Boot** uses your
+verified original backup. **Keep that backup even if everything works today—
+it is your way back if you need recovery later.**
+
+**Switching to another operating system?** It may work with the ButterflyOS
+preloader change still installed, but another OS may expect the original Miyoo
+preloader. We strongly recommend using **Tools → Restore Stock Miyoo Boot**
+before switching away from ButterflyOS, then following the new operating
+system's installation instructions.
+
 ButterflyOS aims to require no disassembly during normal installation or
 removal. Opening the Miyoo Flip and pressing its MASKROM button is a last-resort
 recovery method, not an onboarding step.
