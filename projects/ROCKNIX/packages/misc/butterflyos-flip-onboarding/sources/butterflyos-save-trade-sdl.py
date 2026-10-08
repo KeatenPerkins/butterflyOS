@@ -101,6 +101,151 @@ GEN1_GIFTS = [
     ("pay-day-fearow", "FEAROW", "Special move: Pay Day"),
     ("pay-day-rapidash", "RAPIDASH", "Special move: Pay Day; replaces Growl"),
 ]
+GEN2_GIFTS = [("mew", "MEW", "Generated level-5 gift; starting move: Pound"),
+              ("celebi", "CELEBI", "Gold/Silver only; level 5 with Leech Seed / Confusion / Heal Bell / Recover")]
+GEN2_MYSTERY_EGGS = [
+    ("ancientpower-bulbasaur-egg", "BULBASAUR EGG", "Hatches with AncientPower"),
+    ("crunch-charmander-egg", "CHARMANDER EGG", "Hatches with Crunch"),
+    ("submission-totodile-egg", "TOTODILE EGG", "Hatches with Submission"),
+    ("night-shade-hoothoot-egg", "HOOTHOOT EGG", "Hatches with Night Shade"),
+    ("sing-pichu-egg", "PICHU EGG", "Hatches with Sing"),
+    ("petal-dance-psyduck-egg", "PSYDUCK EGG", "Hatches with Petal Dance"),
+    ("petal-dance-chikorita-egg", "CHIKORITA EGG", "Hatches with Petal Dance"),
+    ("petal-dance-pichu-egg", "PICHU EGG", "Hatches with Petal Dance"),
+    ("petal-dance-cleffa-egg", "CLEFFA EGG", "Hatches with Petal Dance"),
+    ("petal-dance-igglybuff-egg", "IGGLYBUFF EGG", "Hatches with Petal Dance"),
+    ("petal-dance-smoochum-egg", "SMOOCHUM EGG", "Hatches with Petal Dance"),
+    ("swift-cleffa-egg", "CLEFFA EGG", "Hatches with Swift"),
+    ("belly-drum-wooper-egg", "WOOPER EGG", "Hatches with Belly Drum"),
+    ("encore-phanpy-egg", "PHANPY EGG", "Hatches with Encore"),
+    ("metronome-smoochum-egg", "SMOOCHUM EGG", "Hatches with Metronome"),
+]
+STADIUM2_GIFTS = [
+    ("baton-pass-farfetchd", "FARFETCH'D", "Baton Pass / Swords Dance / Agility / Slash; Gold Berry"),
+    ("earthquake-gligar", "GLIGAR", "Earthquake / Poison Sting / Counter / Wing Attack; MysteryBerry"),
+]
+GEN2_PCNY_GIFTS = [
+    ("zap-cannon-squirtle-egg", "SQUIRTLE EGG", "Hatches with Zap Cannon"),
+    ("growth-eevee-egg", "EEVEE EGG", "Hatches with Growth"),
+    ("lovely-kiss-snorlax-egg", "SNORLAX EGG", "Hatches with Lovely Kiss"),
+    ("hydro-pump-dratini-egg", "DRATINI EGG", "Hatches with Hydro Pump"),
+    ("double-edge-cyndaquil-egg", "CYNDAQUIL EGG", "Hatches with Double-Edge"),
+    ("mimic-igglybuff-egg", "IGGLYBUFF EGG", "Hatches with Mimic"),
+    ("pursuit-elekid-egg", "ELEKID EGG", "Hatches with Pursuit"),
+    ("faint-attack-magby-egg", "MAGBY EGG", "Hatches with Faint Attack"),
+    ("rage-tyrogue-egg", "TYROGUE EGG", "Hatches with Rage"),
+    ("dizzy-punch-sentret-egg", "SENTRET EGG", "Hatches with Dizzy Punch"),
+    ("barrier-ledyba-egg", "LEDYBA EGG", "Hatches with Barrier"),
+    ("growth-spinarak-egg", "SPINARAK EGG", "Hatches with Growth"),
+    ("light-screen-chinchou-egg", "CHINCHOU EGG", "Hatches with Light Screen"),
+    ("safeguard-natu-egg", "NATU EGG", "Hatches with Safeguard"),
+    ("dizzy-punch-marill-egg", "MARILL EGG", "Hatches with Dizzy Punch"),
+    ("dizzy-punch-pichu-egg", "PICHU EGG", "Hatches with Dizzy Punch"),
+    ("scary-face-pichu-egg", "PICHU EGG", "Hatches with Scary Face"),
+    ("scary-face-cleffa-egg", "CLEFFA EGG", "Hatches with Scary Face"),
+    ("scary-face-igglybuff-egg", "IGGLYBUFF EGG", "Hatches with Scary Face"),
+    ("hydro-pump-marill-egg", "MARILL EGG", "Hatches with Hydro Pump"),
+    ("scary-face-marill-egg", "MARILL EGG", "Hatches with Scary Face"),
+    ("substitute-sudowoodo-egg", "SUDOWOODO EGG", "Hatches with Substitute"),
+    ("agility-hoppip-egg", "HOPPIP EGG", "Hatches with Agility"),
+    ("scary-face-wooper-egg", "WOOPER EGG", "Hatches with Scary Face"),
+    ("dizzy-punch-elekid-egg", "ELEKID EGG", "Hatches with Dizzy Punch"),
+    ('sonicboom-spearow-egg', 'SPEAROW EGG', 'Hatches with SonicBoom'),
+    ('lovely-kiss-nidoran-female-egg', 'NIDORAN F EGG', 'Hatches with Lovely Kiss'),
+    ('moonlight-nidoran-female-egg', 'NIDORAN F EGG', 'Hatches with Moonlight'),
+    ('sweet-kiss-nidoran-female-egg', 'NIDORAN F EGG', 'Hatches with Sweet Kiss'),
+    ('lovely-kiss-nidoran-male-egg', 'NIDORAN M EGG', 'Hatches with Lovely Kiss'),
+    ('morning-sun-nidoran-male-egg', 'NIDORAN M EGG', 'Hatches with Morning Sun'),
+    ('sweet-kiss-nidoran-male-egg', 'NIDORAN M EGG', 'Hatches with Sweet Kiss'),
+    ('flail-zubat-egg', 'ZUBAT EGG', 'Hatches with Flail'),
+    ('leech-seed-oddish-egg', 'ODDISH EGG', 'Hatches with Leech Seed'),
+    ('synthesis-paras-egg', 'PARAS EGG', 'Hatches with Synthesis'),
+    ('tri-attack-psyduck-egg', 'PSYDUCK EGG', 'Hatches with Tri Attack'),
+    ('growth-poliwag-egg', 'POLIWAG EGG', 'Hatches with Growth'),
+    ('lovely-kiss-poliwag-egg', 'POLIWAG EGG', 'Hatches with Lovely Kiss'),
+    ('sweet-kiss-poliwag-egg', 'POLIWAG EGG', 'Hatches with Sweet Kiss'),
+    ('foresight-abra-egg', 'ABRA EGG', 'Hatches with Foresight'),
+    ('false-swipe-machop-egg', 'MACHOP EGG', 'Hatches with False Swipe'),
+    ('thrash-machop-egg', 'MACHOP EGG', 'Hatches with Thrash'),
+    ('lovely-kiss-bellsprout-egg', 'BELLSPROUT EGG', 'Hatches with Lovely Kiss'),
+    ('sweet-kiss-bellsprout-egg', 'BELLSPROUT EGG', 'Hatches with Sweet Kiss'),
+    ('confuse-ray-tentacool-egg', 'TENTACOOL EGG', 'Hatches with Confuse Ray'),
+    ('rapid-spin-geodude-egg', 'GEODUDE EGG', 'Hatches with Rapid Spin'),
+    ('low-kick-ponyta-egg', 'PONYTA EGG', 'Hatches with Low Kick'),
+    ('agility-magnemite-egg', 'MAGNEMITE EGG', 'Hatches with Agility'),
+    ('fury-cutter-farfetchd-egg', "FARFETCH'D EGG", 'Hatches with Fury Cutter'),
+    ('low-kick-doduo-egg', 'DODUO EGG', 'Hatches with Low Kick'),
+    ('flail-seel-egg', 'SEEL EGG', 'Hatches with Flail'),
+    ('sharpen-onix-egg', 'ONIX EGG', 'Hatches with Sharpen'),
+    ('amnesia-drowzee-egg', 'DROWZEE EGG', 'Hatches with Amnesia'),
+    ('metal-claw-krabby-egg', 'KRABBY EGG', 'Hatches with Metal Claw'),
+    ('agility-voltorb-egg', 'VOLTORB EGG', 'Hatches with Agility'),
+    ('sweet-scent-exeggcute-egg', 'EXEGGCUTE EGG', 'Hatches with Sweet Scent'),
+    ('fury-attack-cubone-egg', 'CUBONE EGG', 'Hatches with Fury Attack'),
+    ('doubleslap-lickitung-egg', 'LICKITUNG EGG', 'Hatches with DoubleSlap'),
+    ('sweet-scent-chansey-egg', 'CHANSEY EGG', 'Hatches with Sweet Scent'),
+    ('synthesis-tangela-egg', 'TANGELA EGG', 'Hatches with Synthesis'),
+    ('faint-attack-kangaskhan-egg', 'KANGASKHAN EGG', 'Hatches with Faint Attack'),
+    ('haze-horsea-egg', 'HORSEA EGG', 'Hatches with Haze'),
+    ('swords-dance-goldeen-egg', 'GOLDEEN EGG', 'Hatches with Swords Dance'),
+    ('twister-staryu-egg', 'STARYU EGG', 'Hatches with Twister'),
+    ('mind-reader-mr-mime-egg', 'MR. MIME EGG', 'Hatches with Mind Reader'),
+    ('sonicboom-scyther-egg', 'SCYTHER EGG', 'Hatches with SonicBoom'),
+    ('rock-throw-pinsir-egg', 'PINSIR EGG', 'Hatches with Rock Throw'),
+    ('quick-attack-tauros-egg', 'TAUROS EGG', 'Hatches with Quick Attack'),
+    ('bubble-magikarp-egg', 'MAGIKARP EGG', 'Hatches with Bubble'),
+    ('reversal-magikarp-egg', 'MAGIKARP EGG', 'Hatches with Reversal'),
+    ('bite-lapras-egg', 'LAPRAS EGG', 'Hatches with Bite'),
+    ('future-sight-lapras-egg', 'LAPRAS EGG', 'Hatches with Future Sight'),
+    ('barrier-porygon-egg', 'PORYGON EGG', 'Hatches with Barrier'),
+    ('rock-throw-omanyte-egg', 'OMANYTE EGG', 'Hatches with Rock Throw'),
+    ('rock-throw-kabuto-egg', 'KABUTO EGG', 'Hatches with Rock Throw'),
+    ('rock-throw-aerodactyl-egg', 'AERODACTYL EGG', 'Hatches with Rock Throw'),
+    ('splash-snorlax-egg', 'SNORLAX EGG', 'Hatches with Splash'),
+    ('sweet-kiss-snorlax-egg', 'SNORLAX EGG', 'Hatches with Sweet Kiss'),
+    ('mimic-aipom-egg', 'AIPOM EGG', 'Hatches with Mimic'),
+    ('splash-sunkern-egg', 'SUNKERN EGG', 'Hatches with Splash'),
+    ('steel-wing-yanma-egg', 'YANMA EGG', 'Hatches with Steel Wing'),
+    ('sweet-kiss-yanma-egg', 'YANMA EGG', 'Hatches with Sweet Kiss'),
+    ('beat-up-murkrow-egg', 'MURKROW EGG', 'Hatches with Beat Up'),
+    ('hypnosis-misdreavus-egg', 'MISDREAVUS EGG', 'Hatches with Hypnosis'),
+    ('mimic-wobbuffet-egg', 'WOBBUFFET EGG', 'Hatches with Mimic'),
+    ('substitute-pineco-egg', 'PINECO EGG', 'Hatches with Substitute'),
+    ('fury-attack-dunsparce-egg', 'DUNSPARCE EGG', 'Hatches with Fury Attack'),
+    ('horn-drill-dunsparce-egg', 'DUNSPARCE EGG', 'Hatches with Horn Drill'),
+    ('lovely-kiss-snubbull-egg', 'SNUBBULL EGG', 'Hatches with Lovely Kiss'),
+    ('double-edge-qwilfish-egg', 'QWILFISH EGG', 'Hatches with Double-Edge'),
+    ('seismic-toss-heracross-egg', 'HERACROSS EGG', 'Hatches with Seismic Toss'),
+    ('moonlight-sneasel-egg', 'SNEASEL EGG', 'Hatches with Moonlight'),
+    ('sweet-scent-teddiursa-egg', 'TEDDIURSA EGG', 'Hatches with Sweet Scent'),
+    ('whirlwind-swinub-egg', 'SWINUB EGG', 'Hatches with Whirlwind'),
+    ('amnesia-remoraid-egg', 'REMORAID EGG', 'Hatches with Amnesia'),
+    ('mist-remoraid-egg', 'REMORAID EGG', 'Hatches with Mist'),
+    ('pay-day-delibird-egg', 'DELIBIRD EGG', 'Hatches with Pay Day'),
+    ('spikes-delibird-egg', 'DELIBIRD EGG', 'Hatches with Spikes'),
+    ('gust-mantine-egg', 'MANTINE EGG', 'Hatches with Gust'),
+    ('fury-cutter-skarmory-egg', 'SKARMORY EGG', 'Hatches with Fury Cutter'),
+    ('absorb-phanpy-egg', 'PHANPY EGG', 'Hatches with Absorb'),
+    ('safeguard-stantler-egg', 'STANTLER EGG', 'Hatches with Safeguard'),
+    ('mega-kick-miltank-egg', 'MILTANK EGG', 'Hatches with Mega Kick'),
+    ('rage-larvitar-egg', 'LARVITAR EGG', 'Hatches with Rage'),
+    ('shiny-venusaur', 'SHINY VENUSAUR', 'Shiny level-40 gift; not an egg'),
+    ('shiny-charizard', 'SHINY CHARIZARD', 'Shiny level-40 gift; not an egg'),
+    ('shiny-blastoise', 'SHINY BLASTOISE', 'Shiny level-40 gift; not an egg'),
+    ('shiny-articuno', 'SHINY ARTICUNO', 'Shiny level-50 gift; not an egg'),
+    ('shiny-zapdos', 'SHINY ZAPDOS', 'Shiny level-50 gift; not an egg'),
+    ('shiny-moltres', 'SHINY MOLTRES', 'Shiny level-50 gift; not an egg'),
+    ('shiny-mewtwo', 'SHINY MEWTWO', 'Shiny level-70 gift; not an egg'),
+    ('shiny-mew', 'SHINY MEW', 'Shiny level-5 gift; not an egg'),
+    ('shiny-meganium', 'SHINY MEGANIUM', 'Shiny level-40 gift; not an egg'),
+    ('shiny-typhlosion', 'SHINY TYPHLOSION', 'Shiny level-40 gift; not an egg'),
+    ('shiny-feraligatr', 'SHINY FERALIGATR', 'Shiny level-40 gift; not an egg'),
+    ('shiny-raikou', 'SHINY RAIKOU', 'Shiny level-40 gift; not an egg'),
+    ('shiny-entei', 'SHINY ENTEI', 'Shiny level-40 gift; not an egg'),
+    ('shiny-suicune', 'SHINY SUICUNE', 'Shiny level-40 gift; not an egg'),
+    ('shiny-lugia', 'SHINY LUGIA', 'Shiny level-40 gift; not an egg'),
+    ('shiny-ho-oh', 'SHINY HO-OH', 'Shiny level-40 gift; not an egg'),
+]
 STADIUM_GIFTS = [
     ("amnesia-psyduck", "AMNESIA PSYDUCK", "Special move: Amnesia"),
     ("stadium-bulbasaur", "BULBASAUR", "Gym Leader Castle gift equivalent"),
@@ -1199,7 +1344,7 @@ def _record_from_columns(where: str, box: Optional[int], slot: int, species: int
     record = {"where": where, "slot": slot, "species": species,
               "name": nickname, "shiny": len(columns) > 5 and columns[5].lower() == "yes",
               "moves": moves, "held": held, "level": level,
-              "nature": extra.get("nature", "")}
+              "nature": extra.get("nature", ""), "egg": extra.get("egg") == "yes"}
     if box is not None:
         record["box"] = box
     return record
@@ -1723,6 +1868,9 @@ def choose_record(frontend: SDLFrontEnd, title: str,
         elif key in (KEY_DOWN, ord("j")):
             selected = (selected + 1) % len(records)
         elif key in (KEY_RETURN, KEY_A, ord("A"), KEY_CONFIRM, ord("Z")):
+            if record.get("egg"):
+                notice(frontend, "HATCH THE EGG FIRST", "Withdraw this egg and hatch it in-game before selecting it for a transfer.")
+                continue
             return record
 
 
@@ -2059,7 +2207,7 @@ def commit_copy(session: str) -> tuple[bool, str]:
             with open(fingerprint, encoding="utf-8") as handle:
                 expected_original = handle.read().strip()
             if _file_digest(destination) != expected_original:
-                return False, "The destination save changed after preparation. Prepare the gift again."
+                return False, "The destination save changed after preparation. Prepare the operation again."
         output = next(os.path.join(session, item) for item in os.listdir(session)
                       if item.startswith("destination-") and item != "destination-original")
         backup = os.path.join(session, "original-destination-backup")
@@ -2107,35 +2255,87 @@ def prepare_gen1_gift(destination: tuple[str, int, int], rom: str,
         return None, str(error)
 
 
+def prepare_gen2_gift(destination: tuple[str, int, int], rom: str,
+                      preset: str) -> tuple[Optional[str], str]:
+    path, box, slot = destination
+    session = new_session()
+    try:
+        original_hash = _file_digest(path)
+        output = os.path.join(session, "destination-" + os.path.basename(path))
+        result = subprocess.run(["python3", "/usr/bin/butterflyos-gen2-gift.py",
+                                 "--save", path, "--rom", rom, "--preset", preset,
+                                 "--box", str(box), "--slot", str(slot), "--output", output],
+                                text=True, capture_output=True)
+        if result.returncode:
+            raise ValueError(result.stderr.strip())
+        metadata = json.loads(result.stdout)
+        if _file_digest(path) != original_hash:
+            raise ValueError("The save changed during preparation. Exit the game and try again.")
+        write_session_value(session, "destination-original", path)
+        write_session_value(session, "original-destination-sha256", original_hash)
+        write_session_value(session, "state", "READY")
+        return session, metadata["nickname"]
+    except (OSError, ValueError, KeyError) as error:
+        shutil.rmtree(session, ignore_errors=True)
+        return None, str(error)
+
+
 def gen1_gift_workflow(frontend: SDLFrontEnd, stadium: bool = False) -> None:
-    gifts = STADIUM_GIFTS if stadium else GEN1_GIFTS
-    notice(frontend, "STADIUM GIFTS" if stadium else "GEN 1 EVENT GIFTS",
+    generated_gift_workflow(frontend, 1, stadium)
+
+
+def gen2_gift_workflow(frontend: SDLFrontEnd, stadium: bool = False, eggs: bool = False, pcny: bool = False) -> None:
+    generated_gift_workflow(frontend, 2, stadium, eggs, pcny)
+
+
+def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: bool = False, eggs: bool = False, pcny: bool = False) -> None:
+    gifts = ((STADIUM_GIFTS if stadium else GEN1_GIFTS) if generation == 1 else
+             (STADIUM2_GIFTS if stadium else GEN2_GIFTS))
+    title = ("STADIUM GIFTS" if generation == 1 else "STADIUM 2 GIFTS") if stadium else "GEN %d EVENT GIFTS" % generation
+    if eggs:
+        gifts, title = GEN2_MYSTERY_EGGS, "MYSTERY EGGS"
+    if pcny:
+        egg_gifts = [gift for gift in GEN2_PCNY_GIFTS if gift[0].endswith("-egg")]
+        adult_gifts = [gift for gift in GEN2_PCNY_GIFTS if not gift[0].endswith("-egg")]
+        category = choose_list(frontend, "PCNY GIFTS", "Choose eggs to hatch or shiny adult gifts. B returns.",
+                               [("SPECIAL-MOVE EGGS", "%d eggs to hatch in-game" % len(egg_gifts)),
+                                ("SHINY ADULT GIFTS", "%d shiny gifts; arrive already hatched" % len(adult_gifts))])
+        if category is None:
+            return
+        eggs = category == 0
+        gifts = egg_gifts if eggs else adult_gifts
+        title = "PCNY EGGS" if eggs else "PCNY SHINY ADULTS"
+    notice(frontend, title,
            "Generated equivalents, not original official distributions. Gifts use your ROM's data and your trainer identity. Choose a free PC slot, review, then Commit. Close the game first. No story flags are changed.")
-    destination = choose_save(frontend, 1, "GIFT DESTINATION SAVE")
+    destination = choose_save(frontend, generation, "GIFT DESTINATION SAVE")
     if not destination:
         return
-    cache = ensure_sprite_cache(frontend, 1, destination[0])
+    if generation == 2 and destination[2] == "Crystal":
+        gifts = [gift for gift in gifts if gift[0] != "celebi"]
+    cache = ensure_sprite_cache(frontend, generation, destination[0])
     if not cache:
         return
     try:
         with open(os.path.join(cache, "manifest.json"), encoding="utf-8") as handle:
             manifest = json.load(handle)
-        rom = next(path for path in _rom_candidates(1, destination[0])
+        rom = next(path for path in _rom_candidates(generation, destination[0])
                    if _file_digest(path) == manifest.get("rom_sha256"))
     except (OSError, ValueError, StopIteration):
         notice(frontend, "MATCHING ROM NEEDED", "The cached art's matching ROM was not found. No save was changed.")
         return
-    choice = choose_list(frontend, "CHOOSE STADIUM GIFT" if stadium else "CHOOSE GEN 1 GIFT",
-                         "Generated level-5 equivalents; not original distribution records.",
+    choice = choose_list(frontend, "CHOOSE " + title,
+                         "Generated equivalents; review moves and level. Not original distribution records.",
                          [(label, description) for _preset, label, description in gifts])
     if choice is None:
         return
-    target = choose_copy_destination(frontend, 1, destination)
+    if pcny:
+        eggs = gifts[choice][0].endswith("-egg")
+    target = choose_copy_destination(frontend, generation, destination)
     if not target:
         return
     box, slot = target
-    session, message = prepare_gen1_gift((destination[0], box, slot), rom,
-                                        gifts[choice][0])
+    prepare = prepare_gen1_gift if generation == 1 else prepare_gen2_gift
+    session, message = prepare((destination[0], box, slot), rom, gifts[choice][0])
     if not session:
         notice(frontend, "GIFT NOT PREPARED", message)
         return
@@ -2144,9 +2344,10 @@ def gen1_gift_workflow(frontend: SDLFrontEnd, stadium: bool = False) -> None:
         metadata = save_metadata(working)
         gift = next(record for record in metadata[3] if record["box"] == box and record["slot"] == slot)
         _enrich_rom_names([gift], cache)
-        sprite = _read_cache_png(os.path.join(cache, "front", "%03d.png" % gift["species"]))
+        directory = "front-shiny" if gift.get("shiny") else "front"
+        sprite = _read_cache_png(os.path.join(cache, directory, "%03d.png" % gift["species"]))
         while True:
-            frontend.draw_sprite_browser("GENERATED GIFT PREVIEW", "A Continue  B Cancel", [gift], 0, sprite)
+            frontend.draw_sprite_browser("EGG HATCHLING PREVIEW" if eggs else "GENERATED GIFT PREVIEW", "A Continue  B Cancel", [gift], 0, sprite)
             key = frontend.next_key()
             if key in (KEY_ESCAPE, KEY_B, ord("B"), KEY_CANCEL, ord("X")):
                 return
@@ -2161,7 +2362,9 @@ def gen1_gift_workflow(frontend: SDLFrontEnd, stadium: bool = False) -> None:
             success, result = commit_copy(session)
             if success:
                 result = "Gift added to Box %d. Your original save is backed up. Withdraw it in-game." % (box + 1)
-                if gifts[choice][0] == "surf-pikachu" and destination[2] == "Yellow":
+                if eggs:
+                    result = "Egg added to Box %d. Your original save is backed up. Withdraw the Egg and walk with it in your party to hatch it normally." % (box + 1)
+                if generation == 1 and gifts[choice][0] == "surf-pikachu" and destination[2] == "Yellow":
                     result += " Surfing Pikachu can then be tested at the beach minigame."
             notice(frontend, "GIFT COMPLETE" if success else "GIFT NOT COMMITTED", result, completion=success)
     except (OSError, ValueError, StopIteration) as error:
@@ -2289,6 +2492,169 @@ def gen2_to_gen3_workflow(frontend: SDLFrontEnd) -> None:
         notice(frontend, "MIGRATION CANCELLED", "Original saves are unchanged.")
 
 
+def prepare_crystal_event(path: str, rom: str, action: str) -> tuple[Optional[str], str]:
+    session = new_session()
+    try:
+        original_hash = _file_digest(path)
+        output = os.path.join(session, "destination-" + os.path.basename(path))
+        result = subprocess.run(["python3", "/usr/bin/butterflyos-crystal-event.py",
+                                 "--save", path, "--rom", rom, "--action", action,
+                                 "--output", output], text=True, capture_output=True)
+        if result.returncode:
+            raise ValueError(result.stderr.strip())
+        summary = json.loads(result.stdout)
+        if _file_digest(path) != original_hash:
+            raise ValueError("The save changed during preparation. Exit the game and try again.")
+        write_session_value(session, "destination-original", path)
+        write_session_value(session, "original-destination-sha256", original_hash)
+        write_session_value(session, "state", "READY")
+        return session, summary["before"]["stage"]
+    except (OSError, ValueError, KeyError) as error:
+        shutil.rmtree(session, ignore_errors=True)
+        return None, str(error)
+
+
+def crystal_event_workflow(frontend: SDLFrontEnd) -> None:
+    choice = choose_list(frontend, "CRYSTAL EVENTS", "Choose a native event to replay. B returns.",
+                         [("GS BALL / CELEBI", "Enable or replay the delivery, Kurt and shrine quest"),
+                          ("ODD EGG", "Receive another random Odd Egg from the Day-Care Man")])
+    if choice == 0:
+        crystal_celebi_workflow(frontend)
+    elif choice == 1:
+        crystal_odd_egg_workflow(frontend)
+
+
+def crystal_odd_egg_workflow(frontend: SDLFrontEnd) -> None:
+    notice(frontend, "CRYSTAL ODD EGG",
+           "Replay the Day-Care Man's original egg delivery. Existing Pokemon and breeding progress are kept. Save normally and exit the game first; collect any waiting breeding egg before replay.")
+    saves = [save for save in generation_saves(2) if save[2] == "Crystal"]
+    if not saves:
+        notice(frontend, "CRYSTAL SAVE NEEDED", "Odd Egg replay requires a qualified Crystal in-game save.")
+        return
+    choice = choose_list(frontend, "ODD EGG SAVE", "Choose the Crystal save.",
+                         [("CRYSTAL", os.path.basename(save[0])) for save in saves])
+    if choice is None:
+        return
+    path = saves[choice][0]
+    try:
+        rom = next(candidate for candidate in _rom_candidates(2, path)
+                   if _file_digest(candidate) == "fdcc3c8c43813cf8731fc037d2a6d191bac75439c34b24ba1c27526e6acdc8a2")
+        result = subprocess.run(["python3", "/usr/bin/butterflyos-crystal-event.py",
+                                 "--save", path, "--rom", rom, "--action", "odd-egg-inspect"],
+                                text=True, capture_output=True)
+        if result.returncode:
+            raise ValueError(result.stderr.strip())
+        status = json.loads(result.stdout)
+    except (OSError, ValueError, StopIteration) as error:
+        notice(frontend, "ODD EGG CHECK FAILED", str(error) or "The qualified Crystal ROM was not found.")
+        return
+    if not status['received']:
+        notice(frontend, "ODD EGG ALREADY AVAILABLE", "No save changes needed. Leave one free party slot and speak to the Day-Care Man inside the Day Care on Route 34, south of Goldenrod. Collect a waiting breeding egg first if he is outside.")
+        return
+    session, before = prepare_crystal_event(path, rom, "odd-egg-replay")
+    if not session:
+        notice(frontend, "ODD EGG NOT PREPARED", before)
+        return
+    try:
+        approved = choose_list(frontend, "REPLAY ODD EGG?",
+                               "Rearm the original Day-Care delivery. Existing eggs and Pokemon are kept; a backup is retained.",
+                               [("CANCEL", "Leave the original save unchanged"),
+                                ("REPLAY", "Receive another random egg in-game")], selected=0)
+        if approved == 1:
+            ok, message = commit_copy(session)
+            if ok:
+                message = "Load your ordinary in-game save. Leave one free party slot and speak to the Day-Care Man inside the Day Care on Route 34, south of Goldenrod. The game chooses the egg; hatch it normally. Avoid loading a save state."
+            notice(frontend, "ODD EGG READY" if ok else "ODD EGG NOT COMMITTED", message, completion=ok)
+    finally:
+        with open(os.path.join(session, "state"), encoding="utf-8") as handle:
+            committed = handle.read().strip() == "COMMITTED"
+        if not committed:
+            shutil.rmtree(session, ignore_errors=True)
+
+
+def crystal_celebi_workflow(frontend: SDLFrontEnd) -> None:
+    notice(frontend, "CRYSTAL CELEBI EVENT",
+           "Enable the original GS Ball quest, or replay it. Save outside Goldenrod Pokemon Center, Azalea Town, Kurt's house and Ilex Forest; then exit the game. Previously caught Pokemon are kept. Finish any apricorn work first.")
+    saves = [save for save in generation_saves(2) if save[2] == "Crystal"]
+    if not saves:
+        notice(frontend, "CRYSTAL SAVE NEEDED", "Add a supported Crystal in-game save. Gold and Silver do not support this quest.")
+        return
+    choice = choose_list(frontend, "CRYSTAL EVENT SAVE", "Choose the save to enable or replay the quest.",
+                         [("CRYSTAL", os.path.basename(save[0])) for save in saves])
+    if choice is None:
+        return
+    path = saves[choice][0]
+    try:
+        rom = next((candidate for candidate in _rom_candidates(2, path)
+                    if _file_digest(candidate) == "fdcc3c8c43813cf8731fc037d2a6d191bac75439c34b24ba1c27526e6acdc8a2"), None)
+    except OSError as error:
+        notice(frontend, "ROM CHECK FAILED", str(error))
+        return
+    if not rom:
+        notice(frontend, "MATCHING ROM NEEDED", "Add the qualified English retail Crystal ROM. Modified ROMs and other revisions are refused.")
+        return
+    result = subprocess.run(["python3", "/usr/bin/butterflyos-crystal-event.py",
+                             "--save", path, "--rom", rom], text=True, capture_output=True)
+    if result.returncode:
+        notice(frontend, "EVENT CHECK FAILED", result.stderr.strip())
+        return
+    try:
+        status = json.loads(result.stdout)
+    except ValueError:
+        notice(frontend, "EVENT CHECK FAILED", "The event tool returned an invalid status.")
+        return
+    action = choose_list(frontend, "CELEBI QUEST", "Current state: " + status["stage"],
+                         [("ENABLE", "Start GS Ball delivery; existing quests are preserved"),
+                          ("REPLAY", "Restart the delivery, Kurt and shrine sequence")])
+    if action is None:
+        return
+    session, before = prepare_crystal_event(path, rom, ("enable", "replay")[action])
+    if not session:
+        notice(frontend, "EVENT NOT PREPARED", before)
+        return
+    try:
+        approved = choose_list(frontend, "COMMIT CELEBI EVENT?",
+                               "Previous state: %s. %s Your Pokemon are kept and a backup is retained." %
+                               (before, "Replay resets this quest." if action == 1 else "Enable GS Ball delivery."),
+                               [("CANCEL", "Leave the save unchanged"),
+                                ("COMMIT", "Apply the reviewed quest changes")], selected=0)
+        if approved == 1:
+            ok, message = commit_copy(session)
+            if ok:
+                message = "Load your in-game save. Enter Goldenrod Pokemon Center and leave through its front door to receive the GS Ball, then take it to Kurt. Normal quest prerequisites and timing still apply. Avoid loading a save state."
+            notice(frontend, "CELEBI EVENT READY" if ok else "EVENT NOT COMMITTED", message, completion=ok)
+    finally:
+        with open(os.path.join(session, "state"), encoding="utf-8") as handle:
+            committed = handle.read().strip() == "COMMITTED"
+        if not committed:
+            shutil.rmtree(session, ignore_errors=True)
+
+
+def choose_gen2_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
+    while True:
+        saves = generation_saves(2)
+        items = [("GAME", "%s | %s" % (os.path.splitext(os.path.basename(save[0]))[0], save[1])) for save in saves]
+        items.extend([("GEN 2 GIFTS", "Mew, and Celebi for Gold/Silver"),
+                      ("STADIUM 2 GIFTS", "Baton Pass Farfetch'd and Earthquake Gligar"),
+                      ("CRYSTAL EVENTS", "GS Ball / Celebi quest and Odd Egg replay")])
+        items.append(("MYSTERY EGGS", "15 special-move eggs; withdraw and hatch in-game"))
+        items.append(("PCNY GIFTS", "104 special-move eggs and 16 shiny gifts"))
+        choice = choose_list(frontend, "GEN 2", "Choose a game to trade/copy, gifts or Crystal Events. B returns.", items)
+        if choice is None:
+            return None
+        if choice < len(saves):
+            return saves[choice]
+        action = choice - len(saves)
+        if action < 2:
+            gen2_gift_workflow(frontend, stadium=action == 1)
+        elif action == 2:
+            crystal_event_workflow(frontend)
+        elif action == 3:
+            gen2_gift_workflow(frontend, eggs=True)
+        else:
+            gen2_gift_workflow(frontend, pcny=True)
+
+
 def choose_gen1_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
     """Keep Gen I saves and its gift actions together, with games listed first."""
     while True:
@@ -2330,6 +2696,7 @@ def local_swap_workflow(frontend: SDLFrontEnd) -> None:
     generation = generation_choice + 1
     debug("generation selected: %d" % generation)
     left_save = (choose_gen1_local_save(frontend) if generation == 1 else
+                 choose_gen2_local_save(frontend) if generation == 2 else
                  choose_save(frontend, generation, "FIRST SAVE"))
     if not left_save:
         return

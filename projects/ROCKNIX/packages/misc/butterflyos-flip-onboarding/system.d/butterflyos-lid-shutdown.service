@@ -1,0 +1,14 @@
+[Unit]
+Description=ButterflyOS optional lid-closed shutdown timer
+After=emustation.service
+ConditionPathExists=/usr/share/butterflyos
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/butterflyos-lid-shutdown
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=3
+
+[Install]
+WantedBy=multi-user.target

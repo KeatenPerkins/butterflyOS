@@ -1,0 +1,24 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -1812,6 +1812,21 @@
+ 
+ #if defined(BATOCERA) || defined(ROCKNIX)
+ 	s->addGroup(_("HARDWARE"));
++#endif
++
++#if defined(BATOCERA) || defined(ROCKNIX)
++	if (Utils::FileSystem::exists("/usr/bin/butterflyos-lid-shutdown"))
++	{
++		auto lidShutdown = std::make_shared<OptionListComponent<std::string> >(mWindow, _("LID-CLOSED SHUTDOWN"), false);
++		auto minutes = SystemConf::getInstance()->get("system.lid.shutdown_minutes");
++		if (minutes != "15" && minutes != "30" && minutes != "60")
++			minutes = "0";
++		lidShutdown->addRange({ { _("OFF"), "0" }, { _("15 MINUTES"), "15" }, { _("30 MINUTES"), "30" }, { _("60 MINUTES"), "60" } }, minutes);
++		s->addWithLabel(_("LID-CLOSED SHUTDOWN"), lidShutdown);
++		s->addSaveFunc([lidShutdown] {
++			SystemConf::getInstance()->set("system.lid.shutdown_minutes", lidShutdown->getSelected());
++		});
++	}
+ #endif
+ 
+ 	// brightness

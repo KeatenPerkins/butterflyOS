@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.16"
+PKG_VERSION="2.6.26"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
@@ -81,6 +81,8 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/sources/butterflyos-game-card" \
         "${PKG_DIR}/sources/butterflyos-gb-sprite-cache.py" \
         "${PKG_DIR}/sources/butterflyos-gen1-gift.py" \
+        "${PKG_DIR}/sources/butterflyos-gen2-gift.py" \
+        "${PKG_DIR}/sources/butterflyos-crystal-event.py" \
         "${PKG_DIR}/sources/butterflyos-save-trade-sdl.py" \
         "${PKG_DIR}/sources/butterflyos-gen3-sprite-cache.py" \
         "${PKG_BUILD}/butterflyos-save-trade" \
@@ -91,12 +93,14 @@ makeinstall_target() {
         "${PKG_DIR}/sources/butterflyos-sd-card-info-sdl.py" \
         "${PKG_DIR}/sources/butterflyos-game-card-sdl.py" \
         "${PKG_DIR}/sources/butterflyos-lid-backlight" \
+        "${PKG_DIR}/sources/butterflyos-lid-shutdown" \
         "${INSTALL}/usr/bin/"
 
   mkdir -p "${INSTALL}/usr/lib/systemd/system/var-log.mount.d"
   cp -a "${PKG_DIR}/system.d/butterflyos-health-monitor.service" \
         "${PKG_DIR}/system.d/butterflyos-extended-diagnostics.service" \
         "${PKG_DIR}/system.d/butterflyos-lid-backlight.service" \
+        "${PKG_DIR}/system.d/butterflyos-lid-shutdown.service" \
         "${INSTALL}/usr/lib/systemd/system/"
   cp -a "${PKG_DIR}/system.d/var-log.mount.d/butterflyos.conf" \
         "${INSTALL}/usr/lib/systemd/system/var-log.mount.d/"
@@ -146,6 +150,7 @@ makeinstall_target() {
              "${INSTALL}/usr/bin/butterflyos-sd-card-info-sdl.py" \
              "${INSTALL}/usr/bin/butterflyos-game-card-sdl.py" \
              "${INSTALL}/usr/bin/butterflyos-lid-backlight" \
+             "${INSTALL}/usr/bin/butterflyos-lid-shutdown" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/launch.sh" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/install.sh" \
              "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/patch-preloader.sh"
@@ -157,4 +162,5 @@ post_install() {
   enable_service butterflyos-extended-diagnostics.service
   enable_service butterflyos-health-monitor.service
   enable_service butterflyos-lid-backlight.service
+  enable_service butterflyos-lid-shutdown.service
 }
