@@ -5,6 +5,35 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## October 8, 2026 stable release preparation: v1.0.3
+
+- User approved the exact local build after all live tests and authorized
+  publication. Embedded source is `29d1a8c521d26bf8d0a9d49b45d2466e96ad98f8`
+  plus the recorded build patch and six captured changed files. Their hashes
+  and exact tracked diff matched before commit `5580326cf6`.
+- Full build `20261010` exited 0. EmulationStation and onboarding packages were
+  explicitly cleaned. Container digest and source equivalence are included
+  in the downloadable build environment and source provenance records.
+- Promoted image: `ButterflyOS-v1.0.3-Miyoo-Flip-V2.img.gz`, 1,271,263,092 bytes;
+  SHA-256 `81384a555e0c5a88d451c55989d2f61c920b80239440d070e9bb8e28a9dc63cb`.
+  Renaming did not change the tested image bytes.
+- Narrow update: `ButterflyOS-Miyoo-Flip-V2-20261010.tar`, 1,285,468,160 bytes;
+  SHA-256 `e046ded0f09c45f6d6a087471c11216287efbd636d135c48697e54934c968b0a`.
+  Its five regular files contain the tested SYSTEM/KERNEL, matching MD5s and
+  device/build metadata. No bootloader files are in this public update package.
+- GPT/FAT/ext4, gzip/hash, payload consistency, updater identity, enabled lid
+  service, packaged event scripts, AArch64 save helper and menu labels passed.
+  Complete flashed-card read-back matched the raw image, SHA-256
+  `fd8192fc6f3de9c41f27027f0bed74937004e08ecc7cc647fd46d80200ef2baf`.
+- Release checks passed: 23 lid tests, 180 Gen I gift/save cases, 5,824 Gen II
+  gift/family/box cases, 24 Odd Egg and 32 Celebi quest checks; private originals
+  unchanged. Production updater manifest/archive validation passed.
+- Regenerated package license manifest has no unresolved package definitions.
+  Audit and build records exclude private ROM/save fixtures from release assets.
+- Update working-space estimate: 2,839,361,744 bytes; recommend 3 GB free on the
+  OS card. Battery reporting and emulator tuning are unchanged. This does not
+  establish exhaustive emulator, peripheral or achievement-mode compatibility.
+
 ## October 6, 2026 stable maintenance release: v1.0.2
 
 - Published as Latest stable, with no draft/prerelease flag, after the user
