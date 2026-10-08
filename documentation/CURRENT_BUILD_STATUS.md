@@ -1,6 +1,33 @@
 # Current build and test status
 
-Reviewed: 2026-10-06.
+Reviewed: 2026-10-08.
+
+## v1.0.3 tested stable build
+
+- Public version `v1.0.3`; updater identity `20261010`; Miyoo Flip V2 only.
+  Embedded build source: `29d1a8c521d26bf8d0a9d49b45d2466e96ad98f8` plus
+  the captured source changes, committed without further binary changes as
+  `5580326cf6`. Release source/provenance records explain that equivalence.
+- Full build exited 0. GPT/FAT/ext4, image checksums, SYSTEM/KERNEL checksums,
+  image/update payload equality, packaged event scripts, enabled lid service,
+  save helper and frontend labels passed. Complete raw-card read-back matched.
+  The user confirmed all live tests passed and authorized stable publication.
+- Includes Gen I gifts and Stadium equivalents; Gen II Mew/Celebi, Stadium 2
+  gifts, fifteen Mystery Eggs, 104 PCNY eggs and 16 shiny adult gifts; native
+  Crystal Celebi and Odd Egg enable/replay; verified Gen II → III held-item
+  equivalents; full-screen Save State Manager with artwork and recent states;
+  optional lid timer and verified RetroArch save-before-shutdown; and illustrated
+  installation/recovery explanations. Both lid settings default to Off.
+- Release rechecks passed: 23 lid tests, 180 Gen I gift/save cases, 5,824 Gen II
+  gift/family/box cases, 24 Odd Egg and 32 Celebi quest checks. The production
+  updater accepts the narrow release archive and manifest. Original fixtures
+  remain unchanged. Known Issues retains unqualified game/event combinations.
+- The published updater uses only the tested SYSTEM/KERNEL payloads and their
+  metadata/checksums, excluding the full build archive's extra bootloader files.
+  Required working space is 2,839,361,744 bytes; recommend at least 3 GB free.
+- Emulator defaults, performance tuning and battery reporting are unchanged.
+  The Spruce audit is research documentation, not an emulator migration.
+- [Release notes](RELEASE_NOTES_v1.0.3.md) explain the new menus and options.
 
 ## v1.0.2 stable release
 
