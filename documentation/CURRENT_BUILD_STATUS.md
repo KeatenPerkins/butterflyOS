@@ -2,7 +2,7 @@
 
 Reviewed: 2026-10-08.
 
-## v1.0.3 tested stable build
+## v1.0.3 stable release
 
 - Public version `v1.0.3`; updater identity `20261010`; Miyoo Flip V2 only.
   Embedded build source: `29d1a8c521d26bf8d0a9d49b45d2466e96ad98f8` plus
@@ -12,6 +12,11 @@ Reviewed: 2026-10-08.
   image/update payload equality, packaged event scripts, enabled lid service,
   save helper and frontend labels passed. Complete raw-card read-back matched.
   The user confirmed all live tests passed and authorized stable publication.
+- Published as [Latest stable](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.3).
+  All ten uploaded asset sizes/GitHub SHA-256 digests matched, and the public
+  update manifest matched. `.20` on `20261007` discovered `20261010` through
+  the production updater's read-only check. No download, install or reboot was
+  initiated; discovery alone does not qualify a completed version-skipping update.
 - Includes Gen I gifts and Stadium equivalents; Gen II Mew/Celebi, Stadium 2
   gifts, fifteen Mystery Eggs, 104 PCNY eggs and 16 shiny adult gifts; native
   Crystal Celebi and Odd Egg enable/replay; verified Gen II → III held-item
