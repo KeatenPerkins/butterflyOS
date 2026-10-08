@@ -115,19 +115,19 @@ still depends on the game and peripheral.
 
 ## Butterfly Link
 
-- Gen I event gifts are implemented locally for the next build, with generated
+- Gen I event gifts are included from v1.0.3, with generated
   level-5 Mew, Surfing/Flying Pikachu, Dragon Rage Magikarp and Pay Day
   Fearow/Rapidash for verified English Red/Blue/Yellow ROM
   revisions. Save reload, box persistence, full-box refusal, backups and cancel
   checks pass; Yellow's beach minigame still needs an in-game test. Stadium
-  gifts are also implemented locally as level-5 equivalents; they do
+  gifts are also included as level-5 equivalents; they do
   not reproduce historical distribution metadata.
-- Crystal GS Ball Enable/Replay is implemented locally for development testing.
+- Crystal GS Ball Enable/Replay is included from v1.0.3.
   Automated save/checksum, backup, cancellation, ROM qualification and Pokémon
   preservation checks pass. Enable and Replay passed user testing on .17 through
   delivery, Kurt and the shrine encounter; Kurt's timer was manually cleared for
   testing. The tool retains the normal wait.
-- Gen II Mew and Stadium 2 Farfetch'd/Gligar gifts are implemented locally.
+- Gen II Mew and Stadium 2 Farfetch'd/Gligar gifts are included from v1.0.3.
   All fourteen PC boxes across Gold/Silver/Crystal pass automated checks,
   including native reload, backups, cancellation and full/occupied refusal.
   All three gifts passed user testing in Crystal on .17. Actual Gold/Silver
@@ -144,11 +144,11 @@ still depends on the game and peripheral.
   emulation, battles, or party transfers.
 - Same-generation local/remote trade and copy passed user testing. Remote
   Gen II → III copy also passed; source saves are unchanged and held items cleared.
-- The next build adds verified Gen II → III held-item equivalents. All 256 item
+- Version 1.0.3 adds verified Gen II → III held-item equivalents. All 256 item
   IDs have automated mapping coverage. Another 150 disposable-save transfers
   across Gold/Silver/Crystal and all five Gen III games passed reload/item checks,
   with originals unchanged. The new preservation behavior still needs in-game
-  testing. Existing releases clear held items on cross-generation copies.
+  testing. Releases through v1.0.2 clear held items on cross-generation copies.
 - Local evolution prompts are implemented for supported rules. Remote
   evolution prompts, complete Everstone/held-item rules, and arbitrary ROM
   hacks/languages are not qualified.

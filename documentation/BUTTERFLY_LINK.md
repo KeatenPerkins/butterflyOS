@@ -52,7 +52,7 @@ removing it from Yellow, or exchange boxed Pokémon between Ruby and Sapphire.
 You cannot copy a Gen III Pokémon back into Gold, or use Butterfly Link to battle
 a friend. It is not a general-purpose Pokémon editor.
 
-### Gen I event gifts (next build; unreleased)
+### Gen I event gifts (v1.0.3)
 
 The Gen 1 menu lists detected game saves first. Select a game for the normal
 trade/copy flow; Gen 1 Gifts and Stadium Gifts appear below the game list.
@@ -76,7 +76,7 @@ original official distributions. Data and artwork come from your matching ROM;
 no donor records or Pokémon game assets are bundled. No story flags or map
 encounters are changed. Yellow's Surfing Pikachu uses the player identity
 required by its beach checks, but the minigame still needs an in-game test.
-The next build also provides **Local transfer → Gen 1 → Stadium Gifts**: Amnesia
+Version 1.0.3 also provides **Local transfer → Gen 1 → Stadium Gifts**: Amnesia
 Psyduck, Bulbasaur, Charmander, Squirtle, Hitmonlee, Hitmonchan, Eevee, Omanyte
 and Kabuto. These also arrive at level 5 with your trainer identity and
 ROM-derived starting moves; Psyduck additionally knows Amnesia. They do not
@@ -84,7 +84,7 @@ reproduce Stadium distribution levels, original trainer metadata or all
 historical movesets, and do not mark Stadium challenges as completed.
 See the [event inventory and validation notes](BUTTERFLY_LINK_GEN1_EVENTS_PLAN.md).
 
-### Gen II event gifts (next build; unreleased)
+### Gen II event gifts (v1.0.3)
 
 The **Local transfer → Gen 2** menu lists game saves first, then **Gen 2 Gifts**,
 **Stadium 2 Gifts**, **Crystal Events**, **Mystery Eggs** and **PCNY Gifts**. Gen 2 Gifts offers a generated level-5
@@ -196,7 +196,7 @@ Automated preservation and protected-Commit checks pass. Native Odd Egg
 delivery and replay also passed user testing on .17.
 [Native Day-Care script](https://github.com/pret/pokecrystal/blob/master/maps/DayCare.asm).
 
-### Crystal Celebi quest (next build; unreleased)
+### Crystal Celebi quest (v1.0.3)
 
 Open **Local transfer → Gen 2 → Crystal Events**. The development version offers
 **Enable** for a quest that has not started and **Replay** to restart its native
@@ -253,7 +253,7 @@ ROM hacks, and unrecognized revisions are not generally qualified.
 | Gen II → Gen II | Trade or copy | Trade or copy | PC-box Pokémon |
 | Gen III → Gen III | Trade or copy | Trade or copy | PC-box Pokémon; Trade requires matching save-format families |
 | Gen I → Gen II | Copy | Copy | Time Capsule conversion; banked-box/name fixes included, not every save pairing qualified |
-| Gen II → Gen III | Copy | Copy | One-way conversion; verified held-item equivalents preserved in the next build |
+| Gen II → Gen III | Copy | Copy | One-way conversion; verified held-item equivalents preserved from v1.0.3 |
 | Gen II → Gen I | Unavailable | Unavailable | No reverse Time Capsule conversion |
 | Gen III → earlier generations | Unavailable | Unavailable | No reverse conversion |
 
@@ -265,7 +265,7 @@ Do not interpret the table as qualification of every Gen III game pairing.
 
 Gen II → III is a Butterfly Link conversion, not an original-game cable feature.
 Compatible identity/training data is converted; generation-specific fields need
-newly derived values. **The next build preserves verified Gen III held-item
+newly derived values. **Version 1.0.3 preserves verified Gen III held-item
 equivalents.** Items without a verified equivalent are cleared on the destination
 copy. Existing releases through v1.0.2 clear all held items. In every version,
 the original Gen II Pokémon and its held item remain unchanged.
