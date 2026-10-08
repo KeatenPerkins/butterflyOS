@@ -5,7 +5,13 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
-## October 8, 2026 stable release preparation: v1.0.3
+## October 8, 2026 stable release: v1.0.3
+
+- Published as Latest stable after draft-upload verification. All ten public
+  asset sizes/GitHub SHA-256 digests matched local verified files, and the public
+  update manifest matched. `.20` on `20261007` discovered `20261010` with the
+  production updater's read-only check; no device download, install or reboot
+  was initiated. Discovery is not a completed version-skipping update test.
 
 - User approved the exact local build after all live tests and authorized
   publication. Embedded source is `29d1a8c521d26bf8d0a9d49b45d2466e96ad98f8`
