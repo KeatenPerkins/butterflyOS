@@ -344,6 +344,45 @@ video_shader_dir = "/tmp/shaders"
 EOF
 }
 
+# The command bridge must be the sole owner of joypad hotkeys. RetroArch
+# reads the first occurrence of a setting, so appending nul is insufficient.
+function configure_external_hotkeys() {
+    local action suffix setting
+    local joypad_dir="/tmp/butterflyos-external-joypads"
+    # A nul global binding falls back to the controller autoconfiguration.
+    # Use session copies so profile hotkeys cannot race the command bridge.
+    # The standard profile directory is restored at each game launch.
+    mkdir -p "${joypad_dir}"
+    cp -a /tmp/joypads/. "${joypad_dir}/" || return 1
+    find "${joypad_dir}" -type f -name '*.cfg' -exec sed -i \
+        '/^input_\(enable_hotkey\|exit_emulator\|fps_toggle\|load_state\|menu_toggle\|rewind\|save_state\|state_slot_decrease\|state_slot_increase\|toggle_fast_forward\|hold_fast_forward\)_/d' {} +
+    clear_setting "joypad_autoconfig_dir"
+    for action in enable_hotkey exit_emulator fps_toggle load_state menu_toggle \
+                  rewind save_state state_slot_decrease state_slot_increase \
+                  toggle_fast_forward hold_fast_forward
+    do
+        for suffix in axis btn
+        do
+            clear_setting "input_${action}_${suffix}"
+        done
+    done
+    clear_setting "input_menu_toggle_gamepad_combo"
+    flush_settings
+    printf 'joypad_autoconfig_dir = "%s"\n' "${joypad_dir}" >>"${RETROARCH_CONFIG}"
+    printf 'input_menu_toggle_gamepad_combo = "0"\n' >>"${RETROARCH_CONFIG}"
+    for action in enable_hotkey exit_emulator fps_toggle load_state menu_toggle \
+                  rewind save_state state_slot_decrease state_slot_increase \
+                  toggle_fast_forward hold_fast_forward
+    do
+        for suffix in axis btn
+        do
+            setting="input_${action}_${suffix}"
+            printf '%s = "nul"\n' "${setting}" >>"${RETROARCH_CONFIG}"
+        done
+    done
+    touch /tmp/butterflyos-external-hotkeys
+}
+
 ### Configure retroarch hotkeys
 function configure_hotkeys() {
     log "Configure hotkeys..."
@@ -416,7 +455,7 @@ function configure_hotkeys() {
                 # "nul" overrides do not prevent chords such as Menu+R1 from
                 # firing both fast-forward and save-state.
                 rm -f /tmp/"${MY_CONTROLLER}.cfg"
-                touch /tmp/butterflyos-external-hotkeys
+                configure_external_hotkeys
                 return 0
             fi
             if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null && \
@@ -496,29 +535,7 @@ EOF
        [ "${MY_CONTROLLER}" != "retrogame_joypad" ] && \
        [ -x /usr/bin/butterflyos-menu-hotkey ]
     then
-        cat <<EOF >>${RETROARCH_CONFIG}
-input_enable_hotkey_axis = "nul"
-input_enable_hotkey_btn = "nul"
-input_exit_emulator_axis = "nul"
-input_exit_emulator_btn = "nul"
-input_fps_toggle_axis = "nul"
-input_fps_toggle_btn = "nul"
-input_load_state_axis = "nul"
-input_load_state_btn = "nul"
-input_menu_toggle_axis = "nul"
-input_menu_toggle_btn = "nul"
-input_rewind_axis = "nul"
-input_rewind_btn = "nul"
-input_save_state_axis = "nul"
-input_save_state_btn = "nul"
-input_state_slot_decrease_axis = "nul"
-input_state_slot_decrease_btn = "nul"
-input_state_slot_increase_axis = "nul"
-input_state_slot_increase_btn = "nul"
-input_toggle_fast_forward_axis = "nul"
-input_toggle_fast_forward_btn = "nul"
-EOF
-        touch /tmp/butterflyos-external-hotkeys
+        configure_external_hotkeys
     fi
 }
 

@@ -179,7 +179,8 @@ watch_mapping() {
       }
       if (!armed || value != 1) next
 
-      if      (key == 309) chord("SAVE_STATE")
+      if      (key == 307) chord("FPS_TOGGLE")
+      else if (key == 309) chord("SAVE_STATE")
       else if (key == 308) chord("LOAD_STATE")
       else if (key == 310) chord("REWIND")
       else if (key == 547) chord("STATE_SLOT_PLUS")
@@ -190,10 +191,13 @@ watch_mapping() {
         else { used = 1; exit_press = now }
       }
     }
-    /type 3 \(EV_ABS\), code 5 \(ABS_RZ\)/ && armed {
+    /type 3 \(EV_ABS\), code 5 \(ABS_RZ\)/ {
       if (match($0, /value [0-9]+/)) {
         axis = substr($0, RSTART + 6, RLENGTH - 6) + 0
-        if (axis >= 900 && !r2_down) { chord("FAST_FORWARD"); r2_down = 1 }
+        if (axis >= 900 && !r2_down) {
+          if (armed) chord("FAST_FORWARD")
+          r2_down = 1
+        }
         else if (axis <= 100) r2_down = 0
       }
     }
@@ -232,7 +236,8 @@ watch_builtin_mapping() {
       }
       if (!armed || value != 1) next
 
-      if      (key == 311) chord("SAVE_STATE")
+      if      (key == 307) chord("FPS_TOGGLE")
+      else if (key == 311) chord("SAVE_STATE")
       else if (key == 310) chord("LOAD_STATE")
       else if (key == 313) chord("FAST_FORWARD")
       else if (key == 312) chord("REWIND")
