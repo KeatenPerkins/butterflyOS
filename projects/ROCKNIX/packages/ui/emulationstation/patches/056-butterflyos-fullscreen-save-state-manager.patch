@@ -1,0 +1,533 @@
+--- a/es-app/src/guis/GuiSaveState.cpp
++++ b/es-app/src/guis/GuiSaveState.cpp
+@@ -1,306 +1,220 @@
+ #include "GuiSaveState.h"
+ #include "SystemData.h"
+ #include "FileData.h"
+-#include "utils/StringUtil.h"
+ #include "ApiSystem.h"
+-#include "HelpStyle.h"
+ #include "SystemConf.h"
+ #include "guis/GuiMsgBox.h"
+ #include "SaveStateRepository.h"
+-
+-#define WINDOW_HEIGHT Renderer::getScreenHeight() * 0.40f
+-
+-// Wider tiles keep launch choices readable on the Flip screen.
+-static int slots = 4;
++#include "components/ImageComponent.h"
++#include <algorithm>
+ 
+ GuiSaveState::GuiSaveState(Window* window, FileData* game, const std::function<void(SaveState* state)>& callback) :
+-	GuiComponent(window), mGrid(nullptr), mBackground(window, ":/frame.png"),
+-	mLayout(window, Vector2i(3, 5)), mTitle(nullptr)
+-{
+-	mGame = game;
+-	mRepository = game->getSourceFileData()->getSystem()->getSaveStateRepository();
+-	mRunCallback = callback;
+-
+-	// Form background
+-	auto theme = ThemeData::getMenuTheme();
+-	mBackground.setImagePath(theme->Background.path); // ":/frame.png"
+-	mBackground.setEdgeColor(theme->Background.color);
+-	mBackground.setCenterColor(theme->Background.centerColor);
+-	mBackground.setCornerSize(theme->Background.cornerSize);
+-	mBackground.setPostProcessShader(theme->Background.menuShader);
+-
+-	mTitle = std::make_shared<TextComponent>(mWindow, _("SAVESTATE MANAGER"), theme->Title.font, theme->Title.color, ALIGN_CENTER);
+-	mLayout.setEntry(mTitle, Vector2i(1, 1), false, true);
+-
+-	mGrid = std::make_shared<ImageGridComponent<SaveStateItem>>(mWindow);
+-	mLayout.setEntry(mGrid, Vector2i(1, 3), true, true);
+-
+-	addChild(&mBackground);
+-	addChild(&mLayout);
+-	
+-	float cellProportion = 1.77;
+-	float screenProportion = (float)Renderer::getScreenWidth() / (float)Renderer::getScreenHeight();
+-
+-	float sh = (float)Math::min(Renderer::getScreenHeight(), Renderer::getScreenWidth());
+-	sh = (float) theme->TextSmall.font->getSize() / sh;
+-
+-	std::string xml =
+-		"<theme defaultView=\"Tiles\">"
+-		"<formatVersion>7</formatVersion>"
+-		"<view name = \"grid\">"
+-		"<imagegrid name=\"gamegrid\">"
+-		"  <margin>0.01 0.02</margin>"
+-		"  <padding>0 0</padding>"
+-		"  <scrollDirection>horizontal</scrollDirection>"
+-		"  <autoLayout>" + std::to_string(slots * screenProportion / cellProportion) +" 1</autoLayout>"
+-		"  <autoLayoutSelectedZoom>1</autoLayoutSelectedZoom>"
+-		"  <animateSelection>false</animateSelection>"
+-		"  <centerSelection>false</centerSelection>"		
+-		"</imagegrid>"		
+-		"<gridtile name=\"default\">"
+-		"  <backgroundColor>FFFFFF00</backgroundColor>"
+-		"  <padding>8 8</padding>"
+-		"  <imageColor>FFFFFFFF</imageColor>"
+-		"</gridtile>"		
+-		"<gridtile name=\"selected\">"
+-		"  <backgroundColor>" + Utils::String::toHexString(theme->Text.selectorColor) + "</backgroundColor>"
+-		"</gridtile>"
+-		"<text name=\"gridtile\">"
+-		"  <color>" + Utils::String::toHexString(theme->Text.color) + "</color>"
+-		"  <backgroundColor>00000000</backgroundColor>"
+-		"  <fontPath>" + theme->Text.font->getPath() +"</fontPath>"
+-		"  <fontSize>" + std::to_string(sh) + "</fontSize>"
+-		"  <alignment>center</alignment>"
+-		"  <singleLineScroll>false</singleLineScroll>"
+-		"  <size>1 0.45</size>"
+-		"</text>"
+-		"<text name=\"gridtile:selected\">"
+-		"  <color>" + Utils::String::toHexString(theme->Text.selectedColor) + "</color>"
+-		"</text>"
+-		"<image name=\"gridtile.image\">"
+-		"  <linearSmooth>true</linearSmooth>"		
+-		"  <color>D0D0D0D0</color>"
+-		"  <roundCorners>0.02</roundCorners>"		
+-		"</image>"
+-		"<image name=\"gridtile.image:selected\">"
+-		"  <color>FFFFFFFF</color>"
+-		"</image>"
+-		"</view>"
+-		"</theme>";
+-
+-	mTheme = std::shared_ptr<ThemeData>(new ThemeData());
+-	std::map<std::string, std::string> emptyMap;
+-	mTheme->loadFile("imageviewer", emptyMap, xml, false);
+-
+-	//mGrid->setSize(Renderer::getScreenWidth(), Renderer::getScreenHeight());
+-	mGrid->applyTheme(mTheme, "grid", "gamegrid", 0);
+-	mGrid->setCursorChangedCallback([&](const CursorState& /*state*/) { updateHelpPrompts(); });
+-
+-	loadGrid();
+-	centerWindow();
+-}
+-
+-void GuiSaveState::loadGrid()
+-{
+-	mGrid->clear();
+-	mGrid->onSizeChanged(); // To Rebuild tiles
+-
+-	bool supportsIncrementalSaveStates = SystemConf::getIncrementalSaveStates();
+-	bool incrementalSaveStates = supportsIncrementalSaveStates && mRepository->supportsIncrementalSaveStates();
+-
+-	auto states = mRepository->getSaveStates(mGame);
+-	
+-	std::sort(states.begin(), states.end(), [&, supportsIncrementalSaveStates, incrementalSaveStates](const SaveState* file1, const SaveState* file2)
+-		{ 
+-			// Show active emulator first
+-			if (file1->config != nullptr && file2->config != nullptr && !file1->config->equals(file2->config))
+-				return file1->config->isActiveConfig(mGame);
+-			
+-			if (supportsIncrementalSaveStates && file1->config != nullptr ? file1->config->incremental : incrementalSaveStates)
+-				return file1->creationDate >= file2->creationDate;
+-
+-			return file1->slot < file2->slot; 
+-		});
+-
+-
+-	mGrid->add(_("START GAME") + std::string("\r\n") + _("AUTO SAVE OFF"), ":/freeslot.svg", SaveStateItem(mRepository->getDefaultNewGameSaveState()));
+-
+-	if (mRepository->supportsAutoSave() && mGame->getCurrentGameSetting("autosave") == "1")
+-	{
+-		auto autoSave = std::find_if(states.cbegin(), states.cend(), [](SaveState* x) { return x->slot == -1; });
+-		if (autoSave == states.cend())
+-			mGrid->add(_("START GAME") + std::string("\r\n") + _("AUTO SAVE ON"), ":/freeslot.svg", SaveStateItem(mRepository->getDefaultAutoSaveSaveState()));
+-	}
+-
+-	for (auto item : states)
+-	{
+-		std::string coreinfo;
+-		
+-		if (item->config != nullptr && !item->config->emulator.empty() && !item->config->isActiveConfig(mGame))
+-		{
+-			if (item->config->core.empty() || item->config->emulator == item->config->core)
+-				coreinfo = std::string("\r\n") + item->config->emulator;
+-			else
+-				coreinfo = std::string("\r\n") + item->config->emulator + ": " + item->config->core;
+-		}
+-
+-		if (item->slot == -1)
+-			mGrid->add(_("AUTO SAVE") + std::string("\r\n") + item->creationDate.toLocalTimeString() + coreinfo, item->getScreenShot(), SaveStateItem(item));
+-		else if (supportsIncrementalSaveStates && item->config != nullptr ? item->config->incremental : incrementalSaveStates)
+-			mGrid->add(item->creationDate.toLocalTimeString() + coreinfo, item->getScreenShot(), SaveStateItem(item));
+-		else 
+-			mGrid->add(_("SLOT") + std::string(" ") + std::to_string(item->slot) + std::string("\r\n") + item->creationDate.toLocalTimeString() + coreinfo, item->getScreenShot(), SaveStateItem(item));
+-	}
++    GuiComponent(window), mBackground(window, ":/frame.png"), mLayout(window, Vector2i(3, 5)), mShowAllStates(false)
++{
++    mGame = game;
++    mRepository = game->getSourceFileData()->getSystem()->getSaveStateRepository();
++    mRunCallback = callback;
++    auto theme = ThemeData::getMenuTheme();
++    mBackground.setImagePath(theme->Background.path);
++    mBackground.setEdgeColor(theme->Background.color);
++    mBackground.setCenterColor(theme->Background.centerColor);
++    mBackground.setCornerSize(theme->Background.cornerSize);
++    mBackground.setPostProcessShader(theme->Background.menuShader);
++    mHeader = std::make_shared<ComponentGrid>(mWindow, Vector2i(3, 2));
++    auto art = mGame->getImagePath();
++    if (art.empty()) art = mGame->getThumbnailPath();
++    mHeader->setColWidthPerc(0, art.empty() ? 0.001f : 0.15f);
++    mHeader->setColWidthPerc(1, art.empty() ? 0.001f : 0.025f);
++    mHeader->setRowHeightPerc(0, 0.35f);
++    mBoxArt = std::make_shared<ImageComponent>(mWindow);
++    if (!art.empty())
++    {
++        mBoxArt->setImage(art);
++        mHeader->setEntry(mBoxArt, Vector2i(0, 0), false, false, Vector2i(1, 2));
++    }
++    mTitle = std::make_shared<TextComponent>(mWindow, _("SAVE STATE MANAGER"), theme->TextSmall.font, theme->Title.color, ALIGN_LEFT);
++    mGameName = std::make_shared<TextComponent>(mWindow, mGame->getName(), theme->Text.font, theme->Text.color, ALIGN_LEFT);
++    mHeader->setEntry(mTitle, Vector2i(2, 0), false, true);
++    mHeader->setEntry(mGameName, Vector2i(2, 1), false, true);
++    mLayout.setEntry(mHeader, Vector2i(1, 1), false, true);
++    mList = std::make_shared<ComponentList>(mWindow);
++    mLayout.setEntry(mList, Vector2i(1, 3), true, true);
++    mList->setCursorChangedCallback([this](const CursorState&) { updateHelpPrompts(); });
++    addChild(&mBackground);
++    addChild(&mLayout);
++    loadList();
++    centerWindow();
++}
++
++void GuiSaveState::loadList()
++{
++    int selected = mList->getCursorIndex();
++    mEntries.clear();
++    mList->clear();
++    auto theme = ThemeData::getMenuTheme();
++    auto addLaunch = [this, theme](const std::string& label, SaveState* state)
++    {
++        ComponentListRow row;
++        row.addElement(std::make_shared<TextComponent>(mWindow, label, theme->Text.font, theme->Text.color), true);
++        mEntries.push_back(state);
++        mList->addRow(row);
++    };
++    addLaunch(_("START GAME"), mRepository->getDefaultNewGameSaveState());
++    auto states = mRepository->getSaveStates(mGame);
++    if (mRepository->supportsAutoSave() && mGame->getCurrentGameSetting("autosave") == "1")
++    {
++        auto autoSave = std::find_if(states.begin(), states.end(), [](SaveState* state) { return state->slot == -1; });
++        if (autoSave == states.end())
++            addLaunch(_("START GAME AUTO SAVE"), mRepository->getDefaultAutoSaveSaveState());
++    }
++    // Always show the newest real states first, including the automatic state.
++    std::stable_sort(states.begin(), states.end(), [](const SaveState* a, const SaveState* b)
++    {
++        return a->creationDate > b->creationDate;
++    });
++    size_t count = mShowAllStates ? states.size() : std::min(states.size(), size_t(3));
++    for (size_t i = 0; i < count; ++i)
++    {
++        auto state = states[i];
++        ComponentListRow row;
++        auto image = std::make_shared<ImageComponent>(mWindow);
++        float height = std::max(64.0f, theme->TextSmall.font->getHeight(3.0f));
++        image->setMaxSize(height * 1.5f, height);
++        auto screenshot = state->getScreenShot();
++        image->setImage(screenshot.empty() ? ":/freeslot.svg" : screenshot);
++        row.addElement(image, false);
++        std::string label = state->slot == -1 ? _("AUTO SAVE") : _("SLOT") + std::string(" ") + std::to_string(state->slot);
++        label += "\n" + state->creationDate.toLocalTimeString();
++        if (state->config != nullptr && !state->config->isActiveConfig(mGame))
++        {
++            label += "\n" + state->config->emulator;
++            if (!state->config->core.empty() && state->config->core != state->config->emulator)
++                label += ": " + state->config->core;
++        }
++        auto text = std::make_shared<TextComponent>(mWindow, label, theme->TextSmall.font, theme->Text.color,
++                                                    ALIGN_LEFT, Vector3f::Zero(), Vector2f(0, height));
++        row.addElement(text, true);
++        mEntries.push_back(state);
++        mList->addRow(row);
++    }
++    if (!mShowAllStates && states.size() > count)
++        addLaunch(_("MORE SAVE STATES"), nullptr);
++    else if (states.empty())
++    {
++        ComponentListRow row;
++        row.selectable = false;
++        row.addElement(std::make_shared<TextComponent>(mWindow, _("NO SAVE STATES YET"), theme->TextSmall.font, theme->Text.color), true);
++        mEntries.push_back(nullptr);
++        mList->addRow(row);
++    }
++    mList->setCursorIndex(std::min(selected, int(mEntries.size()) - 1));
++    updateHelpPrompts();
++}
++
++SaveState* GuiSaveState::selectedState() const
++{
++    int index = mList->getCursorIndex();
++    return index >= 0 && index < int(mEntries.size()) ? mEntries[index] : nullptr;
+ }
+ 
+ void GuiSaveState::onSizeChanged()
+-{	
+-	GuiComponent::onSizeChanged();
+-
+-	float helpSize = 0.02;
+-
+-	if (Settings::getInstance()->getBool("ShowHelpPrompts"))
+-	{
+-		HelpStyle help;
+-		help.applyTheme(mTheme, "system");
+-
+-		const float height = Math::round(help.font->getLetterHeight() * 1.25f);
+-
+-		float helpBottom = help.position.y() + (height * mOrigin.y());
+-		float helpBottomSpace = 0; // Renderer::getScreenHeight() - helpBottom;
+-
+-		float helpTop = help.position.y() - (height * mOrigin.y()); // +height / 2;
+-		
+-		helpSize = helpTop;
+-		helpSize = Renderer::getScreenHeight() - helpSize + helpBottomSpace;
+-		helpSize = helpSize / mSize.y() + 0.06;
+-	}
+-
+-	mBackground.fitTo(mSize, Vector3f::Zero(), Vector2f(-32, -32));
+-
+-	mLayout.setColWidthPerc(0, 0.01);
+-	mLayout.setColWidthPerc(2, 0.01);
+-
+-	mLayout.setRowHeightPerc(0, 0.02);
+-
+-	if (mTitle != nullptr &&  mTitle->getFont() != nullptr)
+-		mLayout.setRowHeightPerc(1, mTitle->getFont()->getHeight(2.0f) / mSize.y());
+-
+-	mLayout.setRowHeightPerc(2, 0.02);
+-	mLayout.setRowHeightPerc(4, helpSize );
+-
+-	mLayout.setSize(mSize);
++{
++    GuiComponent::onSizeChanged();
++    auto theme = ThemeData::getMenuTheme();
++    mBackground.fitTo(mSize, Vector3f::Zero(), Vector2f::Zero());
++    mLayout.setColWidthPerc(0, 0.03f);
++    mLayout.setColWidthPerc(2, 0.03f);
++    mLayout.setRowHeightPerc(0, 0.025f);
++    float headerHeight = std::max(mSize.y() * 0.16f, theme->Text.font->getHeight(2.5f));
++    mBoxArt->setMaxSize(mSize.x() * 0.14f, headerHeight);
++    mLayout.setRowHeightPerc(1, headerHeight / mSize.y());
++    mLayout.setRowHeightPerc(2, 0.025f);
++    float footer = Settings::getInstance()->getBool("ShowHelpPrompts") ? theme->TextSmall.font->getHeight(1.5f) + 12 : 12;
++    mLayout.setRowHeightPerc(4, footer / mSize.y());
++    mLayout.setSize(mSize);
+ }
+ 
+ void GuiSaveState::centerWindow()
+ {
+-	setSize(Renderer::getScreenWidth(), WINDOW_HEIGHT);
+-	animateTo(
+-		Vector2f((Renderer::getScreenWidth() - getSize().x()) / 2, Renderer::getScreenHeight()),
+-		Vector2f((Renderer::getScreenWidth() - getSize().x()) / 2, Renderer::getScreenHeight() - WINDOW_HEIGHT),
+-		AnimateFlags::OPACITY | AnimateFlags::POSITION);
++    setSize(Renderer::getScreenWidth(), Renderer::getScreenHeight());
++    animateTo(Vector2f(0, Renderer::getScreenHeight()), Vector2f::Zero(), AnimateFlags::OPACITY | AnimateFlags::POSITION);
+ }
+ 
+ bool GuiSaveState::input(InputConfig* config, Input input)
+ {
+-	if (input.value != 0 && (config->isMappedTo(BUTTON_BACK, input) || config->isMappedTo("l3", input)))
+-	{
+-		delete this;
+-		return true;
+-	}
+-
+-	if (input.value != 0 && config->isMappedTo(BUTTON_OK, input))
+-	{
+-		if (mGrid->size())
+-		{
+-			const SaveStateItem& item = mGrid->getSelected();
+-			mRunCallback(item.saveState);
+-		}
+-
+-		delete this;
+-		return true;
+-	}
+-
+-	if (input.value != 0 && config->isMappedTo("y", input))
+-	{
+-		if (mGrid->size())
+-		{
+-			mWindow->pushGui(new GuiMsgBox(mWindow, _("ARE YOU SURE YOU WANT TO DELETE THIS ITEM?"), _("YES"), 
+-				[this]
+-				{
+-					
+-					const SaveStateItem& toDelete = mGrid->getSelected();
+-					auto conf = toDelete.saveState->config;
+-
+-					toDelete.saveState->remove();
+-
+-					SaveStateRepository::renumberSlots(mGame, conf);
+-					mRepository->refresh();
+-
+-					loadGrid();
+-				}, 
+-				_("NO"), nullptr));
+-		}
+-
+-		return true;
+-	}
+-	
+-	if (input.value != 0 && config->isMappedTo("x", input))
+-	{
+-		if (mGrid->size())
+-		{
+-			const SaveStateItem& toCopy = mGrid->getSelected();
+-			
+-			int slot = mRepository->getNextFreeSlot(mGame, toCopy.saveState->config);
+-			if (slot >= 0)
+-			{				
+-				if (toCopy.saveState->copyToSlot(slot))
+-				{
+-					mRepository->refresh();
+-					loadGrid();
+-				}
+-			}
+-		}
+-
+-		return true;
+-	}
+-	
+-	return GuiComponent::input(config, input);
++    if (input.value != 0 && (config->isMappedTo(BUTTON_BACK, input) || config->isMappedTo("l3", input)))
++    {
++        delete this;
++        return true;
++    }
++    if (input.value != 0 && config->isMappedTo(BUTTON_OK, input))
++    {
++        auto state = selectedState();
++        if (state == nullptr)
++        {
++            mShowAllStates = true;
++            loadList();
++        }
++        else
++        {
++            mRunCallback(state);
++            delete this;
++        }
++        return true;
++    }
++    if (input.value != 0 && config->isMappedTo("y", input))
++    {
++        auto state = selectedState();
++        if (state != nullptr && !state->fileName.empty())
++            mWindow->pushGui(new GuiMsgBox(mWindow, _("ARE YOU SURE YOU WANT TO DELETE THIS ITEM?"), _("YES"), [this, state]
++            {
++                auto conf = state->config;
++                state->remove();
++                SaveStateRepository::renumberSlots(mGame, conf);
++                mRepository->refresh();
++                loadList();
++            }, _("NO"), nullptr));
++        return true;
++    }
++    if (input.value != 0 && config->isMappedTo("x", input))
++    {
++        auto state = selectedState();
++        if (state != nullptr && !state->fileName.empty())
++        {
++            int slot = mRepository->getNextFreeSlot(mGame, state->config);
++            if (slot >= 0 && state->copyToSlot(slot))
++            {
++                mRepository->refresh();
++                loadList();
++            }
++        }
++        return true;
++    }
++    return GuiComponent::input(config, input);
+ }
+ 
+ std::vector<HelpPrompt> GuiSaveState::getHelpPrompts()
+ {
+-	std::vector<HelpPrompt> prompts;
+-	prompts.push_back(HelpPrompt(BUTTON_BACK, _("BACK"), [&] { delete this; }));
+-	prompts.push_back(HelpPrompt(BUTTON_OK, _("LAUNCH")));
+-
+-	if (mGrid->size())
+-	{
+-		const SaveStateItem& item = mGrid->getSelected();
+-		if (!item.saveState->fileName.empty())
+-		{
+-			prompts.push_back(HelpPrompt("y", _("DELETE")));
+-			prompts.push_back(HelpPrompt("x", _("COPY TO FREE SLOT")));
+-		}
+-	}	
+-
+-	return prompts;
+-}
+-
+-bool GuiSaveState::hitTest(int x, int y, Transform4x4f& parentTransform, std::vector<GuiComponent*>* pResult)
+-{
+-	if (pResult) pResult->push_back(this); // Always return this as it's a fake fullscreen, so we always have click events
+-	GuiComponent::hitTest(x, y, parentTransform, pResult);
+-	return true;
++    std::vector<HelpPrompt> prompts;
++    prompts.push_back(HelpPrompt(BUTTON_BACK, _("BACK"), [this] { delete this; }));
++    auto state = selectedState();
++    prompts.push_back(HelpPrompt(BUTTON_OK, state == nullptr ? _("MORE") : _("LAUNCH")));
++    if (state != nullptr && !state->fileName.empty())
++    {
++        prompts.push_back(HelpPrompt("y", _("DELETE")));
++        prompts.push_back(HelpPrompt("x", _("COPY TO FREE SLOT")));
++    }
++    return prompts;
++}
++
++bool GuiSaveState::hitTest(int x, int y, Transform4x4f& parentTransform, std::vector<GuiComponent*>* result)
++{
++    if (result) result->push_back(this);
++    GuiComponent::hitTest(x, y, parentTransform, result);
++    return true;
+ }
+ 
+ bool GuiSaveState::onMouseClick(int button, bool pressed, int x, int y)
+ {
+-	if (pressed && button == 1 && !mBackground.isMouseOver())
+-	{
+-		delete this;
+-		return true;
+-	}
+-
+-	return (button == 1);
+-}
++    return button == 1;
++}
+--- a/es-app/src/guis/GuiSaveState.h
++++ b/es-app/src/guis/GuiSaveState.h
+@@ -4,7 +4,9 @@
+ 
+ #include "GuiComponent.h"
+ #include "Window.h"
+-#include "components/ImageGridComponent.h"
++#include "components/ComponentList.h"
++#include <vector>
++class ImageComponent;
+ #include "components/NinePatchComponent.h"
+ #include "components/ComponentGrid.h"
+ #include "components/TextComponent.h"
+@@ -37,10 +38,15 @@
+ 
+ protected:
+ 	void centerWindow();
+-	void loadGrid();
++	void loadList();
++	SaveState* selectedState() const;
+ 
+-	std::shared_ptr<ImageGridComponent<SaveStateItem>> mGrid;
+-	std::shared_ptr<ThemeData> mTheme;
++	std::shared_ptr<ComponentList> mList;
++	std::vector<SaveState*> mEntries;
++	bool mShowAllStates;
++	std::shared_ptr<ComponentGrid> mHeader;
++	std::shared_ptr<ImageComponent> mBoxArt;
++	std::shared_ptr<TextComponent> mGameName;
+ 	std::shared_ptr<TextComponent>	mTitle;
+ 
+ 	NinePatchComponent				mBackground;
