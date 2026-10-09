@@ -1,0 +1,31 @@
+From: ButterflyOS development <noreply@butterflyos.local>
+Subject: [PATCH] refresh battery indicators after watcher notifications
+
+The enhanced power-saving render loop waits for an SDL event while idle.
+Battery watcher notifications update cached data but do not wake that loop,
+so plugging in or charging can leave the header stale until input or wake.
+Request the existing refresh event after publishing changed battery data.
+The sleeping-screen path stays asleep; no extra battery polling is added.
+
+Live-tested on the development Flip: unplugging and reconnecting power
+updates the charging icon without controller input in about three seconds.
+
+---
+--- a/es-core/src/components/ControllerActivityComponent.cpp
++++ b/es-core/src/components/ControllerActivityComponent.cpp
+@@ -7,6 +7,7 @@
+ #include "Settings.h"
+ #include "utils/Platform.h"
+ #include "IExternalActivity.h"
++#include "PowerSaver.h"
+ 
+ #include "watchers/BatteryLevelWatcher.h"
+ #include "watchers/NetworkStateWatcher.h"
+@@ -35,6 +36,7 @@
+ 	{
+ 		mWatchedBatteryInfo = batteryWatcher->getBatteryInfo();
+ 		mBatteryInfoChanged = true;
++		PowerSaver::pushRefreshEvent();
+ 	}
+ 
+ 	NetworkStateWatcher* networkWatcher = dynamic_cast<NetworkStateWatcher*>(component);
