@@ -72,8 +72,16 @@ still depends on the game and peripheral.
   reproduce. Treat this as an open display-resume observation.
 - Rumble remains unverified.
 - Long-duration battery-runtime, charging, and low-battery behavior need
-  controlled measurement. Battery percentage reporting was corrected during
-  development testing.
+  controlled measurement. The earlier stuck-zero counter issue was corrected,
+  but a recorded shutdown/restart test increased the reported estimate from
+  77% to 93%. The driver's long-off voltage recalibration is under investigation;
+  this is not evidence of a gain in charge or a measurement of off-state drain.
+  The pending boot-policy change passed a one-hour unplugged shutdown test
+  with a user-observed 84% to 83% result. Charging-status refresh changes also
+  improved cable-change feedback in live testing. Charging completion,
+  charging while powered off, and low-battery qualification remain open.
+  See [battery kernel testing](BATTERY_KERNEL_TESTING.md) for the unpublished
+  changes, test results, and measurement limits.
 - Bluetooth Player 1 fallback depends on device-disconnect detection and is not
   literally instantaneous on every controller.
 - Native built-in hotkeys and the tested external/fallback handler differ in

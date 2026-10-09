@@ -1,0 +1,80 @@
+From: ButterflyOS development <noreply@butterflyos.local>
+Subject: [PATCH] power: supply: rk817: refresh measurements after cable changes
+
+Schedule a one-second settled measurement after plug interrupts. Keep
+normal eight-second monitoring and publish notifications after refreshed
+properties. Serialize property refreshes through the existing work item;
+initialize it before registering interrupts. Charging limits and gauge
+boot policy are unchanged. Experimental, pending live qualification.
+
+---
+--- a/drivers/power/supply/rk817_charger.c
++++ b/drivers/power/supply/rk817_charger.c
+@@ -596,11 +596,12 @@
+ 	charger = (struct rk817_charger *)cg;
+ 	charger->plugged_in = 1;
+ 	power_supply_changed(charger->chg_ps);
+-	power_supply_changed(charger->bat_ps);
+ 	/* try to recalibrate capacity if we hit full charge. */
+ 	charger->soc_cal = 0;
+ 
+-	rk817_read_props(charger);
++	/* Allow charging measurements to settle after a cable transition. */
++	mod_delayed_work(system_percpu_wq, &charger->work,
++			 msecs_to_jiffies(1000));
+ 
+ 	dev_dbg(charger->dev, "Power Cord Inserted\n");
+ 
+@@ -615,7 +616,6 @@
+ 	charger = (struct rk817_charger *)cg;
+ 	rk808 = charger->rk808;
+ 	charger->plugged_in = 0;
+-	power_supply_changed(charger->bat_ps);
+ 	power_supply_changed(charger->chg_ps);
+ 
+ 	/*
+@@ -638,7 +638,9 @@
+ 	regmap_write_bits(rk808->regmap, RK817_PMIC_CHRG_IN, RK817_USB_ILIM_EN,
+ 			  (0x01 << 3));
+ 
+-	rk817_read_props(charger);
++	/* Allow charging measurements to settle after a cable transition. */
++	mod_delayed_work(system_percpu_wq, &charger->work,
++			 msecs_to_jiffies(1000));
+ 
+ 	dev_dbg(charger->dev, "Power Cord Removed\n");
+ 
+@@ -1114,6 +1116,8 @@
+ 	charger = container_of(work, struct rk817_charger, work.work);
+ 
+ 	rk817_read_props(charger);
++	power_supply_changed(charger->bat_ps);
++	power_supply_changed(charger->chg_ps);
+ 
+ 	/* Run every 8 seconds like the BSP driver did. */
+ 	queue_delayed_work(system_percpu_wq, &charger->work, msecs_to_jiffies(8000));
+@@ -1252,6 +1256,12 @@
+ 	if (plugout_irq < 0)
+ 		return plugout_irq;
+ 
++	/* Initialize work before either cable interrupt can schedule it. */
++	ret = devm_delayed_work_autocancel(&pdev->dev, &charger->work,
++					   rk817_charging_monitor);
++	if (ret)
++		return ret;
++
+ 	ret = devm_request_threaded_irq(charger->dev, plugin_irq, NULL,
+ 					rk817_plug_in_isr,
+ 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+@@ -1269,11 +1279,6 @@
+ 		return dev_err_probe(&pdev->dev, ret,
+ 				     "plug_out_irq request failed!\n");
+ 	}
+-
+-	ret = devm_delayed_work_autocancel(&pdev->dev, &charger->work,
+-					   rk817_charging_monitor);
+-	if (ret)
+-		return ret;
+ 
+ 	/* Force the first update immediately. */
+ 	mod_delayed_work(system_percpu_wq, &charger->work, 0);

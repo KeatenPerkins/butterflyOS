@@ -1,0 +1,149 @@
+From: Keaten Perkins <keaten.perkins@gmail.com>
+Subject: [PATCH] power: supply: rk817: correct saved SOC scale and log boot gauge choice
+
+SOC uses thousandths of a percent: 100 percent is 100000, not
+10000. Correct the NVRAM sanity limit. Check boot register reads
+and OCV lookup errors before using their results. Log one bounded
+boot record identifying the pre-reset counter and initialization
+reason so off-time recalibration can be measured on the Flip.
+
+Retain the existing 30-minute voltage-recalibration policy and
+charging parameters; this is the first diagnostic test change.
+
+---
+
+diff --git a/drivers/power/supply/rk817_charger.c b/drivers/power/supply/rk817_charger.c
+--- a/drivers/power/supply/rk817_charger.c
++++ b/drivers/power/supply/rk817_charger.c
+@@ -747,7 +747,7 @@
+ 
+ 	/*
+ 	 * Read the nvram for state of charge. Sanity check for values greater
+-	 * than 100 (10000) or less than 0, because other things (BSP kernels,
++	 * than 100 (100000) or less than 0, because other things (BSP kernels,
+ 	 * U-Boot, or even i2cset) can write to this register. If the value is
+ 	 * off it should get corrected automatically when the voltage drops to
+ 	 * the min (soc is 0) or when the battery is full (soc is 100).
+@@ -757,8 +757,8 @@
+ 	if (ret < 0)
+ 		return ret;
+ 	charger->soc = get_unaligned_le24(bulk_reg);
+-	if (charger->soc > 10000)
+-		charger->soc = 10000;
++	if (charger->soc > 100000)
++		charger->soc = 100000;
+ 	if (charger->soc < 0)
+ 		charger->soc = 0;
+ 
+@@ -771,8 +771,11 @@
+ {
+ 	struct rk808 *rk808 = charger->rk808;
+ 	u8 bulk_reg[4];
+-	u32 boot_voltage, boot_charge_mah;
+-	int ret, reg, off_time, tmp;
++	u32 boot_voltage = 0, boot_charge_mah, counter_charge_mah = 0;
++	s32 counter_adc = 0;
++	int saved_soc = -1;
++	const char *source;
++	int ret, reg, off_time = -1, tmp;
+ 	bool first_boot, counter_invalid = false;
+ 
+ 	/*
+@@ -789,8 +792,11 @@
+ 	 * we hit either our minimum voltage (0%) or full charge (100%).
+ 	 */
+ 	if (first_boot) {
+-		regmap_bulk_read(rk808->regmap, RK817_GAS_GAUGE_PWRON_VOL_H,
++		source = "battery-initialization";
++		ret = regmap_bulk_read(rk808->regmap, RK817_GAS_GAUGE_PWRON_VOL_H,
+ 				 bulk_reg, 2);
++		if (ret < 0)
++			return ret;
+ 		tmp = get_unaligned_be16(bulk_reg);
+ 		boot_voltage = (charger->voltage_k * tmp) +
+ 				1000 * charger->voltage_b;
+@@ -799,11 +805,10 @@
+ 		 * 20C for OCV lookup. If lookup fails, report error with OCV
+ 		 * table.
+ 		 */
+-		charger->soc = power_supply_batinfo_ocv2cap(bat_info,
+-							    boot_voltage,
+-							    20) * 1000;
+-		if (charger->soc < 0)
+-			charger->soc = 0;
++		ret = power_supply_batinfo_ocv2cap(bat_info, boot_voltage, 20);
++		if (ret < 0)
++			return ret;
++		charger->soc = ret * 1000;
+ 
+ 		/* Guess that full charge capacity is the design capacity */
+ 		charger->fcc_mah = charger->bat_charge_full_design_uah / 1000;
+@@ -822,15 +827,20 @@
+ 		if (ret < 0)
+ 			return ret;
+ 
+-		regmap_bulk_read(rk808->regmap, RK817_GAS_GAUGE_Q_PRES_H3,
+-				 bulk_reg, 4);
+-		tmp = get_unaligned_be32(bulk_reg);
++		saved_soc = charger->soc;
++		ret = regmap_bulk_read(rk808->regmap, RK817_GAS_GAUGE_Q_PRES_H3,
++				      bulk_reg, 4);
++		if (ret < 0)
++			return ret;
++		counter_adc = get_unaligned_be32(bulk_reg);
++		tmp = counter_adc;
+ 		if (tmp < 0) {
+ 			counter_invalid = true;
+ 			tmp = 0;
+ 		}
+ 		boot_charge_mah = ADC_TO_CHARGE_UAH(tmp,
+ 						    charger->res_div) / 1000;
++		counter_charge_mah = boot_charge_mah;
+ 		/*
+ 		 * Check if the columb counter has been off for more than 30
+ 		 * minutes as it tends to drift downward. If so, re-init soc
+@@ -842,19 +852,25 @@
+ 		 * reboots), but we shouldn't ever encounter an OFF_CNT more
+ 		 * than 0 on a reboot anyway.
+ 		 */
+-		regmap_read(rk808->regmap, RK817_GAS_GAUGE_OFF_CNT, &off_time);
++		ret = regmap_read(rk808->regmap, RK817_GAS_GAUGE_OFF_CNT, &off_time);
++		if (ret < 0)
++			return ret;
+ 		if (off_time >= 3 || counter_invalid) {
+-			regmap_bulk_read(rk808->regmap,
++			source = counter_invalid ? "invalid-counter" : "off-time-voltage";
++			ret = regmap_bulk_read(rk808->regmap,
+ 					 RK817_GAS_GAUGE_PWRON_VOL_H,
+ 					 bulk_reg, 2);
++			if (ret < 0)
++				return ret;
+ 			tmp = get_unaligned_be16(bulk_reg);
+ 			boot_voltage = (charger->voltage_k * tmp) +
+ 					1000 * charger->voltage_b;
+-			charger->soc =
+-				power_supply_batinfo_ocv2cap(bat_info,
+-							     boot_voltage,
+-							     20) * 1000;
++			ret = power_supply_batinfo_ocv2cap(bat_info, boot_voltage, 20);
++			if (ret < 0)
++				return ret;
++			charger->soc = ret * 1000;
+ 		} else {
++			source = "charge-counter";
+ 			charger->soc = (boot_charge_mah * 1000 * 100 /
+ 					charger->fcc_mah);
+ 		}
+@@ -870,6 +886,12 @@
+ 	ret = rk817_set_charge_counter(charger, boot_charge_mah);
+ 	if (ret < 0)
+ 		return ret;
++
++	/* One boot record, before periodic readings obscure the initial choice. */
++	dev_info(charger->dev,
++		 "boot gauge: source=%s off_count=%d saved_soc_milli_pct=%d counter_adc=0x%08x counter_mah=%u boot_uv=%u selected_soc_milli_pct=%d init_mah=%u full_mah=%d\n",
++		 source, off_time, saved_soc, (u32)counter_adc, counter_charge_mah,
++		 boot_voltage, charger->soc, boot_charge_mah, charger->fcc_mah);
+ 
+ 	/* Set QMAX value to max design capacity. */
+ 	tmp = CHARGE_TO_ADC((charger->bat_charge_full_design_uah / 1000),
