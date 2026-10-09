@@ -1,0 +1,150 @@
+From: ButterflyOS development <noreply@butterflyos.local>
+Subject: [PATCH] power: supply: rk817: test counter-first boot with voltage bounds
+
+Adapt the boot policy from ROCKNIX PR #3305, by Chris Morgan and
+Jacob Cook. Keep checked reads, the existing counter-latch helper,
+charging settings and SYS_CAN_SD handling. Preserve saved SOC for
+invalid or voltage-inconsistent counters and log the selected source.
+Low terminal voltage on battery overrides a stale saved percentage.
+This is an experimental boot-only change; no true-suspend changes.
+
+Link: https://github.com/ROCKNIX/distribution/pull/3305
+
+---
+--- a/drivers/power/supply/rk817_charger.c
++++ b/drivers/power/supply/rk817_charger.c
+@@ -765,6 +765,28 @@
+ 	return 0;
+ }
+ 
++/*
++ * Adapted from ROCKNIX's RK817 boot OCV bound (Jacob Cook), PR #3305.
++ * Under load voltage provides a floor; under charge it provides a ceiling.
++ * The ten percentage-point band is a sanity check, not cell calibration.
++ */
++static int rk817_select_boot_soc(int saved_soc, int counter_soc,
++				 int table_soc, bool plugged_in)
++{
++	if (counter_soc < 0)
++		return saved_soc;
++
++	if (plugged_in) {
++		if (counter_soc < saved_soc - 10000 &&
++		    saved_soc <= table_soc + 10000)
++			return saved_soc;
++	} else if (counter_soc < table_soc - 10000) {
++		return saved_soc;
++	}
++
++	return counter_soc;
++}
++
+ static int
+ rk817_read_or_set_full_charge_on_boot(struct rk817_charger *charger,
+ 				struct power_supply_battery_info *bat_info)
+@@ -773,10 +795,11 @@
+ 	u8 bulk_reg[4];
+ 	u32 boot_voltage = 0, boot_charge_mah, counter_charge_mah = 0;
+ 	s32 counter_adc = 0;
+-	int saved_soc = -1;
++	int saved_soc = -1, counter_soc = -1, table_soc = -1;
++	int live_voltage_uv = 0;
+ 	const char *source;
+ 	int ret, reg, off_time = -1, tmp;
+-	bool first_boot, counter_invalid = false;
++	bool first_boot;
+ 
+ 	/*
+ 	 * Check if the battery is uninitalized. If it is, the columb counter
+@@ -833,46 +856,42 @@
+ 		if (ret < 0)
+ 			return ret;
+ 		counter_adc = get_unaligned_be32(bulk_reg);
+-		tmp = counter_adc;
+-		if (tmp < 0) {
+-			counter_invalid = true;
+-			tmp = 0;
+-		}
+-		boot_charge_mah = ADC_TO_CHARGE_UAH(tmp,
+-						    charger->res_div) / 1000;
+-		counter_charge_mah = boot_charge_mah;
+-		/*
+-		 * Check if the columb counter has been off for more than 30
+-		 * minutes as it tends to drift downward. If so, re-init soc
+-		 * with the boot voltage instead. Note the unit values for the
+-		 * OFF_CNT register appear to be in decaminutes and stops
+-		 * counting at 2550 (0xFF) minutes. BSP kernel used OCV, but
+-		 * for me occasionally that would show invalid values. Boot
+-		 * voltage is only accurate for me on first poweron (not
+-		 * reboots), but we shouldn't ever encounter an OFF_CNT more
+-		 * than 0 on a reboot anyway.
+-		 */
+ 		ret = regmap_read(rk808->regmap, RK817_GAS_GAUGE_OFF_CNT, &off_time);
+ 		if (ret < 0)
+ 			return ret;
+-		if (off_time >= 3 || counter_invalid) {
+-			source = counter_invalid ? "invalid-counter" : "off-time-voltage";
+-			ret = regmap_bulk_read(rk808->regmap,
+-					 RK817_GAS_GAUGE_PWRON_VOL_H,
+-					 bulk_reg, 2);
+-			if (ret < 0)
+-				return ret;
+-			tmp = get_unaligned_be16(bulk_reg);
+-			boot_voltage = (charger->voltage_k * tmp) +
+-					1000 * charger->voltage_b;
+-			ret = power_supply_batinfo_ocv2cap(bat_info, boot_voltage, 20);
+-			if (ret < 0)
+-				return ret;
+-			charger->soc = ret * 1000;
+-		} else {
++		ret = regmap_bulk_read(rk808->regmap, RK817_GAS_GAUGE_BAT_VOL_H,
++				      bulk_reg, 2);
++		if (ret < 0)
++			return ret;
++		live_voltage_uv = charger->voltage_k * get_unaligned_be16(bulk_reg) +
++				  1000 * charger->voltage_b;
++		ret = power_supply_batinfo_ocv2cap(bat_info, live_voltage_uv, 20);
++		if (ret < 0)
++			return ret;
++		table_soc = clamp(ret, 0, 100) * 1000;
++
++		if (counter_adc > 0) {
++			counter_charge_mah = ADC_TO_CHARGE_UAH(counter_adc,
++							      charger->res_div) / 1000;
++			counter_soc = min_t(u32, counter_charge_mah,
++					    charger->fcc_mah) * 100000 /
++				      charger->fcc_mah;
++		}
++
++		charger->soc = rk817_select_boot_soc(saved_soc, counter_soc,
++						   table_soc, charger->plugged_in);
++		if (counter_soc < 0)
++			source = "saved-invalid-counter";
++		else if (charger->soc != counter_soc)
++			source = "saved-voltage-bound";
++		else
+ 			source = "charge-counter";
+-			charger->soc = (boot_charge_mah * 1000 * 100 /
+-					charger->fcc_mah);
++
++		/* A stale saved estimate must not hide a depleted battery. */
++		if (!charger->plugged_in &&
++		    live_voltage_uv <= bat_info->voltage_min_design_uv) {
++			charger->soc = 0;
++			source = "empty-voltage";
+ 		}
+ 	}
+ 
+@@ -889,9 +908,10 @@
+ 
+ 	/* One boot record, before periodic readings obscure the initial choice. */
+ 	dev_info(charger->dev,
+-		 "boot gauge: source=%s off_count=%d saved_soc_milli_pct=%d counter_adc=0x%08x counter_mah=%u boot_uv=%u selected_soc_milli_pct=%d init_mah=%u full_mah=%d\n",
++		 "boot policy: source=%s off_count=%d saved_soc_milli_pct=%d counter_adc=0x%08x counter_mah=%u boot_uv=%u live_uv=%d table_soc_milli_pct=%d plugged_in=%d selected_soc_milli_pct=%d init_mah=%u full_mah=%d\n",
+ 		 source, off_time, saved_soc, (u32)counter_adc, counter_charge_mah,
+-		 boot_voltage, charger->soc, boot_charge_mah, charger->fcc_mah);
++		 boot_voltage, live_voltage_uv, table_soc, charger->plugged_in,
++		 charger->soc, boot_charge_mah, charger->fcc_mah);
+ 
+ 	/* Set QMAX value to max design capacity. */
+ 	tmp = CHARGE_TO_ADC((charger->bat_charge_full_design_uah / 1000),
