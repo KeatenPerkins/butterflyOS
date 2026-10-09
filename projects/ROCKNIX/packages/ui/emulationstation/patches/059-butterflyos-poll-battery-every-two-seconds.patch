@@ -1,0 +1,19 @@
+From: ButterflyOS development <noreply@butterflyos.local>
+Subject: [PATCH] check battery status every two seconds
+
+Improve plug and unplug feedback while retaining change-only redraws.
+Live testing on the development Flip showed roughly four seconds from
+plugging in to the icon update; the user accepted this response time.
+The polling interval does not guarantee end-to-end notification latency.
+
+--- a/es-core/src/watchers/BatteryLevelWatcher.h
++++ b/es-core/src/watchers/BatteryLevelWatcher.h
+@@ -12,7 +12,7 @@
+ 	bool enabled() override { return true; };
+ 
+ 	int  initialUpdateTime() override { return 0; }		// Immediate
+-	int  updateTime() override { return 5 * 1000; }		// 5 seconds
++	int  updateTime() override { return 2 * 1000; }		// 2 seconds
+ 
+ 	bool check() override;
+ 
