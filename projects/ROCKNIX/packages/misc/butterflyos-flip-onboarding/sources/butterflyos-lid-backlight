@@ -83,6 +83,9 @@ while :; do
         printf 4 >"${BACKLIGHT}"
         mute_audio
         logger -t butterflyos-lid "lid closed: backlight off"
+        if [ -f /storage/.config/butterflyos/experimental-lid-suspend.enabled ]; then
+          systemctl --no-block start butterflyos-suspend-test.service
+        fi
         ;;
       *"type 5 (EV_SW), code 0 (SW_LID), value 0"*)
         printf 0 >"${BACKLIGHT}"

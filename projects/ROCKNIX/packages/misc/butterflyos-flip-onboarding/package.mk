@@ -22,6 +22,12 @@ make_target() {
 }
 
 makeinstall_target() {
+  mkdir -p "${INSTALL}/usr/bin" "${INSTALL}/usr/config/modules" "${INSTALL}/usr/lib/systemd/system"
+  cp -a "${PKG_DIR}/sources/butterflyos-suspend-test.py" "${INSTALL}/usr/bin/"
+  cp -a "${PKG_DIR}/sources/Experimental Suspend.sh" "${INSTALL}/usr/config/modules/"
+  cp -a "${PKG_DIR}/system.d/butterflyos-suspend-test.service" "${INSTALL}/usr/lib/systemd/system/"
+  chmod 0755 "${INSTALL}/usr/bin/butterflyos-suspend-test.py" "${INSTALL}/usr/config/modules/Experimental Suspend.sh"
+
   # Keep the project policy, audit notice, common license texts, and the exact
   # non-commercial emulator licenses beside the binaries they govern.
   mkdir -p "${INSTALL}/usr/share/butterflyos/licenses/components"

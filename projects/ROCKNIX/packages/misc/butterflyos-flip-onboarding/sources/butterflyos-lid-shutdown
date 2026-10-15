@@ -22,6 +22,8 @@ POLL_SECONDS = 5
 
 
 def read_minutes(path=CONFIG):
+    if Path('/storage/.config/butterflyos/experimental-lid-suspend.enabled').exists():
+        return 0
     try:
         value = '0'
         for line in path.read_text().splitlines():

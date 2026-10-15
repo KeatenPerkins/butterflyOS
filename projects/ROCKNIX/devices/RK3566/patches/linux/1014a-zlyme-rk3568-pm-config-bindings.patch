@@ -1,0 +1,132 @@
+From: Zetarancio <zetarancio@users.noreply.github.com>
+Date: Mon, 28 Sep 2026 00:00:00 +0000
+Subject: [PATCH] dt-bindings: soc: rockchip: add rk3568 PM suspend config
+
+Document rockchip,pm-rk3568 and add the RK3568 suspend bit definitions
+from the Rockchip BSP header. The 5.10 and 6.1 copies of that header
+match. The properties are the BL31 suspend ABI.
+
+--- a/include/dt-bindings/suspend/rockchip-rk3568.h
++++ b/include/dt-bindings/suspend/rockchip-rk3568.h
+@@ -0,0 +1,57 @@
++/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
++/*
++ * Header providing constants for Rockchip suspend bindings.
++ *
++ * Copyright (C) 2021, Rockchip Electronics Co., Ltd.
++ * Author: XiaoDong.Huang
++ */
++
++#ifndef __DT_BINDINGS_SUSPEND_ROCKCHIP_RK3568_H__
++#define __DT_BINDINGS_SUSPEND_ROCKCHIP_RK3568_H__
++/******************************bits ops************************************/
++
++#ifndef BIT
++#define BIT(nr)				(1 << (nr))
++#endif
++
++#define RKPM_SLP_WFI			BIT(0)
++#define RKPM_SLP_ARMOFF			BIT(1)
++#define RKPM_SLP_CENTER_OFF		BIT(2)
++#define RKPM_SLP_ARMOFF_LOGOFF		BIT(3)
++#define RKPM_SLP_FROM_UBOOT		BIT(4)
++#define RKPM_SLP_PMIC_LP		BIT(5)
++#define RKPM_SLP_HW_PLLS_OFF		BIT(6)
++#define RKPM_SLP_PMUALIVE_32K		BIT(7)
++#define RKPM_SLP_OSC_DIS		BIT(8)
++#define RKPM_SLP_32K_EXT		BIT(9)
++#define RKPM_SLP_32K_PVTM		BIT(10)
++/* the wake up source */
++#define RKPM_CPU0_WKUP_EN		BIT(0)
++#define RKPM_CPU1_WKUP_EN		BIT(1)
++#define RKPM_CPU2_WKUP_EN		BIT(2)
++#define RKPM_CPU3_WKUP_EN		BIT(3)
++#define RKPM_GPIO_WKUP_EN		BIT(4)
++#define RKPM_UART0_WKUP_EN		BIT(5)
++#define RKPM_SDMMC0_WKUP_EN		BIT(6)
++#define RKPM_SDMMC1_WKUP_EN		BIT(7)
++#define RKPM_SDMMC2_WKUP_EN		BIT(8)
++#define RKPM_USB_WKUP_EN		BIT(9)
++#define RKPM_PCIE_WKUP_EN		BIT(10)
++#define RKPM_VAD_WKUP_EN		BIT(11)
++#define RKPM_TIMER_WKUP_EN		BIT(12)
++#define RKPM_PWM0_WKUP_EN		BIT(13)
++#define RKPM_TIMEOUT_WKUP_EN		BIT(14)
++#define RKPM_SFT_WKUP_EN		BIT(15)
++#define RKPM_USB_LINESTATE_WKUP_EN	BIT(16)
++
++#define RKPM_SLP_LDO1_ON		BIT(0)
++#define RKPM_SLP_LDO2_ON		BIT(1)
++#define RKPM_SLP_LDO3_ON		BIT(2)
++#define RKPM_SLP_LDO4_ON		BIT(3)
++#define RKPM_SLP_LDO5_ON		BIT(4)
++#define RKPM_SLP_LDO6_ON		BIT(5)
++#define RKPM_SLP_LDO7_ON		BIT(6)
++#define RKPM_SLP_LDO8_ON		BIT(7)
++#define RKPM_SLP_LDO9_ON		BIT(8)
++
++#endif
+
+--- a/Documentation/devicetree/bindings/soc/rockchip/rockchip,pm-rk3568.yaml
++++ b/Documentation/devicetree/bindings/soc/rockchip/rockchip,pm-rk3568.yaml
+@@ -0,0 +1,60 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++# %YAML 1.2
++---
++$id: http://devicetree.org/schemas/soc/rockchip/rockchip,pm-rk3568.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Rockchip RK3568 firmware suspend configuration
++
++maintainers:
++  - Zetarancio <zetarancio@users.noreply.github.com>
++
++description:
++  Programs the RK3568/RK3566 BL31 suspend ABI. The numeric properties are
++  firmware values from dt-bindings/suspend/rockchip-rk3568.h, not a
++  description of board pins. This node does not switch regulators.
++
++properties:
++  compatible:
++    const: rockchip,pm-rk3568
++
++  rockchip,sleep-mode-config:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description:
++      RKPM_SLP_* bitmask passed to SIP suspend subcommand 0x01.
++
++  rockchip,wakeup-config:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description:
++      RKPM_*_WKUP_EN bitmask passed to SIP suspend subcommand 0x02.
++
++  rockchip,sleep-debug-en:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description:
++      Non-zero asks BL31 to enable suspend debug output. This does not
++      add no_console_suspend to the kernel command line.
++    default: 0
++
++required:
++  - compatible
++  - rockchip,sleep-mode-config
++  - rockchip,wakeup-config
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/suspend/rockchip-rk3568.h>
++
++    rockchip-suspend {
++        compatible = "rockchip,pm-rk3568";
++        rockchip,sleep-debug-en = <0>;
++        rockchip,sleep-mode-config = <(RKPM_SLP_ARMOFF_LOGOFF |
++                                       RKPM_SLP_CENTER_OFF |
++                                       RKPM_SLP_PMIC_LP |
++                                       RKPM_SLP_HW_PLLS_OFF |
++                                       RKPM_SLP_PMUALIVE_32K |
++                                       RKPM_SLP_OSC_DIS |
++                                       RKPM_SLP_32K_PVTM)>;
++        rockchip,wakeup-config = <RKPM_GPIO_WKUP_EN>;
++    };
