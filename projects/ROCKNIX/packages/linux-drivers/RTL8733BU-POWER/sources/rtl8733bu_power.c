@@ -159,6 +159,16 @@ static void rtl8733bu_power_shutdown(struct platform_device *pdev)
 	gpiod_set_value_cansleep(power->enable_gpio, 0);
 }
 
+/* Cut combo-chip power only after USB device suspend has completed.
+ * Follows Zlyme 327233b529ca; pre-sleep userspace stops Bluetooth first. */
+static int rtl8733bu_power_suspend_late(struct device *dev)
+{
+	struct rtl8733bu_power *power = dev_get_drvdata(dev);
+	if (power)
+		gpiod_set_value_cansleep(power->enable_gpio, 0);
+	return 0;
+}
+
 static int rtl8733bu_power_resume(struct device *dev)
 {
 	struct rtl8733bu_power *power = dev_get_drvdata(dev);
@@ -171,6 +181,7 @@ static int rtl8733bu_power_resume(struct device *dev)
 }
 
 static const struct dev_pm_ops rtl8733bu_power_pm_ops = {
+	.suspend_late = rtl8733bu_power_suspend_late,
 	.resume = rtl8733bu_power_resume,
 };
 

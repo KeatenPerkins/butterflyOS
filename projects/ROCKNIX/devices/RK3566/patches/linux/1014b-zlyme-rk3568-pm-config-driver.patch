@@ -1,0 +1,226 @@
+From: Zetarancio <zetarancio@users.noreply.github.com>
+Date: Mon, 28 Sep 2026 00:00:00 +0000
+Subject: [PATCH] soc: rockchip: add RK3568 firmware suspend configuration
+
+Program the RK3568 BL31 suspend mode from a rockchip,pm-rk3568 node.
+Reuse ROCKCHIP_SIP_SUSPEND_MODE and arm_smccc_smc(). Register with
+builtin_platform_driver rather than the vendor late_initcall_sync:
+this driver does not touch regulators, and a built-in OF driver has
+no unload path.
+
+A missing SMCCC conduit fails probe before any call. A rejected
+required call stays bound so .prepare can retry it and abort that
+suspend. Debug-enable is probe-only and does not fail suspend.
+
+--- a/include/soc/rockchip/rockchip_sip.h	2026-09-28 15:01:50.915073010 +0200
++++ b/include/soc/rockchip/rockchip_sip.h	2026-09-28 15:02:39.686368799 +0200
+@@ -8,6 +8,10 @@
+ 
+ #define ROCKCHIP_SIP_SUSPEND_MODE		0x82000003
+ #define ROCKCHIP_SLEEP_PD_CONFIG		0xff
++#define ROCKCHIP_SIP_SUSPEND_MODE_CONFIG	0x01
++#define ROCKCHIP_SIP_SUSPEND_WKUP_SOURCE	0x02
++#define ROCKCHIP_SIP_SUSPEND_DEBUG_ENABLE	0x05
++#define ROCKCHIP_SIP_SUSPEND_LINUX_PM_STATE	0x09
+ 
+ #define ROCKCHIP_SIP_DRAM_FREQ			0x82000008
+ #define ROCKCHIP_SIP_CONFIG_DRAM_INIT		0x00
+--- a/drivers/soc/rockchip/Kconfig	2026-09-28 15:01:52.513016409 +0200
++++ b/drivers/soc/rockchip/Kconfig	2026-09-28 15:02:46.824123299 +0200
+@@ -30,4 +30,13 @@
+ 	  on this platform. That will create all the power capping capable
+ 	  devices.
+ 
++config ROCKCHIP_PM_CONFIG
++	bool "Rockchip RK3568 firmware suspend configuration"
++	depends on HAVE_ARM_SMCCC && OF && SUSPEND
++	help
++	  Send the RK3568/RK3566 BL31 suspend mode, wake mask, and Linux
++	  sleep state through the existing ROCKCHIP_SIP_SUSPEND_MODE SMC.
++	  This is the rockchip,pm-rk3568 firmware interface. It does not
++	  cover other Rockchip SoCs and it does not change regulators.
++
+ endif
+--- a/drivers/soc/rockchip/Makefile	2026-09-28 15:01:54.072961201 +0200
++++ b/drivers/soc/rockchip/Makefile	2026-09-28 15:02:46.849122441 +0200
+@@ -5,3 +5,4 @@
+ obj-$(CONFIG_ROCKCHIP_GRF) += grf.o
+ obj-$(CONFIG_ROCKCHIP_IODOMAIN) += io-domain.o
+ obj-$(CONFIG_ROCKCHIP_DTPM) += dtpm.o
++obj-$(CONFIG_ROCKCHIP_PM_CONFIG) += rockchip-pm-config.o
+--- a/drivers/soc/rockchip/rockchip-pm-config.c
++++ b/drivers/soc/rockchip/rockchip-pm-config.c
+@@ -0,0 +1,173 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * RK3568/RK3566 BL31 suspend configuration.
++ *
++ * Sends the stock/BSP suspend ABI through the SMC already defined as
++ * ROCKCHIP_SIP_SUSPEND_MODE. Regulator lists, virtual poweroff, and
++ * sleep-IO tables from the vendor rockchip_pm_config driver are not
++ * implemented. RK817 SLPPIN remains owned by rk8xx-core.
++ *
++ * A required call that firmware rejects is logged and retried from
++ * .prepare. .prepare then fails the suspend attempt. Debug-enable is
++ * optional and is sent only at probe.
++ */
++
++#include <linux/arm-smccc.h>
++#include <linux/device.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/suspend.h>
++
++#include <soc/rockchip/rockchip_sip.h>
++
++struct rockchip_pm_config {
++	u32 mode;
++	u32 wakeup;
++	bool have_debug;
++	u32 debug_en;
++	bool required_ok;
++};
++
++static unsigned long rockchip_pm_smc(struct device *dev, const char *phase,
++				     const char *op, u32 ctrl, u32 cfg1,
++				     u32 cfg2, bool show_sleep)
++{
++	struct arm_smccc_res res;
++
++	arm_smccc_smc(ROCKCHIP_SIP_SUSPEND_MODE, ctrl, cfg1, cfg2,
++		      0, 0, 0, 0, &res);
++	if (show_sleep) {
++		if (res.a0)
++			dev_err(dev,
++				"phase=%s op=%s ctrl=0x%x cfg1=0x%x cfg2=0x%x res.a0=%ld sleep_state=%u\n",
++				phase, op, ctrl, cfg1, cfg2, (long)res.a0, cfg1);
++		else
++			dev_info(dev,
++				 "phase=%s op=%s ctrl=0x%x cfg1=0x%x cfg2=0x%x res.a0=%ld sleep_state=%u\n",
++				 phase, op, ctrl, cfg1, cfg2, (long)res.a0, cfg1);
++	} else if (res.a0) {
++		dev_err(dev,
++			"phase=%s op=%s ctrl=0x%x cfg1=0x%x cfg2=0x%x res.a0=%ld\n",
++			phase, op, ctrl, cfg1, cfg2, (long)res.a0);
++	} else {
++		dev_info(dev,
++			 "phase=%s op=%s ctrl=0x%x cfg1=0x%x cfg2=0x%x res.a0=%ld\n",
++			 phase, op, ctrl, cfg1, cfg2, (long)res.a0);
++	}
++	return res.a0;
++}
++
++static int rockchip_pm_config_prepare(struct device *dev)
++{
++	struct rockchip_pm_config *cfg = dev_get_drvdata(dev);
++	suspend_state_t state = mem_sleep_current;
++	unsigned long pm_state, mode, wake;
++
++	pm_state = rockchip_pm_smc(dev, "prepare", "LINUX_PM_STATE",
++				   ROCKCHIP_SIP_SUSPEND_LINUX_PM_STATE,
++				   state, 0, true);
++	mode = rockchip_pm_smc(dev, "prepare", "MODE",
++			       ROCKCHIP_SIP_SUSPEND_MODE_CONFIG,
++			       cfg->mode, 0, false);
++	wake = rockchip_pm_smc(dev, "prepare", "WAKE",
++			       ROCKCHIP_SIP_SUSPEND_WKUP_SOURCE,
++			       cfg->wakeup, 0, false);
++	if (pm_state || mode || wake) {
++		cfg->required_ok = false;
++		return -EIO;
++	}
++
++	cfg->required_ok = true;
++	return 0;
++}
++
++static const struct dev_pm_ops rockchip_pm_config_pm_ops = {
++	.prepare = rockchip_pm_config_prepare,
++};
++
++static int rockchip_pm_config_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct rockchip_pm_config *cfg;
++	unsigned long mode, wake;
++	int ret;
++
++	if (arm_smccc_1_1_get_conduit() == SMCCC_CONDUIT_NONE) {
++		dev_err(dev, "SMCCC conduit is none\n");
++		return -ENODEV;
++	}
++
++	cfg = devm_kzalloc(dev, sizeof(*cfg), GFP_KERNEL);
++	if (!cfg)
++		return -ENOMEM;
++
++	if (of_property_read_u32(dev->of_node, "rockchip,sleep-mode-config",
++				 &cfg->mode)) {
++		dev_err(dev, "missing rockchip,sleep-mode-config\n");
++		return -EINVAL;
++	}
++	if (of_property_read_u32(dev->of_node, "rockchip,wakeup-config",
++				 &cfg->wakeup)) {
++		dev_err(dev, "missing rockchip,wakeup-config\n");
++		return -EINVAL;
++	}
++	ret = of_property_read_u32(dev->of_node, "rockchip,sleep-debug-en",
++				   &cfg->debug_en);
++	if (ret == -EINVAL) {
++		cfg->have_debug = false;
++	} else if (ret) {
++		dev_err(dev, "bad rockchip,sleep-debug-en\n");
++		return ret;
++	} else {
++		cfg->have_debug = true;
++	}
++
++	platform_set_drvdata(pdev, cfg);
++
++	mode = rockchip_pm_smc(dev, "probe", "MODE",
++			       ROCKCHIP_SIP_SUSPEND_MODE_CONFIG,
++			       cfg->mode, 0, false);
++	wake = rockchip_pm_smc(dev, "probe", "WAKE",
++			       ROCKCHIP_SIP_SUSPEND_WKUP_SOURCE,
++			       cfg->wakeup, 0, false);
++	if (cfg->have_debug)
++		rockchip_pm_smc(dev, "probe", "DEBUG",
++				ROCKCHIP_SIP_SUSPEND_DEBUG_ENABLE,
++				cfg->debug_en, 0, false);
++
++	/*
++	 * Stay bound after a rejected required call so .prepare still
++	 * runs, retries the calls, and can abort that suspend. Failing
++	 * probe here would drop the callback and leave a partial
++	 * firmware configuration with no owner.
++	 */
++	cfg->required_ok = !mode && !wake;
++	if (!cfg->required_ok)
++		dev_err(dev, "required suspend firmware configuration was rejected\n");
++
++	return 0;
++}
++
++static const struct of_device_id rockchip_pm_config_of_match[] = {
++	{ .compatible = "rockchip,pm-rk3568" },
++	{ }
++};
++
++static struct platform_driver rockchip_pm_config_driver = {
++	.probe = rockchip_pm_config_probe,
++	.driver = {
++		.name = "rockchip-pm-config",
++		.of_match_table = rockchip_pm_config_of_match,
++		.pm = &rockchip_pm_config_pm_ops,
++	},
++};
++
++/*
++ * device_initcall via builtin_platform_driver, not the vendor
++ * late_initcall_sync. This driver does not touch regulators, and a
++ * built-in OF driver has no unload path.
++ */
++builtin_platform_driver(rockchip_pm_config_driver);
++
++MODULE_DESCRIPTION("Rockchip RK3568 firmware suspend configuration");
++MODULE_LICENSE("GPL");

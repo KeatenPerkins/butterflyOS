@@ -15,10 +15,32 @@
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/soc/rockchip,vop2.h>
-/* #include <dt-bindings/suspend/rockchip-rk3568.h> -- disabled while 1013 patches are out for testing */
+#include <dt-bindings/suspend/rockchip-rk3568.h>
 #include "rk3566.dtsi"
 
 / {
+	rockchip_suspend: rockchip-suspend {
+		compatible = "rockchip,pm-rk3568";
+		status = "okay";
+		rockchip,sleep-debug-en = <0>;
+		rockchip,sleep-mode-config = <
+			(0
+			| RKPM_SLP_CENTER_OFF
+			| RKPM_SLP_ARMOFF_LOGOFF
+			| RKPM_SLP_PMIC_LP
+			| RKPM_SLP_HW_PLLS_OFF
+			| RKPM_SLP_PMUALIVE_32K
+			| RKPM_SLP_OSC_DIS
+			| RKPM_SLP_32K_PVTM
+			)
+		>;
+		rockchip,wakeup-config = <
+			(0
+			| RKPM_GPIO_WKUP_EN
+			)
+		>;
+	};
+
 	model = "Miyoo Flip";
 	chassis-type = "handset";
 	compatible = "miyoo,flip", "rockchip,rk3566";
@@ -813,15 +835,10 @@
 				regulator-ramp-delay = <6001>;
 				regulator-initial-mode = <0x2>;
 				regulator-name = "vdd_logic";
-				/*
-				 * Without the rk3568-suspend driver (1013 patches),
-				 * vdd_logic must stay on — BL31 defaults don't
-				 * expect ARMOFF_LOGOFF and can't restore the logic
-				 * domain.  Re-enable off-in-suspend when the 1013
-				 * patches are active again.
-				 */
+				/* Experimental: BL31 pm-rk3568 driver validates the stock
+				 * ARMOFF_LOGOFF mode before allowing the logic rail off. */
 				regulator-state-mem {
-					regulator-on-in-suspend;
+					regulator-off-in-suspend;
 				};
 			};
 
@@ -1178,10 +1195,10 @@
 /* SD slot 0 (primary):
  * (miyoo355_fw_20250509213001): max 150 MHz, UHS-I SDR12/SDR25 only (no SDR50).
  * Slot 0 and slot 1 share vqmmc (vccio_sd); a single I/O voltage rail for both.
- * Use cards that match voltage: both 3.3V (e.g. high-speed or SDR12/SDR25) or both
- * 1.8V (UHS-I after switch). Mixing 3.3V and 1.8V cards in the two slots is unsafe. */
+ * Experimental candidate: both slots stay at 3.3V high-speed (50 MHz),
+ * avoiding a shared-rail UHS voltage switch during probe or resume. */
 &sdmmc0 {
-	max-frequency = <150000000>;
+	max-frequency = <50000000>;
 	no-sdio;
 	no-mmc;
 	bus-width = <4>;
@@ -1189,10 +1206,6 @@
 	keep-power-in-suspend;
 	cap-sd-highspeed;
 	disable-wp;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
-	sd-uhs-sdr50;
-	sd-uhs-sdr104;
 	vmmc-supply = <&vcc_sd>;
 	vqmmc-supply = <&vccio_sd>;
 	pinctrl-names = "default";
@@ -1203,17 +1216,13 @@
 /* SD slot 1 (secondary): 
  * (miyoo355_fw_20250509213001):max 150 MHz, no UHS modes (high-speed only). */
 &sdmmc1 {
-	max-frequency = <150000000>;
+	max-frequency = <50000000>;
 	no-sdio;
 	no-mmc;
 	bus-width = <4>;
 	keep-power-in-suspend;
 	cap-sd-highspeed;
 	disable-wp;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
-	sd-uhs-sdr50;
-	sd-uhs-sdr104;
 	vmmc-supply = <&vcc_sd2>;
 	vqmmc-supply = <&vccio_sd>;
 	pinctrl-names = "default";

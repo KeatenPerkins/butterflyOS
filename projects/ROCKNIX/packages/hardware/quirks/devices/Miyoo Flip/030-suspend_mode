@@ -1,19 +1,15 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
-# Copyright (C) 2026-present ButterflyOS
-
-# Deep suspend on the Miyoo Flip V2 can lose the OS-card controller during
-# resume (mmc0 error -110 / card removed), which aborts the /storage ext4
-# journal and can leave the system unusable. ROCKNIX fake suspend also does
-# substantially more than blanking the panel and has produced unreliable lid
-# wake behaviour on this device.
-#
-# Keep the lid inert for the safe baseline. A later ButterflyOS-specific lid
-# handler may blank only the panel/backlight once that path has passed extended
-# resume and storage-integrity testing.
-
+# Experimental branch only: permit explicit systemctl suspend but keep the
+# legacy fake-suspend input path off. Tools owns opt-in lid triggering.
 . /etc/profile.d/001-functions
-
-/usr/bin/suspendmode off
+mkdir -p /storage/.config/sleep.conf.d
+# Every boot starts with manual testing; opt in to automatic lid sleep again.
+rm -f /storage/.config/butterflyos/experimental-lid-suspend.enabled
+cat > /storage/.config/sleep.conf.d/sleep.conf <<'CONF'
+[Sleep]
+AllowSuspend=yes
+SuspendState=mem
+CONF
+set_setting system.suspendmode off
 set_setting system.suspend.enable 0
-
