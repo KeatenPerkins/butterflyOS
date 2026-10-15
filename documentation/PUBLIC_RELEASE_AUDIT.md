@@ -417,3 +417,20 @@ ZIP-aware Pokémon filtering/sprites, LeafGreen revision-1 sprites, cross-family
 Gen III swaps and box-back navigation. The unfinished Gen III event is excluded;
 true suspend remains disabled. See [v1.0.4 release notes](RELEASE_NOTES_v1.0.4.md)
 and the [package license manifest](PACKAGE_LICENSE_MANIFEST_v1.0.4.md).
+
+### v1.0.4 online-package correction — October 15
+
+The first publication mistakenly used the generic ROCKNIX build archive as the
+online update asset. The strict ButterflyOS updater rejected its extra entries;
+the fresh-install image was unaffected. The update asset was replaced with the
+five permitted files: archive identity plus SYSTEM, KERNEL and their checksum
+files. SYSTEM/KERNEL are byte-identical to the tested image. Public metadata,
+checksums and upload-verification records were refreshed, and .20's updater
+check sees build 20261013. Users whose earlier attempt failed should retry.
+The corrected package passed the actual updater's manifest/archive validators,
+and all seven updater tests passed. GitHub's recorded hashes match local files.
+
+Future releases must use `scripts/prepare-butterflyos-update.py` with audited
+SYSTEM/KERNEL payloads, then verify public asset hashes and metadata. Do not
+publish the generic build tar as the online package. The packager validates the
+result with the actual updater before writing its public manifest.
