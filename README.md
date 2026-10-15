@@ -19,6 +19,7 @@ Start here:
 - [How to update](documentation/UPDATES.md#how-to-update)
 - [Installation and recovery](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md)
 - [Controls and hotkeys](documentation/HOTKEYS.md)
+- [Emulators and performance tuning](documentation/EMULATORS_AND_PERFORMANCE.md)
 - [Features](documentation/FEATURES.md)
 - [Butterfly Link save trading](documentation/BUTTERFLY_LINK.md)
 - [Documentation index](documentation/README.md)

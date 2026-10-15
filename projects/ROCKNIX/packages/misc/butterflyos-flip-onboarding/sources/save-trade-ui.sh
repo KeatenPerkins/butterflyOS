@@ -192,6 +192,7 @@ local_trade_workflow() {
 rom_list_file() {
   local generation=$1 list="$STATE_ROOT/gen${1}-rom-list"
   local extension directory path canonical index=0
+  local -a archive_match=()
   local -A seen=()
   case "${generation}" in
     1) directory=gb; extension='*.gb' ;;
@@ -199,17 +200,21 @@ rom_list_file() {
     3) directory=gba; extension='*.gba' ;;
     *) return 1 ;;
   esac
+  [[ "${generation}" != 3 ]] || archive_match=(-o -iname '*.zip')
   mkdir -p "${STATE_ROOT}"
   : >"${list}"
   while IFS= read -r -d '' path; do
     canonical=$(readlink -f -- "$path" 2>/dev/null || true)
     [[ -n "${canonical}" && -f "${canonical}" ]] || continue
+    if [[ "${generation}" == 3 ]]; then
+      python3 /usr/bin/butterflyos_rom_filter.py "${canonical}" || continue
+    fi
     [[ -z "${seen[$canonical]:-}" ]] || continue
     seen[$canonical]=1
     index=$((index + 1))
     printf '%s\t%s\n' "${index}" "${canonical}" >>"${list}"
   done < <(find "/storage/roms/${directory}" "/storage/games-external/roms/${directory}" \
-    -type f -iname "${extension}" -print0 2>/dev/null)
+    -type f \( -iname "${extension}" "${archive_match[@]}" \) -print0 2>/dev/null)
   printf '%s\n' "${list}"
 }
 

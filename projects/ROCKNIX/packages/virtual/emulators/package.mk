@@ -511,14 +511,22 @@ makeinstall_target() {
   add_es_system gbh
 
   ### Nintendo GameBoy Advance
-  add_emu_core gba retroarch mgba true
+  # Flip live tests: gpSP maintains full speed with substantially more
+  # fast-forward headroom. Preserve explicit core overrides and mGBA fallback.
+  GBA_DEFAULT_MGBA=true
+  GBA_DEFAULT_GPSP=false
+  if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
+    GBA_DEFAULT_MGBA=false
+    GBA_DEFAULT_GPSP=true
+  fi
+  add_emu_core gba retroarch mgba ${GBA_DEFAULT_MGBA}
   add_emu_core gba retroarch vbam false
   add_emu_core gba retroarch vba_next false
   add_emu_core gba retroarch beetle_gba false
   add_emu_core gba retroarch skyemu false
   case ${DEVICE} in
     H700|RK3326|RK3576|RK3566|S922X)
-      add_emu_core gba retroarch gpsp false
+      add_emu_core gba retroarch gpsp ${GBA_DEFAULT_GPSP}
       ;;
     RK3399|RK3588|SM6115|SM8250|SM8550)
       add_emu_core gba retroarch gpsp false

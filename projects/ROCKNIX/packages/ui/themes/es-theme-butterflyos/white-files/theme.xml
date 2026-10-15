@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ButterflyOS theme prototype
+  Copyright (C) 2026 Keaten Perkins
+  SPDX-License-Identifier: GPL-2.0-only
+-->
+<theme defaultTransition="instant">
+  <formatVersion>7</formatVersion>
+
+  <variables>
+    <fontRegular>/usr/share/fonts/liberation/LiberationSans-Regular.ttf</fontRegular>
+    <fontBold>/usr/share/fonts/liberation/LiberationSans-Bold.ttf</fontBold>
+    <!-- Keep Start-to-label spacing proportional to text height, not screen
+         width. Matches the approved 640x480 position and tightens on HDMI. -->
+    <startHintX>0.965 - 0.3066667 * ${screen.height} / ${screen.width}</startHintX>
+  </variables>
+
+  <!-- Keep global status indicators inside the Flip's visible safe area. -->
+  <view name="screen">
+    <controllerActivity name="controllerActivity">
+      <pos>0.655 0.035</pos>
+      <size>0.060 0.055</size>
+      <imagePath>./assets/status-controller.svg</imagePath>
+      <horizontalAlignment>right</horizontalAlignment>
+      <color>d9e7ffff</color>
+      <activityColor>159dffff</activityColor>
+      <hotkeyColor>ff3fa4ff</hotkeyColor>
+      <itemSpacing>0.008</itemSpacing>
+    </controllerActivity>
+    <text name="clock">
+      <origin>0 0</origin>
+      <pos>0.035 0.035</pos>
+      <size>0.18 0.055</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <alignment>left</alignment>
+      <color>d9e7ffff</color>
+    </text>
+    <batteryIndicator name="batteryIndicator">
+      <pos>0.735 0.035</pos>
+      <size>0.23 0.055</size>
+      <horizontalAlignment>right</horizontalAlignment>
+      <color>d9e7ffff</color>
+    </batteryIndicator>
+  </view>
+
+  <view name="system,basic,detailed,grid,video">
+    <image name="butterfly-background" extra="true">
+      <origin>0 0</origin>
+      <pos>0 0</pos>
+      <size>1 1</size>
+      <path>./assets/background.svg</path>
+      <zIndex>-10</zIndex>
+    </image>
+    <helpsystem name="help">
+      <!-- This EmulationStation version does not implement `visible` for
+           helpsystem elements. Transparent supported colors reliably hide
+           the system/game navigation row without affecting dialog prompts. -->
+      <pos>0 1.2</pos>
+      <size>0.001 0.001</size>
+      <textColor>00000000</textColor>
+      <iconColor>00000000</iconColor>
+    </helpsystem>
+  </view>
+
+  <!-- Carry the ButterflyOS palette through Start and nested settings menus. -->
+  <view name="menu">
+    <menuBackground name="menubg">
+      <path>./assets/menu-panel.svg</path>
+      <color>081426ff</color>
+      <centerColor>081426ff</centerColor>
+      <!-- MenuComponent passes these values directly as texture pixels,
+           despite the theme schema calling them normalized. Keep the
+           panel's native 16px corners. Its white fill and identical edge/center
+           colors keep the rounded panel uniformly blue without a dark rim. -->
+      <cornerSize>16 16</cornerSize>
+      <scrollbarColor>10d9ffff</scrollbarColor>
+      <scrollbarSize>0.0075</scrollbarSize>
+      <scrollbarCorner>0.004</scrollbarCorner>
+      <scrollbarAlignment>right</scrollbarAlignment>
+    </menuBackground>
+    <menuText name="menutitle">
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.058333</fontSize>
+      <color>ffffffff</color>
+    </menuText>
+    <menuText name="menutext">
+      <fontPath>${fontRegular}</fontPath>
+      <fontSize>0.041667</fontSize>
+      <color>d9e7ffff</color>
+      <selectedColor>ffffffff</selectedColor>
+      <selectorColor>5636aaff</selectorColor>
+      <selectorColorEnd>159dffff</selectorColorEnd>
+      <selectorGradientType>horizontal</selectorGradientType>
+      <separatorColor>304565ff</separatorColor>
+    </menuText>
+    <menuTextSmall name="menutextsmall">
+      <fontPath>${fontRegular}</fontPath>
+      <fontSize>0.03125</fontSize>
+      <color>b9c4d6ff</color>
+    </menuTextSmall>
+    <menuText name="menufooter">
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.029167</fontSize>
+      <color>b9c4d6ff</color>
+    </menuText>
+    <menuGroup name="menugroup">
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.029167</fontSize>
+      <alignment>left</alignment>
+      <backgroundColor>102849ff</backgroundColor>
+      <separatorColor>159dffff</separatorColor>
+      <color>10d9ffff</color>
+    </menuGroup>
+    <menuGrid name="menugrid">
+      <separatorColor>304565ff</separatorColor>
+    </menuGrid>
+  </view>
+
+  <view name="system">
+    <text name="systemInfo">
+      <visible>false</visible>
+    </text>
+    <carousel name="systemcarousel">
+      <origin>0 0</origin>
+      <pos>0.01 0.205</pos>
+      <size>0.98 0.61</size>
+      <type>horizontal</type>
+      <logoSize>0.205 0.49</logoSize>
+      <logoScale>1.10</logoScale>
+      <logoAlignment>center</logoAlignment>
+      <maxLogoCount>4</maxLogoCount>
+      <minLogoOpacity>0.72</minLogoOpacity>
+      <color>00000000</color>
+      <defaultTransition>instant</defaultTransition>
+      <zIndex>5</zIndex>
+    </carousel>
+    <!--
+      Resolve in order: generic fallback, physical system art, then a compact
+      home-menu icon and label. Missing paths are ignored by ThemeData.
+    -->
+    <image name="logo">
+      <path>./assets/systems/_default.png</path>
+      <path>./assets/systems/${system.theme}.png</path>
+      <path>./assets/menu/${system.theme}.svg</path>
+      <path>./assets/menu/${system.theme}.png</path>
+      <path>./assets/menu/${system.theme}-card.png</path>
+    </image>
+    <text name="logoText">
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.0479167</fontSize>
+      <forceUppercase>false</forceUppercase>
+      <alignment>center</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>ffffffff</color>
+      <zIndex>6</zIndex>
+    </text>
+    <!-- Persistent cues for the Start and Select system menus. -->
+    <image name="start-menu-hint" extra="true">
+      <origin>0 1</origin>
+      <pos>${startHintX} 0.965</pos>
+      <maxSize>0.11 0.06</maxSize>
+      <path>./assets/button_start.svg</path>
+      <zIndex>8</zIndex>
+    </image>
+    <text name="start-menu-hint-label" extra="true">
+      <origin>0 1</origin>
+      <pos>0.765 0.965</pos>
+      <size>0.20 0.06</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <forceUppercase>false</forceUppercase>
+      <alignment>right</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>d9e7ffff</color>
+      <text>Main Menu</text>
+      <zIndex>8</zIndex>
+    </text>
+    <image name="select-menu-hint" extra="true">
+      <origin>0 1</origin>
+      <pos>0.035 0.965</pos>
+      <maxSize>0.11 0.06</maxSize>
+      <path>/usr/config/emulationstation/resources/help/button_select.svg</path>
+      <zIndex>8</zIndex>
+    </image>
+    <text name="select-menu-hint-label" extra="true">
+      <origin>0 1</origin>
+      <pos>0.110 0.965</pos>
+      <size>0.32 0.06</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <forceUppercase>false</forceUppercase>
+      <alignment>left</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>d9e7ffff</color>
+      <text>Shut Down Menu</text>
+      <zIndex>8</zIndex>
+    </text>
+  </view>
+
+  <view name="basic,detailed">
+    <image name="background">
+      <visible>false</visible>
+    </image>
+    <image name="logo">
+      <visible>false</visible>
+    </image>
+    <text name="logoText">
+      <origin>0 0.5</origin>
+      <pos>0 0.105</pos>
+      <size>1 0.1</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.058333</fontSize>
+      <forceUppercase>true</forceUppercase>
+      <alignment>center</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>ffffffff</color>
+      <zIndex>5</zIndex>
+    </text>
+    <!-- Grouped-system folders can expose md_name alongside the list label.
+         Keep one authoritative title to avoid doubled, offset text. -->
+    <text name="md_name">
+      <visible>false</visible>
+    </text>
+    <textlist name="gamelist">
+      <origin>0 0</origin>
+      <pos>0.045 0.205</pos>
+      <size>0.47 0.65</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.045833</fontSize>
+      <lines>7</lines>
+      <alignment>left</alignment>
+      <selectorColor>5636aacc</selectorColor>
+      <selectedColor>ffffffff</selectedColor>
+      <primaryColor>b9c4d6ff</primaryColor>
+      <secondaryColor>b9c4d6ff</secondaryColor>
+      <scrollbarColor>10d9ff88</scrollbarColor>
+      <scrollbarSize>0.00625</scrollbarSize>
+      <zIndex>5</zIndex>
+    </textlist>
+  </view>
+
+  <view name="basic,detailed">
+    <image name="search-button-hint" extra="true">
+      <origin>0 1</origin>
+      <pos>0.045 0.965</pos>
+      <maxSize>0.05 0.06</maxSize>
+      <path>/usr/config/emulationstation/resources/help/button_y.svg</path>
+      <zIndex>8</zIndex>
+    </image>
+    <text name="search-button-hint-label" extra="true">
+      <origin>0 1</origin>
+      <pos>0.105 0.965</pos>
+      <size>0.22 0.06</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <alignment>left</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>d9e7ffff</color>
+      <text>Search</text>
+      <zIndex>8</zIndex>
+    </text>
+    <image name="favorite-button-hint" extra="true">
+      <origin>0 1</origin>
+      <pos>0.40 0.965</pos>
+      <maxSize>0.05 0.06</maxSize>
+      <path>/usr/config/emulationstation/resources/help/button_x.svg</path>
+      <zIndex>8</zIndex>
+    </image>
+    <text name="favorite-button-hint-label" extra="true">
+      <origin>0 1</origin>
+      <pos>0.46 0.965</pos>
+      <size>0.495 0.06</size>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <alignment>left</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>d9e7ffff</color>
+      <text>Add/Remove Favorite</text>
+      <zIndex>8</zIndex>
+    </text>
+  </view>
+
+  <view name="basic">
+    <textlist name="gamelist">
+      <size>0.91 0.65</size>
+      <alignment>center</alignment>
+    </textlist>
+  </view>
+
+  <view name="detailed">
+    <text name="md_lbl_rating,md_lbl_developer,md_developer,md_lbl_publisher,md_publisher,md_lbl_playcount,md_playcount,md_lbl_lastplayed,md_lbl_players,md_players,md_lbl_releasedate,md_lbl_genre,md_genre,md_description,md_name,md_lbl_gametime,md_gametime">
+      <visible>false</visible>
+    </text>
+    <datetime name="md_releasedate,md_lastplayed">
+      <visible>false</visible>
+    </datetime>
+    <rating name="md_rating">
+      <visible>false</visible>
+    </rating>
+    <image name="md_image">
+      <visible>false</visible>
+    </image>
+    <image name="game-card" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.75 0.49</pos>
+      <size>0.43 0.56</size>
+      <path>./assets/card.png</path>
+      <zIndex>2</zIndex>
+    </image>
+    <image name="game-artwork" extra="true">
+      <origin>0.5 0.5</origin>
+      <pos>0.75 0.49</pos>
+      <maxSize>0.36 0.46</maxSize>
+      <horizontalAlignment>center</horizontalAlignment>
+      <verticalAlignment>center</verticalAlignment>
+      <path>{game:image}</path>
+      <roundCorners>0.018</roundCorners>
+      <zIndex>4</zIndex>
+    </image>
+    <text name="no-artwork" extra="true">
+      <visible>false</visible>
+      <origin>0.5 0.5</origin>
+      <pos>0.75 0.49</pos>
+      <size>0.32 0.15</size>
+      <text>NO ARTWORK</text>
+      <fontPath>${fontBold}</fontPath>
+      <fontSize>0.033333</fontSize>
+      <alignment>center</alignment>
+      <verticalAlignment>center</verticalAlignment>
+      <color>7b8496ff</color>
+      <zIndex>3</zIndex>
+    </text>
+  </view>
+</theme>

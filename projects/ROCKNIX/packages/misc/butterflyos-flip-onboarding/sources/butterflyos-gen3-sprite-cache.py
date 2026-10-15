@@ -9,6 +9,7 @@ sprites accidentally.
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import shutil
@@ -16,6 +17,7 @@ import struct
 import sys
 import tempfile
 import zlib
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -89,6 +91,13 @@ REVISION_2_LAYOUTS = {
 }
 
 REVISION_1_LAYOUTS = {
+    "BPGE": {
+        "title": "Pokemon LeafGreen (revision 1)",
+        "front": 0x2350F8,
+        "palette": 0x237358,
+        "shiny_palette": 0x238118,
+        "count": 440,
+    },
     "BPRE": {
         "title": "Pokemon FireRed (revision 1)",
         "front": 0x23511C,
@@ -230,8 +239,14 @@ def write_front_frames(directory, filename, width, height, pixels, palette):
 
 
 def read_rom_info(path):
-    data = Path(path).read_bytes()
-    if len(data) < 0xB0:
+    spec = importlib.util.spec_from_file_location('rom_filter', Path(__file__).with_name('butterflyos_rom_filter.py'))
+    rom_filter = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rom_filter)
+    try:
+        data = rom_filter.read_gen3_rom(path)
+    except (OSError, ValueError, zipfile.BadZipFile, zlib.error, RuntimeError, NotImplementedError) as error:
+        raise CacheError(str(error)) from error
+    if len(data) < 0xC0:
         raise CacheError("rom-too-small")
     try:
         code = data[0xAC:0xB0].decode("ascii")
@@ -254,7 +269,7 @@ def cache_rom(rom_path, cache_root, force=False):
     if not os.path.isfile(rom_path):
         raise CacheError("rom-not-found")
     data, code, revision, layout = read_rom_info(rom_path)
-    digest = sha256_file(rom_path)
+    digest = hashlib.sha256(data).hexdigest()
     destination = Path(cache_root) / digest
     manifest_path = destination / "manifest.json"
     if not force and manifest_path.is_file():

@@ -68,9 +68,10 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 - Return to the internal 640×480 display after HDMI disconnection
 - On-the-fly brightness adjustment with M+Up and M+Down
 - Safe display-only lid handling: closing blanks the LCD backlight and opening
-  restores it without suspending the CPU, GPU, storage, networking, or game
+  restores it without suspending the CPU, GPU, storage, networking, or game.
+  Audio mutes while closed and restores its previous mute state when reopened
 - Optional **System Settings → Hardware → Lid-Closed Shutdown** timer: Off
-  (default), 15, 30, or 60 minutes. Opening the lid cancels the countdown;
+  (default), 1, 5, 15, 30, or 60 minutes. Opening the lid cancels the countdown;
   changing the setting or rebooting starts a fresh countdown. The optional
   **Save Game Before Lid Shutdown** setting verifies a fresh RetroArch auto-save
   before normal exit and shutdown, backs up the previous auto-save and leaves

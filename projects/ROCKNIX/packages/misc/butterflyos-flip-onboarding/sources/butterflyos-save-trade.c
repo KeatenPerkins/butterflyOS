@@ -1334,11 +1334,9 @@ static int swap_gen3(const char* left_path, unsigned left_box, unsigned left_slo
         fprintf(stderr, "error=load-right:%s\n", pksav_strerror(error));
         goto fail;
     }
-    if (left.save_type != right.save_type) {
-        fprintf(stderr, "error=incompatible-gen3-save-types:%s:%s\n",
-                save_type_name(left.save_type), save_type_name(right.save_type));
-        goto fail;
-    }
+    /* Gen III games share the decoded PC Pokemon record format. Each save
+     * keeps its own layout and is serialized separately by pksav, just as
+     * copy_gen3 already supports transfers between these save families. */
     left_before = &left.pokemon_storage.p_pc->boxes[left_box].entries[left_slot];
     right_before = &right.pokemon_storage.p_pc->boxes[right_box].entries[right_slot];
     left_species = species_of(left_before);

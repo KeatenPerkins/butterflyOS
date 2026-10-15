@@ -1,7 +1,6 @@
 --- a/es-app/src/guis/GuiMenu.cpp
 +++ b/es-app/src/guis/GuiMenu.cpp
-@@ -1822,9 +1822,15 @@
- 		lidShutdown->addRange({ { _("OFF"), "0" }, { _("15 MINUTES"), "15" }, { _("30 MINUTES"), "30" }, { _("60 MINUTES"), "60" } }, minutes);
+@@ -1823,8 +1823,14 @@
 -		s->addWithLabel(_("LID-CLOSED SHUTDOWN"), lidShutdown);
 +		s->addWithDescription(_("LID-CLOSED SHUTDOWN"), _("Shut down after the lid stays closed. Running games wait unless save-and-shutdown is enabled."), lidShutdown);
  		s->addSaveFunc([lidShutdown] {

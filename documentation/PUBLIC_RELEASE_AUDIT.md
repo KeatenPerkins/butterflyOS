@@ -399,3 +399,21 @@ The generated package manifest is an inventory, not a legal conclusion.
 The flagged entries were reviewed against their exact build sources. Findings,
 corrections, removal impacts, and the free-release policy are recorded in
 `PACKAGE_LICENSE_REVIEW_ALPHA2.md`. This technical review is not legal advice.
+
+## v1.0.4 — tested build 20261013
+
+The stable candidate is the exact `local-test-20261013-r2` image that the user
+confirmed passed live testing on .17. All 668 package steps, image filesystem
+and payload checks, and 23 lid-shutdown tests passed. Image SHA-256:
+`999473fa8943f99d00ffc2f9af476eea0825005305c11421d02817fd4f52b991`.
+The image embeds build-time HEAD `bcf7a8a58f4c7251e6bac597198eb1477e0fc7f3`
+plus captured working-tree changes. Release provenance records the later
+commit containing the equivalent runtime/build source; documentation was updated
+after testing. The image is not rebuilt or modified for publication.
+
+Included: controller hotkeys, gpSP defaults, battery feedback, charging LED,
+lower brightness, 1/5-minute lid timers, lid muting, White theme discovery,
+ZIP-aware Pokémon filtering/sprites, LeafGreen revision-1 sprites, cross-family
+Gen III swaps and box-back navigation. The unfinished Gen III event is excluded;
+true suspend remains disabled. See [v1.0.4 release notes](RELEASE_NOTES_v1.0.4.md)
+and the [package license manifest](PACKAGE_LICENSE_MANIFEST_v1.0.4.md).

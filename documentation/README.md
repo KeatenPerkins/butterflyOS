@@ -9,6 +9,8 @@ The stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
 
+Current release: [v1.0.4 notes](RELEASE_NOTES_v1.0.4.md), updater build **20261013**.
+
 ## For users and testers
 
 - [Quick Start](QUICK_START.md): download verification, card writing, first
@@ -24,6 +26,10 @@ version requirements, download instructions, and the older-build migration.
   verification, restarting to install, and checking the new version.
 - [Controls and hotkeys](HOTKEYS.md): built-in controls, Bluetooth differences,
   and media playback.
+- [Emulators and performance tuning](EMULATORS_AND_PERFORMANCE.md): defaults,
+  saved system/game choices, CPU/GPU settings, and battery tradeoffs.
+- [Themes and customization](THEMES.md): theme switching, custom copies, image
+  sizes, colors, fonts, installation and testing.
 - [Butterfly Link](BUTTERFLY_LINK.md): local/remote save transfers and supported
   generation directions.
 - [Known issues](KNOWN_ISSUES.md): incomplete testing and reported failures.

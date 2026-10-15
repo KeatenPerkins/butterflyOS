@@ -19,7 +19,7 @@ loader.exec_module(lid)
 
 class TimerTests(unittest.TestCase):
     def test_deadline(self):
-        for minutes in (15, 30, 60):
+        for minutes in (1, 5, 15, 30, 60):
             timer = lid.LidTimer()
             self.assertFalse(timer.expired(True, minutes, 100))
             self.assertFalse(timer.expired(True, minutes, 100 + minutes * 60 - 1))
@@ -40,7 +40,7 @@ class TimerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             config = Path(directory) / 'system.cfg'
             self.assertEqual(lid.read_minutes(config), 0)
-            for value, expected in (('', 0), ('bad', 0), ('-1', 0), ('1', 0), ('15', 15), ('30', 30), ('60', 60)):
+            for value, expected in (('', 0), ('bad', 0), ('-1', 0), ('1', 1), ('5', 5), ('15', 15), ('30', 30), ('60', 60)):
                 config.write_text('#' + lid.KEY + '=15\n' + lid.KEY + '=' + value + '\n')
                 self.assertEqual(lid.read_minutes(config), expected)
 

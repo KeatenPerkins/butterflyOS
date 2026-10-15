@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="es-theme-butterflyos"
-PKG_VERSION="0.1.8"
+PKG_VERSION="0.1.9"
 PKG_LICENSE="GPL-2.0-only"
 PKG_SITE="https://github.com/KeatenPerkins/butterflyOS"
 PKG_URL=""
@@ -23,4 +23,11 @@ makeinstall_target() {
     ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/systems/pce-cd.png
   cp ${ROOT}/artwork/branding/master/butterflyos-logo-master-transparent.png \
     ${INSTALL}/usr/share/themes/${PKG_NAME}/assets/butterflyos-logo.png
+  # Preserve the default and expose a second audited theme through the normal
+  # selector. Identical art is shared by squashfs duplicate-file detection.
+  mkdir -p "${INSTALL}/usr/share/themes/ButterflyOS White"
+  cp -a ${INSTALL}/usr/share/themes/${PKG_NAME}/. \
+    "${INSTALL}/usr/share/themes/ButterflyOS White/"
+  cp -a ${PKG_DIR}/white-files/. \
+    "${INSTALL}/usr/share/themes/ButterflyOS White/"
 }
