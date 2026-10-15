@@ -28,7 +28,7 @@ def read_minutes(path=CONFIG):
             name, separator, setting = line.strip().partition('=')
             if separator and name.strip() == KEY:
                 value = setting.strip()
-        return int(value) if value in ('0', '15', '30', '60') else 0
+        return int(value) if value in ('0', '1', '5', '15', '30', '60') else 0
     except OSError:
         return 0
 

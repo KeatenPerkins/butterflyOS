@@ -1,0 +1,180 @@
+# Butterfly Link: Gen III event checklist
+
+Researched October 9, 2026. AuroraTicket Enable/Replay is implemented locally
+for English FireRed revision 1 and passes private-fixture automated tests.
+Native device inspection passes; gameplay qualification is pending. Other
+actions remain planned; no Gen III event feature is publicly released.
+Existing Gen III transfers are separate. Remaining emulator and battery release
+checks will use a rebuilt image.
+
+Prefer native encounters and hatchable eggs, as with Gen II. Group repeated
+campaigns by distinct gameplay experience or species/moveset, while preserving
+meaningful regional differences. This is a scope checklist, not a completed
+inventory of every regional distribution recipe.
+
+## Batch 1: native island events
+
+| Action | Games with native support | Experience | Qualification |
+| --- | --- | --- | --- |
+| Eon Ticket | Ruby, Sapphire, Emerald | Southern Island encounter with Latias or Latios | Ruby has Latias, Sapphire has Latios; Emerald depends on the chosen roaming Pokémon. Emerald historically received the ticket through record mixing. |
+| MysticTicket | FireRed, LeafGreen, Emerald | Navel Rock encounters with Lugia and Ho-Oh | Verify ticket, travel flags and each encounter independently. |
+| AuroraTicket | FireRed, LeafGreen, Emerald | Birth Island puzzle and Deoxys encounter | Historical distributions excluded Japanese Emerald; distinguish native capability from historical eligibility. |
+| Old Sea Map | Emerald | Faraway Island chase and Mew encounter | Official distribution was for Japanese Emerald only. Any other-language unlock must be labeled an expanded experience. |
+
+Each action needs separate **Enable** and, where safely supported, **Replay**.
+Adding a key item alone is not a sufficient implementation. Retain normal story
+requirements and let the game generate the encounter. Do not reset unrelated
+legendaries, roaming status, story progression or existing Pokémon.
+
+Sources: [Eon Ticket](https://bulbapedia.bulbagarden.net/wiki/Eon_Ticket),
+[MysticTicket](https://bulbapedia.bulbagarden.net/wiki/Mystic_Ticket),
+[AuroraTicket](https://bulbapedia.bulbagarden.net/wiki/AuroraTicket),
+[Old Sea Map](https://bulbapedia.bulbagarden.net/wiki/Old_Sea_Map).
+Technical starting point: [Emerald harbor scripts](https://github.com/pret/pokeemerald/blob/master/data/maps/LilycoveCity_Harbor/scripts.inc).
+These references establish feasibility targets, not qualified save offsets.
+
+## Batch 2: core gift families
+
+- [ ] Jirachi: Wishmaker and Channel; then Japanese campaign variants.
+- [ ] Celebi: Ageto bonus-disc gift; then other documented distributions.
+- [ ] Mew: documented direct gifts, separate from Faraway Island.
+- [ ] Deoxys: documented direct gifts, separate from Birth Island.
+- [ ] Shiny Berry Program Update Zigzagoon. Delivering the gift and repairing
+  Ruby/Sapphire's clock problem are separate operations; do not imply one fixes
+  the other.
+
+For each recipe, verify level, moves, item, language, nature/gender restrictions,
+shiny policy and identity policy before implementation. Preserve the established
+generated-equivalent approach unless exact distribution emulation is explicitly
+designed and tested. Never describe a generated equivalent as an original
+official event Pokémon. Shiny eligibility varies by distribution.
+
+References: [game-based distribution catalog](https://bulbapedia.bulbagarden.net/wiki/List_of_game-based_Pok%C3%A9mon_distributions_in_Generation_III),
+[PKHeX Gen III gift definitions](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
+
+## Batch 3: eggs
+
+- [ ] Pokémon Box: False Swipe Swablu.
+- [ ] Pokémon Box: ExtremeSpeed Zigzagoon.
+- [ ] Pokémon Box: Pay Day Skitty.
+- [ ] Pokémon Box: Surf Pichu.
+- [ ] Wish Egg distributions: enumerate all documented recipes and eligibility
+  from the regional catalogs and primary encounter definitions before choosing
+  batches. Do not confuse PCNY adult Wish gifts with egg distributions.
+- [ ] Japanese campaign eggs: inventory distinct movesets and hatch behavior.
+
+Deliver real eggs, leaving normal hatching to the game. Test special-move
+retention, hatch identity, Pokédex behavior and save/reload. The four Box eggs
+are a bounded first egg batch.
+
+Sources: [Box bonus eggs](https://bulbapedia.bulbagarden.net/wiki/List_of_game-based_Pok%C3%A9mon_distributions_in_Generation_III#Pok%C3%A9mon_Box_Bonus_Eggs),
+[PCNY catalog](https://bulbapedia.bulbagarden.net/wiki/List_of_PCNY_event_Pok%C3%A9mon_distributions_in_Generation_III),
+[primary gift/egg definitions](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
+
+## Batch 4: GameCube reward equivalents
+
+- [ ] Colosseum bonus-disc Pikachu.
+- [ ] Colosseum Mt. Battle Ho-Oh.
+- [ ] XD Mt. Battle Chikorita with Frenzy Plant.
+- [ ] XD Mt. Battle Cyndaquil with Blast Burn.
+- [ ] XD Mt. Battle Totodile with Hydro Cannon.
+- [ ] Assess other distinctive XD rewards and purified special-move Pokémon
+  separately; the full Shadow Pokémon roster would substantially expand scope.
+
+These would be boxed reward equivalents for GBA saves, similar to Stadium gifts.
+They would not unlock or recreate the GameCube challenges themselves.
+
+Sources: [bonus-disc catalog](https://bulbapedia.bulbagarden.net/wiki/List_of_game-based_Pok%C3%A9mon_distributions_in_Generation_III),
+[Colosseum](https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_Colosseum),
+[XD rewards](https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_XD).
+
+## Batch 5: regional collections
+
+- [ ] PCNY gifts, grouped by distinct species and special moves.
+- [ ] Tenth-anniversary gift collections.
+- [ ] Japanese promotional gifts, including special-move Pikachu and other
+  documented campaign Pokémon.
+- [ ] Other European/American regional variants with meaningful differences.
+
+Before implementing each collection, produce a sourced recipe table. Record
+uncertain or incomplete historical entries and leave them unavailable until
+enough information exists. Campaign names alone do not establish a complete
+recipe. Do not claim the collection is exhaustive until regional inventories
+have been reconciled.
+
+## Optional later scope
+
+Review documented e-Reader berries, decorations and trainer content separately;
+they require different handling from gifts and built-in encounters. Do not bundle
+official card scans, downloaded scripts or distributor binaries.
+
+Exclude Altering Cave encounter changes from the historical-event list: the
+planned distribution never occurred. Ordinary obtainable gifts, starters,
+fossils and story encounters are not missing promotional events.
+[Altering Cave history](https://bulbapedia.bulbagarden.net/wiki/Changing_Cave).
+
+## Implementation and testing gate
+
+Use the menu flow **Local Transfer → Gen 3**, detected saves first, followed by
+**Gen 3 Events**, **Gen 3 Gifts**, **Event Eggs**, and **GameCube Gifts** as each
+group becomes qualified. Filter choices by the selected qualified ROM/save.
+
+Keep protected preview, explicit Commit, backup, Cancel and conflict refusal.
+Account for Gen III save-section rotation and checksums. Verify exact change
+boundaries, existing party/boxes, occupied/full refusal, native reload and
+in-game save persistence. Use disposable saves before personal saves. Replay
+must explain that it permits another encounter and cannot undo a prior capture.
+
+Keep original implementation code and numeric recipes in the build; read needed
+game data and sprites from the user's qualified ROM. Do not bundle ROMs, saves,
+extracted sprites or premade event Pokémon records. Exact eligibility, offsets,
+gift generation and language support remain engineering work.
+
+The first implementation is **AuroraTicket in FireRed**, because the user has
+a postgame FireRed save available. Eon Ticket can follow once an Emerald test
+save is ready. Test native travel, encounter, capture, save/reload and Replay
+independently.
+
+## AuroraTicket implementation status
+
+The helper qualifies English FireRed revision 1 by SHA-256
+`729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059`.
+The menu lists FireRed-named FRLG-family saves under
+**Local Transfer → Gen 3 → Gen 3 Events → AuroraTicket / Deoxys**.
+LeafGreen, other revisions and Emerald are not qualified by this implementation.
+The save layout itself is shared by FRLG; the matching ROM and filename are
+required, rather than claiming the save uniquely identifies its originating ROM.
+
+Enable inserts the ticket using the save's encrypted quantity, sets receipt and
+Birth Island travel flags, and preserves encounter state. Finished encounters
+require explicit Replay. Replay clears the fought/flew-away/shown/awakened flags,
+resets the two puzzle variables and restores initial object visibility. Both
+actions require completed-game/Rainbow Pass travel and refuse saves located on
+Birth Island or its harbor. They do not advance story requirements.
+
+The writer validates complete save sectors, native checksums and uniform counters,
+selects the latest slot using native counter rules, and preserves the older slot,
+PC storage, party, Pokédex, Hall of Fame and all unrelated bytes. Damaged,
+incomplete, duplicate-ID or ambiguous-counter saves are refused. Only changed
+current-slot sectors receive updated checksums. Output creation is exclusive;
+the original is untouched until the established protected Commit makes its
+verified backup. No Wonder Card or original distributor script is installed.
+
+`tests/butterflyos-gen3-event-test.py` passes 28 rotation/action combinations,
+independent checksum verification, exact change-boundary checks, encrypted
+quantities, original preservation, older-slot preservation, counter rollover,
+full/duplicate pocket refusal, ineligible progress/maps, wrong ROM, corrupt-save
+refusal, staged Cancel, changed-after-preview refusal, backup and repeated Commit
+refusal. Fixtures derive from a private save and are not distributed.
+
+On .17, the existing native save reader accepts both prepared Enable and Replay
+fixtures as FRLG saves. Trainer/party/box inspection is identical before and
+after each action. This is format qualification, not an in-game encounter test.
+Only disposable fixtures were uploaded, outside the ROM/save directories.
+The production helper and menu changes remain local source changes for now.
+
+The current FireRed save on .17 is early-game and correctly fails the postgame
+gate. Gameplay testing needs a separate copy of the user's island-ready save:
+Enable, ferry travel from Vermilion, puzzle, encounter/capture, in-game save/reload,
+then Replay with prior Pokémon preserved. Start Game must load the ordinary save,
+not an old save state or Auto Resume.

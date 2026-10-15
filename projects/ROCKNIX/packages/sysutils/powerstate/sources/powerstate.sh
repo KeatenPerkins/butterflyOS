@@ -12,6 +12,7 @@
 
 BATCNT=0
 unset CURRENT_MODE
+unset CURRENT_LED_MODE
 unset AC_STATUS
 ledcontrol $(get_setting led.color)
 
@@ -30,19 +31,25 @@ while true; do
           GPUPROFILE="auto"
         fi
         gpu_performance_level ${GPUPROFILE}
-        if [ "${DEVICE_LED_CHARGING}" = "true" ]; then
-          ledcontrol discharging
-        fi
       ;;
       *)
         log $0 "Switching to performance mode."
         gpu_performance_level auto
-        if [ "${DEVICE_LED_CHARGING}" = "true" ]; then
-          ledcontrol charging
-        fi
       ;;
     esac
     CURRENT_MODE="${AC_STATUS}"
+  fi
+  # Keep charging indication until the driver reports charge completion.
+  # Capacity alone is not evidence that the charger has finished.
+  if [ "${DEVICE_LED_CHARGING}" = "true" ]; then
+    case "${AC_STATUS}" in
+      Charging) LED_MODE=charging ;;
+      *) LED_MODE=discharging ;;
+    esac
+    if [ "${LED_MODE}" != "${CURRENT_LED_MODE}" ]; then
+      ledcontrol "${LED_MODE}"
+      CURRENT_LED_MODE="${LED_MODE}"
+    fi
   fi
   ### Until we have an overlay. :rofl:
   BATLEFT=$(battery_percent)
@@ -61,11 +68,7 @@ while true; do
         BATCNT=0
       fi
     fi
-  elif (( "${BATLEFT}" > "97" )); then
-    if [ "${DEVICE_LED_CHARGING}" = "true" ]; then
-      # Reset the LED as if the battery was full.
-      ledcontrol discharging
-    fi
+
   fi
   BATCNT=$(( ${BATCNT} + 1 ))
   sleep 2

@@ -3,9 +3,34 @@
 # Copyright (C) 2026 Keaten Perkins
 
 BACKLIGHT=/sys/class/backlight/backlight/bl_power
+AUDIO_STATE=/run/butterflyos-lid-audio-state
+# System PipeWire socket; this service does not inherit the interactive profile.
+export XDG_RUNTIME_DIR=/var/run/0-runtime-dir
+
+mute_audio() {
+  [ ! -f "${AUDIO_STATE}" ] || return 0
+  sink=$(timeout 2 pactl get-default-sink 2>/dev/null) || return 0
+  mute=$(LC_ALL=C timeout 2 pactl get-sink-mute "${sink}" 2>/dev/null) || return 0
+  case "${mute}" in
+    'Mute: yes') previous=true ;;
+    'Mute: no') previous=false ;;
+    *) return 0 ;;
+  esac
+  printf '%s\n%s\n' "${sink}" "${previous}" >"${AUDIO_STATE}"
+  timeout 2 pactl set-sink-mute "${sink}" true >/dev/null 2>&1 || true
+}
+
+restore_audio() {
+  [ -f "${AUDIO_STATE}" ] || return 0
+  sink=$(sed -n '1p' "${AUDIO_STATE}")
+  previous=$(sed -n '2p' "${AUDIO_STATE}")
+  timeout 2 pactl set-sink-mute "${sink}" "${previous}" >/dev/null 2>&1 || true
+  rm -f "${AUDIO_STATE}"
+}
 
 restore_backlight() {
   [ ! -w "${BACKLIGHT}" ] || printf 0 >"${BACKLIGHT}"
+  restore_audio
 }
 trap restore_backlight EXIT INT TERM HUP
 
@@ -25,9 +50,11 @@ set_initial_state() {
   query_status=$?
   if [ "${query_status}" -eq 10 ]; then
     printf 4 >"${BACKLIGHT}"
+    mute_audio
     logger -t butterflyos-lid "lid initially closed: backlight off"
   else
     printf 0 >"${BACKLIGHT}"
+    restore_audio
     logger -t butterflyos-lid "lid initially open: backlight on"
   fi
 }
@@ -54,10 +81,12 @@ while :; do
     case "${event_line}" in
       *"type 5 (EV_SW), code 0 (SW_LID), value 1"*)
         printf 4 >"${BACKLIGHT}"
+        mute_audio
         logger -t butterflyos-lid "lid closed: backlight off"
         ;;
       *"type 5 (EV_SW), code 0 (SW_LID), value 0"*)
         printf 0 >"${BACKLIGHT}"
+        restore_audio
         logger -t butterflyos-lid "lid opened: backlight on"
         ;;
     esac

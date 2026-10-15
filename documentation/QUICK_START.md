@@ -234,7 +234,8 @@ to the new boot partition as described in the installation guide.
 
 Closing the lid turns off the display; the system continues running.
 In **System Settings → Hardware → Lid-Closed Shutdown**, choose Off (the default),
-15, 30, or 60 minutes. Reopening the lid resets the countdown.
+1, 5, 15, 30, or 60 minutes. Reopening the lid resets the countdown.
+Closing the lid also mutes audio; reopening restores its previous mute state.
 
 With **Save Game Before Lid Shutdown** off (the default), return to the
 menu before closing the lid. Running games and tools defer shutdown.

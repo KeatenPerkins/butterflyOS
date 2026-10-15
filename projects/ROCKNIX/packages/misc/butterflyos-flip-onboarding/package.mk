@@ -83,6 +83,7 @@ makeinstall_target() {
         "${PKG_DIR}/sources/butterflyos-gen1-gift.py" \
         "${PKG_DIR}/sources/butterflyos-gen2-gift.py" \
         "${PKG_DIR}/sources/butterflyos-crystal-event.py" \
+        "${PKG_DIR}/sources/butterflyos_rom_filter.py" \
         "${PKG_DIR}/sources/butterflyos-save-trade-sdl.py" \
         "${PKG_DIR}/sources/butterflyos-gen3-sprite-cache.py" \
         "${PKG_BUILD}/butterflyos-save-trade" \

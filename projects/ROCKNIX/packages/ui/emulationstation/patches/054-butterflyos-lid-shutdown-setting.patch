@@ -11,9 +11,9 @@
 +	{
 +		auto lidShutdown = std::make_shared<OptionListComponent<std::string> >(mWindow, _("LID-CLOSED SHUTDOWN"), false);
 +		auto minutes = SystemConf::getInstance()->get("system.lid.shutdown_minutes");
-+		if (minutes != "15" && minutes != "30" && minutes != "60")
++		if (minutes != "1" && minutes != "5" && minutes != "15" && minutes != "30" && minutes != "60")
 +			minutes = "0";
-+		lidShutdown->addRange({ { _("OFF"), "0" }, { _("15 MINUTES"), "15" }, { _("30 MINUTES"), "30" }, { _("60 MINUTES"), "60" } }, minutes);
++		lidShutdown->addRange({ { _("OFF"), "0" }, { _("1 MINUTE"), "1" }, { _("5 MINUTES"), "5" }, { _("15 MINUTES"), "15" }, { _("30 MINUTES"), "30" }, { _("60 MINUTES"), "60" } }, minutes);
 +		s->addWithLabel(_("LID-CLOSED SHUTDOWN"), lidShutdown);
 +		s->addSaveFunc([lidShutdown] {
 +			SystemConf::getInstance()->set("system.lid.shutdown_minutes", lidShutdown->getSelected());

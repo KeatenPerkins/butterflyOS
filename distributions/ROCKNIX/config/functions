@@ -202,9 +202,10 @@ EOF
 
       if [ "${SYSTEM_DEFAULT}" = "true" ]
       then
-        ### Add an attribute defining the default core
+        ### Mark only the core just appended. A default later in the list
+        ### must not mark every earlier core of this emulator as default.
         xmlstarlet ed --omit-decl --inplace \
-            -i "//system/emulators/emulator[@name=\"${SYSTEM_EMULATOR}\"]/cores/core" -t attr -n "default" -v "true" \
+            -i "//system/emulators/emulator[@name=\"${SYSTEM_EMULATOR}\"]/cores/core[last()]" -t attr -n "default" -v "true" \
             ${ESTMP}/${SYSTEM_NAME}.tmp 2>&1 >/dev/null
       fi
     done <${ESTMP}/${SYSTEM_NAME}-emulators.tmp

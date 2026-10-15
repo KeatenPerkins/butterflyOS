@@ -38,6 +38,21 @@ No internet service or SSH login is required for its remote-transfer workflow.
 
 ### What does it need?
 
+**ROM language support:** Butterfly Link currently supports the qualified
+English ROMs listed below. French, Spanish, German, Italian and Japanese ROM
+versions are not supported at this time. A ROM's filename can be in any language;
+the GBA ROM picker checks its internal game code, not its filename. Renaming a
+non-English ROM does not make it supported. This restriction applies to Butterfly
+Link, not to playing those games in an emulator.
+
+From v1.0.4, the ROM picker supports uncompressed `.gba` files and `.zip`
+archives containing exactly one supported GBA ROM. It reads the game's header
+inside the archive; unrelated games are excluded. Sprite generation reads the
+ROM directly from the ZIP without extracting archive paths to disk. `.7z`
+archives are not supported by this picker yet. LeafGreen revision-1 sprite extraction and swaps between Gen III save families
+(including Emerald and LeafGreen) are also fixed in v1.0.4. Press B while
+browsing a PC box to return to box selection.
+
 - A supported game's ordinary in-game save (`.srm` or `.sav`). Emulator save
   states are not supported input files.
 - Your matching, legally obtained ROM for sprite/name extraction and conversion
@@ -224,9 +239,14 @@ implemented and passed user testing in Crystal on .17. Odd Egg delivery and
 replay also passed user testing. Gold/Silver Celebi and the documented PCNY gifts
 are implemented; Celebi passed the user
 PC/save/reload test in Gold on .17. All 104 PCNY eggs, 16 shiny adult gifts and the split egg/adult menu passed
-user testing in Crystal on .17. Silver Celebi still needs gameplay qualification. Non-shiny Suicune lacks documented recipe data; Gen III events
-are not yet implemented.
+user testing in Crystal on .17. Silver Celebi still needs gameplay qualification.
+Non-shiny Suicune lacks documented recipe data.
 See [Gen II event scope and validation](BUTTERFLY_LINK_GEN2_EVENTS_PLAN.md).
+
+Gen III island events are deferred and excluded from v1.0.4. The
+AuroraTicket prototype still requires gameplay qualification before release.
+Gen III trading and copying remain available.
+See the [Gen III event checklist and testing status](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md).
 
 ## Opening Butterfly Link
 

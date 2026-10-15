@@ -5,7 +5,7 @@ PKG_NAME="es-themes"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://rocknix.org"
 if [ "${IMAGE_SUBDEVICE}" = "Miyoo_Flip_V2" ]; then
-  # ButterflyOS ships only its own audited theme on the Flip V2. Art Book Next
+  # ButterflyOS ships its own default and White themes on the Flip V2. Art Book Next
   # remains available to other ROCKNIX targets.
   PKG_DEPENDS_TARGET="es-theme-butterflyos"
 else

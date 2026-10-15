@@ -1,0 +1,51 @@
+From: ButterflyOS development <noreply@butterflyos.local>
+Subject: [PATCH] explain GBA emulator choices and show the Auto default
+
+Keep existing selector values and overrides; improve display labels only.
+
+---
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -6291,7 +6291,16 @@
+ 	if (systemData->hasEmulatorSelection())
+ 	{
+ 		auto emulChoice = std::make_shared<OptionListComponent<std::string>>(mWindow, _("Emulator"), false);
+-		emulChoice->add(_("AUTO"), "", false);
++		const bool isGba = systemData->getName() == "gba";
++		std::string autoLabel = _("AUTO");
++		if (isGba)
++		{
++			std::string autoCore = fileData != nullptr ? systemData->getCore(true) : systemData->getDefaultCore();
++			if (autoCore == "gpsp") autoCore = "gpSP";
++			else if (autoCore == "mgba") autoCore = "mGBA";
++			autoLabel += " (" + autoCore + ")";
++		}
++		emulChoice->add(autoLabel, "", false);
+ 		for (auto& emul : systemData->getEmulators())
+ 		{
+ 			if (emul.cores.size() == 0)
+@@ -6302,7 +6311,11 @@
+ 				{
+ 					bool selected = (emul.name == currentEmulator && core.name == currentCore);
+ 
+-					if (emul.name == core.name)
++					if (isGba && emul.name == "retroarch" && core.name == "gpsp")
++						emulChoice->add("gpSP", emul.name + "/" + core.name, selected);
++					else if (isGba && emul.name == "retroarch" && core.name == "mgba")
++						emulChoice->add("mGBA", emul.name + "/" + core.name, selected);
++					else if (emul.name == core.name)
+ 						emulChoice->add(emul.name, emul.name + "/" + core.name, selected);
+ 					else
+ 						emulChoice->add(emul.name + ": " + Utils::String::replace(core.name, "_", " "), emul.name + "/" + core.name, selected);
+@@ -6341,7 +6354,10 @@
+ 
+ 		});
+ 
+-		systemConfiguration->addWithLabel(_("Emulator"), emulChoice);
++		if (isGba)
++			systemConfiguration->addWithDescription(_("Emulator"), _("gpSP provides faster fast-forward. Choose mGBA if a game has problems. Save states require the same core."), emulChoice);
++		else
++			systemConfiguration->addWithLabel(_("Emulator"), emulChoice);
+ 	}
+ 
+ 	// System settings

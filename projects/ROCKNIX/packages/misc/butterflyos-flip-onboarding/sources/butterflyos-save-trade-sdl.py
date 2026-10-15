@@ -13,6 +13,7 @@ from __future__ import annotations
 import ctypes
 import ctypes.util
 import hashlib
+import importlib.util
 import json
 import os
 import select
@@ -1690,8 +1691,15 @@ def choose_save(frontend: SDLFrontEnd, generation: int, title: str,
 
 
 def _rom_candidates(generation: int, save_path: str) -> list[str]:
+    # Load from the sibling file so both installed scripts and private test
+    # imports use the same header filter without altering Python's search path.
+    if generation == 3:
+        spec = importlib.util.spec_from_file_location(
+            "butterflyos_rom_filter", os.path.join(os.path.dirname(__file__), "butterflyos_rom_filter.py"))
+        rom_filter = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(rom_filter)
     directory, extensions = {1: ("gb", (".gb",)), 2: ("gbc", (".gbc",)),
-                             3: ("gba", (".gba",))}[generation]
+                             3: ("gba", (".gba", ".zip"))}[generation]
     found = []
     for root in ("/storage/roms", "/storage/games-external/roms"):
         location = os.path.join(root, directory)
@@ -1700,6 +1708,8 @@ def _rom_candidates(generation: int, save_path: str) -> list[str]:
         for name in sorted(os.listdir(location)):
             path = os.path.join(location, name)
             if os.path.isfile(path) and name.lower().endswith(extensions):
+                if generation == 3 and not rom_filter.gen3_rom_family(path):
+                    continue
                 found.append(path)
     if not found:
         return []
@@ -1708,7 +1718,9 @@ def _rom_candidates(generation: int, save_path: str) -> list[str]:
     if matching:
         return matching
     family = _game_family(os.path.basename(save_path))
-    matching = [path for path in found if family and _game_family(os.path.basename(path)) == family]
+    matching = [path for path in found if family and
+                (rom_filter.gen3_rom_family(path) if generation == 3 else
+                 _game_family(os.path.basename(path))) == family]
     return matching or found
 
 
@@ -1841,37 +1853,38 @@ def choose_box(frontend: SDLFrontEnd, save: tuple[str, str, str, list[dict]],
 
 def choose_record(frontend: SDLFrontEnd, title: str,
                   save: tuple[str, str, str, list[dict]], cache: Optional[str]) -> Optional[dict]:
-    selected_box = choose_box(frontend, save, cache)
-    if selected_box is None:
-        return None
-    records = [record for record in save[3] if record["box"] == selected_box]
-    _enrich_rom_names(records, cache)
-    if not records:
-        notice(frontend, "NO BOXED POKEMON", "%s has no boxed Pokemon." % os.path.basename(save[0]))
-        return None
-    selected = 0
     while True:
-        record = records[selected]
-        sprite = None
-        if cache:
-            directory = "front-shiny" if record.get("shiny") else "front"
-            sprite = _read_cache_png(os.path.join(cache, directory, "%03d.png" % record["species"]))
-        frontend.draw_sprite_browser("%s — Box %d" % (os.path.basename(save[0]), selected_box + 1),
-                                     "A Select  B Back", records, selected, sprite)
-        key = frontend.next_key()
-        if key is None:
-            continue
-        if key in (KEY_ESCAPE, KEY_B, ord("B"), KEY_CANCEL, ord("X")):
+        selected_box = choose_box(frontend, save, cache)
+        if selected_box is None:
             return None
-        if key in (KEY_UP, ord("k")):
-            selected = (selected - 1) % len(records)
-        elif key in (KEY_DOWN, ord("j")):
-            selected = (selected + 1) % len(records)
-        elif key in (KEY_RETURN, KEY_A, ord("A"), KEY_CONFIRM, ord("Z")):
-            if record.get("egg"):
-                notice(frontend, "HATCH THE EGG FIRST", "Withdraw this egg and hatch it in-game before selecting it for a transfer.")
+        records = [record for record in save[3] if record["box"] == selected_box]
+        _enrich_rom_names(records, cache)
+        if not records:
+            notice(frontend, "NO BOXED POKEMON", "%s has no boxed Pokemon." % os.path.basename(save[0]))
+            continue
+        selected = 0
+        while True:
+            record = records[selected]
+            sprite = None
+            if cache:
+                directory = "front-shiny" if record.get("shiny") else "front"
+                sprite = _read_cache_png(os.path.join(cache, directory, "%03d.png" % record["species"]))
+            frontend.draw_sprite_browser("%s — Box %d" % (os.path.basename(save[0]), selected_box + 1),
+                                         "A Select  B Back", records, selected, sprite)
+            key = frontend.next_key()
+            if key is None:
                 continue
-            return record
+            if key in (KEY_ESCAPE, KEY_B, ord("B"), KEY_CANCEL, ord("X")):
+                break
+            if key in (KEY_UP, ord("k")):
+                selected = (selected - 1) % len(records)
+            elif key in (KEY_DOWN, ord("j")):
+                selected = (selected + 1) % len(records)
+            elif key in (KEY_RETURN, KEY_A, ord("A"), KEY_CONFIRM, ord("Z")):
+                if record.get("egg"):
+                    notice(frontend, "HATCH THE EGG FIRST", "Withdraw this egg and hatch it in-game before selecting it for a transfer.")
+                    continue
+                return record
 
 
 def confirm_transfer(frontend: SDLFrontEnd, mode: str, left: tuple[str, dict],
@@ -2492,12 +2505,13 @@ def gen2_to_gen3_workflow(frontend: SDLFrontEnd) -> None:
         notice(frontend, "MIGRATION CANCELLED", "Original saves are unchanged.")
 
 
-def prepare_crystal_event(path: str, rom: str, action: str) -> tuple[Optional[str], str]:
+def prepare_save_event(path: str, rom: str, action: str,
+                       tool: str) -> tuple[Optional[str], str]:
     session = new_session()
     try:
         original_hash = _file_digest(path)
         output = os.path.join(session, "destination-" + os.path.basename(path))
-        result = subprocess.run(["python3", "/usr/bin/butterflyos-crystal-event.py",
+        result = subprocess.run(["python3", "/usr/bin/" + tool,
                                  "--save", path, "--rom", rom, "--action", action,
                                  "--output", output], text=True, capture_output=True)
         if result.returncode:
@@ -2512,6 +2526,14 @@ def prepare_crystal_event(path: str, rom: str, action: str) -> tuple[Optional[st
     except (OSError, ValueError, KeyError) as error:
         shutil.rmtree(session, ignore_errors=True)
         return None, str(error)
+
+
+def prepare_crystal_event(path: str, rom: str, action: str) -> tuple[Optional[str], str]:
+    return prepare_save_event(path, rom, action, "butterflyos-crystal-event.py")
+
+
+def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
+    return choose_save(frontend, 3, "GEN 3")
 
 
 def crystal_event_workflow(frontend: SDLFrontEnd) -> None:
@@ -2697,7 +2719,7 @@ def local_swap_workflow(frontend: SDLFrontEnd) -> None:
     debug("generation selected: %d" % generation)
     left_save = (choose_gen1_local_save(frontend) if generation == 1 else
                  choose_gen2_local_save(frontend) if generation == 2 else
-                 choose_save(frontend, generation, "FIRST SAVE"))
+                 choose_gen3_local_save(frontend))
     if not left_save:
         return
     left_cache = ensure_sprite_cache(frontend, generation, left_save[0])
