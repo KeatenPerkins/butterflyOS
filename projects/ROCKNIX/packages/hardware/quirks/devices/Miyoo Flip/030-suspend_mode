@@ -3,7 +3,17 @@
 # Experimental branch only: permit explicit systemctl suspend but keep the
 # legacy fake-suspend input path off. Tools owns opt-in lid triggering.
 . /etc/profile.d/001-functions
-mkdir -p /storage/.config/sleep.conf.d
+mkdir -p /storage/.config/sleep.conf.d /storage/.config/logind.conf.d
+# Only the experimental helper owns suspend requests. Otherwise logind's
+# inherited lid policy would bypass the diagnostic tool and opt-in marker.
+cat > /storage/.config/logind.conf.d/90-butterflyos-experimental-suspend.conf <<'CONF'
+[Login]
+HandleLidSwitch=ignore
+HandleLidSwitchExternalPower=ignore
+HandleLidSwitchDocked=ignore
+HandlePowerKey=ignore
+HandlePowerKeyLongPress=ignore
+CONF
 # Every boot starts with manual testing; opt in to automatic lid sleep again.
 rm -f /storage/.config/butterflyos/experimental-lid-suspend.enabled
 cat > /storage/.config/sleep.conf.d/sleep.conf <<'CONF'
@@ -13,3 +23,5 @@ SuspendState=mem
 CONF
 set_setting system.suspendmode off
 set_setting system.suspend.enable 0
+
+systemctl try-restart systemd-logind.service
