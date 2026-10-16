@@ -21,6 +21,7 @@ import struct
 import sys
 import tempfile
 import zlib
+import zipfile
 from pathlib import Path
 
 
@@ -458,9 +459,34 @@ def gen2_cache(data, title, destination):
             "name_cache": "names.json"}
 
 
+def read_rom(rom_path):
+    """Read a raw GB/GBC ROM or one ROM member, without extracting a ZIP."""
+    limit = 8 * 1024 * 1024
+    if Path(rom_path).suffix.lower() != '.zip':
+        if not 0x150 <= Path(rom_path).stat().st_size <= limit:
+            raise CacheError('invalid-gameboy-rom-size')
+        return Path(rom_path).read_bytes()
+    try:
+        with zipfile.ZipFile(rom_path) as archive:
+            members = [member for member in archive.infolist()
+                       if not member.is_dir() and member.filename.lower().endswith(('.gb', '.gbc'))]
+            if len(members) != 1:
+                raise CacheError('zip-needs-exactly-one-gameboy-rom')
+            member = members[0]
+            if not 0x150 <= member.file_size <= limit:
+                raise CacheError('invalid-gameboy-rom-size')
+            with archive.open(member) as handle:
+                data = handle.read(limit + 1)
+            if len(data) != member.file_size:
+                raise CacheError('invalid-gameboy-rom-size')
+            return data
+    except (zipfile.BadZipFile, zlib.error, RuntimeError, NotImplementedError) as error:
+        raise CacheError('cannot-read-gameboy-zip:' + str(error)) from error
+
+
 def cache_rom(rom_path, cache_root, force=False):
     rom_path = os.path.abspath(rom_path)
-    data = Path(rom_path).read_bytes()
+    data = read_rom(rom_path)
     if len(data) < 0x150: raise CacheError("rom-too-small")
     title = data[0x134:0x144].split(b"\0")[0].decode("ascii", "replace")
     generation = 1 if title in ("POKEMON RED", "POKEMON BLUE", "POKEMON YELLOW") else 2

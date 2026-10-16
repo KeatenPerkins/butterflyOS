@@ -1169,18 +1169,19 @@ class SDLFrontEnd:
                 identity.append("Lv. %s" % record["level"])
             if record.get("nature"):
                 identity.append("%s Nature" % record["nature"])
-            if record.get("held"):
-                identity.append("Held %s" % record.get(
-                    "held_label", "item #%s" % record["held"]))
-            self.draw_text("  •  ".join(identity) or "No held item", 176, 317, 13,
+            self.draw_text("  •  ".join(identity), 176, 317, 13,
                            (153, 187, 220), center=True)
+            held = ("Held: %s" % record.get("held_label", "item #%s" % record["held"])
+                    if record.get("held") else "No held item")
+            if record.get("generation") != 1:
+                self.draw_text(held, 176, 337, 12, (153, 187, 220), center=True)
             moves = record.get("move_labels") or [
                 "Move #%s" % move for move in record.get("moves", []) if move]
             if moves:
-                self.draw_text("  •  ".join(moves[:2])[:36], 176, 340, 12,
+                self.draw_text("  •  ".join(moves[:2])[:36], 176, 358, 12,
                                (210, 225, 240), center=True)
                 if len(moves) > 2:
-                    self.draw_text("  •  ".join(moves[2:])[:36], 176, 358, 12,
+                    self.draw_text("  •  ".join(moves[2:])[:36], 176, 376, 12,
                                    (210, 225, 240), center=True)
         if sprite:
             image_width, image_height, pixels = sprite
@@ -1477,16 +1478,19 @@ def sprite_browser(frontend: SDLFrontEnd) -> None:
     if not saves:
         return
     save_index, record_index, active_generation, records = 0, 0, 0, []
+    cache, cache_title = None, "No sprite cache prepared"
 
     def load_save() -> None:
-        nonlocal active_generation, records, record_index
+        nonlocal active_generation, records, record_index, cache, cache_title
         active_generation, records = _save_records(saves[save_index])
         record_index = 0
+        cache = ensure_sprite_cache(frontend, active_generation, saves[save_index])
+        _unused, cache_title = _cache_for_generation(active_generation, saves[save_index])
+        _enrich_rom_names(records, cache)
 
     load_save()
     while True:
         path = saves[save_index]
-        cache, cache_title = _cache_for_generation(active_generation, path)
         sprite = None
         if records and cache:
             sprite_path = os.path.join(cache, "front", "%03d.png" % records[record_index]["species"])
@@ -1698,7 +1702,7 @@ def _rom_candidates(generation: int, save_path: str) -> list[str]:
             "butterflyos_rom_filter", os.path.join(os.path.dirname(__file__), "butterflyos_rom_filter.py"))
         rom_filter = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(rom_filter)
-    directory, extensions = {1: ("gb", (".gb",)), 2: ("gbc", (".gbc",)),
+    directory, extensions = {1: ("gb", (".gb", ".zip")), 2: ("gbc", (".gbc", ".zip")),
                              3: ("gba", (".gba", ".zip"))}[generation]
     found = []
     for root in ("/storage/roms", "/storage/games-external/roms"):
@@ -1726,14 +1730,12 @@ def _rom_candidates(generation: int, save_path: str) -> list[str]:
 
 def ensure_sprite_cache(frontend: SDLFrontEnd, generation: int, save_path: str) -> Optional[str]:
     cache, _title = _cache_for_generation(generation, save_path)
-    # Gen I/II caches also hold local labels extracted from the matching user
-    # ROM.  Regenerate old art-only caches once; Gen III currently remains
-    # art-only until its distinct pointer-table reader is implemented.
-    if cache and generation == 3:
-        return cache
+    # All generations cache labels from the matching user ROM. Upgrade old
+    # art-only caches once so the inspector does not fall back to move IDs.
     if cache:
         names = _load_rom_names(cache)
-        if names and (generation != 1 or names.get("internal_to_national")):
+        if (names and (generation != 1 or names.get("internal_to_national"))
+                and (generation != 3 or names.get("items"))):
             return cache
     candidates = _rom_candidates(generation, save_path)
     if not candidates:
@@ -1744,7 +1746,7 @@ def ensure_sprite_cache(frontend: SDLFrontEnd, generation: int, save_path: str) 
     else:
         choices = [("ROM", os.path.basename(path)[:52]) for path in candidates]
         choice = choose_list(frontend, "CHOOSE MATCHING ROM",
-                             "Used only to build local sprite art. B returns.", choices)
+                             "Used to read local sprites and English move names. B returns.", choices)
         if choice is None:
             return None
         rom = candidates[choice]
@@ -1752,7 +1754,10 @@ def ensure_sprite_cache(frontend: SDLFrontEnd, generation: int, save_path: str) 
                        [("PLEASE WAIT", os.path.basename(rom)[:52])], 0, "Working…")
     tool = ("/usr/bin/butterflyos-gen3-sprite-cache.py" if generation == 3
             else "/usr/bin/butterflyos-gb-sprite-cache.py")
-    result = subprocess.run(["python3", tool, rom, "--cache-root", STATE_ROOT + "/sprite-cache"],
+    arguments = ["python3", tool, rom, "--cache-root", STATE_ROOT + "/sprite-cache"]
+    if cache:
+        arguments.append("--force")
+    result = subprocess.run(arguments,
                             text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             check=False)
     if result.returncode:
@@ -1765,13 +1770,13 @@ def ensure_sprite_cache(frontend: SDLFrontEnd, generation: int, save_path: str) 
 
 
 def _load_rom_names(cache: Optional[str]) -> dict:
-    """Load labels extracted locally from a user-owned Gen I/II ROM."""
+    """Load labels extracted locally from a supported user-owned ROM."""
     if not cache:
         return {}
     try:
         with open(os.path.join(cache, "names.json"), encoding="utf-8") as handle:
             data = json.load(handle)
-        if data.get("format") != "butterflyos-gb-rom-names":
+        if data.get("format") not in ("butterflyos-gb-rom-names", "butterflyos-gen3-rom-names"):
             return {}
         return {"moves": data.get("moves", {}), "items": data.get("items", {}),
                 "internal_to_national": data.get("internal_to_national", {})}
