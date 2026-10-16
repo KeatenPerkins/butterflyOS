@@ -3,8 +3,7 @@
 Researched October 9, 2026. AuroraTicket Enable/Replay is implemented locally
 for English FireRed revision 1 and passes private-fixture automated tests.
 Native device inspection passes; gameplay qualification is pending. Four
-Box-style egg equivalents are implemented for Emerald and available for local
-hatch testing. Other actions remain planned; no Gen III event feature is publicly released.
+Box-style egg equivalents are implemented for Emerald and confirmed working by user testing on the local test device. Other actions remain planned; no Gen III event feature is publicly released.
 Existing Gen III transfers are separate. Remaining emulator and battery release
 checks will use a rebuilt image.
 
@@ -55,10 +54,10 @@ References: [game-based distribution catalog](https://bulbapedia.bulbagarden.net
 
 ## Batch 3: eggs
 
-- [ ] Pokémon Box: False Swipe Swablu — implemented for Emerald; hatch testing pending.
-- [ ] Pokémon Box: ExtremeSpeed Zigzagoon — implemented for Emerald; hatch testing pending.
-- [ ] Pokémon Box: Pay Day Skitty — implemented for Emerald; hatch testing pending.
-- [ ] Pokémon Box: Surf Pichu — implemented for Emerald; hatch testing pending.
+- [x] Pokémon Box: False Swipe Swablu — implemented for Emerald; user testing passed.
+- [x] Pokémon Box: ExtremeSpeed Zigzagoon — implemented for Emerald; user testing passed.
+- [x] Pokémon Box: Pay Day Skitty — implemented for Emerald; user testing passed.
+- [x] Pokémon Box: Surf Pichu — implemented for Emerald; user testing passed.
 - [ ] Wish Egg distributions: enumerate all documented recipes and eligibility
   from the regional catalogs and primary encounter definitions before choosing
   batches. Do not confuse PCNY adult Wish gifts with egg distributions.
@@ -81,7 +80,7 @@ recipes across all 24 record orders, independent native-reader validation, a
 record spanning two PC sectors, occupied-slot/corrupt-save/wrong-ROM refusal,
 original preservation, exclusive output, cancellation, verified backup/Commit,
 changed-after-preview refusal and repeated-Commit refusal. ZIP cache matching
-also passed. Gameplay hatch/save/reload qualification remains pending.
+also passed. The user subsequently confirmed all four eggs working on the local test device.
 
 The generator stages a new save, refuses occupied slots and damaged saves,
 and changes only one PC record plus its active-sector checksum(s). Existing
