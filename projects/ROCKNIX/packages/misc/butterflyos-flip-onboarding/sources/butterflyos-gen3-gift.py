@@ -45,6 +45,22 @@ POKEPARK_PRESETS = {
     'pokepark-wynaut-egg': (360, (150, 204, 227, 321)),
 }
 PRESETS.update(POKEPARK_PRESETS)
+# Anniversary recipes were distributed for Japanese Ruby; these are explicitly
+# expanded English Emerald equivalents, not original distribution records.
+ANNIVERSARY_PRESETS = {
+    'anniversary-teeter-pichu-egg': (172, (84, 204, 298, 0)),
+    'anniversary-wish-pichu-egg': (172, (84, 204, 273, 0)),
+    'anniversary-charm-ralts-egg': (280, (45, 204, 0, 0)),
+    'anniversary-wish-ralts-egg': (280, (45, 273, 0, 0)),
+    'anniversary-spite-absol-egg': (359, (10, 43, 180, 0)),
+    'anniversary-wish-absol-egg': (359, (10, 43, 273, 0)),
+    'anniversary-iron-defense-bagon-egg': (371, (99, 44, 334, 0)),
+    'anniversary-wish-bagon-egg': (371, (99, 44, 273, 0)),
+    'anniversary-shiny-teeter-pichu-egg': (172, (84, 204, 298, 0)),
+    'anniversary-shiny-wish-pichu-egg': (172, (84, 204, 273, 0)),
+}
+SHINY_PRESETS = frozenset(p for p in ANNIVERSARY_PRESETS if '-shiny-' in p)
+PRESETS.update(ANNIVERSARY_PRESETS)
 SIZES = (0xF2C, 0xF80, 0xF80, 0xF80, 0xF08) + (0xF80,) * 8 + (0x7D0,)
 ORDERS = tuple(itertools.permutations(range(4)))
 
@@ -89,6 +105,15 @@ def read_rom(path):
     return data
 
 
+def choose_personality(ot_id, preset):
+    value = secrets.randbits(32)
+    if preset not in SHINY_PRESETS:
+        return value
+    low = value & 0xFFFF
+    high = (ot_id & 0xFFFF) ^ (ot_id >> 16) ^ low ^ ((value >> 16) & 7)
+    return low | (high << 16)
+
+
 def make_egg(rom, save2, preset):
     national, moves = PRESETS[preset]
     # ROM tables qualified by the complete ROM SHA-256, never guessed for hacks.
@@ -96,8 +121,8 @@ def make_egg(rom, save2, preset):
     species = mapping.index(national) + 1
     stats = rom[0x3203CC+species*28:0x3203CC+(species+1)*28]
     exp = struct.unpack_from('<I', rom, 0x31F72C+stats[19]*404+5*4)[0]
-    personality = secrets.randbits(32)
     ot_id = struct.unpack_from('<I', save2, 10)[0]
+    personality = choose_personality(ot_id, preset)
     header = bytearray(32)
     struct.pack_into('<II', header, 0, personality, ot_id)
     header[8:18] = bytes((0xBF, 0xC1, 0xC1, 0xFF)) + b'\xff'*6  # EGG, game encoding.
