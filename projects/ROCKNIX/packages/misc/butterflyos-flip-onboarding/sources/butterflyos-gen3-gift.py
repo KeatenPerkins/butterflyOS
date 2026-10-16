@@ -71,6 +71,10 @@ PROMOTIONAL_PRESETS = {
 }
 PRESETS.update(PROMOTIONAL_PRESETS)
 
+# Expanded English Emerald equivalents of the FRLG PCNY Wish campaign.
+PCNY_PRESETS = {'pcny-farfetchd-egg': (83, (281, 273, 0, 0)), 'pcny-drowzee-egg': (96, (187, 273, 0, 0)), 'pcny-exeggcute-egg': (102, (230, 273, 0, 0)), 'pcny-lickitung-egg': (108, (215, 273, 0, 0)), 'pcny-chansey-egg': (113, (230, 273, 0, 0)), 'pcny-kangaskhan-egg': (115, (281, 273, 0, 0))}
+PRESETS.update(PCNY_PRESETS)
+
 SIZES = (0xF2C, 0xF80, 0xF80, 0xF80, 0xF08) + (0xF80,) * 8 + (0x7D0,)
 ORDERS = tuple(itertools.permutations(range(4)))
 
@@ -149,7 +153,7 @@ def make_egg(rom, save2, preset):
     ivs = secrets.randbits(30) | (1 << 30)
     if stats[23] and personality & 1: ivs |= 1 << 31
     struct.pack_into('<I', misc, 4, ivs)
-    if preset in POKEPARK_PRESETS or preset in PROMOTIONAL_PRESETS:
+    if preset in POKEPARK_PRESETS or preset in PROMOTIONAL_PRESETS or preset in PCNY_PRESETS:
         struct.pack_into('<I', misc, 8, 1 << 31)  # Modern fateful-encounter flag.
     blocks = (growth, attacks, effort, misc)
     plain = b''.join(blocks[i] for i in ORDERS[personality % 24])

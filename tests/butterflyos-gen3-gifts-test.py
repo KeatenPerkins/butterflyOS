@@ -48,7 +48,7 @@ class Eggs(unittest.TestCase):
                     self.assertEqual(struct.unpack_from('<H',blocks[0],2)[0],0)
                     self.assertEqual(struct.unpack('<4H',blocks[1][:8]),moves)
                     self.assertEqual(record[19]&6,6)
-                    self.assertEqual(bool(struct.unpack_from('<I',blocks[3],8)[0] & (1<<31)),preset in gift.POKEPARK_PRESETS or preset in gift.PROMOTIONAL_PRESETS)
+                    self.assertEqual(bool(struct.unpack_from('<I',blocks[3],8)[0] & (1<<31)),preset in gift.POKEPARK_PRESETS or preset in gift.PROMOTIONAL_PRESETS or preset in gift.PCNY_PRESETS)
                     self.assertEqual(blocks[0][9],meta['egg_cycles'])
                     self.assertEqual(record[20:27],SAVE[SECTIONS[0]:SECTIONS[0]+7])
                     self.assertEqual(blocks[1][8:12],bytes(ROM[0x31C898+move*12+4] if move else 0 for move in moves))
@@ -102,6 +102,9 @@ class Eggs(unittest.TestCase):
         self.assertEqual(ui.rom_cache_digest(3,str(rom_path)),gift.ROM_SHA256)
         self.assertEqual(len(ui.GEN3_POKEPARK_EGGS),15)
         self.assertEqual({x[0] for x in ui.GEN3_POKEPARK_EGGS},set(gift.POKEPARK_PRESETS))
+        self.assertEqual(len(ui.GEN3_PCNY_EGGS),6)
+        self.assertEqual({x[0] for x in ui.GEN3_PCNY_EGGS},set(gift.PCNY_PRESETS))
+        self.assertEqual(gift.PCNY_PRESETS, {'pcny-farfetchd-egg': (83, (281, 273, 0, 0)), 'pcny-drowzee-egg': (96, (187, 273, 0, 0)), 'pcny-exeggcute-egg': (102, (230, 273, 0, 0)), 'pcny-lickitung-egg': (108, (215, 273, 0, 0)), 'pcny-chansey-egg': (113, (230, 273, 0, 0)), 'pcny-kangaskhan-egg': (115, (281, 273, 0, 0))})
         self.assertEqual(len(ui.GEN3_PROMOTIONAL_EGGS),4)
         self.assertEqual({x[0] for x in ui.GEN3_PROMOTIONAL_EGGS},set(gift.PROMOTIONAL_PRESETS))
         self.assertEqual(gift.PROMOTIONAL_PRESETS, {
@@ -112,7 +115,7 @@ class Eggs(unittest.TestCase):
         })
         self.assertEqual(len(ui.GEN3_ANNIVERSARY_EGGS),10)
         self.assertEqual({x[0] for x in ui.GEN3_ANNIVERSARY_EGGS},set(gift.ANNIVERSARY_PRESETS))
-        self.assertEqual({x[0] for group in (ui.GEN3_BOX_EGGS,ui.GEN3_POKEPARK_EGGS,ui.GEN3_ANNIVERSARY_EGGS,ui.GEN3_PROMOTIONAL_EGGS) for x in group},set(gift.PRESETS))
+        self.assertEqual({x[0] for group in (ui.GEN3_BOX_EGGS,ui.GEN3_POKEPARK_EGGS,ui.GEN3_ANNIVERSARY_EGGS,ui.GEN3_PROMOTIONAL_EGGS,ui.GEN3_PCNY_EGGS) for x in group},set(gift.PRESETS))
         with tempfile.TemporaryDirectory() as directory:
             d=Path(directory);ui.STATE_ROOT=str(d/'sessions');save=d/'test.srm'
             for scenario in ('cancel','commit','changed'):
