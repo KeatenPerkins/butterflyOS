@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXTRACTOR_VERSION = "1"
+EXTRACTOR_VERSION = "3"
 DEFAULT_CACHE_ROOT = "/storage/.config/butterflyos/save-trade/sprite-cache"
 GBA_BASE = 0x08000000
 
@@ -264,6 +264,77 @@ def read_rom_info(path):
     return data, code, revision, layout
 
 
+def decode_name(raw):
+    # The five POKEBLOCK logo glyphs render one English word.
+    raw = raw.replace(bytes((0x55, 0x56, 0x57, 0x58, 0x59)),
+                      bytes((0xCA, 0xC9, 0xC5, 0x1B, 0xBC, 0xC6, 0xC9, 0xBD, 0xC5)))
+    end = raw.find(b"\xff")
+    if end < 1:
+        return None
+    result = []
+    for byte in raw[:end]:
+        if 0xBB <= byte <= 0xD4:
+            result.append(chr(ord('A') + byte - 0xBB))
+        elif 0xA1 <= byte <= 0xAA:
+            result.append(chr(ord('0') + byte - 0xA1))
+        elif byte in (0x00, 0x1B, 0xAC, 0xAD, 0xAE, 0xB4, 0xBA):
+            result.append({0x00: ' ', 0x1B: 'é', 0xAC: '?', 0xAD: '.', 0xAE: '-', 0xB4: "'", 0xBA: '/'}[byte])
+        else:
+            return None
+    return ''.join(result).strip() or None
+
+
+def move_names(data):
+    """Locate the English fixed-width move-name table in the user's ROM.
+
+    Gen III uses 13-byte entries (12 glyphs plus terminator), IDs 1..354.
+    Encoding/table shape reference: pret/pokeemerald charmap.txt and
+    src/data/text/move_names.h. Validate a whole table rather than using ROM
+    offsets that change between game families and revisions.
+    """
+    # POUND in the English game encoding, with its end marker.
+    first = bytes((0xCA, 0xC9, 0xCF, 0xC8, 0xBE, 0xFF))
+    start = 0
+    while True:
+        offset = data.find(first, start)
+        if offset < 0:
+            raise CacheError('missing-gen3-move-name-table')
+        start = offset + 1
+        if decode_name(data[offset+13:offset+26]) != 'KARATE CHOP':
+            continue
+        names = [decode_name(data[offset+i*13:offset+(i+1)*13]) for i in range(354)]
+        if all(names) and names[-1] == 'PSYCHO BOOST':
+            return {str(i+1): name for i, name in enumerate(names)}
+
+
+def item_names(data):
+    """Read names from the ROM's 44-byte Item structs (pret item.h)."""
+    count = 376 if data[0xAC:0xB0] == b'BPEE' else (374 if data[0xAC:0xB0] in (b'BPRE', b'BPGE') else 348)
+    first = bytes((0xC7, 0xBB, 0xCD, 0xCE, 0xBF, 0xCC, 0x00, 0xBC, 0xBB, 0xC6, 0xC6, 0xFF))
+    start = 0
+    while True:
+        offset = data.find(first, start)
+        if offset < 0:
+            raise CacheError('missing-gen3-item-name-table')
+        start = offset + 1
+        if decode_name(data[offset+44:offset+58]) != 'ULTRA BALL':
+            continue
+        names = {}
+        for item_id in range(1, count + 1):
+            entry = offset + (item_id - 1) * 44
+            if entry + 44 > len(data):
+                break
+            stored_id = struct.unpack_from('<H', data, entry + 14)[0]
+            name = decode_name(data[entry:entry+14])
+            if stored_id == 0 and name and set(name) == {'?'}:
+                continue  # Unused item slots are not real held items.
+            if stored_id != item_id or not name:
+                break
+            names[str(item_id)] = name
+        else:
+            return names
+
+
 def cache_rom(rom_path, cache_root, force=False):
     rom_path = os.path.abspath(rom_path)
     if not os.path.isfile(rom_path):
@@ -276,7 +347,8 @@ def cache_rom(rom_path, cache_root, force=False):
         try:
             manifest = json.loads(manifest_path.read_text())
             if (manifest.get("rom_sha256") == digest and
-                    manifest.get("extractor_version") == EXTRACTOR_VERSION):
+                    manifest.get("extractor_version") == EXTRACTOR_VERSION and
+                    (destination / "names.json").is_file()):
                 print("cache_hit=1")
                 print("cache_dir=" + str(destination))
                 return destination
@@ -286,6 +358,10 @@ def cache_rom(rom_path, cache_root, force=False):
     Path(cache_root).mkdir(parents=True, exist_ok=True)
     temporary = Path(tempfile.mkdtemp(prefix=".sprite-cache-", dir=cache_root))
     try:
+        (temporary / "names.json").write_text(json.dumps({
+            "format": "butterflyos-gen3-rom-names", "format_version": 1,
+            "generation": 3, "moves": move_names(data), "items": item_names(data),
+        }, indent=2) + "\n")
         front_dir = temporary / "front"
         shiny_dir = temporary / "front-shiny"
         front_dir.mkdir()
@@ -314,6 +390,7 @@ def cache_rom(rom_path, cache_root, force=False):
             "game_code": code,
             "rom_revision": revision,
             "game_title": layout["title"],
+            "name_cache": "names.json",
             "species_count": count,
             "variants": ["front", "front-shiny"],
             "generated_utc": datetime.now(timezone.utc).isoformat(),

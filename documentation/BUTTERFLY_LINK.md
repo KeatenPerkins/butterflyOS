@@ -33,6 +33,12 @@ No internet service or SSH login is required for its remote-transfer workflow.
 - **Browse your collection:** preview party Pokémon and PC boxes, with sprites
   and available Pokémon details such as level, moves, nature, and held item.
   Available fields and name lookup vary by generation and ROM.
+  The inspector shows English move names for supported Gen I, II, and III
+  ROMs. Names are extracted locally from your matching ROM; older sprite-only
+  caches are refreshed when needed. Unknown move IDs retain a numeric label.
+  Gen II/III held items also show ROM-derived English names on a separate
+  inspector line. Unknown items retain their numeric label; Gen I has no held
+  items.
 - **Prepare protected working copies:** review a transfer before confirming it,
   with pre-commit backups retained for troubleshooting or manual recovery.
 
@@ -44,6 +50,10 @@ versions are not supported at this time. A ROM's filename can be in any language
 the GBA ROM picker checks its internal game code, not its filename. Renaming a
 non-English ROM does not make it supported. This restriction applies to Butterfly
 Link, not to playing those games in an emulator.
+
+The next build also supports Gen I/II `.zip` archives containing exactly one
+`.gb` or `.gbc` ROM. Sprites and move names are read directly from the archive;
+manual extraction is unnecessary. Archives with multiple ROMs are rejected.
 
 From v1.0.4, the ROM picker supports uncompressed `.gba` files and `.zip`
 archives containing exactly one supported GBA ROM. It reads the game's header
