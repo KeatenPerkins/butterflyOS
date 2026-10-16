@@ -23,13 +23,45 @@ class SuspendTests(unittest.TestCase):
         self.assertTrue(s.charger_only_wake(before, after))
         self.assertTrue(s.charger_only_wake(after, before))
         self.assertFalse(s.charger_only_wake(before, before))
-        for key in ('Lid', 'rk805_pwrkey_fall', 'rk805_pwrkey_rise'):
+        for key in ('rk805_pwrkey_fall', 'rk805_pwrkey_rise'):
             changed = self.wake(1)
             changed['irqs'][key] += 1
             self.assertFalse(s.charger_only_wake(before, changed))
         self.assertFalse(s.charger_only_wake(before, self.wake(1, lid_closed=False)))
         self.assertFalse(s.charger_only_wake(before, self.wake(1, irqs={})))
         self.assertFalse(s.charger_only_wake(before, self.wake(None)))
+
+    def test_charger_with_single_closed_lid_irq(self):
+        before, after = self.wake(1), self.wake(0)
+        before['irqs']['Lid'] = 1
+        after['irqs']['Lid'] = 2
+        self.assertTrue(s.charger_only_wake(before, after))
+        self.assertFalse(s.same_user_inputs(before, after))  # Still strict during debounce.
+        for delta in (0, 2, 3, -1):
+            changed = self.wake(0)
+            changed['irqs']['Lid'] = before['irqs']['Lid'] + delta
+            self.assertEqual(s.charger_only_wake(before, changed), delta == 0)
+        for key in ('rk805_pwrkey_fall', 'rk805_pwrkey_rise'):
+            changed = self.wake(0)
+            changed['irqs']['Lid'] = 2
+            changed['irqs'][key] = 1
+            self.assertFalse(s.charger_only_wake(before, changed))
+        for closed in (False, None):
+            self.assertFalse(s.charger_only_wake(before, dict(after, lid_closed=closed)))
+        # A hall IRQ alone, with no charger status/IRQ change, is not a USB wake.
+        self.assertFalse(s.charger_only_wake(before, dict(after, charger_online=1)))
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);flag=root/'enabled';flag.touch()
+            cycle=root/'cycle';cycle.mkdir()
+            (cycle/'after.json').write_text(__import__('json').dumps({
+                'wake_inputs_before':before, 'wake_inputs_after':after,
+                'sleep_elapsed_seconds':18}))
+            # Opening during debounce or another lid IRQ cancels the retry.
+            additional = dict(after, irqs=dict(after['irqs'], Lid=3))
+            for current in (dict(after, lid_closed=False), additional):
+                with patch.object(s,'ENABLED',flag), patch.object(s,'run_cycle',return_value=str(cycle)) as run, patch.object(s.time,'sleep'), patch.object(s,'wake_inputs',return_value=current):
+                    s.run_lid_cycles()
+                    self.assertEqual(run.call_count,1)
 
     def test_retry_limit_and_user_cancel(self):
         with tempfile.TemporaryDirectory() as directory:

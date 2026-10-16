@@ -167,3 +167,23 @@ candidate for now: restore only the immediately preceding DTB (SHA-256
 9e23eac7518a6893e8856f5c58d2084f01527896f5d61bd67892683939089156),
 keep the earlier module/LED fixes, and repeat the previous suspend baseline.
 The source explicitly keeps external OHCI disabled pending investigation.
+
+## C4 charger wake accompanied by one hall interrupt
+
+A local test device woke after USB unplug and remained awake. Its recorded
+charger state changed from online to offline and the plug-out IRQ incremented,
+but the hall IRQ also incremented once while both EV_SW lid samples remained
+closed. Power-button counters were unchanged. Both card read/write probes passed;
+the classifier rejected the wake as user activity, rather than failing suspend
+or storage recovery. The extra hall IRQ's electrical/driver cause is not yet
+established.
+
+The follow-up helper admits exactly one additional hall IRQ during an otherwise
+qualified charger wake when both lid samples remain closed and power-button
+counters match. Debounce and final pre-suspend input checks remain strict;
+opening the lid, any later hall interrupt, power activity, unknown inputs or
+multiple hall interrupts prevents automatic re-sleep. Retry limits are unchanged.
+Eleven automated tests pass, including this captured pattern and cancellation
+cases. The change is live on the local test device for confirmation and committed
+for the next image; the existing C4 image does not contain it. The temporary live
+helper binding is lost on reboot.

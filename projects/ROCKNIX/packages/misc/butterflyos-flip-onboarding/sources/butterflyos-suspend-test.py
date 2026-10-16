@@ -104,7 +104,17 @@ def same_user_inputs(before, after):
 
 
 def charger_only_wake(before, after):
-    if not same_user_inputs(before, after): return False
+    if not same_user_inputs(before, after):
+        # A USB wake can arrive with one additional hall IRQ even though EV_SW
+        # still reports closed on both sides. Admit only this single IRQ here;
+        # power-key counters must still match. The three-second debounce and
+        # final pre-suspend check remain strict, so a later lid/power event wins.
+        old_lid = before.get('irqs', {}).get('Lid')
+        new_lid = after.get('irqs', {}).get('Lid')
+        if not isinstance(old_lid, int) or not isinstance(new_lid, int) or new_lid != old_lid + 1:
+            return False
+        normalized = dict(after, irqs=dict(after.get('irqs', {}), Lid=old_lid))
+        if not same_user_inputs(before, normalized): return False
     if before.get('charger_online') not in (0, 1) or after.get('charger_online') not in (0, 1):
         return False
     changed = before['charger_online'] != after['charger_online']
