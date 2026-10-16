@@ -208,9 +208,9 @@ and wait for the device to power off
 before removing the card. See [Controls and hotkeys](HOTKEYS.md) for in-game
 exit and save-state shortcuts.
 
-Closing the lid blanks the LCD but does not suspend the game or system.
-Use shutdown for long breaks; the CPU and networking continue drawing power
-with the lid closed.
+The next build sleeps when the lid closes by default. To keep a game running
+while using HDMI and a controller, disable **System Settings → Hardware →
+Sleep When Lid Closed**. Closing then turns off only the built-in screen.
 
 ## Updating a test installation
 
@@ -230,26 +230,16 @@ change stays in the device's internal preloader; do not reinstall it merely
 because you rewrote the OS card. Restore the correct device's recovery folder
 to the new boot partition as described in the installation guide.
 
-## Lid-closed shutdown
+## Lid sleep (next build)
 
-Closing the lid turns off the display; the system continues running.
-In **System Settings → Hardware → Lid-Closed Shutdown**, choose Off (the default),
-1, 5, 15, 30, or 60 minutes. Reopening the lid resets the countdown.
-Closing the lid also mutes audio; reopening restores its previous mute state.
+**System Settings → Hardware → Sleep When Lid Closed** controls lid behavior:
 
-With **Save Game Before Lid Shutdown** off (the default), return to the
-menu before closing the lid. Running games and tools defer shutdown.
+- **On** (default): suspend to RAM when closed; open the lid to wake and resume.
+- **Off**: turn off the built-in screen while games, networking and HDMI audio
+  keep running. Closing and opening the lid do not change the audio mute state.
 
-Enable **Save Game Before Lid Shutdown** to let supported RetroArch games
-save their current position when the timer expires. ButterflyOS requests a
-fresh auto-save, verifies that the complete file was written, exits RetroArch
-normally, then uses normal system shutdown to save frontend metadata.
-This replaces the game's auto-save, keeps its previous file as
-`.state.auto.lid-backup`, and leaves numbered manual slots unchanged.
-Choose **Auto Save** in the Save State Manager to resume after booting.
-The backup is the previous auto-save, not an extra entry in that menu.
-
-If the emulator does not support this operation, the command connection fails,
-or a complete new save cannot be verified, the game stays running and shutdown
-is deferred. Other emulators and active tools also defer shutdown. Save-state
-creation remains subject to the core's support and RetroAchievements restrictions.
+The choice persists after reboot. If the suspend safety checks fail, lid sleep
+is disabled until explicitly re-enabled. The previous lid shutdown timer and
+save-before-lid-shutdown options are removed. Sleep keeps the running session
+in memory; it does not create a save state. Save in-game before a long break
+because losing power also loses the suspended session.

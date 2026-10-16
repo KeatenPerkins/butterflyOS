@@ -127,6 +127,11 @@ def run_cycle():
                 except OSError: pass
 
 def main():
+    if len(sys.argv)>1 and sys.argv[1]=='set-lid-sleep':
+        if len(sys.argv) != 3 or sys.argv[2] not in ('on', 'off'):
+            raise ValueError('Expected set-lid-sleep on|off')
+        set_lid_sleep(sys.argv[2] == 'on')
+        return 0
     if len(sys.argv)>1 and sys.argv[1]=='cycle':
         with open('/run/butterflyos-suspend-test.lock', 'w') as lock:
             try: fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -140,7 +145,7 @@ def main():
         while True:
             choice=ui.menu('EXPERIMENTAL SUSPEND', [
                 ('Sleep now', 'Suspend to RAM; wake with power or by opening the lid'),
-                ('Enable lid sleep', 'Real lid suspend; remembers choice and pauses lid shutdown timer'),
+                ('Enable lid sleep', 'Suspend on lid close; remembers choice after reboot'),
                 ('Disable lid sleep', 'Return to display-only lid handling'),
                 ('Save diagnostics', 'Collect current kernel, battery and SD-controller information'),
                 ('Back', 'Return to Tools')], 0)

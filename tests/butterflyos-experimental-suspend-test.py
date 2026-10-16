@@ -12,6 +12,20 @@ spec = importlib.util.spec_from_file_location('suspend_test', SOURCE)
 s = importlib.util.module_from_spec(spec); spec.loader.exec_module(s)
 
 class SuspendTests(unittest.TestCase):
+    def test_hardware_toggle_cli(self):
+        with tempfile.TemporaryDirectory() as directory:
+            enabled = Path(directory)/'enabled'
+            disabled = Path(directory)/'disabled'
+            with patch.multiple(s, ENABLED=enabled, DISABLED=disabled):
+                for value, expected in [('off', False), ('on', True)]:
+                    with patch.object(s.sys, 'argv', ['helper', 'set-lid-sleep', value]):
+                        self.assertEqual(s.main(), 0)
+                    self.assertEqual(enabled.exists(), expected)
+                    self.assertEqual(disabled.exists(), not expected)
+                with patch.object(s.sys, 'argv', ['helper', 'set-lid-sleep', 'invalid']):
+                    with self.assertRaises(ValueError): s.main()
+                self.assertTrue(enabled.exists())
+
     def cycle(self, failure=None):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); card = root/'card'; card.mkdir()
