@@ -439,6 +439,8 @@
 			gpios = <&gpio0 RK_PB4 GPIO_ACTIVE_HIGH>;
 		};
 		status_led: led-status {
+			/* Keep the pre-suspend charging indication while CPUs sleep. */
+			retain-state-suspended;
 			label = "red:status";
 			color = <LED_COLOR_ID_RED>;
 			function = LED_FUNCTION_STATUS;
@@ -1352,14 +1354,22 @@
 	status = "okay";
 };
 
+/* Keyboard companion experiment regressed suspend on .17. Keep disabled
+ * until external USB routing and OHCI suspend can be qualified together.
+ */
+&usb_host0_ohci {
+	status = "disabled";
+};
+
 /* USB:
  *   fcc00000 usb_host0_xhci  lower USB-C charge/gadget (usb2phy0_otg)
  *   fd800000 usb_host0_ehci  upper USB-C host (usb2phy1_otg, VBUS vcc5v0_host)
  *   fd880000 usb_host1_ehci  WiFi RTL8733BU (usb2phy1_host)
  *   fd000000 usb_host1_xhci  unused (usb2phy0_host)
  *
- * Disabled: fd840000 / fd8c0000 OHCI companions.
- * usb_host1_xhci stays on usb2phy0_host so it does not share a PHY with WiFi. */
+ * fd840000 external OHCI companion remains disabled pending suspend testing.
+ * fd8c0000 OHCI for the high-speed internal radio remains disabled.
+ * usb_host1_xhci is disabled; its unused PHY remains separate from WiFi. */
 
 /* Lower USB-C: fixed peripheral/gadget side for the experimental Butterfly Link
  * USB transport. The upper/rear USB-C connector remains the host side. */
@@ -1371,9 +1381,12 @@
 	phy-names = "usb2-phy";
 };
 
-/* Host DWC3: usb2phy0_host, USB2-only (no USB3 routing). */
+/* No connector is routed to this DWC3 host. Keeping it enabled creates
+ * unused root hubs and attempts to restore lost controller state on wake.
+ * External USB host is fd800000 EHCI; WiFi/BT is fd880000 EHCI.
+ */
 &usb_host1_xhci {
-	status = "okay";
+	status = "disabled";
 	phys = <&usb2phy0_host>;
 	phy-names = "usb2-phy";
 	maximum-speed = "high-speed";

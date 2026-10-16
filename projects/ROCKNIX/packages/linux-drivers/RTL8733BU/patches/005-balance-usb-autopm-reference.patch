@@ -1,0 +1,39 @@
+From: ButterflyOS developers
+Subject: [PATCH] usb: release autopm reference only after successful acquisition
+
+usb_autopm_get_interface() uses pm_runtime_resume_and_get(), which rolls back
+its increment on failure. The driver nevertheless set autopm_cnt to one,
+then put that nonexistent reference at disconnect. This produces a Runtime
+PM usage count underflow when the Flip radio is removed for deep suspend.
+
+Record ownership only on success. Preserve the existing probe failure policy,
+legacy-kernel branches and radio suspend/resume sequencing.
+
+--- a/os_dep/linux/usb_intf.c
++++ b/os_dep/linux/usb_intf.c
+@@ -1279,11 +1279,23 @@
+ #endif
+ 	/* 2012-07-11 Move here to prevent the 8723AS-VAU BT auto suspend influence */
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33))
+-	if (usb_autopm_get_interface(pusb_intf) < 0)
++#ifdef CONFIG_BT_COEXIST
++	/* A failed get rolls back its usage count in the USB core. Only a
++	 * successful acquisition may be released during adapter teardown.
++	 */
++	dvobj_to_pwrctl(dvobj)->autopm_cnt = 0;
++#endif
++	if (usb_autopm_get_interface(pusb_intf) < 0) {
+ 		RTW_INFO("can't get autopm:\n");
+-#endif
++	} else {
++#ifdef CONFIG_BT_COEXIST
++		dvobj_to_pwrctl(dvobj)->autopm_cnt = 1;
++#endif
++	}
++#else
+ #ifdef CONFIG_BT_COEXIST
+ 	dvobj_to_pwrctl(dvobj)->autopm_cnt = 1;
++#endif
+ #endif
+ 
+ 	/* set mac addr */

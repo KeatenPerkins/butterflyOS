@@ -1,0 +1,9 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# powerstate is stopped during sleep; sample once at the boundary. The GPIO
+# retains this state in suspend, but cannot track cable changes until resume.
+if [ "$(cat /sys/class/power_supply/battery/status 2>/dev/null)" = "Charging" ]; then
+    ledcontrol charging
+else
+    ledcontrol discharging
+fi
