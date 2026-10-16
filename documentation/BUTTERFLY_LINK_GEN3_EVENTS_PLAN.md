@@ -2,8 +2,9 @@
 
 Researched October 9, 2026. AuroraTicket Enable/Replay is implemented locally
 for English FireRed revision 1 and passes private-fixture automated tests.
-Native device inspection passes; gameplay qualification is pending. Other
-actions remain planned; no Gen III event feature is publicly released.
+Native device inspection passes; gameplay qualification is pending. Four
+Box-style egg equivalents are implemented for Emerald and available for local
+hatch testing. Other actions remain planned; no Gen III event feature is publicly released.
 Existing Gen III transfers are separate. Remaining emulator and battery release
 checks will use a rebuilt image.
 
@@ -54,10 +55,10 @@ References: [game-based distribution catalog](https://bulbapedia.bulbagarden.net
 
 ## Batch 3: eggs
 
-- [ ] Pokémon Box: False Swipe Swablu.
-- [ ] Pokémon Box: ExtremeSpeed Zigzagoon.
-- [ ] Pokémon Box: Pay Day Skitty.
-- [ ] Pokémon Box: Surf Pichu.
+- [ ] Pokémon Box: False Swipe Swablu — implemented for Emerald; hatch testing pending.
+- [ ] Pokémon Box: ExtremeSpeed Zigzagoon — implemented for Emerald; hatch testing pending.
+- [ ] Pokémon Box: Pay Day Skitty — implemented for Emerald; hatch testing pending.
+- [ ] Pokémon Box: Surf Pichu — implemented for Emerald; hatch testing pending.
 - [ ] Wish Egg distributions: enumerate all documented recipes and eligibility
   from the regional catalogs and primary encounter definitions before choosing
   batches. Do not confuse PCNY adult Wish gifts with egg distributions.
@@ -66,6 +67,28 @@ References: [game-based distribution catalog](https://bulbapedia.bulbagarden.net
 Deliver real eggs, leaving normal hatching to the game. Test special-move
 retention, hatch identity, Pokédex behavior and save/reload. The four Box eggs
 are a bounded first egg batch.
+
+The first development batch is under **Local Transfer → Gen 3 → Gen 3 Box
+Eggs** and supports the qualified English Emerald ROM/save only. These are
+generated equivalents with the recipient's trainer identity, random personality
+and IVs, the four documented level-5 move recipes, no held item, and normal
+ROM-derived hatch counters. They do not emulate Pokémon Box deposit rewards,
+distribution RNG, or original distribution records. No League progress is needed.
+Ruby/Sapphire/FireRed/LeafGreen gift writing remains unqualified.
+
+Automated checks passed on disposable saves on the local test device: all four
+recipes across all 24 record orders, independent native-reader validation, a
+record spanning two PC sectors, occupied-slot/corrupt-save/wrong-ROM refusal,
+original preservation, exclusive output, cancellation, verified backup/Commit,
+changed-after-preview refusal and repeated-Commit refusal. ZIP cache matching
+also passed. Gameplay hatch/save/reload qualification remains pending.
+
+The generator stages a new save, refuses occupied slots and damaged saves,
+and changes only one PC record plus its active-sector checksum(s). Existing
+party, PC entries, story, Pokédex, older save slot and auxiliary records are
+preserved. The existing preview, cancel, source fingerprint and backed-up Commit
+flow controls installation. Withdraw the Egg and hatch it normally; confirm its
+special move and ordinary in-game save/reload before marking a recipe qualified.
 
 Sources: [Box bonus eggs](https://bulbapedia.bulbagarden.net/wiki/List_of_game-based_Pok%C3%A9mon_distributions_in_Generation_III#Pok%C3%A9mon_Box_Bonus_Eggs),
 [PCNY catalog](https://bulbapedia.bulbagarden.net/wiki/List_of_PCNY_event_Pok%C3%A9mon_distributions_in_Generation_III),
