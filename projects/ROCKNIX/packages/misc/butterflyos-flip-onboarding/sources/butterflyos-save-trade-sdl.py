@@ -2350,8 +2350,11 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
     if generation == 3:
         gifts, title = {"box": (GEN3_BOX_EGGS, "GEN 3 BOX EGGS"),
                         "pokepark": (GEN3_POKEPARK_EGGS, "POKEPARK EGGS"),
-                        "anniversary": (GEN3_ANNIVERSARY_EGGS, "ANNIVERSARY EGGS")}[gen3_group]
+                        "anniversary": (GEN3_ANNIVERSARY_EGGS, "ANNIVERSARY EGGS"),
+                        "promotional": (GEN3_PROMOTIONAL_EGGS, "PROMOTIONAL EGGS")}[gen3_group]
         eggs = True
+        if gen3_group == "promotional":
+            notice(frontend, title, "Expanded English Emerald equivalents of the 2004 Japanese FireRed/LeafGreen campaign. Four special-move eggs; not original event records.")
         if gen3_group == "anniversary":
             notice(frontend, title, "Expanded English Emerald equivalents of Japanese Ruby gifts. Eight random-shiny-chance recipes and two explicitly guaranteed-shiny Pichu variants; not original event records.")
     if pcny:
@@ -2625,17 +2628,26 @@ GEN3_ANNIVERSARY_EGGS = [
 ]
 
 
+GEN3_PROMOTIONAL_EGGS = [
+    ('promotional-oddish-egg', 'ODDISH EGG', 'Leech Seed'),
+    ('promotional-meowth-egg', 'MEOWTH EGG', 'Petal Dance'),
+    ('promotional-poliwag-egg', 'POLIWAG EGG', 'Sweet Kiss'),
+    ('promotional-bellsprout-egg', 'BELLSPROUT EGG', 'Teeter Dance'),
+]
+
+
 def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
     while True:
         saves = generation_saves(3)
         items = [("GAME", "%s | %s" % (os.path.splitext(os.path.basename(save[0]))[0], save[1])) for save in saves]
         items.extend([("GEN 3 BOX EGGS", "Four special-move eggs; Emerald"),
                       ("POKEPARK EGGS", "15 special-move eggs; Emerald"),
-                      ("ANNIVERSARY EGGS", "8 recipes plus 2 shiny Pichu; expanded Emerald gifts")])
+                      ("ANNIVERSARY EGGS", "8 recipes plus 2 shiny Pichu; expanded Emerald gifts"),
+                      ("PROMOTIONAL EGGS", "Four special-move eggs; expanded Emerald gifts")])
         choice = choose_list(frontend, "GEN 3", "Choose a game to trade/copy, or an egg group. B returns.", items)
         if choice is None: return None
         if choice < len(saves): return saves[choice]
-        generated_gift_workflow(frontend, 3, gen3_group=("box", "pokepark", "anniversary")[choice-len(saves)])
+        generated_gift_workflow(frontend, 3, gen3_group=("box", "pokepark", "anniversary", "promotional")[choice-len(saves)])
 
 
 

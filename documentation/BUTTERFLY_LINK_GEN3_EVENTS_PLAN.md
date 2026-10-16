@@ -65,10 +65,11 @@ References: [game-based distribution catalog](https://bulbapedia.bulbagarden.net
   automated checks pass and the user confirmed all 15 working on the local test device.
   The 15 recipes are listed
   in the [user guide](BUTTERFLY_LINK.md#gen-iii-poképark-eggs-development-test-batch).
-- [ ] Other Japanese campaign eggs: inventory distinct movesets and hatch behavior.
-- [ ] Pokémon Center fifth-anniversary eggs: eight recipes and two guaranteed-shiny
+- [ ] Japanese 2004 promotional eggs: four expanded English Emerald equivalents
+  implemented; gameplay qualification pending on the local test device.
+- [x] Pokémon Center fifth-anniversary eggs: eight recipes and two guaranteed-shiny
   Pichu variants implemented as expanded English Emerald equivalents of Japanese
-  Ruby distributions. Gameplay qualification pending; see the
+  Ruby distributions. User confirmed all ten working; see the
   [user guide](BUTTERFLY_LINK.md#gen-iii-anniversary-eggs-development-test-batch).
 
 Deliver real eggs, leaving normal hatching to the game. Test special-move
@@ -233,4 +234,13 @@ Six automated test groups also cover recipe/menu parity, move PP, egg flags,
 trainer identity, sector boundaries, occupied/corrupt/wrong-ROM refusal,
 exclusive output and original preservation, ZIP matching and protected
 Cancel/backup/Commit/changed-save/repeated-Commit behavior. In-game testing of
-the ten anniversary entries remains pending on the local test device.
+the ten anniversary entries passed on the local test device, confirmed by the user.
+
+## Promotional development batch validation
+
+The four 2004 promotional egg equivalents are implemented for English Emerald.
+All 792 recipe/record-order combinations across 33 entries passed the native
+save reader on the local test device. Six automated test groups passed,
+including complete promotional recipes, menu parity, fateful flags, PP,
+checksums, original preservation and protected preview/backup/Commit behavior.
+Gameplay qualification for these four eggs remains pending.
