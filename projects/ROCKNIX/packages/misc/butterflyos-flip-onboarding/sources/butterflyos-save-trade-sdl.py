@@ -2351,8 +2351,11 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
         gifts, title = {"box": (GEN3_BOX_EGGS, "GEN 3 BOX EGGS"),
                         "pokepark": (GEN3_POKEPARK_EGGS, "POKEPARK EGGS"),
                         "anniversary": (GEN3_ANNIVERSARY_EGGS, "ANNIVERSARY EGGS"),
-                        "promotional": (GEN3_PROMOTIONAL_EGGS, "PROMOTIONAL EGGS")}[gen3_group]
+                        "promotional": (GEN3_PROMOTIONAL_EGGS, "PROMOTIONAL EGGS"),
+                        "pcny": (GEN3_PCNY_EGGS, "PCNY WISH EGGS")}[gen3_group]
         eggs = True
+        if gen3_group == "pcny":
+            notice(frontend, title, "Expanded English Emerald equivalents of the FireRed/LeafGreen PCNY Wish campaign. Six eggs with Wish and a second special move; not original event records.")
         if gen3_group == "promotional":
             notice(frontend, title, "Expanded English Emerald equivalents of the 2004 Japanese FireRed/LeafGreen campaign. Four special-move eggs; not original event records.")
         if gen3_group == "anniversary":
@@ -2636,6 +2639,9 @@ GEN3_PROMOTIONAL_EGGS = [
 ]
 
 
+GEN3_PCNY_EGGS = [('pcny-farfetchd-egg', "FARFETCH'D EGG", 'Wish and Yawn'), ('pcny-drowzee-egg', 'DROWZEE EGG', 'Wish and Belly Drum'), ('pcny-exeggcute-egg', 'EXEGGCUTE EGG', 'Wish and Sweet Scent'), ('pcny-lickitung-egg', 'LICKITUNG EGG', 'Wish and Heal Bell'), ('pcny-chansey-egg', 'CHANSEY EGG', 'Wish and Sweet Scent'), ('pcny-kangaskhan-egg', 'KANGASKHAN EGG', 'Wish and Yawn')]
+
+
 def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
     while True:
         saves = generation_saves(3)
@@ -2643,11 +2649,12 @@ def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, st
         items.extend([("GEN 3 BOX EGGS", "Four special-move eggs; Emerald"),
                       ("POKEPARK EGGS", "15 special-move eggs; Emerald"),
                       ("ANNIVERSARY EGGS", "8 recipes plus 2 shiny Pichu; expanded Emerald gifts"),
-                      ("PROMOTIONAL EGGS", "Four special-move eggs; expanded Emerald gifts")])
+                      ("PROMOTIONAL EGGS", "Four special-move eggs; expanded Emerald gifts"),
+                      ("PCNY WISH EGGS", "Six Wish eggs; expanded Emerald gifts")])
         choice = choose_list(frontend, "GEN 3", "Choose a game to trade/copy, or an egg group. B returns.", items)
         if choice is None: return None
         if choice < len(saves): return saves[choice]
-        generated_gift_workflow(frontend, 3, gen3_group=("box", "pokepark", "anniversary", "promotional")[choice-len(saves)])
+        generated_gift_workflow(frontend, 3, gen3_group=("box", "pokepark", "anniversary", "promotional", "pcny")[choice-len(saves)])
 
 
 

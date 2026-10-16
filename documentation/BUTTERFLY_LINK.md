@@ -359,6 +359,26 @@ protected Commit, backup and ordinary hatch/save/reload process as the other egg
 The user confirmed all four promotional eggs working on the local test device.
 [Recipe reference](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
+### Gen III PCNY Wish eggs (development test batch)
+
+**Local Transfer → Gen 3 → PCNY Wish Eggs** offers six eggs. Each knows Wish:
+
+| Pokémon | Second special move |
+| --- | --- |
+| Farfetch’d | Yawn |
+| Drowzee | Belly Drum |
+| Exeggcute | Sweet Scent |
+| Lickitung | Heal Bell |
+| Chansey | Sweet Scent |
+| Kangaskhan | Yawn |
+
+These are expanded English Emerald equivalents of the 2004–2005 FireRed/LeafGreen
+PCNY campaign, not original event records or distribution RNG. They use your
+trainer identity, random IVs and the normal shiny chance. All hatch at level 5
+without held items. Use a free PC slot, preview and protected Commit, then hatch
+and save/reload normally. Gameplay qualification is pending on the local test device.
+[Recipe reference](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
+
 ## Opening Butterfly Link
 
 Butterfly Link copies or exchanges Pokémon between selected emulator save files.

@@ -244,3 +244,18 @@ save reader on the local test device. Six automated test groups passed,
 including complete promotional recipes, menu parity, fateful flags, PP,
 checksums, original preservation and protected preview/backup/Commit behavior.
 The user confirmed all four eggs working on the local test device.
+
+
+## PCNY Wish egg development batch
+
+Six expanded English Emerald equivalents of the FRLG PCNY Wish campaign are
+implemented: Farfetch’d/Yawn, Drowzee/Belly Drum, Exeggcute/Sweet Scent,
+Lickitung/Heal Bell, Chansey/Sweet Scent and Kangaskhan/Yawn. Each also knows
+Wish. They retain the protected empty-slot preview and backup/Commit flow.
+Gameplay qualification is pending on the local test device.
+
+All 936 recipe/record-order combinations across 39 egg entries passed the
+native reader on the local test device. All six automated test groups passed,
+including exact PCNY movesets, fateful flags, menu parity, checksums, original
+preservation and protected preview/backup/Commit behavior. The live frontend
+and gift helper executable permissions were verified before handoff.
