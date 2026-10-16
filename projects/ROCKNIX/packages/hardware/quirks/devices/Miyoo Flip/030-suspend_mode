@@ -1,7 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0
 # Experimental branch only: permit explicit systemctl suspend but keep the
-# legacy fake-suspend input path off. Tools owns lid triggering.
+# legacy fake-suspend input path off. The lid service owns triggering.
 . /etc/profile.d/001-functions
 mkdir -p /storage/.config/sleep.conf.d /storage/.config/logind.conf.d
 # Only the experimental helper owns suspend requests. Otherwise logind's
@@ -15,7 +15,7 @@ HandlePowerKey=ignore
 HandlePowerKeyLongPress=ignore
 CONF
 # Candidate 2 defaults to lid sleep. A user's disable choice or a detected
-# test failure stays disabled across boots until explicitly enabled in Tools.
+# test failure stays disabled across boots until explicitly enabled in Hardware.
 mkdir -p /storage/.config/butterflyos
 if [ -f /storage/.config/butterflyos/experimental-lid-suspend.disabled ]; then
   rm -f /storage/.config/butterflyos/experimental-lid-suspend.enabled

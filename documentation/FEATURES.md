@@ -67,16 +67,13 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 - HDMI video and audio output
 - Return to the internal 640×480 display after HDMI disconnection
 - On-the-fly brightness adjustment with M+Up and M+Down
-- Safe display-only lid handling: closing blanks the LCD backlight and opening
-  restores it without suspending the CPU, GPU, storage, networking, or game.
-  Audio mutes while closed and restores its previous mute state when reopened
-- Optional **System Settings → Hardware → Lid-Closed Shutdown** timer: Off
-  (default), 1, 5, 15, 30, or 60 minutes. Opening the lid cancels the countdown;
-  changing the setting or rebooting starts a fresh countdown. The optional
-  **Save Game Before Lid Shutdown** setting verifies a fresh RetroArch auto-save
-  before normal exit and shutdown, backs up the previous auto-save and leaves
-  numbered slots unchanged. Both settings default to Off. Updates, failed saves
-  and unsupported active games/tools delay shutdown. Save in-game regularly.
+- **System Settings → Hardware → Sleep When Lid Closed**: enabled by default.
+  Closing the lid suspends to RAM; opening wakes the device. Disable it to turn
+  off only the built-in display while games, networking and HDMI audio continue.
+  The preference persists across reboots. A detected suspend failure disables
+  lid sleep until it is explicitly re-enabled.
+- Lid-Closed Shutdown and Save Game Before Lid Shutdown are retired in the next
+  build. Closing the lid no longer starts a shutdown timer or changes audio mute.
 
 ## Setup and recovery
 
