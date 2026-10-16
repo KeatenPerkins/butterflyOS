@@ -135,13 +135,14 @@ destination-only files. Do not add `--delete` unless you deliberately want a
 mirror that removes files from the device. Prefer copying only game files, not
 an old library's `gamelist.xml`, artwork metadata, or save directories.
 
-## Option 6: USB File Transfer (local test image; qualification pending)
+## Option 6: USB File Transfer (verified on the local test image)
 
 The current local test image exposes **Settings → Network Settings → USB Gadget
 Function → File Transfer**. This is MTP, similar to connecting an Android phone;
 it shares the running device's ROMs folder rather than presenting a raw SD card.
-End-to-end copying still needs local test confirmation before this is advertised
-as a qualified public-release transfer method.
+End-to-end file copying was confirmed working by user testing on the local test
+device. These instructions describe the tested image; the next public release
+will include this documented transfer method.
 
 1. Boot the Flip and leave it at the menu with the lid open.
 2. Set **USB Gadget Function** to **File Transfer**.
