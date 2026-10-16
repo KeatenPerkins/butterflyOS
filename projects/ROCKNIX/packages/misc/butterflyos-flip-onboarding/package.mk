@@ -147,6 +147,7 @@ makeinstall_target() {
              "${INSTALL}/usr/bin/butterflyos-game-card" \
              "${INSTALL}/usr/bin/butterflyos-gb-sprite-cache.py" \
              "${INSTALL}/usr/bin/butterflyos-save-trade-sdl.py" \
+             "${INSTALL}/usr/bin/butterflyos-gen3-gift.py" \
              "${INSTALL}/usr/bin/butterflyos-gen3-sprite-cache.py" \
              "${INSTALL}/usr/bin/butterflyos-save-trade" \
              "${INSTALL}/usr/bin/butterflyos-extended-diagnostics" \
