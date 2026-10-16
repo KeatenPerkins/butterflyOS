@@ -61,6 +61,16 @@ ANNIVERSARY_PRESETS = {
 }
 SHINY_PRESETS = frozenset(p for p in ANNIVERSARY_PRESETS if '-shiny-' in p)
 PRESETS.update(ANNIVERSARY_PRESETS)
+
+# Expanded English Emerald equivalents of the 2004 Japanese FRLG campaign.
+PROMOTIONAL_PRESETS = {
+    'promotional-oddish-egg': (43, (71, 73, 0, 0)),
+    'promotional-meowth-egg': (52, (10, 45, 80, 0)),
+    'promotional-poliwag-egg': (60, (145, 186, 0, 0)),
+    'promotional-bellsprout-egg': (69, (22, 298, 0, 0)),
+}
+PRESETS.update(PROMOTIONAL_PRESETS)
+
 SIZES = (0xF2C, 0xF80, 0xF80, 0xF80, 0xF08) + (0xF80,) * 8 + (0x7D0,)
 ORDERS = tuple(itertools.permutations(range(4)))
 
@@ -139,7 +149,7 @@ def make_egg(rom, save2, preset):
     ivs = secrets.randbits(30) | (1 << 30)
     if stats[23] and personality & 1: ivs |= 1 << 31
     struct.pack_into('<I', misc, 4, ivs)
-    if preset in POKEPARK_PRESETS:
+    if preset in POKEPARK_PRESETS or preset in PROMOTIONAL_PRESETS:
         struct.pack_into('<I', misc, 8, 1 << 31)  # Modern fateful-encounter flag.
     blocks = (growth, attacks, effort, misc)
     plain = b''.join(blocks[i] for i in ORDERS[personality % 24])

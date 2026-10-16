@@ -344,8 +344,20 @@ the other eight retain the normal shiny chance.
 
 Use the same preview, protected Commit and ordinary hatch/save/reload steps as
 the other eggs. All hatch at level 5 with no held item and normal ROM-derived
-hatch counters. In-game qualification is pending for this new batch.
+hatch counters. The user confirmed all ten entries working on the local test device.
 [Anniversary recipe reference](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
+
+### Gen III promotional eggs (development test batch)
+
+**Local Transfer → Gen 3 → Promotional Eggs** offers Oddish with Leech Seed,
+Meowth with Petal Dance, Poliwag with Sweet Kiss and Bellsprout with Teeter Dance.
+These are expanded English Emerald equivalents of the 2004 Japanese
+FireRed/LeafGreen campaign, not original event records or distribution RNG.
+They use your trainer identity, random IVs and the normal shiny chance.
+All hatch at level 5 without held items. Use the same free-slot preview,
+protected Commit, backup and ordinary hatch/save/reload process as the other eggs.
+Gameplay qualification is pending on the local test device.
+[Recipe reference](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
 ## Opening Butterfly Link
 
