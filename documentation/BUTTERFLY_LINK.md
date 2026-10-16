@@ -356,7 +356,7 @@ FireRed/LeafGreen campaign, not original event records or distribution RNG.
 They use your trainer identity, random IVs and the normal shiny chance.
 All hatch at level 5 without held items. Use the same free-slot preview,
 protected Commit, backup and ordinary hatch/save/reload process as the other eggs.
-Gameplay qualification is pending on the local test device.
+The user confirmed all four promotional eggs working on the local test device.
 [Recipe reference](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
 ## Opening Butterfly Link
