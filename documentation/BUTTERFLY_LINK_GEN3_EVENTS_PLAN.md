@@ -65,8 +65,8 @@ References: [game-based distribution catalog](https://bulbapedia.bulbagarden.net
   automated checks pass and the user confirmed all 15 working on the local test device.
   The 15 recipes are listed
   in the [user guide](BUTTERFLY_LINK.md#gen-iii-poképark-eggs-development-test-batch).
-- [ ] Japanese 2004 promotional eggs: four expanded English Emerald equivalents
-  implemented; gameplay qualification pending on the local test device.
+- [x] Japanese 2004 promotional eggs: four expanded English Emerald equivalents
+  implemented; user confirmed all four working on the local test device.
 - [x] Pokémon Center fifth-anniversary eggs: eight recipes and two guaranteed-shiny
   Pichu variants implemented as expanded English Emerald equivalents of Japanese
   Ruby distributions. User confirmed all ten working; see the
@@ -243,4 +243,4 @@ All 792 recipe/record-order combinations across 33 entries passed the native
 save reader on the local test device. Six automated test groups passed,
 including complete promotional recipes, menu parity, fateful flags, PP,
 checksums, original preservation and protected preview/backup/Commit behavior.
-Gameplay qualification for these four eggs remains pending.
+The user confirmed all four eggs working on the local test device.
