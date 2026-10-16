@@ -133,7 +133,7 @@ starting, especially the current exact-restoration and licensing caveats.
 
 See [How to transfer games](TRANSFERRING_GAMES.md) for step-by-step web uploads,
 SD-card copying, SMB, SFTP/SCP, rsync, and the local test image’s USB File Transfer
-instructions (USB transfer qualification is pending).
+instructions (verified by user testing).
 
 Copy legally obtained games into `STORAGE/roms/<system>` (shown on-device as
 `/storage/roms/<system>`). Common aliases such
