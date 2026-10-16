@@ -1728,6 +1728,16 @@ def _rom_candidates(generation: int, save_path: str) -> list[str]:
     return matching or found
 
 
+def rom_cache_digest(generation: int, path: str) -> str:
+    if generation != 3:
+        return _file_digest(path)
+    spec = importlib.util.spec_from_file_location(
+        "butterflyos_rom_filter", os.path.join(os.path.dirname(__file__), "butterflyos_rom_filter.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return hashlib.sha256(module.read_gen3_rom(path)).hexdigest()
+
+
 def ensure_sprite_cache(frontend: SDLFrontEnd, generation: int, save_path: str) -> Optional[str]:
     cache, _title = _cache_for_generation(generation, save_path)
     # All generations cache labels from the matching user ROM. Upgrade old
@@ -2298,6 +2308,31 @@ def prepare_gen2_gift(destination: tuple[str, int, int], rom: str,
         return None, str(error)
 
 
+def prepare_gen3_gift(destination: tuple[str, int, int], rom: str,
+                      preset: str) -> tuple[Optional[str], str]:
+    path, box, slot = destination
+    session = new_session()
+    try:
+        original_hash = _file_digest(path)
+        output = os.path.join(session, "destination-" + os.path.basename(path))
+        result = subprocess.run(["python3", "/usr/bin/butterflyos-gen3-gift.py",
+                                 "--save", path, "--rom", rom, "--preset", preset,
+                                 "--box", str(box), "--slot", str(slot), "--output", output],
+                                text=True, capture_output=True)
+        if result.returncode:
+            raise ValueError(result.stderr.strip())
+        metadata = json.loads(result.stdout)
+        if _file_digest(path) != original_hash:
+            raise ValueError("The save changed during preparation. Exit the game and try again.")
+        write_session_value(session, "destination-original", path)
+        write_session_value(session, "original-destination-sha256", original_hash)
+        write_session_value(session, "state", "READY")
+        return session, metadata["nickname"]
+    except (OSError, ValueError, KeyError) as error:
+        shutil.rmtree(session, ignore_errors=True)
+        return None, str(error)
+
+
 def gen1_gift_workflow(frontend: SDLFrontEnd, stadium: bool = False) -> None:
     generated_gift_workflow(frontend, 1, stadium)
 
@@ -2312,6 +2347,8 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
     title = ("STADIUM GIFTS" if generation == 1 else "STADIUM 2 GIFTS") if stadium else "GEN %d EVENT GIFTS" % generation
     if eggs:
         gifts, title = GEN2_MYSTERY_EGGS, "MYSTERY EGGS"
+    if generation == 3:
+        gifts, title, eggs = GEN3_BOX_EGGS, "GEN 3 BOX EGGS", True
     if pcny:
         egg_gifts = [gift for gift in GEN2_PCNY_GIFTS if gift[0].endswith("-egg")]
         adult_gifts = [gift for gift in GEN2_PCNY_GIFTS if not gift[0].endswith("-egg")]
@@ -2328,6 +2365,9 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
     destination = choose_save(frontend, generation, "GIFT DESTINATION SAVE")
     if not destination:
         return
+    if generation == 3 and destination[2] != "Emerald":
+        notice(frontend, "EMERALD TEST BATCH", "These first four eggs are qualified for Emerald only. Other Gen 3 games will be added after testing.")
+        return
     if generation == 2 and destination[2] == "Crystal":
         gifts = [gift for gift in gifts if gift[0] != "celebi"]
     cache = ensure_sprite_cache(frontend, generation, destination[0])
@@ -2337,7 +2377,7 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
         with open(os.path.join(cache, "manifest.json"), encoding="utf-8") as handle:
             manifest = json.load(handle)
         rom = next(path for path in _rom_candidates(generation, destination[0])
-                   if _file_digest(path) == manifest.get("rom_sha256"))
+                   if rom_cache_digest(generation, path) == manifest.get("rom_sha256"))
     except (OSError, ValueError, StopIteration):
         notice(frontend, "MATCHING ROM NEEDED", "The cached art's matching ROM was not found. No save was changed.")
         return
@@ -2352,7 +2392,7 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
     if not target:
         return
     box, slot = target
-    prepare = prepare_gen1_gift if generation == 1 else prepare_gen2_gift
+    prepare = {1: prepare_gen1_gift, 2: prepare_gen2_gift, 3: prepare_gen3_gift}[generation]
     session, message = prepare((destination[0], box, slot), rom, gifts[choice][0])
     if not session:
         notice(frontend, "GIFT NOT PREPARED", message)
@@ -2362,6 +2402,8 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
         metadata = save_metadata(working)
         gift = next(record for record in metadata[3] if record["box"] == box and record["slot"] == slot)
         _enrich_rom_names([gift], cache)
+        if generation == 3:
+            gift["name"] = message  # Preview the hatchling; saved record remains an Egg.
         directory = "front-shiny" if gift.get("shiny") else "front"
         sprite = _read_cache_png(os.path.join(cache, directory, "%03d.png" % gift["species"]))
         while True:
@@ -2537,8 +2579,24 @@ def prepare_crystal_event(path: str, rom: str, action: str) -> tuple[Optional[st
     return prepare_save_event(path, rom, action, "butterflyos-crystal-event.py")
 
 
+GEN3_BOX_EGGS = [
+    ('false-swipe-swablu-egg', 'SWABLU EGG', 'False Swipe; level 5 after hatching'),
+    ('extremespeed-zigzagoon-egg', 'ZIGZAGOON EGG', 'ExtremeSpeed; level 5 after hatching'),
+    ('pay-day-skitty-egg', 'SKITTY EGG', 'Pay Day; level 5 after hatching'),
+    ('surf-pichu-egg', 'PICHU EGG', 'Surf; level 5 after hatching'),
+]
+
+
 def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
-    return choose_save(frontend, 3, "GEN 3")
+    while True:
+        saves = generation_saves(3)
+        items = [("GAME", "%s | %s" % (os.path.splitext(os.path.basename(save[0]))[0], save[1])) for save in saves]
+        items.append(("GEN 3 BOX EGGS", "Four special-move eggs; Emerald test batch"))
+        choice = choose_list(frontend, "GEN 3", "Choose a game to trade/copy, or Box Eggs. B returns.", items)
+        if choice is None: return None
+        if choice < len(saves): return saves[choice]
+        generated_gift_workflow(frontend, 3)
+
 
 
 def crystal_event_workflow(frontend: SDLFrontEnd) -> None:

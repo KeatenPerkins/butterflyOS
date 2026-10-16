@@ -259,6 +259,31 @@ AuroraTicket prototype still requires gameplay qualification before release.
 Gen III trading and copying remain available.
 See the [Gen III event checklist and testing status](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md).
 
+### Gen III Box eggs (development test batch)
+
+**Local Transfer → Gen 3 → Gen 3 Box Eggs** offers four generated egg
+equivalents for the qualified English **Emerald** ROM/save:
+
+| Egg | Special move |
+| --- | --- |
+| Swablu | False Swipe |
+| Zigzagoon | ExtremeSpeed |
+| Skitty | Pay Day |
+| Pichu | Surf |
+
+Save normally and exit the game first. Choose Emerald, select a matching ROM
+(ZIP works), choose an egg and a free PC slot, review the hatchling, then confirm
+**Add Gift**. A backup is kept. Load the ordinary in-game save rather than an
+older auto-save/state; withdraw the Egg and walk with it to hatch normally at
+level 5. Verify the special move, then save and reload normally.
+
+These eggs use your trainer identity, random personality/IVs and ROM-derived
+hatch counters. They do not unlock islands, advance story progress, recreate
+Pokémon Box deposit rewards or represent original distribution records.
+They remain pending in-game hatch qualification; other Gen III games are not
+qualified for egg delivery yet. See the [event plan](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md)
+and [documented egg recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
+
 ## Opening Butterfly Link
 
 Butterfly Link copies or exchanges Pokémon between selected emulator save files.
