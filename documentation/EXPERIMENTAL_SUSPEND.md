@@ -187,3 +187,9 @@ Eleven automated tests pass, including this captured pattern and cancellation
 cases. The change is live on the local test device for confirmation and committed
 for the next image; the existing C4 image does not contain it. The temporary live
 helper binding is lost on reboot.
+
+The user subsequently confirmed the single-hall-IRQ USB return-to-sleep fix
+working on the local test device and also confirmed Pokémon trading on C4.
+A fresh complete image is being prepared to include the live helper correction
+without a temporary binding. Acceptance of the rebuilt image remains a separate
+final check; the earlier C4 file is unchanged.
