@@ -132,7 +132,8 @@ starting, especially the current exact-restoration and licensing caveats.
 ## Add games and BIOS files
 
 See [How to transfer games](TRANSFERRING_GAMES.md) for step-by-step web uploads,
-SD-card copying, SMB, SFTP/SCP, and rsync instructions.
+SD-card copying, SMB, SFTP/SCP, rsync, and the local test image’s USB File Transfer
+instructions (USB transfer qualification is pending).
 
 Copy legally obtained games into `STORAGE/roms/<system>` (shown on-device as
 `/storage/roms/<system>`). Common aliases such
