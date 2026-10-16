@@ -280,8 +280,8 @@ level 5. Verify the special move, then save and reload normally.
 These eggs use your trainer identity, random personality/IVs and ROM-derived
 hatch counters. They do not unlock islands, advance story progress, recreate
 Pokémon Box deposit rewards or represent original distribution records.
-They remain pending in-game hatch qualification; other Gen III games are not
-qualified for egg delivery yet. See the [event plan](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md)
+The user confirmed all four eggs working on the local test device. Other Gen III
+games are not qualified for egg delivery yet. See the [event plan](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md)
 and [documented egg recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
 ## Opening Butterfly Link
