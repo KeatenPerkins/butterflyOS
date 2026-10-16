@@ -29,8 +29,14 @@ BOX, SLOT = divmod(FREE,30)
 class Eggs(unittest.TestCase):
     def test_all_recipes_all_24_record_orders(self):
         for preset,(national,moves) in gift.PRESETS.items():
-            for pid in range(24):
-                with self.subTest(preset=preset,pid=pid), patch.object(gift.secrets,'randbits',side_effect=[pid,0x1234567]):
+            for order_id in range(24):
+                pid=order_id
+                if preset in gift.SHINY_PRESETS:
+                    ot_id=struct.unpack_from('<I',SAVE,SECTIONS[0]+10)[0]
+                    trainer_xor=(ot_id&0xffff)^(ot_id>>16)
+                    pid=next(value for low in range(256) for sv in range(8)
+                             if (value := low|((trainer_xor^low^sv)<<16))%24==order_id)
+                with self.subTest(preset=preset,order=order_id), patch.object(gift,'choose_personality',return_value=pid), patch.object(gift.secrets,'randbits',return_value=0x1234567):
                     result,meta=gift.prepare(SAVE,ROM,preset,BOX,SLOT)
                     pc=b''.join(result[SECTIONS[n]:SECTIONS[n]+gift.SIZES[n]] for n in range(5,14))
                     at=4+FREE*80;record=pc[at:at+80]
@@ -61,6 +67,17 @@ class Eggs(unittest.TestCase):
                         self.assertEqual(inspected.returncode,0,inspected.stderr)
                         line=next(l for l in inspected.stdout.splitlines() if l.startswith('box_record\t%d\t%d\t'%(BOX,SLOT)))
                         self.assertIn('moves='+','.join(map(str,moves)),line)
+                        if preset in gift.SHINY_PRESETS:self.assertEqual(line.split('\t')[6],'yes')
+
+    def test_shiny_personality_policy(self):
+        for ot in (0,1,0xffffffff,0x12345678):
+            for seed in (0,1,23,0x12345678,0xffffffff):
+                for preset in gift.SHINY_PRESETS:
+                    with patch.object(gift.secrets,'randbits',return_value=seed):
+                        pid=gift.choose_personality(ot,preset)
+                    self.assertLess((ot&0xffff)^(ot>>16)^(pid&0xffff)^(pid>>16),8)
+                with patch.object(gift.secrets,'randbits',return_value=seed):
+                    self.assertEqual(gift.choose_personality(ot,'anniversary-wish-pichu-egg'),seed)
 
     def test_record_crossing_sector_boundary(self):
         # Slot 49 begins 44 bytes before a PC-sector boundary.
@@ -85,7 +102,9 @@ class Eggs(unittest.TestCase):
         self.assertEqual(ui.rom_cache_digest(3,str(rom_path)),gift.ROM_SHA256)
         self.assertEqual(len(ui.GEN3_POKEPARK_EGGS),15)
         self.assertEqual({x[0] for x in ui.GEN3_POKEPARK_EGGS},set(gift.POKEPARK_PRESETS))
-        self.assertEqual({x[0] for x in ui.GEN3_BOX_EGGS}|{x[0] for x in ui.GEN3_POKEPARK_EGGS},set(gift.PRESETS))
+        self.assertEqual(len(ui.GEN3_ANNIVERSARY_EGGS),10)
+        self.assertEqual({x[0] for x in ui.GEN3_ANNIVERSARY_EGGS},set(gift.ANNIVERSARY_PRESETS))
+        self.assertEqual({x[0] for group in (ui.GEN3_BOX_EGGS,ui.GEN3_POKEPARK_EGGS,ui.GEN3_ANNIVERSARY_EGGS) for x in group},set(gift.PRESETS))
         with tempfile.TemporaryDirectory() as directory:
             d=Path(directory);ui.STATE_ROOT=str(d/'sessions');save=d/'test.srm'
             for scenario in ('cancel','commit','changed'):

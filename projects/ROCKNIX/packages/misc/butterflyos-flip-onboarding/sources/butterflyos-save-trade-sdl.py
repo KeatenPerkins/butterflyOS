@@ -2348,8 +2348,12 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
     if eggs:
         gifts, title = GEN2_MYSTERY_EGGS, "MYSTERY EGGS"
     if generation == 3:
-        gifts = GEN3_POKEPARK_EGGS if gen3_group == "pokepark" else GEN3_BOX_EGGS
-        title, eggs = ("POKEPARK EGGS" if gen3_group == "pokepark" else "GEN 3 BOX EGGS"), True
+        gifts, title = {"box": (GEN3_BOX_EGGS, "GEN 3 BOX EGGS"),
+                        "pokepark": (GEN3_POKEPARK_EGGS, "POKEPARK EGGS"),
+                        "anniversary": (GEN3_ANNIVERSARY_EGGS, "ANNIVERSARY EGGS")}[gen3_group]
+        eggs = True
+        if gen3_group == "anniversary":
+            notice(frontend, title, "Expanded English Emerald equivalents of Japanese Ruby gifts. Eight random-shiny-chance recipes and two explicitly guaranteed-shiny Pichu variants; not original event records.")
     if pcny:
         egg_gifts = [gift for gift in GEN2_PCNY_GIFTS if gift[0].endswith("-egg")]
         adult_gifts = [gift for gift in GEN2_PCNY_GIFTS if not gift[0].endswith("-egg")]
@@ -2404,7 +2408,7 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
         gift = next(record for record in metadata[3] if record["box"] == box and record["slot"] == slot)
         _enrich_rom_names([gift], cache)
         if generation == 3:
-            gift["name"] = message  # Preview the hatchling; saved record remains an Egg.
+            gift["name"] = ("SHINY " if gift.get("shiny") else "") + message  # Saved record remains an Egg.
         directory = "front-shiny" if gift.get("shiny") else "front"
         sprite = _read_cache_png(os.path.join(cache, directory, "%03d.png" % gift["species"]))
         while True:
@@ -2607,16 +2611,31 @@ GEN3_POKEPARK_EGGS = [
 ]
 
 
+GEN3_ANNIVERSARY_EGGS = [
+    ('anniversary-teeter-pichu-egg', 'PICHU EGG', 'Teeter Dance; normal shiny chance'),
+    ('anniversary-wish-pichu-egg', 'PICHU EGG', 'Wish; normal shiny chance'),
+    ('anniversary-charm-ralts-egg', 'RALTS EGG', 'Charm'),
+    ('anniversary-wish-ralts-egg', 'RALTS EGG', 'Wish'),
+    ('anniversary-spite-absol-egg', 'ABSOL EGG', 'Spite'),
+    ('anniversary-wish-absol-egg', 'ABSOL EGG', 'Wish'),
+    ('anniversary-iron-defense-bagon-egg', 'BAGON EGG', 'Iron Defense'),
+    ('anniversary-wish-bagon-egg', 'BAGON EGG', 'Wish'),
+    ('anniversary-shiny-teeter-pichu-egg', 'SHINY PICHU EGG', 'Guaranteed shiny; Teeter Dance'),
+    ('anniversary-shiny-wish-pichu-egg', 'SHINY PICHU EGG', 'Guaranteed shiny; Wish'),
+]
+
+
 def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
     while True:
         saves = generation_saves(3)
         items = [("GAME", "%s | %s" % (os.path.splitext(os.path.basename(save[0]))[0], save[1])) for save in saves]
         items.extend([("GEN 3 BOX EGGS", "Four special-move eggs; Emerald"),
-                      ("POKEPARK EGGS", "15 special-move eggs; Emerald test batch")])
+                      ("POKEPARK EGGS", "15 special-move eggs; Emerald"),
+                      ("ANNIVERSARY EGGS", "8 recipes plus 2 shiny Pichu; expanded Emerald gifts")])
         choice = choose_list(frontend, "GEN 3", "Choose a game to trade/copy, or an egg group. B returns.", items)
         if choice is None: return None
         if choice < len(saves): return saves[choice]
-        generated_gift_workflow(frontend, 3, gen3_group="pokepark" if choice-len(saves) == 1 else "box")
+        generated_gift_workflow(frontend, 3, gen3_group=("box", "pokepark", "anniversary")[choice-len(saves)])
 
 
 

@@ -315,7 +315,37 @@ fateful-encounter flag. They are generated equivalents, not original event
 records; distributor scripts, Wonder Cards and event RNG are not recreated.
 Duplicate delivery methods are grouped into one recipe per species. The
 [full move recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs)
-are the reference. In-game hatch and save/reload testing is pending for this batch.
+are the reference. The user confirmed all 15 eggs working on the local test device.
+
+### Gen III anniversary eggs (development test batch)
+
+**Local Transfer → Gen 3 → Anniversary Eggs** offers eight recipes and two
+separately labeled guaranteed-shiny Pichu variants for English Emerald:
+
+| Egg | Special move | Shiny policy |
+| --- | --- | --- |
+| Pichu | Teeter Dance | Normal chance |
+| Pichu | Wish | Normal chance |
+| Ralts | Charm | Normal chance |
+| Ralts | Wish | Normal chance |
+| Absol | Spite | Normal chance |
+| Absol | Wish | Normal chance |
+| Bagon | Iron Defense | Normal chance |
+| Bagon | Wish | Normal chance |
+| Shiny Pichu | Teeter Dance | Guaranteed |
+| Shiny Pichu | Wish | Guaranteed |
+
+The original 2003 anniversary distributions targeted Japanese Ruby. These are
+explicitly **expanded English Emerald equivalents**, using your trainer
+identity, the documented complete move recipes and random IVs. They do not
+recreate Japanese event records, distribution RNG or the distributor's trainer.
+The two shiny variants choose a personality that is shiny for your trainer ID;
+the other eight retain the normal shiny chance.
+
+Use the same preview, protected Commit and ordinary hatch/save/reload steps as
+the other eggs. All hatch at level 5 with no held item and normal ROM-derived
+hatch counters. In-game qualification is pending for this new batch.
+[Anniversary recipe reference](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
 ## Opening Butterfly Link
 

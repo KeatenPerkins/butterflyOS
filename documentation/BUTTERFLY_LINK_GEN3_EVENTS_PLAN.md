@@ -61,11 +61,15 @@ References: [game-based distribution catalog](https://bulbapedia.bulbagarden.net
 - [ ] Wish Egg distributions: enumerate all documented recipes and eligibility
   from the regional catalogs and primary encounter definitions before choosing
   batches. Do not confuse PCNY adult Wish gifts with egg distributions.
-- [ ] PokéPark 2005 eggs: 15 generated equivalents implemented for Emerald;
-  automated checks pass, with gameplay hatch/save/reload qualification pending.
+- [x] PokéPark 2005 eggs: 15 generated equivalents implemented for Emerald;
+  automated checks pass and the user confirmed all 15 working on the local test device.
   The 15 recipes are listed
   in the [user guide](BUTTERFLY_LINK.md#gen-iii-poképark-eggs-development-test-batch).
 - [ ] Other Japanese campaign eggs: inventory distinct movesets and hatch behavior.
+- [ ] Pokémon Center fifth-anniversary eggs: eight recipes and two guaranteed-shiny
+  Pichu variants implemented as expanded English Emerald equivalents of Japanese
+  Ruby distributions. Gameplay qualification pending; see the
+  [user guide](BUTTERFLY_LINK.md#gen-iii-anniversary-eggs-development-test-batch).
 
 Deliver real eggs, leaving normal hatching to the game. Test special-move
 retention, hatch identity, Pokédex behavior and save/reload. The four Box eggs
@@ -215,4 +219,18 @@ identity, ROM hatch counters and the PokéPark modern fateful-encounter flag.
 Sector-crossing records, occupied-slot/corrupt-save/wrong-ROM refusal, exclusive
 output, original preservation, cancellation, verified backup/Commit and
 changed-after-preview/repeated-Commit refusal also pass. In-game testing is
-complete for the four Box eggs and pending for the 15 PokéPark eggs.
+complete for the four Box eggs and 15 PokéPark eggs, as confirmed by the user.
+
+## Anniversary development batch validation
+
+Eight anniversary recipes and two guaranteed-shiny Pichu variants are staged as
+expanded English Emerald equivalents of the Japanese Ruby gifts. All 696
+recipe/record-order combinations across the 29 Box, PokéPark and anniversary
+entries passed the native save reader, including explicit shiny detection for
+both guaranteed-shiny variants. Shiny generation was checked against multiple
+trainer IDs and random inputs; ordinary recipes retain their random personality.
+Six automated test groups also cover recipe/menu parity, move PP, egg flags,
+trainer identity, sector boundaries, occupied/corrupt/wrong-ROM refusal,
+exclusive output and original preservation, ZIP matching and protected
+Cancel/backup/Commit/changed-save/repeated-Commit behavior. In-game testing of
+the ten anniversary entries remains pending on the local test device.
