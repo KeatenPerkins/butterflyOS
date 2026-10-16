@@ -1,16 +1,16 @@
 # Butterfly Link: Gen II event scope
 
 Reviewed October 7, 2026. Crystal GS Ball Enable/Replay is implemented locally
-for a live development test on .17. Automated save-state, checksum, native
+for a live development test on the local test device. Automated save-state, checksum, native
 reload, backup, conflict, Cancel, RTC and Pokémon-preservation tests pass.
-Enable and Replay also passed user testing on .17 through Goldenrod delivery,
+Enable and Replay also passed user testing on the local test device through Goldenrod delivery,
 Kurt progression and the shrine encounter. Kurt's timer was cleared manually
 to speed testing; the tool retains the game's normal wait. Initial Gen II Mew
 and Stadium 2 gifts are now implemented locally. No event code is released in
 a public image yet.
 Gen I gifts and their menu were committed in `baa7351221`.
 
-The .17 live patch passed disposable-save Enable, Replay, protected Commit,
+The live patch on the local test device passed disposable-save Enable, Replay, protected Commit,
 backup and native reload checks. The separate playable
 `Pokemon Crystal - Event Test` copy was subsequently updated with the user's
 .20 progress for gameplay testing. Both quest actions passed that testing.
@@ -40,7 +40,7 @@ and berries match the documented Stadium 2 reward recipes. They remain generated
 player-owned equivalents. All fourteen boxes across all three families pass
 automated gift tests, native copy/reload, occupied/full-box refusal, RTC
 preservation, ROM qualification and protected prepare/Commit/backup/Cancel.
-The user confirmed all three gifts work in Crystal on .17. Actual Gold/Silver
+The user confirmed all three gifts work in Crystal on the local test device. Actual Gold/Silver
 gameplay remains unqualified; their automated and disposable-save device checks
 pass. The random-DV behavior, including its natural shiny chance, is the user's
 preferred behavior; no forced-shiny selector is requested.
@@ -64,7 +64,7 @@ Group by distinct species/special move rather than campaign location or date.
   de-duplicate the complete catalog separately before expanding the recipe list;
   the historical catalog itself notes gaps in surviving information.
   [PCNY inventory](https://bulbapedia.bulbagarden.net/wiki/List_of_PCNY_event_Pok%C3%A9mon_distributions_in_Generation_II).
-- Crystal's native Odd Egg delivery and replay passed user testing on .17. The overseas
+- Crystal's native Odd Egg delivery and replay passed user testing on the local test device. The overseas
   retail game already offers it normally; Japanese Mobile System delivery and
   the VC Celebi trigger differ from the targeted English retail games.
   [In-game event inventory](https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Generation_II).
@@ -84,17 +84,17 @@ selection refuses unhatched eggs. Gold/Silver/Crystal tests cover all fourteen
 boxes, native copy/reload preserving the egg marker, protected Commit/Cancel,
 random-DV shiny interpretation and Gen II → III egg refusal. The first five
 eggs (fifteen egg/family combinations) also pass protected prepare, native
-inspection, Commit, backup and repeat-Commit refusal on disposable .17 saves.
-The temporary .17 UI and native helper patch is installed. The user confirmed
-the first five eggs work in-game on .17 on October 7. The remaining ten recipes
+inspection, Commit, backup and repeat-Commit refusal on disposable saves on the local test device.
+The temporary UI and native helper patch is installed on the local test device. The user confirmed
+the first five eggs work in-game on the local test device on October 7. The remaining ten recipes
 are now implemented locally using the same native egg flow, with Fast growth
 support for Cleffa and Igglybuff. The complete writer passes 756 gift/family/box
 cases, including native box copy/reload and original preservation. All 45
 egg/family combinations pass protected prepare, native inspection, Commit,
-backup and repeat-Commit refusal on disposable .17 saves. The expanded
-temporary UI patch is installed and verified on .17. The user subsequently
+backup and repeat-Commit refusal on disposable saves on the local test device. The expanded
+temporary UI patch is installed and verified on the local test device. The user subsequently
 confirmed the remaining ten eggs work in-game as well. All fifteen Mystery Egg
-recipes have passed user testing in Crystal on .17.
+recipes have passed user testing in Crystal on the local test device.
 
 The three Japanese campaigns contain **15 distinct species/moveset recipes
 across 12 species** when repeated campaign recipes are combined. The second
@@ -107,7 +107,7 @@ Later batches remain pending:
 1. Non-shiny Suicune remains unavailable because its catalog level/moves are
    missing; all 120 implemented PCNY gifts passed user testing in Crystal.
 2. Qualify the direct level-5 Celebi gift in Silver gameplay; Gold passed user
-   testing on .17, including save/reload persistence.
+   testing on the local test device, including save/reload persistence.
 
 ## Odd Egg, Gold/Silver Celebi and PCNY batch 1
 
@@ -138,10 +138,10 @@ The full gift suite now passes 994 gift/family/box cases and preview/Cancel
 checks, including native egg copy/reload and protected original backups.
 All seventeen new gift/family combinations and one Odd Egg replay pass
 protected preparation, native inspection, Commit, verified backup and repeated
-Commit refusal on disposable .17 saves; source fixtures stay unchanged. The
-expanded temporary menu is installed on .17, along with separate Gold/Silver
+Commit refusal on disposable saves on the local test device; source fixtures stay unchanged. The
+expanded temporary menu is installed on the local test device, along with separate Gold/Silver
 Event Test copies. The user confirmed native Odd Egg delivery and replay work
-perfectly on .17. The user also confirmed the Celebi gift works in Gold
+perfectly on the local test device. The user also confirmed the Celebi gift works in Gold
 following the PC withdrawal and save/reload test. The first
 five PCNY eggs were subsequently confirmed working in Crystal by the user,
 including hatching, special moves and save/reload. Silver Celebi remains
@@ -171,12 +171,12 @@ The expanded suite passes 1,414 gift/family/box cases, native box copy/reload,
 occupied/full refusal, exact change boundaries, RTC, qualification, protected
 Commit/Cancel and original preservation. All thirty new egg/family combinations
 also pass native inspection, protected preparation/Commit, verified backup and
-repeat-Commit refusal on disposable .17 saves, with fixture originals unchanged.
+repeat-Commit refusal on disposable saves on the local test device, with fixture originals unchanged.
 Uploaded files match local SHA-256 hashes. The expanded temporary menu is now
-activated and verified on .17, retaining executable permission and the first
+activated and verified on the local test device, retaining executable permission and the first
 five recipes before the ten additions. Native hatching and move/save/reload
 testing of the ten additions was confirmed successful by the user in Crystal
-on .17, including hatching, special moves and save/reload.
+on the local test device, including hatching, special moves and save/reload.
 
 ## Crystal GS Ball state
 
@@ -254,7 +254,7 @@ Verified private ROM hashes collected read-only for the first fixture set:
 Qualification tests must cover all three families, both SRAM banks, repeat
 append/box switching, full boxes, experience/level/PP, names, player identity,
 Pokedex bits, checksums, backup/Cancel/conflict refusal and unchanged originals.
-Then test PC withdrawal, in-game save, exit and reload on .17. Actual quest
+Then test PC withdrawal, in-game save, exit and reload on the local test device. Actual quest
 unlock testing is a separate requirement from boxed gift generation.
 
 ## PCNY batch 3
@@ -267,16 +267,16 @@ Names, move PP, growth and hatch cycles come from the user's qualified ROM.
 These remain generated player-owned equivalents with natural shiny odds;
 no ROM assets or premade Pokémon records are shipped. Entries append after
 previous PCNY batches. The user confirmed all ten batch-3 eggs working in
-Crystal on .17.
+Crystal on the local test device.
 
 Validation passed: 1,834 gift/family/box cases locally, with native reload,
 checksums, exact change boundaries, RTC, occupied/full refusal, protected
 Commit/Cancel and original preservation. All thirty new egg/family cases passed
 native inspection, protected Commit, verified backup and repeat-Commit refusal
-on disposable .17 saves. Fixture originals remain unchanged. Local/uploaded
-SHA-256 hashes match. The executable live menu was activated on .17 and its
+on disposable saves on the local test device. Fixture originals remain unchanged. Local/uploaded
+SHA-256 hashes match. The executable live menu was activated on the local test device and its
 25 PCNY choices verified. The user subsequently confirmed batch 3 working
-in Crystal on .17 using the hatch, special-move and save/reload test process.
+in Crystal on the local test device using the hatch, special-move and save/reload test process.
 
 ## Remaining documented PCNY catalog
 
@@ -288,7 +288,7 @@ The final expansion adds 79 eggs and 16 shiny adults. Adults use documented
 levels (5, 40, 50 or 70), full movesets and guaranteed native shiny DVs. Eggs
 retain random DVs/natural shiny odds. All use player ownership and qualified
 ROM-derived names, growth and PP; no donor records or ROM assets are shipped.
-The user confirmed these 95 additions working in Crystal on .17. All 104 PCNY
+The user confirmed these 95 additions working in Crystal on the local test device. All 104 PCNY
 eggs and 16 shiny adult gifts are now user-qualified there. See the [test checklist](BUTTERFLY_LINK_GEN2_PCNY_CHECKLIST.md).
 
 Validation passes 5,824 gift/family/box cases across Gold, Silver and Crystal,
@@ -296,10 +296,10 @@ including native reload, exact change boundaries, checksums, RTC, occupied/full
 refusal, original preservation and both egg/adult preview cancellation paths.
 All 285 new gift/family combinations also passed protected preparation/Commit,
 verified backup, native inspection, shiny checks and repeat-Commit refusal on
-disposable .17 saves. Fixture originals are unchanged. Uploaded/local SHA-256
-hashes match. The executable UI is now activated on .17 and verified to expose
+disposable saves on the local test device. Fixture originals are unchanged. Uploaded/local SHA-256
+hashes match. The executable UI is now activated on the local test device and verified to expose
 104 eggs and 16 shiny adult gifts. The user subsequently confirmed all remaining
-gift checks passed in Crystal on .17.
+gift checks passed in Crystal on the local test device.
 
 ## PCNY menu categories
 
@@ -311,6 +311,6 @@ title. Focused workflow checks across Gold, Silver and Crystal passed:
 each category contains only its corresponding recipes, egg/adult preview
 titles are correct, preview cancellation preserves the original save, and
 cancelling category selection never requests a save or starts preparation.
-The executable UI is activated on .17; live category labels and cancellation
+The executable UI is activated on the local test device; live category labels and cancellation
 were verified. The user subsequently confirmed the split menu and all gift
-checks passed in Crystal on .17.
+checks passed in Crystal on the local test device.

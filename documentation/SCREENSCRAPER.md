@@ -76,7 +76,7 @@ publication status of these fixes.
 ## October 3 grouped-system persistence fix
 
 The published Alpha 2 image can download artwork without preserving its game
-metadata across frontend restarts. On .17, images remained on the OS card but
+metadata across frontend restarts. On the local test device, images remained on the OS card but
 the five populated console directories had no `gamelist.xml` files. HDMI was
 used during scraping, but has not been established as the cause.
 
@@ -88,7 +88,7 @@ Loaded recovery entries remain dirty until merged into the main list, including
 when the main list does not yet exist.
 
 The frontend package compiled successfully. The fixed executable was deployed
-live on .17 at
+live on the local test device at
 `/storage/.config/butterflyos/emulationstation-scraper-persistence-20261003`,
 bind-mounted over `/usr/bin/emulationstation`. Its SHA-256 is
 `3d66e4fbcbb0688f51fa5ee2e852b77e5ba2a0de63ab24768c3c77902ba5ba78`.

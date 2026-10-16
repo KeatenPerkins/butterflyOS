@@ -70,7 +70,7 @@ ButterflyOS selects **melonDS DS**. Spruce's Flip-specific menu selects **DSpera
 
 Spruce's wrapper also illustrates required integration: SDL controller mappings, screen layout shortcuts, separate save/state paths and a Flip-specific SDL library workaround. ButterflyOS's image lists standalone melonDS but the inspected filesystem listing contains its launcher without an obvious standalone executable; listed choices should be checked for usability instead of assumed to work.
 
-A DSperate trial should begin with a ButterflyOS-native build and isolated saves on .17. Validate stylus movement, tapping, swapping screens, microphone substitute, battery saves and clean exit. Do not automatically load another emulator's states.
+A DSperate trial should begin with a ButterflyOS-native build and isolated saves on the local test device. Validate stylus movement, tapping, swapping screens, microphone substitute, battery saves and clean exit. Do not automatically load another emulator's states.
 
 ### CPU, memory and power policies
 
@@ -94,18 +94,18 @@ Add a paused-game lid shutdown test, because Spruce's latest release specificall
 
 | Order | Work | Effort and acceptance criteria |
 | --- | --- | --- |
-| 1 | Establish .17 baseline and a usable emulator inventory | Small tooling/documentation task. Record actual core, architecture, version, renderer and applied CPU settings. Confirm every offered choice launches or remove unavailable choices. |
+| 1 | Establish the local test device baseline and a usable emulator inventory | Small tooling/documentation task. Record actual core, architecture, version, renderer and applied CPU settings. Confirm every offered choice launches or remove unavailable choices. |
 | 2 | Benchmark existing PS1 32/64 and GBA mGBA/gpSP | Low integration effort; testing is the main work. Same game revision and scene, repeat runs, no save regressions. Document practical differences before changing defaults. |
 | 3 | Compare existing Dreamcast variants | Moderate testing effort. Choose defaults from frame pacing, compatibility and exit/resume reliability, not version numbers alone. |
 | 4 | Investigate N64 core patches and reproduce Rice defects | Moderate to substantial work. Establish source provenance, build natively, collect defect/crash logs and validate multiple games. Keep per-game alternatives where needed. |
-| 5 | Trial DSperate on .17 | Moderate native-build and controls work, potentially more if display integration needs changes. Keep melonDS DS as fallback until tested. |
+| 5 | Trial DSperate on the local test device | Moderate native-build and controls work, potentially more if display integration needs changes. Keep melonDS DS as fallback until tested. |
 | 6 | Present curated profiles and strengthen lifecycle coverage | Reuse ES per-game settings. Clear labels, predictable defaults, reset-to-default behavior and reliable save/resume across the supported emulator set. Full Game Switcher would be a separate larger feature. |
 
 A mature release process should include a repeatable compatibility matrix, regressions after emulator updates, actual build inventories and clear explanations for users. Optional in-device emulator version information and a compact diagnostic export would make tester reports much more actionable. These are ongoing practices; one package migration cannot establish equal maturity.
 
 ## Benchmark protocol
 
-Use .17 for experiments. Start with the current ButterflyOS image and preserve a known-good configuration. Spruce head-to-head tests should use a separate, documented boot setup rather than installing its launcher over ButterflyOS. Keep recovery requirements explicit when changing operating systems.
+Use the local test device for experiments. Start with the current ButterflyOS image and preserve a known-good configuration. Spruce head-to-head tests should use a separate, documented boot setup rather than installing its launcher over ButterflyOS. Keep recovery requirements explicit when changing operating systems.
 
 Match ROM and BIOS hashes, region, resolution, renderer options, audio settings, brightness, Wi-Fi and charger state. Run the same reproducible scene after warm-up at least three times. Keep emulation tests separate from longer battery runs.
 

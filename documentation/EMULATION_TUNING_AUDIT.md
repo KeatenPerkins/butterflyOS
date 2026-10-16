@@ -17,7 +17,7 @@ measured performance between operating systems. No defaults were changed.
 | Frequency floors | Governor helpers set CPU/DMC governors, without per-game CPU min/max frequency controls | A tested frequency-floor policy would be a new feature |
 | Normal exit | Launch boosts CPU/DMC for setup and cleanup, then restores the configured system governor; GPU/thread restoration is also present | Verify restoration live, including abnormal exits, before adding profiles |
 
-Device .17 at idle reported CPU `ondemand`, minimum 408 MHz, maximum 1800 MHz;
+The local test device at idle reported CPU `ondemand`, minimum 408 MHz, maximum 1800 MHz;
 available governors were ondemand, powersave, performance and schedutil.
 This is an idle snapshot, not evidence of gameplay frame pacing or efficiency.
 
@@ -70,9 +70,9 @@ Pinned Spruce references:
 
 ## First comparison: GBA
 
-Two user-owned games and the user's GBA BIOS were copied from .20 for .17:
+Two user-owned games and the user's GBA BIOS were copied from .20 for the local test device:
 Gunstar Super Heroes (USA) and Tony Hawk's Pro Skater 2 (USA, Europe).
-The .17 GBA folder was empty and the BIOS absent before preparation. Local
+The GBA folder on the local test device was empty and the BIOS absent before preparation. Local
 asset hashes and the device menu inventory are preserved under
 `Documents/ButterflyOS-Emulation-Audit-20261009/`; no ROMs or BIOS enter Git.
 
@@ -154,7 +154,7 @@ are unchanged. Generator checks verified the Flip gpSP default and retained
 mGBA defaults for another RK3566 target and AMD64.
 
 The updated selector compiled and linked successfully. A reversible live
-test on .17 passed checksum checks and frontend startup. The temporary
+test on the local test device passed checksum checks and frontend startup. The temporary
 frontend and system-list mounts disappear on reboot; the source changes
 remain for the next build. User verification of the new menu is pending.
 
@@ -179,7 +179,7 @@ limit the comparison. Raw records and analysis remain in the local audit folder.
 
 ## Emulator setting persistence check
 
-On .17, the user selected mGBA for the GBA system and gpSP specifically for
+On the local test device, the user selected mGBA for the GBA system and gpSP specifically for
 Gunstar. Both scoped choices were verified in `system.cfg`. Active library
 mappings confirmed Gunstar used gpSP and Tony Hawk inherited mGBA. After a
 normal reboot, both settings remained saved and both launches again resolved

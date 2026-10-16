@@ -5,7 +5,7 @@ Both devices were running core SHA-256
 The logs were copied while both games remained open. No ROMs or saves were
 modified during diagnosis.
 
-- Guest `.17`: session `20260926T005033Z-131129-29636`.
+- Guest local test device: session `20260926T005033Z-131129-29636`.
 - Host `.20`: session `20260926T005000Z-131709-4456`.
 - Logs: `device-17-launch.log` and `device-20-launch.log` in this directory.
 
@@ -88,5 +88,5 @@ hashes match. Diagnostics remain enabled. Patch 025 files remain available
 under `diagnostics-025` for rollback. The live bind mounts do not survive a
 device reboot; verify the active hash again if either device restarts.
 
-Next manual test: host Ruby on .20, join Emerald on .17, enter the Cable Club
+Next manual test: host Ruby on .20, join Emerald on the local test device, enter the Cable Club
 and attempt the trade. Actual trading remains unverified with this patch.

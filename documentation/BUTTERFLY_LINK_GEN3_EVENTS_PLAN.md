@@ -167,13 +167,13 @@ full/duplicate pocket refusal, ineligible progress/maps, wrong ROM, corrupt-save
 refusal, staged Cancel, changed-after-preview refusal, backup and repeated Commit
 refusal. Fixtures derive from a private save and are not distributed.
 
-On .17, the existing native save reader accepts both prepared Enable and Replay
+On the local test device, the existing native save reader accepts both prepared Enable and Replay
 fixtures as FRLG saves. Trainer/party/box inspection is identical before and
 after each action. This is format qualification, not an in-game encounter test.
 Only disposable fixtures were uploaded, outside the ROM/save directories.
 The production helper and menu changes remain local source changes for now.
 
-The current FireRed save on .17 is early-game and correctly fails the postgame
+The current FireRed save on the local test device is early-game and correctly fails the postgame
 gate. Gameplay testing needs a separate copy of the user's island-ready save:
 Enable, ferry travel from Vermilion, puzzle, encounter/capture, in-game save/reload,
 then Replay with prior Pokémon preserved. Start Game must load the ordinary save,

@@ -15,7 +15,7 @@ Logs: `/storage/.config/butterflyos/link/sessions/<session-id>/runtime/launch.lo
 The current session ID is in `/storage/.config/butterflyos/link/last-session`.
 Look for `BF diag022 enabled` to prove the new core and logging are active.
 
-Capture one Ruby host (.20) / Emerald guest (.17) cable-club attempt. After
+Capture one Ruby host (.20) / Emerald guest (local test device) cable-club attempt. After
 reaching "Please wait", leave it for approximately 10 seconds, then collect both
 logs. Preserve the session metadata with each log so player roles are clear.
 

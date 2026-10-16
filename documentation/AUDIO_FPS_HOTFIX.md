@@ -23,7 +23,7 @@ normal speed. All three systems were confirmed working by device testing.
 
 The download contains no games or BIOS files and does not reflash the card.
 It installs a small configuration override that survives reboot. Running it
-again is safe. Devices `.17` and `.20` already have this fix installed.
+again is safe. The local test device and `.20` already have this fix installed.
 
 The v1.0.0 image and built-in updater package retain their original contents;
 this is a separate hotfix. Future OS builds include the corrected default.
