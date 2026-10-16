@@ -259,6 +259,39 @@ AuroraTicket prototype still requires gameplay qualification before release.
 Gen III trading and copying remain available.
 See the [Gen III event checklist and testing status](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md).
 
+### Gen III direct gifts (development test batch)
+
+**Local Transfer → Gen 3 → Gen 3 Gifts** adds already-hatched Pokémon directly
+to an empty PC slot in any of the five qualified English Gen III games.
+
+| Gift equivalent | Level | Moves | Held item | Shiny policy |
+| --- | --- | --- | --- | --- |
+| Jirachi, Wishmaker/Channel gameplay recipe | 5 | Wish, Confusion, Rest | Ganlon or Salac Berry, randomly chosen | Normal chance |
+| Celebi, PokéPark 2006 recipe | 30 | Heal Bell, Safeguard, AncientPower, Future Sight | None | Never |
+| Mew, MYSTRY/Aura recipe | 10 | Pound, Transform | None | Never |
+| Deoxys, SPACE C/DOEL recipe | 70 | Cosmic Power, Recover, Psycho Boost, Hyper Beam | None | Never |
+| Shiny Zigzagoon, Berry Program recipe | 5 | Tackle, Growl, Tail Whip | Liechi Berry | Guaranteed |
+
+These are **generated English equivalents**, with your trainer identity and
+random IVs. They do not reproduce distributor identities, original records or
+historical RNG correlations; Jirachi's normal shiny chance is not a reproduction
+of the bonus disc's constrained shiny seeds. Duplicate campaigns with the same
+gameplay recipe are grouped. Celebi uses the PokéPark level-30 recipe in this
+batch, not the level-10 Ageto recipe. Deoxys uses the destination game's native
+form and stats. Mew and Deoxys receive their fateful-encounter/obedience bit.
+
+Save normally, exit the game, select a destination and matching ROM, choose the
+gift and an empty PC slot, inspect the preview, then choose **Add Gift**. The
+existing protected Commit and backup process applies. Withdraw the Pokémon,
+check its level, moves and item, try a battle, then save and reload normally.
+Gameplay qualification for this first direct-gift batch is pending on the local
+test device. No story, ticket, Pokédex or event flags are changed. Giving
+Zigzagoon or Jirachi does **not** repair the Ruby/Sapphire berry-clock glitch.
+
+References: [primary numeric gift recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs),
+[bonus-disc gifts and Jirachi berries](https://bulbapedia.bulbagarden.net/wiki/List_of_game-based_Pok%C3%A9mon_distributions_in_Generation_III),
+[Liechi Berry distribution](https://bulbapedia.bulbagarden.net/wiki/Liechi_Berry).
+
 ### Gen III egg game support (next image)
 
 All 39 egg options are available for these qualified English retail revisions:

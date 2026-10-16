@@ -1,11 +1,12 @@
 # Butterfly Link: Gen III event checklist
 
-Researched October 9, 2026. AuroraTicket Enable/Replay is implemented locally
-for English FireRed revision 1 and passes private-fixture automated tests.
-Native device inspection passes; gameplay qualification is pending. Four
-Box-style egg equivalents are implemented for Emerald and confirmed working by user testing on the local test device. Other actions remain planned; no Gen III event feature is publicly released.
-Existing Gen III transfers are separate. Remaining emulator and battery release
-checks will use a rebuilt image.
+Researched October 9, 2026; implementation status updated October 16, 2026.
+All 39 planned egg entries are implemented across five qualified English Gen III
+games. Five direct gift equivalents are now being qualified on the local test
+device. Native island events remain deferred until suitable LeafGreen/Emerald
+story progress is available. The AuroraTicket prototype is excluded from the
+image/menu pending gameplay qualification. No Gen III event feature is publicly
+released; existing Gen III transfers are separate.
 
 Prefer native encounters and hatchable eggs, as with Gen II. Group repeated
 campaigns by distinct gameplay experience or species/moveset, while preserving
@@ -292,3 +293,28 @@ The implemented egg catalog covers the documented distinct recipes in PKHeX's
 Gen III Eggs collection: four Box, eight anniversary recipes plus two shiny
 Pichu variants, four 2004 promotional, six PCNY Wish and fifteen PokéPark entries.
 Duplicate distribution methods are grouped rather than offered as duplicate eggs.
+
+
+## First direct-gift batch
+
+Implemented five generated English equivalents across the five qualified games:
+Jirachi (Wishmaker/Channel shared recipe), Celebi (PokéPark 2006 level 30), Mew
+(MYSTRY/Aura shared recipe), Deoxys (SPACE C/DOEL shared recipe), and guaranteed
+shiny Berry Program Zigzagoon. See the user guide for complete levels, moves,
+held-item choices and shiny policies. Ageto Celebi, other distinctive variants,
+GameCube rewards and regional collections remain planned; this is not a complete
+direct-gift catalog. Original trainer/event records and distribution RNG are not
+reproduced. No story flags, ticket state or berry-clock repair is performed.
+Gameplay qualification is pending on the local test device.
+
+First direct-gift automated validation passed on separate save copies: 600
+combinations (five gifts × 24 encrypted record layouts × five games) accepted by
+the native reader. Independent decoding verified species, level experience,
+ROM-derived PP/friendship/nickname, held items, non-egg bits, origin game,
+fateful bits and exact write boundaries. All 25 gift/game pairs passed the actual
+UI prepare/backup/Commit path and repeated-Commit refusal. Shiny policies passed
+multiple trainer IDs and random inputs, including forced non-shiny collisions.
+Six existing egg regression groups also passed (all 39 egg recipes, one layout
+each, plus sector-boundary, shiny, corruption and protected-flow checks).
+Original fixture saves remained unchanged. Live frontend and gift helper
+executable permissions were verified. In-game gift qualification remains pending.

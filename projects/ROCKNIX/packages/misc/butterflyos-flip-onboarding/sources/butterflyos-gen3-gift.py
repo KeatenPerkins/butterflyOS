@@ -103,6 +103,19 @@ PRESETS.update(PROMOTIONAL_PRESETS)
 PCNY_PRESETS = {'pcny-farfetchd-egg': (83, (281, 273, 0, 0)), 'pcny-drowzee-egg': (96, (187, 273, 0, 0)), 'pcny-exeggcute-egg': (102, (230, 273, 0, 0)), 'pcny-lickitung-egg': (108, (215, 273, 0, 0)), 'pcny-chansey-egg': (113, (230, 273, 0, 0)), 'pcny-kangaskhan-egg': (115, (281, 273, 0, 0))}
 PRESETS.update(PCNY_PRESETS)
 
+# Numeric gameplay equivalents; recipient identity, never forged distributor records.
+# national species, level, complete moves, possible held items, shiny policy, fateful
+DIRECT_PRESETS = {
+    'gift-jirachi': (385, 5, (273, 93, 156, 0), (169, 170), 'random', False),
+    'gift-celebi': (251, 30, (215, 219, 246, 248), (0,), 'never', False),
+    'gift-mew': (151, 10, (1, 144, 0, 0), (0,), 'never', True),
+    'gift-deoxys': (386, 70, (322, 105, 354, 63), (0,), 'never', True),
+    'gift-shiny-zigzagoon': (263, 5, (33, 45, 39, 0), (168,), 'always', False),
+}
+SHINY_PRESETS = SHINY_PRESETS | frozenset(p for p, v in DIRECT_PRESETS.items() if v[4] == 'always')
+NEVER_SHINY_PRESETS = frozenset(p for p, v in DIRECT_PRESETS.items() if v[4] == 'never')
+
+
 SIZES = (0xF2C, 0xF80, 0xF80, 0xF80, 0xF08) + (0xF80,) * 8 + (0x7D0,)
 ORDERS = tuple(itertools.permutations(range(4)))
 
@@ -148,6 +161,9 @@ def read_rom(path):
 
 def choose_personality(ot_id, preset):
     value = secrets.randbits(32)
+    if preset in NEVER_SHINY_PRESETS:
+        shiny = (ot_id & 0xFFFF) ^ (ot_id >> 16) ^ (value & 0xFFFF) ^ (value >> 16)
+        return value ^ (1 << 19) if shiny < 8 else value
     if preset not in SHINY_PRESETS:
         return value
     low = value & 0xFFFF
@@ -156,32 +172,39 @@ def choose_personality(ot_id, preset):
 
 
 def make_egg(rom, save2, preset):
-    national, moves = PRESETS[preset]
+    egg = preset not in DIRECT_PRESETS
+    if egg:
+        national, moves = PRESETS[preset]
+        level, held, fateful = 5, 0, preset in POKEPARK_PRESETS or preset in PROMOTIONAL_PRESETS or preset in PCNY_PRESETS
+    else:
+        national, level, moves, items, _shiny_policy, fateful = DIRECT_PRESETS[preset]
+        held = secrets.choice(items)
     family, origin, mapping_at, stats_at, exp_at, moves_at, names_at = rom_profile(rom)
     # ROM tables qualified by the complete ROM SHA-256, never guessed for hacks.
     mapping = struct.unpack_from('<411H', rom, mapping_at)
     species = mapping.index(national) + 1
     stats = rom[stats_at+species*28:stats_at+(species+1)*28]
-    exp = struct.unpack_from('<I', rom, exp_at+stats[19]*404+5*4)[0]
+    exp = struct.unpack_from('<I', rom, exp_at+stats[19]*404+level*4)[0]
     ot_id = struct.unpack_from('<I', save2, 10)[0]
     personality = choose_personality(ot_id, preset)
     header = bytearray(32)
     struct.pack_into('<II', header, 0, personality, ot_id)
-    header[8:18] = bytes((0xBF, 0xC1, 0xC1, 0xFF)) + b'\xff'*6  # EGG, game encoding.
-    header[18:20] = bytes((2, 6))  # English; hasSpecies + isEgg.
+    encoded_name = rom[names_at+species*11:names_at+(species+1)*11]
+    header[8:18] = (bytes((0xBF, 0xC1, 0xC1, 0xFF)) + b'\xff'*6) if egg else encoded_name[:10]
+    header[18:20] = bytes((2, 6 if egg else 2))  # English; hasSpecies; isEgg only for eggs.
     header[20:27] = save2[:7]
     growth, attacks, effort, misc = (bytearray(12) for _ in range(4))
-    struct.pack_into('<HHI', growth, 0, species, 0, exp)
-    growth[9] = stats[17]  # Egg cycles, not adult friendship.
+    struct.pack_into('<HHI', growth, 0, species, held, exp)
+    growth[9] = stats[17] if egg else stats[18]  # Egg cycles or base friendship.
     struct.pack_into('<4H', attacks, 0, *moves)
     attacks[8:12] = bytes(rom[moves_at+move*12+4] if move else 0 for move in moves)
-    misc[1] = 253  # Gift egg; normal hatching replaces met data.
-    origins = (origin << 7) | (4 << 11) | ((save2[8] & 1) << 15)  # Destination game, Poke Ball, OT gender.
+    misc[1] = 253 if egg else 255  # Gift egg / generated event gift.
+    origins = (0 if egg else level) | (origin << 7) | (4 << 11) | ((save2[8] & 1) << 15)  # Destination game, Poke Ball, OT gender.
     struct.pack_into('<H', misc, 2, origins)
-    ivs = secrets.randbits(30) | (1 << 30)
+    ivs = secrets.randbits(30) | ((1 << 30) if egg else 0)
     if stats[23] and personality & 1: ivs |= 1 << 31
     struct.pack_into('<I', misc, 4, ivs)
-    if preset in POKEPARK_PRESETS or preset in PROMOTIONAL_PRESETS or preset in PCNY_PRESETS:
+    if fateful:
         struct.pack_into('<I', misc, 8, 1 << 31)  # Modern fateful-encounter flag.
     blocks = (growth, attacks, effort, misc)
     plain = b''.join(blocks[i] for i in ORDERS[personality % 24])
@@ -192,7 +215,7 @@ def make_egg(rom, save2, preset):
     nickname = ''.join(chr(c-0xBB+65) for c in encoded_name if 0xBB <= c <= 0xD4)
     return bytes(header)+encrypted, {'nickname': nickname, 'species': species,
         'national_species': national, 'moves': moves, 'egg_cycles': stats[17],
-        'level': 5, 'held': 0, 'egg': True}
+        'level': level, 'held': held, 'egg': egg}
 
 
 def prepare(data, rom, preset, box, slot):
@@ -229,7 +252,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--save',type=Path,required=True)
     parser.add_argument('--rom',type=Path,required=True)
-    parser.add_argument('--preset',choices=PRESETS,required=True)
+    parser.add_argument('--preset',choices=tuple(PRESETS)+tuple(DIRECT_PRESETS),required=True)
     parser.add_argument('--box',type=int,required=True)
     parser.add_argument('--slot',type=int,required=True)
     parser.add_argument('--output',type=Path,required=True)
