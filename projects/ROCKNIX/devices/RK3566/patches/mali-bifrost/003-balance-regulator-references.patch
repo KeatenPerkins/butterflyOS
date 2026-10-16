@@ -1,0 +1,127 @@
+From: ButterflyOS developers
+Subject: [PATCH] mali: balance devicetree regulator references across suspend
+
+Runtime PM starts active, but power_control_init only enabled clocks. The
+first power-off could disable a regulator reference never acquired by kbase.
+Acquire the initial references and unwind them on probe failure. Track owned
+references so runtime-off followed by system suspend cannot disable twice,
+and so OPP/shared regulator hardware state is not mistaken for ownership.
+
+This follows the initial-enable diagnosis in ROCKNIX's RK3326/RK3576 fix,
+with explicit ownership and failed-probe cleanup for the RK3566 experiment.
+No voltage, frequency, governor or suspend-policy changes.
+
+--- a/product/kernel/drivers/gpu/arm/midgard/mali_kbase_defs.h
++++ b/product/kernel/drivers/gpu/arm/midgard/mali_kbase_defs.h
+@@ -782,6 +782,7 @@
+  * @nr_clocks:             Number of clocks set in the clocks array.
+  * @regulators:            Pointer to the structs corresponding to the
+  *                         regulators referenced by the GPU device node.
++ * @regulator_enabled:     Enable references owned by this driver, not other consumers.
+  * @nr_regulators:         Number of regulators set in the regulators array.
+  * @opp_table:             Pointer to the device OPP structure maintaining the
+  *                         link to OPPs attached to a device. This is obtained
+@@ -1107,6 +1108,7 @@
+ 	unsigned int nr_clocks;
+ #if IS_ENABLED(CONFIG_REGULATOR)
+ 	struct regulator *regulators[BASE_MAX_NR_CLOCKS_REGULATORS];
++	bool regulator_enabled[BASE_MAX_NR_CLOCKS_REGULATORS];
+ 	unsigned int nr_regulators;
+ #if (KERNEL_VERSION(6, 0, 0) <= LINUX_VERSION_CODE)
+ 	int token;
+--- a/product/kernel/drivers/gpu/arm/midgard/mali_kbase_core_linux.c
++++ b/product/kernel/drivers/gpu/arm/midgard/mali_kbase_core_linux.c
+@@ -4646,6 +4646,19 @@
+ 
+ 	kbdev->nr_regulators = k;
+ 	dev_dbg(&pdev->dev, "Regulators probed: %u\n", kbdev->nr_regulators);
++
++	/* Runtime PM starts active. Own the initial regulator references just
++	 * as the clock setup below owns its initial enable references.
++	 */
++	for (i = 0; i < kbdev->nr_regulators; i++) {
++		err = regulator_enable(kbdev->regulators[i]);
++		if (err) {
++			dev_err(kbdev->dev, "Failed to enable GPU regulator (%d)\n", err);
++			goto clocks_probe_defer;
++		}
++		kbdev->regulator_enabled[i] = true;
++	}
++
+ #endif
+ 
+ 	/* Having more clocks than regulators is acceptable, while the
+@@ -4734,8 +4747,13 @@
+ 
+ clocks_probe_defer:
+ #if defined(CONFIG_REGULATOR)
+-	for (i = 0; i < BASE_MAX_NR_CLOCKS_REGULATORS; i++)
++	for (i = 0; i < BASE_MAX_NR_CLOCKS_REGULATORS; i++) {
++		if (kbdev->regulator_enabled[i]) {
++			regulator_disable(kbdev->regulators[i]);
++			kbdev->regulator_enabled[i] = false;
++		}
+ 		regulator_put(kbdev->regulators[i]);
++	}
+ #endif
+ 	return err;
+ #endif /* CONFIG_OF */
+@@ -4771,6 +4789,10 @@
+ #if defined(CONFIG_OF) && defined(CONFIG_REGULATOR)
+ 	for (i = 0; i < BASE_MAX_NR_CLOCKS_REGULATORS; i++) {
+ 		if (kbdev->regulators[i]) {
++			if (kbdev->regulator_enabled[i]) {
++				regulator_disable(kbdev->regulators[i]);
++				kbdev->regulator_enabled[i] = false;
++			}
+ 			regulator_put(kbdev->regulators[i]);
+ 			kbdev->regulators[i] = NULL;
+ 		}
+--- a/product/kernel/drivers/gpu/arm/midgard/platform/devicetree/mali_kbase_runtime_pm.c
++++ b/product/kernel/drivers/gpu/arm/midgard/platform/devicetree/mali_kbase_runtime_pm.c
+@@ -39,7 +39,10 @@
+  *
+  * Fix: always call clk_prepare_enable/clk_disable_unprepare
+  * (ref-counted) so the count stays balanced regardless of pm_clk
+- * activity.  Same treatment for regulators.
++ * activity. Regulators additionally track references owned by this driver:
++ * hardware enable state can belong to OPP or another consumer, and system
++ * suspend may follow a runtime power-off that already released our reference.
++ * PM callbacks are serialized by the device PM / kbase power-management locks.
+  */
+ static void enable_gpu_power_control(struct kbase_device *kbdev)
+ {
+@@ -47,8 +50,14 @@
+ 
+ #if defined(CONFIG_REGULATOR)
+ 	for (i = 0; i < kbdev->nr_regulators; i++) {
+-		if (kbdev->regulators[i])
+-			regulator_enable(kbdev->regulators[i]);
++		if (kbdev->regulators[i] && !kbdev->regulator_enabled[i]) {
++			int err = regulator_enable(kbdev->regulators[i]);
++
++			if (err)
++				dev_err(kbdev->dev, "Failed to enable GPU regulator (%d)\n", err);
++			else
++				kbdev->regulator_enabled[i] = true;
++		}
+ 	}
+ #endif
+ 
+@@ -69,8 +78,14 @@
+ 
+ #if defined(CONFIG_REGULATOR)
+ 	for (i = 0; i < kbdev->nr_regulators; i++) {
+-		if (kbdev->regulators[i])
+-			regulator_disable(kbdev->regulators[i]);
++		if (kbdev->regulators[i] && kbdev->regulator_enabled[i]) {
++			int err = regulator_disable(kbdev->regulators[i]);
++
++			if (err)
++				dev_err(kbdev->dev, "Failed to disable GPU regulator (%d)\n", err);
++			else
++				kbdev->regulator_enabled[i] = false;
++		}
+ 	}
+ #endif
+ 

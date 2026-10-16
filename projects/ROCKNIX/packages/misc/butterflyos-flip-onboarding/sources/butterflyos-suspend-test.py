@@ -14,9 +14,19 @@ import time
 
 ROOT = Path('/storage/.config/butterflyos/suspend-tests')
 ENABLED = Path('/storage/.config/butterflyos/experimental-lid-suspend.enabled')
+DISABLED = ENABLED.with_name('experimental-lid-suspend.disabled')
 DRIVER = Path('/sys/bus/platform/drivers/rockchip-pm-config')
 POWER = Path('/sys/power/mem_sleep')
 UPDATE = Path('/storage/.cache/butterflyos-update/update.lock')
+
+def set_lid_sleep(enabled):
+    ENABLED.parent.mkdir(parents=True, exist_ok=True)
+    if enabled:
+        DISABLED.unlink(missing_ok=True)
+        ENABLED.touch()
+    else:
+        DISABLED.touch()
+        ENABLED.unlink(missing_ok=True)
 
 def command(args):
     try:
@@ -26,7 +36,7 @@ def command(args):
         return str(e)
 
 def snapshot():
-    report = {'time': time.time(), 'mounts': command(['findmnt', '-J']),
+    report = {'time': time.time(), 'mounts': Path('/proc/self/mountinfo').read_text(),
               'kernel': command(['journalctl', '-k', '-b', '-n', '300', '--no-pager'])}
     for pattern in ('/sys/kernel/debug/mmc*/ios', '/sys/power/mem_sleep', '/sys/power/pm_async',
                     '/sys/class/power_supply/*/uevent', '/sys/class/devfreq/*/governor', '/sys/class/devfreq/*/cur_freq', '/sys/class/devfreq/*/min_freq', '/sys/class/devfreq/*/max_freq'):
@@ -41,15 +51,17 @@ def writable(path):
 
 def probe_targets():
     # Probe only actual local MMC filesystems; never a mergerfs view or ROM file.
-    mounts = json.loads(command(['findmnt', '-J', '-o', 'SOURCE,TARGET,FSTYPE']))
     targets = []
-    def walk(nodes):
-        for n in nodes:
-            if n.get('source', '').startswith('/dev/mmcblk') and n['fstype'] in ('ext4', 'exfat', 'vfat'):
-                if n['target'] == '/storage' or n['target'].startswith(('/var/media/', '/storage/')):
-                    targets.append(Path(n['target']))
-            walk(n.get('children', []))
-    walk(mounts['filesystems'])
+    def unescape(value):
+        return re.sub(r'\\([0-7]{3})', lambda m: chr(int(m.group(1), 8)), value)
+    for line in Path('/proc/self/mountinfo').read_text().splitlines():
+        left, right = line.split(' - ', 1)
+        fields, filesystem = left.split(), right.split()
+        target = unescape(fields[4])
+        source = unescape(filesystem[1])
+        if source.startswith('/dev/mmcblk') and filesystem[0] in ('ext4', 'exfat', 'vfat'):
+            if target == '/storage' or target.startswith(('/var/media/', '/storage/')):
+                targets.append(Path(target))
     if Path('/storage') not in targets: raise RuntimeError('OS-card mount is not a known MMC filesystem')
     return sorted(set(targets))
 
@@ -105,7 +117,7 @@ def run_cycle():
         except Exception as error:
             try:
                 (cycle/'error.json').write_text(json.dumps({'error': str(error), 'diagnostics': snapshot()}, indent=2))
-                ENABLED.unlink(missing_ok=True)
+                set_lid_sleep(False)
                 os.sync()
             except OSError: pass
             raise
@@ -128,7 +140,7 @@ def main():
         while True:
             choice=ui.menu('EXPERIMENTAL SUSPEND', [
                 ('Sleep now', 'Suspend to RAM; wake with power or by opening the lid'),
-                ('Enable lid sleep', 'Until reboot: real lid suspend; pauses lid shutdown timer'),
+                ('Enable lid sleep', 'Real lid suspend; remembers choice and pauses lid shutdown timer'),
                 ('Disable lid sleep', 'Return to display-only lid handling'),
                 ('Save diagnostics', 'Collect current kernel, battery and SD-controller information'),
                 ('Back', 'Return to Tools')], 0)
@@ -137,14 +149,19 @@ def main():
                 status=subprocess.run(['systemctl','start','butterflyos-suspend-test.service']).returncode
                 ui.message('SUSPEND TEST', 'Returned from suspend. Check your game and both cards. Logs: '+str(ROOT) if not status else 'Suspend failed. Lid sleep disabled; inspect logs under '+str(ROOT))
             elif choice==1:
-                ENABLED.parent.mkdir(parents=True,exist_ok=True);ENABLED.touch()
-                ui.message('LID SLEEP ENABLED','Enabled until reboot. Close Tools and launch a game, then close the lid. Open it or press power to wake. Long and overnight tests are still required.')
+                set_lid_sleep(True)
+                ui.message('LID SLEEP ENABLED','Enabled, including after reboot. Close Tools and launch a game, then close the lid. Open it or press power to wake. Long and overnight tests are still required.')
             elif choice==2:
-                ENABLED.unlink(missing_ok=True);ui.message('LID SLEEP DISABLED','The lid uses normal display-off behavior again.')
+                set_lid_sleep(False);ui.message('LID SLEEP DISABLED','The lid uses display-off behavior, including after reboot. Enable lid sleep here to restore suspend.')
             elif choice==3:
                 ROOT.mkdir(parents=True,exist_ok=True);p=ROOT/('manual-'+str(time.time_ns())+'.json');p.write_text(json.dumps(snapshot(),indent=2));ui.message('REPORT SAVED',str(p))
     finally:ui.close()
 
 if __name__=='__main__':
     try:sys.exit(main())
-    except Exception as error:print('Suspend test error: '+str(error),file=sys.stderr);sys.exit(1)
+    except Exception as error:
+        if len(sys.argv) > 1 and sys.argv[1] == 'cycle':
+            try: set_lid_sleep(False)
+            except OSError: pass
+        print('Suspend test error: '+str(error),file=sys.stderr)
+        sys.exit(1)
