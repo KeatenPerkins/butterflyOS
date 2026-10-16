@@ -86,12 +86,12 @@ is preserved as `diagnostics-027/previous.so`. These mounts disappear on reboot.
 Before binding, use `ctypes.CDLL(path, mode=os.RTLD_NOW)` on each device and check
 `retro_api_version() == 1` to resolve every library symbol, without opening a ROM.
 
-Next manual test is host Ruby on .20, join Emerald on .17, then enter Cable Club
+Next manual test is host Ruby on .20, join Emerald on the local test device, then enter Cable Club
 and attempt the trade. No ROM or save contents were modified by this work.
 Real Wi-Fi round trips may still exceed the game's timing requirements. If so,
 coordinating emulated time across devices is the next task; do not fake success
 using old words or post-IRQ resampling. The live trade is not yet verified.
 
-Deployment completed on both .17 and .20. Both passed the on-device RTLD_NOW
+Deployment completed on both the local test device and .20. Both passed the on-device RTLD_NOW
 loader/API check and both active core hashes match the one above. Diagnostics
 are enabled. A transient SSH timeout on .20 cleared on retry before activation.

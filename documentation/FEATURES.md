@@ -110,17 +110,17 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 
 From v1.0.3: **Local transfer → Gen 2 → Crystal Events** enables or replays
 Crystal's native GS Ball/Celebi quest with a reviewed, backed-up Commit.
-Enable and Replay passed user testing on .17; the normal Kurt wait is retained.
+Enable and Replay passed user testing on the local test device; the normal Kurt wait is retained.
 The Gen 2 menu also adds **Gen 2 Gifts** (Mew) and **Stadium 2 Gifts**
 (Baton Pass Farfetch'd and Earthquake Gligar), with Pokémon preview and protected
 Commit. Automated save checks pass, and all three gifts passed user testing in
-Crystal on .17. **Mystery Eggs** adds fifteen special-move egg recipes, all confirmed working
-in Crystal by user testing on .17. Preview shows the hatchling. **Crystal Events → Odd Egg** adds native replay, **Gen 2 Gifts**
+Crystal on the local test device. **Mystery Eggs** adds fifteen special-move egg recipes, all confirmed working
+in Crystal by user testing on the local test device. Preview shows the hatchling. **Crystal Events → Odd Egg** adds native replay, **Gen 2 Gifts**
 adds Celebi for Gold/Silver, and **PCNY Gifts** offers 104 special-move eggs
 and 16 shiny adult gifts. All 120 PCNY gifts and the split egg/adult menu passed
-user testing in Crystal on .17. See the
+user testing in Crystal on the local test device. See the
 [PCNY checklist](BUTTERFLY_LINK_GEN2_PCNY_CHECKLIST.md) for additions and limits. Odd Egg delivery/replay and the Celebi gift in Gold passed user testing
-on .17. Silver Celebi and broader Gold/Silver gift gameplay still
+on the local test device. Silver Celebi and broader Gold/Silver gift gameplay still
 need qualification.
 
 This app manipulates save files; it does not provide in-game cable sessions,

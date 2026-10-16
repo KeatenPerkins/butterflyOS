@@ -1,7 +1,7 @@
 # ButterflyOS v1.0.4 — controls, battery feedback, themes and Butterfly Link fixes
 
 Stable release for **Miyoo Flip V2**, updater build **20261013**. This is the
-exact local rebuild that passed image checks and user-confirmed live tests on .17.
+exact local rebuild that passed image checks and user-confirmed live tests on the local test device.
 
 ## Controls and emulation
 
@@ -75,5 +75,5 @@ for a fresh installation.
 All 668 package steps passed. Image hash/gzip, GPT, FAT/ext4, boot checksums,
 image/update payload consistency and packaged content checks passed. All 23
 lid-shutdown checks passed; source-level LED and mute-state checks also passed.
-The user confirmed the rebuilt .17 image passed live testing. No ROMs, BIOS files,
+The user confirmed the image rebuilt for the local test device passed live testing. No ROMs, BIOS files,
 personal saves or generated Pokémon sprite caches are included in release assets.

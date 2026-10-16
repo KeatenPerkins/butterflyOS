@@ -33,7 +33,7 @@ local module overrides or autostart bind mounts over the packaged candidate 2.
 
 ## How to test
 
-Start from a backed-up test card on .17. Initially leave the second card out.
+Start from a backed-up test card on the local test device. Initially leave the second card out.
 
 1. Boot, check both battery/charging feedback and normal game operation.
 2. Open Tools → Experimental Suspend → Save diagnostics.
@@ -128,7 +128,7 @@ Existing probe error policy, radio timing, and legacy-kernel handling remain.
 
 The host test compiles the actual patched acquire/release blocks and checks
 successful and failed acquisitions, other consumers' references, and repeated
-teardown. The test module must be verified on .17 with Wi-Fi/BT enabled and
+teardown. The test module must be verified on the local test device with Wi-Fi/BT enabled and
 disabled, repeated lid sleeps, reconnection and current-boot warning review.
 Do not infer that this fixes the separate nl80211 or xHCI warnings.
 
