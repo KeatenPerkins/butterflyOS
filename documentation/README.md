@@ -18,7 +18,7 @@ Current release: [v1.0.4 notes](RELEASE_NOTES_v1.0.4.md), updater build **202610
 - [SD Card Info](SD_CARD_INFO.md): fast space and mount-status checks for both
   cards, available starting with v1.0.2.
 - [How to transfer games](TRANSFERRING_GAMES.md): web uploads, SD-card copying,
-  SMB, SFTP/SCP, rsync, and device password setup.
+  SMB, SFTP/SCP, rsync, device password setup, and USB File Transfer test instructions.
 - [Installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md): the
   device-specific SD-boot change, backup export, reflashing, and exact restore.
 - [Features](FEATURES.md): current capabilities and their limits.

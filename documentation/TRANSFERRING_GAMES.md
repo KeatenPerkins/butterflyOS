@@ -135,6 +135,38 @@ destination-only files. Do not add `--delete` unless you deliberately want a
 mirror that removes files from the device. Prefer copying only game files, not
 an old library's `gamelist.xml`, artwork metadata, or save directories.
 
+## Option 6: USB File Transfer (local test image; qualification pending)
+
+The current local test image exposes **Settings → Network Settings → USB Gadget
+Function → File Transfer**. This is MTP, similar to connecting an Android phone;
+it shares the running device's ROMs folder rather than presenting a raw SD card.
+End-to-end copying still needs local test confirmation before this is advertised
+as a qualified public-release transfer method.
+
+1. Boot the Flip and leave it at the menu with the lid open.
+2. Set **USB Gadget Function** to **File Transfer**.
+3. Connect the **front charging/data USB-C port** to a computer with a cable that
+   supports data. A charge-only cable cannot transfer files.
+4. Open your computer's file manager. Look for the Flip as an MTP/portable device;
+   it may appear as **ROCKNIX Device** because of remaining USB branding.
+5. Open **Roms**, then a system folder such as `gba`, `gbc` or `snes`, and copy
+   games into that folder. The exposed root is `/storage/roms`; you do not need
+   to create another `roms` folder inside it. BIOS files go in `Roms/bios`.
+6. Wait for transfers to finish, disconnect the cable, then choose **Update
+   Gamelists** on the Flip.
+
+Wi-Fi and SSH are not required for MTP. Windows and Linux file managers with MTP
+support should display the device; macOS generally needs an MTP-capable app.
+If it does not appear, try another data cable and reconnect after selecting
+File Transfer. Web File Transfer remains the documented fallback. This setup
+exposes `/storage/roms`, not a separate second-card storage entry; use the web
+interface's **Second Game Card** option to target that card explicitly.
+
+The other gadget choices are **Network**, which creates a USB network connection
+for SSH and enabled network services, and **Disabled**, which disables the USB
+gadget data functions. Network mode is separate from MTP; a USB cable alone does
+not automatically expose the SD-card partitions.
+
 ## Protect your saves
 
 Back up existing saves before replacing or importing them. Do not overwrite a
@@ -142,6 +174,3 @@ save while its game or Butterfly Link is running. Save filenames generally
 need to match their ROM's basename; save states and in-game saves are different
 formats. See [Quick Start](QUICK_START.md#add-games-and-bios-files) and
 [Butterfly Link](BUTTERFLY_LINK.md) for save-transfer guidance.
-
-USB-C cables alone are not a documented PC file-transfer method for this release.
-Use one of the methods above rather than assuming a port exposes SD-card storage.
