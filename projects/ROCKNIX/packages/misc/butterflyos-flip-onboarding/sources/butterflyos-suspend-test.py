@@ -65,7 +65,83 @@ def probe_targets():
     if Path('/storage') not in targets: raise RuntimeError('OS-card mount is not a known MMC filesystem')
     return sorted(set(targets))
 
-def run_cycle():
+WAKE_IRQ_NAMES = ('rk805_pwrkey_fall', 'rk805_pwrkey_rise',
+                  'rk817_plug_in', 'rk817_plug_out', 'Lid')
+
+
+def wake_inputs():
+    """Observe charger changes and user wake events; missing data fails open."""
+    result = {'irqs': {}, 'lid_closed': None, 'charger_online': None}
+    try:
+        for line in Path('/proc/interrupts').read_text().splitlines():
+            columns = line.partition(':')[2].split()
+            if not columns or columns[-1] not in WAKE_IRQ_NAMES:
+                continue
+            counts = []
+            for column in columns:
+                if not column.isdecimal(): break
+                counts.append(int(column))
+            if counts: result['irqs'][columns[-1]] = sum(counts)
+        online = Path('/sys/class/power_supply/charger/online').read_text().strip()
+        if online in ('0', '1'): result['charger_online'] = int(online)
+        for event in Path('/sys/class/input').glob('event*'):
+            if (event/'device/name').read_text().strip() != 'gpio-keys-hall': continue
+            query = subprocess.run(['evtest', '--query', '/dev/input/'+event.name,
+                                    'EV_SW', 'SW_LID'], stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.DEVNULL, timeout=2)
+            if query.returncode in (0, 10): result['lid_closed'] = query.returncode == 10
+            break
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return result
+
+
+def same_user_inputs(before, after):
+    names = ('rk805_pwrkey_fall', 'rk805_pwrkey_rise', 'Lid')
+    return (before.get('lid_closed') is True and after.get('lid_closed') is True
+            and all(name in before.get('irqs', {}) and name in after.get('irqs', {})
+                    and before['irqs'][name] == after['irqs'][name] for name in names))
+
+
+def charger_only_wake(before, after):
+    if not same_user_inputs(before, after): return False
+    if before.get('charger_online') not in (0, 1) or after.get('charger_online') not in (0, 1):
+        return False
+    changed = before['charger_online'] != after['charger_online']
+    for name in ('rk817_plug_in', 'rk817_plug_out'):
+        if name not in before.get('irqs', {}) or name not in after.get('irqs', {}): return False
+        changed = changed or before['irqs'][name] != after['irqs'][name]
+    return changed
+
+
+def run_lid_cycles():
+    # Each retry goes through all normal storage checks and charging LED hooks.
+    # Never retry unknown wakes, user wakes, or more than three cable changes.
+    retries, rapid, pending_inputs = 0, 0, None
+    while True:
+        completed = run_cycle(pending_inputs)
+        if completed is None: return
+        cycle = Path(completed)
+        print(str(cycle), flush=True)
+        report = json.loads((cycle/'after.json').read_text())
+        before, after = report['wake_inputs_before'], report['wake_inputs_after']
+        if not ENABLED.exists() or not charger_only_wake(before, after): return
+        rapid = rapid + 1 if report['sleep_elapsed_seconds'] < 5 else 0
+        if retries >= 3 or rapid >= 2:
+            print('Charger wake retry limit reached; staying awake until next lid close', flush=True)
+            return
+        time.sleep(3)  # Let cable status settle and allow a user wake to win.
+        current = wake_inputs()
+        if (not ENABLED.exists() or not same_user_inputs(after, current)
+                or current.get('charger_online') != after.get('charger_online')):
+            print('Charger wake retry cancelled by changed lid, power or charging state', flush=True)
+            return
+        pending_inputs = current
+        retries += 1
+        print('Charger change while lid closed; returning to deep sleep (%d/3)' % retries, flush=True)
+
+
+def run_cycle(retry_inputs=None):
     if not DRIVER.exists():
         raise RuntimeError('Experimental firmware suspend driver is absent')
     update = UPDATE
@@ -94,8 +170,21 @@ def run_cycle():
             os.sync()
             # Explicitly select deep. No fallback to s2idle / freeze.
             POWER.write_text('deep')
+            wake_before = wake_inputs()
+            if retry_inputs is not None and (not ENABLED.exists()
+                    or not same_user_inputs(retry_inputs, wake_before)
+                    or wake_before.get('charger_online') != retry_inputs.get('charger_online')):
+                (cycle/'state').write_text('CANCELLED: lid, power or charging state changed before automatic re-sleep\n')
+                print('Automatic re-sleep cancelled before suspend', flush=True)
+                return None
+            sleep_started = time.clock_gettime(time.CLOCK_BOOTTIME)
             result = subprocess.run(['systemctl', 'start', 'systemd-suspend.service'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            sleep_elapsed = time.clock_gettime(time.CLOCK_BOOTTIME) - sleep_started
+            wake_after = wake_inputs()
             after = snapshot()
+            after['wake_inputs_before'] = wake_before
+            after['wake_inputs_after'] = wake_after
+            after['sleep_elapsed_seconds'] = sleep_elapsed
             after['systemctl_returncode'] = result.returncode
             after['systemctl_output'] = result.stdout
             after['new_kernel_messages'] = command(['journalctl', '-k', '-b', '--after-cursor=' + cursor, '--no-pager']) if cursor else after['kernel']
@@ -136,7 +225,7 @@ def main():
         with open('/run/butterflyos-suspend-test.lock', 'w') as lock:
             try: fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError: return 0
-            print(run_cycle(), flush=True)
+            run_lid_cycles()
         return 0
     spec=importlib.util.spec_from_file_location('tool_ui', Path(__file__).with_name('butterflyos-tool-ui.py'))
     ui_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(ui_module)
