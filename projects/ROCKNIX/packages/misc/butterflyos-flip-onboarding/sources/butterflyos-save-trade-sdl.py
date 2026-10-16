@@ -2355,11 +2355,11 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
                         "pcny": (GEN3_PCNY_EGGS, "PCNY WISH EGGS")}[gen3_group]
         eggs = True
         if gen3_group == "pcny":
-            notice(frontend, title, "Expanded English Emerald equivalents of the FireRed/LeafGreen PCNY Wish campaign. Six eggs with Wish and a second special move; not original event records.")
+            notice(frontend, title, "Expanded English Gen III equivalents of the FireRed/LeafGreen PCNY Wish campaign. Six eggs with Wish and a second special move; not original event records.")
         if gen3_group == "promotional":
-            notice(frontend, title, "Expanded English Emerald equivalents of the 2004 Japanese FireRed/LeafGreen campaign. Four special-move eggs; not original event records.")
+            notice(frontend, title, "Expanded English Gen III equivalents of the 2004 Japanese FireRed/LeafGreen campaign. Four special-move eggs; not original event records.")
         if gen3_group == "anniversary":
-            notice(frontend, title, "Expanded English Emerald equivalents of Japanese Ruby gifts. Eight random-shiny-chance recipes and two explicitly guaranteed-shiny Pichu variants; not original event records.")
+            notice(frontend, title, "Expanded English Gen III equivalents of Japanese Ruby gifts. Eight random-shiny-chance recipes and two explicitly guaranteed-shiny Pichu variants; not original event records.")
     if pcny:
         egg_gifts = [gift for gift in GEN2_PCNY_GIFTS if gift[0].endswith("-egg")]
         adult_gifts = [gift for gift in GEN2_PCNY_GIFTS if not gift[0].endswith("-egg")]
@@ -2375,9 +2375,6 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
            "Generated equivalents, not original official distributions. Gifts use your ROM's data and your trainer identity. Choose a free PC slot, review, then Commit. Close the game first. No story flags are changed.")
     destination = choose_save(frontend, generation, "GIFT DESTINATION SAVE")
     if not destination:
-        return
-    if generation == 3 and destination[2] != "Emerald":
-        notice(frontend, "EMERALD TEST BATCH", "These gift eggs are qualified for Emerald only. Other Gen 3 games will be added after testing.")
         return
     if generation == 2 and destination[2] == "Crystal":
         gifts = [gift for gift in gifts if gift[0] != "celebi"]
@@ -2646,11 +2643,11 @@ def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, st
     while True:
         saves = generation_saves(3)
         items = [("GAME", "%s | %s" % (os.path.splitext(os.path.basename(save[0]))[0], save[1])) for save in saves]
-        items.extend([("GEN 3 BOX EGGS", "Four special-move eggs; Emerald"),
-                      ("POKEPARK EGGS", "15 special-move eggs; Emerald"),
-                      ("ANNIVERSARY EGGS", "8 recipes plus 2 shiny Pichu; expanded Emerald gifts"),
-                      ("PROMOTIONAL EGGS", "Four special-move eggs; expanded Emerald gifts"),
-                      ("PCNY WISH EGGS", "Six Wish eggs; expanded Emerald gifts")])
+        items.extend([("GEN 3 BOX EGGS", "Four special-move eggs; Gen III"),
+                      ("POKEPARK EGGS", "15 special-move eggs; Gen III"),
+                      ("ANNIVERSARY EGGS", "8 recipes plus 2 shiny Pichu; expanded Gen III gifts"),
+                      ("PROMOTIONAL EGGS", "Four special-move eggs; expanded Gen III gifts"),
+                      ("PCNY WISH EGGS", "Six Wish eggs; expanded Gen III gifts")])
         choice = choose_list(frontend, "GEN 3", "Choose a game to trade/copy, or an egg group. B returns.", items)
         if choice is None: return None
         if choice < len(saves): return saves[choice]
