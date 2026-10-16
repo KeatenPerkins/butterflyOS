@@ -2341,14 +2341,15 @@ def gen2_gift_workflow(frontend: SDLFrontEnd, stadium: bool = False, eggs: bool 
     generated_gift_workflow(frontend, 2, stadium, eggs, pcny)
 
 
-def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: bool = False, eggs: bool = False, pcny: bool = False) -> None:
+def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: bool = False, eggs: bool = False, pcny: bool = False, gen3_group: str = "box") -> None:
     gifts = ((STADIUM_GIFTS if stadium else GEN1_GIFTS) if generation == 1 else
              (STADIUM2_GIFTS if stadium else GEN2_GIFTS))
     title = ("STADIUM GIFTS" if generation == 1 else "STADIUM 2 GIFTS") if stadium else "GEN %d EVENT GIFTS" % generation
     if eggs:
         gifts, title = GEN2_MYSTERY_EGGS, "MYSTERY EGGS"
     if generation == 3:
-        gifts, title, eggs = GEN3_BOX_EGGS, "GEN 3 BOX EGGS", True
+        gifts = GEN3_POKEPARK_EGGS if gen3_group == "pokepark" else GEN3_BOX_EGGS
+        title, eggs = ("POKEPARK EGGS" if gen3_group == "pokepark" else "GEN 3 BOX EGGS"), True
     if pcny:
         egg_gifts = [gift for gift in GEN2_PCNY_GIFTS if gift[0].endswith("-egg")]
         adult_gifts = [gift for gift in GEN2_PCNY_GIFTS if not gift[0].endswith("-egg")]
@@ -2366,7 +2367,7 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
     if not destination:
         return
     if generation == 3 and destination[2] != "Emerald":
-        notice(frontend, "EMERALD TEST BATCH", "These first four eggs are qualified for Emerald only. Other Gen 3 games will be added after testing.")
+        notice(frontend, "EMERALD TEST BATCH", "These gift eggs are qualified for Emerald only. Other Gen 3 games will be added after testing.")
         return
     if generation == 2 and destination[2] == "Crystal":
         gifts = [gift for gift in gifts if gift[0] != "celebi"]
@@ -2587,15 +2588,35 @@ GEN3_BOX_EGGS = [
 ]
 
 
+GEN3_POKEPARK_EGGS = [
+    ('pokepark-psyduck-egg', 'PSYDUCK EGG', 'Water Sport and Mud Sport'),
+    ('pokepark-pichu-egg', 'PICHU EGG', 'Follow Me'),
+    ('pokepark-igglybuff-egg', 'IGGLYBUFF EGG', 'Tickle'),
+    ('pokepark-corsola-egg', 'CORSOLA EGG', 'Mud Sport'),
+    ('pokepark-taillow-egg', 'TAILLOW EGG', 'FeatherDance'),
+    ('pokepark-surskit-egg', 'SURSKIT EGG', 'Mud Sport'),
+    ('pokepark-whismur-egg', 'WHISMUR EGG', 'Teeter Dance'),
+    ('pokepark-skitty-egg', 'SKITTY EGG', 'Rollout'),
+    ('pokepark-plusle-egg', 'PLUSLE EGG', 'Water Sport'),
+    ('pokepark-minun-egg', 'MINUN EGG', 'Mud Sport'),
+    ('pokepark-spoink-egg', 'SPOINK EGG', 'Uproar'),
+    ('pokepark-spinda-egg', 'SPINDA EGG', 'Sing'),
+    ('pokepark-cacnea-egg', 'CACNEA EGG', 'Encore'),
+    ('pokepark-corphish-egg', 'CORPHISH EGG', 'Water Sport'),
+    ('pokepark-wynaut-egg', 'WYNAUT EGG', 'Tickle'),
+]
+
+
 def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
     while True:
         saves = generation_saves(3)
         items = [("GAME", "%s | %s" % (os.path.splitext(os.path.basename(save[0]))[0], save[1])) for save in saves]
-        items.append(("GEN 3 BOX EGGS", "Four special-move eggs; Emerald test batch"))
-        choice = choose_list(frontend, "GEN 3", "Choose a game to trade/copy, or Box Eggs. B returns.", items)
+        items.extend([("GEN 3 BOX EGGS", "Four special-move eggs; Emerald"),
+                      ("POKEPARK EGGS", "15 special-move eggs; Emerald test batch")])
+        choice = choose_list(frontend, "GEN 3", "Choose a game to trade/copy, or an egg group. B returns.", items)
         if choice is None: return None
         if choice < len(saves): return saves[choice]
-        generated_gift_workflow(frontend, 3)
+        generated_gift_workflow(frontend, 3, gen3_group="pokepark" if choice-len(saves) == 1 else "box")
 
 
 
