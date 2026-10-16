@@ -281,3 +281,14 @@ occupied-slot refusal, exclusive output, ZIP matching and protected
 Cancel/backup/Commit behavior. A further 16 cross-family ROM/save combinations
 were refused without output or source-save changes. These checks do not replace
 live hatching and save/reload qualification in the four new destination games.
+
+
+The user confirmed the expanded cross-game egg delivery working on the local
+test device. The specific destination and complete per-game hatch/save/reload
+matrix were not reported, so this confirmation is not a claim that all 39 eggs
+were individually hatched in all five games.
+
+The implemented egg catalog covers the documented distinct recipes in PKHeX's
+Gen III Eggs collection: four Box, eight anniversary recipes plus two shiny
+Pichu variants, four 2004 promotional, six PCNY Wish and fifteen PokéPark entries.
+Duplicate distribution methods are grouped rather than offered as duplicate eggs.
