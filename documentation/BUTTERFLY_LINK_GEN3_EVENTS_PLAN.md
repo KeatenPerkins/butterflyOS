@@ -77,12 +77,13 @@ retention, hatch identity, Pokédex behavior and save/reload. The four Box eggs
 are a bounded first egg batch.
 
 The first development batch is under **Local Transfer → Gen 3 → Gen 3 Box
-Eggs** and supports the qualified English Emerald ROM/save only. These are
+Eggs**. Initially Emerald-only, egg delivery now also supports the qualified
+English Ruby/Sapphire revision 2 and FireRed/LeafGreen revision 1 ROM/save pairs. These are
 generated equivalents with the recipient's trainer identity, random personality
 and IVs, the four documented level-5 move recipes, no held item, and normal
 ROM-derived hatch counters. They do not emulate Pokémon Box deposit rewards,
 distribution RNG, or original distribution records. No League progress is needed.
-Ruby/Sapphire/FireRed/LeafGreen gift writing remains unqualified.
+These four new destination games require live hatch/save/reload confirmation.
 
 Automated checks passed on disposable saves on the local test device: all four
 recipes across all 24 record orders, independent native-reader validation, a
@@ -259,3 +260,24 @@ native reader on the local test device. All six automated test groups passed,
 including exact PCNY movesets, fateful flags, menu parity, checksums, original
 preservation and protected preview/backup/Commit behavior. The live frontend
 and gift helper executable permissions were verified before handoff.
+
+
+## Expanded egg destination support
+
+All 39 recipes now support the qualified English Emerald, Ruby/Sapphire revision
+2 and FireRed/LeafGreen revision 1 ROMs. Full-ROM hashes select the family-specific
+sector lengths, ROM tables and origin IDs. The CLI refuses mismatched save
+families. Writes remain limited to one empty PC record and its sector checksum(s).
+Historical distribution restrictions are explicitly relaxed for these generated
+equivalents. No ROM text, sprites, event records or saves are bundled.
+New destination games still require live hatching and save/reload confirmation.
+
+Automated validation passed on separate copies of all five games' saves:
+936 recipe/order combinations for Emerald, plus all 39 recipes in each of Ruby,
+Sapphire, FireRed and LeafGreen (1,092 combinations total). Each game's six test
+groups passed, covering PP, species, egg flags, origin game, level-5 experience,
+shiny policy, exact write boundaries, crossing a PC-sector boundary, corrupt and
+occupied-slot refusal, exclusive output, ZIP matching and protected
+Cancel/backup/Commit behavior. A further 16 cross-family ROM/save combinations
+were refused without output or source-save changes. These checks do not replace
+live hatching and save/reload qualification in the four new destination games.

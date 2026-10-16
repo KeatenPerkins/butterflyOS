@@ -5,6 +5,7 @@ Usage: test.py SOURCE_DIR ROM SAVE NATIVE_HELPER
 """
 import importlib.util
 import itertools
+import os
 import json
 from pathlib import Path
 import struct
@@ -20,8 +21,10 @@ spec = importlib.util.spec_from_file_location('gift', sources/'butterflyos-gen3-
 gift = importlib.util.module_from_spec(spec);spec.loader.exec_module(gift)
 ROM = gift.read_rom(rom_path)
 SAVE = save_path.read_bytes()
-SECTIONS = gift.active_sections(SAVE)
-PC = b''.join(SAVE[SECTIONS[n]:SECTIONS[n]+gift.SIZES[n]] for n in range(5,14))
+PROFILE = gift.rom_profile(ROM)
+SIZES = gift.section_sizes(PROFILE[0])
+SECTIONS = gift.active_sections(SAVE, SIZES)
+PC = b''.join(SAVE[SECTIONS[n]:SECTIONS[n]+SIZES[n]] for n in range(5,14))
 FREE = next(i for i in range(420) if PC[4+i*80:4+(i+1)*80] == bytes(80))
 BOX, SLOT = divmod(FREE,30)
 
@@ -29,7 +32,7 @@ BOX, SLOT = divmod(FREE,30)
 class Eggs(unittest.TestCase):
     def test_all_recipes_all_24_record_orders(self):
         for preset,(national,moves) in gift.PRESETS.items():
-            for order_id in range(24):
+            for order_id in range(int(os.environ.get('BUTTERFLY_GIFT_TEST_ORDERS', '24'))):
                 pid=order_id
                 if preset in gift.SHINY_PRESETS:
                     ot_id=struct.unpack_from('<I',SAVE,SECTIONS[0]+10)[0]
@@ -38,7 +41,7 @@ class Eggs(unittest.TestCase):
                              if (value := low|((trainer_xor^low^sv)<<16))%24==order_id)
                 with self.subTest(preset=preset,order=order_id), patch.object(gift,'choose_personality',return_value=pid), patch.object(gift.secrets,'randbits',return_value=0x1234567):
                     result,meta=gift.prepare(SAVE,ROM,preset,BOX,SLOT)
-                    pc=b''.join(result[SECTIONS[n]:SECTIONS[n]+gift.SIZES[n]] for n in range(5,14))
+                    pc=b''.join(result[SECTIONS[n]:SECTIONS[n]+SIZES[n]] for n in range(5,14))
                     at=4+FREE*80;record=pc[at:at+80]
                     key=pid ^ struct.unpack_from('<I',record,4)[0]
                     plain=b''.join(struct.pack('<I',n^key) for n in struct.unpack('<12I',record[32:]))
@@ -48,10 +51,12 @@ class Eggs(unittest.TestCase):
                     self.assertEqual(struct.unpack_from('<H',blocks[0],2)[0],0)
                     self.assertEqual(struct.unpack('<4H',blocks[1][:8]),moves)
                     self.assertEqual(record[19]&6,6)
+                    self.assertEqual((struct.unpack_from('<H',blocks[3],2)[0]>>7)&15,PROFILE[1])
+                    self.assertEqual(struct.unpack_from('<I',blocks[0],4)[0],struct.unpack_from('<I',ROM,PROFILE[4]+ROM[PROFILE[3]+meta['species']*28+19]*404+20)[0])
                     self.assertEqual(bool(struct.unpack_from('<I',blocks[3],8)[0] & (1<<31)),preset in gift.POKEPARK_PRESETS or preset in gift.PROMOTIONAL_PRESETS or preset in gift.PCNY_PRESETS)
                     self.assertEqual(blocks[0][9],meta['egg_cycles'])
                     self.assertEqual(record[20:27],SAVE[SECTIONS[0]:SECTIONS[0]+7])
-                    self.assertEqual(blocks[1][8:12],bytes(ROM[0x31C898+move*12+4] if move else 0 for move in moves))
+                    self.assertEqual(blocks[1][8:12],bytes(ROM[PROFILE[5]+move*12+4] if move else 0 for move in moves))
                     self.assertEqual((struct.unpack_from('<I',blocks[3],4)[0]>>30)&1,1)
                     self.assertEqual(struct.unpack_from('<H',record,28)[0],sum(struct.unpack('<24H',plain))&0xffff)
                     self.assertEqual(pc[:at],PC[:at]);self.assertEqual(pc[at+80:],PC[at+80:])
@@ -60,7 +65,7 @@ class Eggs(unittest.TestCase):
                     for i in range(at,at+80):allowed.add(SECTIONS[5+i//0xF80]+i%0xF80)
                     for n in range(5,14):allowed.update((SECTIONS[n]+0xFF6,SECTIONS[n]+0xFF7))
                     self.assertTrue(all(i in allowed for i,(a,b) in enumerate(zip(SAVE,result)) if a!=b))
-                    gift.active_sections(result)
+                    gift.active_sections(result, SIZES)
                     with tempfile.TemporaryDirectory() as directory:
                         p=Path(directory)/'egg.srm';p.write_bytes(result)
                         inspected=subprocess.run([str(helper),'inspect','--save',str(p)],capture_output=True,text=True)
@@ -84,11 +89,11 @@ class Eggs(unittest.TestCase):
         pc=bytearray(PC);at=4+49*80;pc[at:at+80]=bytes(80)
         baseline=bytearray(SAVE);cursor=0
         for n in range(5,14):
-            offset,size=SECTIONS[n],gift.SIZES[n]
+            offset,size=SECTIONS[n],SIZES[n]
             baseline[offset:offset+size]=pc[cursor:cursor+size];cursor+=size
             struct.pack_into('<H',baseline,offset+0xFF6,gift.checksum(baseline[offset:offset+size]))
         result,_=gift.prepare(bytes(baseline),ROM,'surf-pichu-egg',1,19)
-        gift.active_sections(result)
+        gift.active_sections(result, SIZES)
         with tempfile.TemporaryDirectory() as directory:
             p=Path(directory)/'crossing.srm';p.write_bytes(result)
             inspected=subprocess.run([str(helper),'inspect','--save',str(p)],capture_output=True,text=True)
@@ -99,7 +104,7 @@ class Eggs(unittest.TestCase):
     def test_protected_ui_flow_and_zip_cache_match(self):
         spec=importlib.util.spec_from_file_location('ui',sources/'butterflyos-save-trade-sdl.py')
         ui=importlib.util.module_from_spec(spec);spec.loader.exec_module(ui)
-        self.assertEqual(ui.rom_cache_digest(3,str(rom_path)),gift.ROM_SHA256)
+        self.assertEqual(ui.rom_cache_digest(3,str(rom_path)),__import__('hashlib').sha256(ROM).hexdigest())
         self.assertEqual(len(ui.GEN3_POKEPARK_EGGS),15)
         self.assertEqual({x[0] for x in ui.GEN3_POKEPARK_EGGS},set(gift.POKEPARK_PRESETS))
         self.assertEqual(len(ui.GEN3_PCNY_EGGS),6)
@@ -134,8 +139,8 @@ class Eggs(unittest.TestCase):
     def test_corrupt_occupied_wrong_rom_and_bounds_refused(self):
         changed=bytearray(SAVE);changed[SECTIONS[5]]^=1
         with self.assertRaises(ValueError):gift.prepare(changed,ROM,next(iter(gift.PRESETS)),BOX,SLOT)
-        occupied=next(i for i in range(420) if PC[4+i*80:4+(i+1)*80] != bytes(80))
-        with self.assertRaises(ValueError):gift.prepare(SAVE,ROM,next(iter(gift.PRESETS)),*divmod(occupied,30))
+        occupied_save,_=gift.prepare(SAVE,ROM,next(iter(gift.PRESETS)),BOX,SLOT)
+        with self.assertRaises(ValueError):gift.prepare(occupied_save,ROM,next(iter(gift.PRESETS)),BOX,SLOT)
         for box,slot in ((-1,0),(14,0),(0,-1),(0,30)):
             with self.assertRaises(ValueError):gift.prepare(SAVE,ROM,next(iter(gift.PRESETS)),box,slot)
         with self.assertRaises(ValueError):gift.prepare(SAVE,b'wrong',next(iter(gift.PRESETS)),BOX,SLOT)

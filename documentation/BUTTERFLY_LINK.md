@@ -259,10 +259,25 @@ AuroraTicket prototype still requires gameplay qualification before release.
 Gen III trading and copying remain available.
 See the [Gen III event checklist and testing status](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md).
 
+### Gen III egg game support (next image)
+
+All 39 egg options are available for these qualified English retail revisions:
+Emerald, Ruby/Sapphire revision 2, and FireRed/LeafGreen revision 1. Both raw
+ROMs and ZIPs containing one matching ROM work. Other languages, revisions and
+ROM hacks remain unsupported by the egg writer; it checks the full ROM hash.
+
+These are generated equivalents with expanded game eligibility, independent of
+the historical distribution's receiving-game restrictions. Each egg uses the
+selected destination game's ROM data, trainer identity, origin ID and save
+layout. No story flags or Pokédex unlocks are changed. Normal game restrictions
+on later evolution still apply. Emerald has gameplay coverage for the earlier
+batches; PCNY eggs and the newly added destination games need live hatch and
+save/reload confirmation.
+
 ### Gen III Box eggs (development test batch)
 
 **Local Transfer → Gen 3 → Gen 3 Box Eggs** offers four generated egg
-equivalents for the qualified English **Emerald** ROM/save:
+equivalents for the qualified English Gen III ROM/save pairs below:
 
 | Egg | Special move |
 | --- | --- |
@@ -271,7 +286,7 @@ equivalents for the qualified English **Emerald** ROM/save:
 | Skitty | Pay Day |
 | Pichu | Surf |
 
-Save normally and exit the game first. Choose Emerald, select a matching ROM
+Save normally and exit the game first. Choose your destination save, select a matching ROM
 (ZIP works), choose an egg and a free PC slot, review the hatchling, then confirm
 **Add Gift**. A backup is kept. Load the ordinary in-game save rather than an
 older auto-save/state; withdraw the Egg and walk with it to hatch normally at
@@ -280,14 +295,14 @@ level 5. Verify the special move, then save and reload normally.
 These eggs use your trainer identity, random personality/IVs and ROM-derived
 hatch counters. They do not unlock islands, advance story progress, recreate
 Pokémon Box deposit rewards or represent original distribution records.
-The user confirmed all four eggs working on the local test device. Other Gen III
-games are not qualified for egg delivery yet. See the [event plan](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md)
+The user confirmed all four eggs working in Emerald on the local test device.
+Hatching and save/reload in the other games still need gameplay confirmation. See the [event plan](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md)
 and [documented egg recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
 ### Gen III PokéPark eggs (development test batch)
 
 **Local Transfer → Gen 3 → PokéPark Eggs** adds 15 generated egg equivalents
-for the qualified English Emerald ROM/save. They use the same protected preview,
+for the qualified English Gen III ROM/save pairs. They use the same protected preview,
 free-slot selection, backup and Commit flow as the Box eggs. All hatch normally
 at level 5; no League progress or event-island access is needed.
 
@@ -320,7 +335,7 @@ are the reference. The user confirmed all 15 eggs working on the local test devi
 ### Gen III anniversary eggs (development test batch)
 
 **Local Transfer → Gen 3 → Anniversary Eggs** offers eight recipes and two
-separately labeled guaranteed-shiny Pichu variants for English Emerald:
+separately labeled guaranteed-shiny Pichu variants for the qualified English Gen III games:
 
 | Egg | Special move | Shiny policy |
 | --- | --- | --- |
@@ -336,7 +351,7 @@ separately labeled guaranteed-shiny Pichu variants for English Emerald:
 | Shiny Pichu | Wish | Guaranteed |
 
 The original 2003 anniversary distributions targeted Japanese Ruby. These are
-explicitly **expanded English Emerald equivalents**, using your trainer
+explicitly **expanded English Gen III equivalents**, using your trainer
 identity, the documented complete move recipes and random IVs. They do not
 recreate Japanese event records, distribution RNG or the distributor's trainer.
 The two shiny variants choose a personality that is shiny for your trainer ID;
@@ -351,7 +366,7 @@ hatch counters. The user confirmed all ten entries working on the local test dev
 
 **Local Transfer → Gen 3 → Promotional Eggs** offers Oddish with Leech Seed,
 Meowth with Petal Dance, Poliwag with Sweet Kiss and Bellsprout with Teeter Dance.
-These are expanded English Emerald equivalents of the 2004 Japanese
+These are expanded English Gen III equivalents of the 2004 Japanese
 FireRed/LeafGreen campaign, not original event records or distribution RNG.
 They use your trainer identity, random IVs and the normal shiny chance.
 All hatch at level 5 without held items. Use the same free-slot preview,
@@ -372,7 +387,7 @@ The user confirmed all four promotional eggs working on the local test device.
 | Chansey | Sweet Scent |
 | Kangaskhan | Yawn |
 
-These are expanded English Emerald equivalents of the 2004–2005 FireRed/LeafGreen
+These are expanded English Gen III equivalents of the 2004–2005 FireRed/LeafGreen
 PCNY campaign, not original event records or distribution RNG. They use your
 trainer identity, random IVs and the normal shiny chance. All hatch at level 5
 without held items. Use a free PC slot, preview and protected Commit, then hatch
