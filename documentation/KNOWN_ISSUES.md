@@ -38,7 +38,14 @@ still depends on the game and peripheral.
 
 ## Hardware qualification
 
-- Hardware and ROCKNIX fake suspend are disabled on the Flip safety baseline.
+- **USB charging wake (next image):** connecting or disconnecting USB power
+  while asleep briefly wakes the device for about 10 seconds to update charging
+  status and the LED. If the lid stays closed and **Sleep When Lid Closed** is
+  enabled, it automatically returns to deep sleep. Opening the lid or pressing
+  the power button keeps it awake. A retry limit prevents repeated wake/sleep
+  loops. Plug-in and unplug tests passed on the development device; this fix
+  is not included in the C3 test image.
+- Hardware and ROCKNIX fake suspend are disabled on the previous Flip safety baseline.
   The Suspend selector and Suspend System action are hidden so the unsafe
   `mem` mode cannot be re-enabled through the GUI. Closing the lid turns off
   only the LCD backlight; opening restores it without changing the selected

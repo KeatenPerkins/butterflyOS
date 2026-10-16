@@ -12,6 +12,47 @@ spec = importlib.util.spec_from_file_location('suspend_test', SOURCE)
 s = importlib.util.module_from_spec(spec); spec.loader.exec_module(s)
 
 class SuspendTests(unittest.TestCase):
+    def wake(self, online=0, **changes):
+        result = {'lid_closed': True, 'charger_online': online,
+                  'irqs': dict.fromkeys(s.WAKE_IRQ_NAMES, 0)}
+        result.update(changes)
+        return result
+
+    def test_only_charger_wakes_qualify(self):
+        before, after = self.wake(), self.wake(1)
+        self.assertTrue(s.charger_only_wake(before, after))
+        self.assertTrue(s.charger_only_wake(after, before))
+        self.assertFalse(s.charger_only_wake(before, before))
+        for key in ('Lid', 'rk805_pwrkey_fall', 'rk805_pwrkey_rise'):
+            changed = self.wake(1)
+            changed['irqs'][key] += 1
+            self.assertFalse(s.charger_only_wake(before, changed))
+        self.assertFalse(s.charger_only_wake(before, self.wake(1, lid_closed=False)))
+        self.assertFalse(s.charger_only_wake(before, self.wake(1, irqs={})))
+        self.assertFalse(s.charger_only_wake(before, self.wake(None)))
+
+    def test_retry_limit_and_user_cancel(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory);flag=root/'enabled';flag.touch()
+            before, after = self.wake(), self.wake(1)
+            cycle=root/'cycle';cycle.mkdir()
+            def report(seconds=30):
+                (cycle/'after.json').write_text(__import__('json').dumps({
+                    'wake_inputs_before':before, 'wake_inputs_after':after,
+                    'sleep_elapsed_seconds':seconds}))
+            report()
+            with patch.object(s,'ENABLED',flag), patch.object(s,'run_cycle',return_value=str(cycle)) as run, patch.object(s.time,'sleep'), patch.object(s,'wake_inputs',return_value=after):
+                s.run_lid_cycles()
+                self.assertEqual(run.call_count,4)  # First sleep plus at most three retries.
+                report(1)
+                run.reset_mock();s.run_lid_cycles();self.assertEqual(run.call_count,2)
+                report()
+                run.reset_mock()
+                with patch.object(s,'wake_inputs',return_value=self.wake(1,lid_closed=False)):
+                    s.run_lid_cycles();self.assertEqual(run.call_count,1)
+                run.reset_mock();flag.unlink()
+                s.run_lid_cycles();self.assertEqual(run.call_count,1)
+
     def test_hardware_toggle_cli(self):
         with tempfile.TemporaryDirectory() as directory:
             enabled = Path(directory)/'enabled'
