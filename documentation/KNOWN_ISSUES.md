@@ -38,6 +38,10 @@ still depends on the game and peripheral.
 
 ## Hardware qualification
 
+- **Quick lid close/reopen (next image):** if you close and reopen the lid
+  quickly, the lid-open sensor event may be missed while the device enters
+  sleep, leaving it asleep with the lid open. Close the lid again, then reopen
+  it to wake the device.
 - **USB charging wake (next image):** connecting or disconnecting USB power
   while asleep briefly wakes the device for about 10 seconds to update charging
   status and the LED. If the lid stays closed and **Sleep When Lid Closed** is
