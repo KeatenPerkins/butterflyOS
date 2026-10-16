@@ -1,8 +1,8 @@
 #!/usr/bin/python3
-"""Stage generated Box-style eggs for qualified English Emerald saves.
+"""Stage generated gift eggs for qualified English Emerald saves.
 
 No original distribution records or ROM text/art are bundled. Numeric recipes:
-PKHeX EncountersWC3.cs, Box eggs. Layout/encryption: pret/pokeemerald
+PKHeX EncountersWC3.cs, Box and PokéPark eggs. Layout/encryption: pret/pokeemerald
 include/{pokemon,global}.h, src/{pokemon,save}.c. Output is always a new file.
 """
 import argparse
@@ -26,6 +26,25 @@ PRESETS = {
     'pay-day-skitty-egg': (300, (45, 33, 39, 6)),
     'surf-pichu-egg': (172, (84, 204, 57, 0)),
 }
+# PokéPark 2005 Wonder Card species/moves, one generated equivalent per recipe.
+POKEPARK_PRESETS = {
+    'pokepark-psyduck-egg': (54, (346, 10, 39, 300)),
+    'pokepark-pichu-egg': (172, (84, 204, 266, 0)),
+    'pokepark-igglybuff-egg': (174, (47, 204, 111, 321)),
+    'pokepark-corsola-egg': (222, (33, 300, 0, 0)),
+    'pokepark-taillow-egg': (276, (64, 45, 116, 297)),
+    'pokepark-surskit-egg': (283, (145, 300, 0, 0)),
+    'pokepark-whismur-egg': (293, (1, 253, 298, 0)),
+    'pokepark-skitty-egg': (300, (45, 33, 39, 205)),
+    'pokepark-plusle-egg': (311, (45, 86, 346, 0)),
+    'pokepark-minun-egg': (312, (45, 86, 300, 0)),
+    'pokepark-spoink-egg': (325, (150, 253, 0, 0)),
+    'pokepark-spinda-egg': (327, (33, 253, 47, 0)),
+    'pokepark-cacnea-egg': (331, (40, 43, 71, 227)),
+    'pokepark-corphish-egg': (341, (145, 346, 0, 0)),
+    'pokepark-wynaut-egg': (360, (150, 204, 227, 321)),
+}
+PRESETS.update(POKEPARK_PRESETS)
 SIZES = (0xF2C, 0xF80, 0xF80, 0xF80, 0xF08) + (0xF80,) * 8 + (0x7D0,)
 ORDERS = tuple(itertools.permutations(range(4)))
 
@@ -66,7 +85,7 @@ def read_rom(path):
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
     data = module.read_gen3_rom(path)
     if hashlib.sha256(data).hexdigest() != ROM_SHA256:
-        raise ValueError('This first egg batch requires the qualified English Emerald ROM.')
+        raise ValueError('These egg batches require the qualified English Emerald ROM.')
     return data
 
 
@@ -95,6 +114,8 @@ def make_egg(rom, save2, preset):
     ivs = secrets.randbits(30) | (1 << 30)
     if stats[23] and personality & 1: ivs |= 1 << 31
     struct.pack_into('<I', misc, 4, ivs)
+    if preset in POKEPARK_PRESETS:
+        struct.pack_into('<I', misc, 8, 1 << 31)  # Modern fateful-encounter flag.
     blocks = (growth, attacks, effort, misc)
     plain = b''.join(blocks[i] for i in ORDERS[personality % 24])
     struct.pack_into('<H', header, 28, sum(struct.unpack('<24H', plain)) & 0xFFFF)
@@ -139,7 +160,7 @@ def main():
     args=parser.parse_args()
     inspected=subprocess.run([args.helper,'inspect','--save',str(args.save)],capture_output=True,text=True)
     if inspected.returncode or 'save_type=Emerald\n' not in inspected.stdout:
-        raise ValueError('This first egg batch supports Emerald saves only.')
+        raise ValueError('These egg batches support Emerald saves only.')
     original=args.save.read_bytes()
     result,metadata=prepare(original,read_rom(args.rom),args.preset,args.box,args.slot)
     if args.save.read_bytes()!=original: raise ValueError('Save changed during preparation.')

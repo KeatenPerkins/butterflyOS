@@ -27,7 +27,7 @@ BOX, SLOT = divmod(FREE,30)
 
 
 class Eggs(unittest.TestCase):
-    def test_four_recipes_all_24_record_orders(self):
+    def test_all_recipes_all_24_record_orders(self):
         for preset,(national,moves) in gift.PRESETS.items():
             for pid in range(24):
                 with self.subTest(preset=preset,pid=pid), patch.object(gift.secrets,'randbits',side_effect=[pid,0x1234567]):
@@ -42,6 +42,10 @@ class Eggs(unittest.TestCase):
                     self.assertEqual(struct.unpack_from('<H',blocks[0],2)[0],0)
                     self.assertEqual(struct.unpack('<4H',blocks[1][:8]),moves)
                     self.assertEqual(record[19]&6,6)
+                    self.assertEqual(bool(struct.unpack_from('<I',blocks[3],8)[0] & (1<<31)),preset in gift.POKEPARK_PRESETS)
+                    self.assertEqual(blocks[0][9],meta['egg_cycles'])
+                    self.assertEqual(record[20:27],SAVE[SECTIONS[0]:SECTIONS[0]+7])
+                    self.assertEqual(blocks[1][8:12],bytes(ROM[0x31C898+move*12+4] if move else 0 for move in moves))
                     self.assertEqual((struct.unpack_from('<I',blocks[3],4)[0]>>30)&1,1)
                     self.assertEqual(struct.unpack_from('<H',record,28)[0],sum(struct.unpack('<24H',plain))&0xffff)
                     self.assertEqual(pc[:at],PC[:at]);self.assertEqual(pc[at+80:],PC[at+80:])
@@ -79,6 +83,9 @@ class Eggs(unittest.TestCase):
         spec=importlib.util.spec_from_file_location('ui',sources/'butterflyos-save-trade-sdl.py')
         ui=importlib.util.module_from_spec(spec);spec.loader.exec_module(ui)
         self.assertEqual(ui.rom_cache_digest(3,str(rom_path)),gift.ROM_SHA256)
+        self.assertEqual(len(ui.GEN3_POKEPARK_EGGS),15)
+        self.assertEqual({x[0] for x in ui.GEN3_POKEPARK_EGGS},set(gift.POKEPARK_PRESETS))
+        self.assertEqual({x[0] for x in ui.GEN3_BOX_EGGS}|{x[0] for x in ui.GEN3_POKEPARK_EGGS},set(gift.PRESETS))
         with tempfile.TemporaryDirectory() as directory:
             d=Path(directory);ui.STATE_ROOT=str(d/'sessions');save=d/'test.srm'
             for scenario in ('cancel','commit','changed'):

@@ -284,6 +284,39 @@ The user confirmed all four eggs working on the local test device. Other Gen III
 games are not qualified for egg delivery yet. See the [event plan](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md)
 and [documented egg recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
+### Gen III PokéPark eggs (development test batch)
+
+**Local Transfer → Gen 3 → PokéPark Eggs** adds 15 generated egg equivalents
+for the qualified English Emerald ROM/save. They use the same protected preview,
+free-slot selection, backup and Commit flow as the Box eggs. All hatch normally
+at level 5; no League progress or event-island access is needed.
+
+| Egg | Notable moves |
+| --- | --- |
+| Psyduck | Water Sport, Mud Sport |
+| Pichu | Follow Me |
+| Igglybuff | Tickle |
+| Corsola | Mud Sport |
+| Taillow | FeatherDance |
+| Surskit | Mud Sport |
+| Whismur | Teeter Dance |
+| Skitty | Rollout |
+| Plusle | Water Sport |
+| Minun | Mud Sport |
+| Spoink | Uproar |
+| Spinda | Sing |
+| Cacnea | Encore |
+| Corphish | Water Sport |
+| Wynaut | Tickle |
+
+These follow the documented 2005 Wonder Card species/move recipes, with your
+trainer identity, random personality/IVs, no held item and the modern
+fateful-encounter flag. They are generated equivalents, not original event
+records; distributor scripts, Wonder Cards and event RNG are not recreated.
+Duplicate delivery methods are grouped into one recipe per species. The
+[full move recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs)
+are the reference. In-game hatch and save/reload testing is pending for this batch.
+
 ## Opening Butterfly Link
 
 Butterfly Link copies or exchanges Pokémon between selected emulator save files.

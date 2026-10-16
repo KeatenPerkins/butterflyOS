@@ -61,7 +61,11 @@ References: [game-based distribution catalog](https://bulbapedia.bulbagarden.net
 - [ ] Wish Egg distributions: enumerate all documented recipes and eligibility
   from the regional catalogs and primary encounter definitions before choosing
   batches. Do not confuse PCNY adult Wish gifts with egg distributions.
-- [ ] Japanese campaign eggs: inventory distinct movesets and hatch behavior.
+- [ ] PokéPark 2005 eggs: 15 generated equivalents implemented for Emerald;
+  automated checks pass, with gameplay hatch/save/reload qualification pending.
+  The 15 recipes are listed
+  in the [user guide](BUTTERFLY_LINK.md#gen-iii-poképark-eggs-development-test-batch).
+- [ ] Other Japanese campaign eggs: inventory distinct movesets and hatch behavior.
 
 Deliver real eggs, leaving normal hatching to the game. Test special-move
 retention, hatch identity, Pokédex behavior and save/reload. The four Box eggs
@@ -200,3 +204,15 @@ gate. Gameplay testing needs a separate copy of the user's island-ready save:
 Enable, ferry travel from Vermilion, puzzle, encounter/capture, in-game save/reload,
 then Replay with prior Pokémon preserved. Start Game must load the ordinary save,
 not an old save state or Auto Resume.
+
+## PokéPark development batch validation
+
+The shared egg generator now contains 19 recipes: four Box eggs and 15 PokéPark
+2005 equivalents. All 456 recipe/record-order combinations passed native-reader
+validation on disposable saves on the local test device. Checks include native
+save/record checksums, exact write boundaries, moves and PP, egg bits, trainer
+identity, ROM hatch counters and the PokéPark modern fateful-encounter flag.
+Sector-crossing records, occupied-slot/corrupt-save/wrong-ROM refusal, exclusive
+output, original preservation, cancellation, verified backup/Commit and
+changed-after-preview/repeated-Commit refusal also pass. In-game testing is
+complete for the four Box eggs and pending for the 15 PokéPark eggs.
