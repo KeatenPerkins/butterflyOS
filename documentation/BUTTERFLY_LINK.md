@@ -272,8 +272,11 @@ to an empty PC slot in any of the five qualified English Gen III games.
 | Deoxys, SPACE C/DOEL recipe | 70 | Cosmic Power, Recover, Psycho Boost, Hyper Beam | None | Never |
 | Shiny Zigzagoon, Berry Program recipe | 5 | Tackle, Growl, Tail Whip | Liechi Berry | Guaranteed |
 
-These are **generated English equivalents**, with your trainer identity and
-random IVs. They do not reproduce distributor identities, original records or
+These are **generated English equivalents**, with original trainer **BLINK**,
+a trainer ID distinct from the recipient, and random IVs. This selects the
+normal **fateful encounter** memo for new direct gifts in the supported games.
+They count as traded Pokémon for normal obedience and experience rules. Eggs
+retain the recipient trainer and their normal in-game hatch information. They do not reproduce distributor identities, original records or
 historical RNG correlations; Jirachi's normal shiny chance is not a reproduction
 of the bonus disc's constrained shiny seeds. Duplicate campaigns with the same
 gameplay recipe are grouped. Celebi uses the PokéPark level-30 recipe in this

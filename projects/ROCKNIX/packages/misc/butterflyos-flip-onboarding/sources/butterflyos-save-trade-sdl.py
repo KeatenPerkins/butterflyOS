@@ -2356,7 +2356,7 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
                         "direct": (GEN3_DIRECT_GIFTS, "GEN 3 GIFTS")}[gen3_group]
         eggs = gen3_group != "direct"
         if gen3_group == "direct":
-            notice(frontend, title, "Generated English gift equivalents using your trainer identity. Arrive already hatched in a free PC slot; no story flags or island events are changed. Jirachi has normal shiny chance, Zigzagoon is shiny, the other three cannot be shiny.")
+            notice(frontend, title, "Generated English gift equivalents from trainer BLINK, with a distinct trainer ID for the fateful-encounter memo. Normal traded-Pokemon obedience and experience rules apply. Arrive already hatched in a free PC slot; no story flags or island events are changed. Jirachi has normal shiny chance, Zigzagoon is shiny, the other three cannot be shiny.")
         if gen3_group == "pcny":
             notice(frontend, title, "Expanded English Gen III equivalents of the FireRed/LeafGreen PCNY Wish campaign. Six eggs with Wish and a second special move; not original event records.")
         if gen3_group == "promotional":
@@ -2374,8 +2374,9 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
         eggs = category == 0
         gifts = egg_gifts if eggs else adult_gifts
         title = "PCNY EGGS" if eggs else "PCNY SHINY ADULTS"
+    identity = "trainer BLINK" if generation == 3 and gen3_group == "direct" else "your trainer identity"
     notice(frontend, title,
-           "Generated equivalents, not original official distributions. Gifts use your ROM's data and your trainer identity. Choose a free PC slot, review, then Commit. Close the game first. No story flags are changed.")
+           "Generated equivalents, not original official distributions. Gifts use your ROM's data and %s. Choose a free PC slot, review, then Commit. Close the game first. No story flags are changed." % identity)
     destination = choose_save(frontend, generation, "GIFT DESTINATION SAVE")
     if not destination:
         return
@@ -2414,7 +2415,7 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
         gift = next(record for record in metadata[3] if record["box"] == box and record["slot"] == slot)
         _enrich_rom_names([gift], cache)
         if generation == 3:
-            gift["name"] = ("SHINY " if gift.get("shiny") else "") + message  # Saved record remains an Egg.
+            gift["name"] = ("SHINY " if gift.get("shiny") else "") + message  # Preview the ROM-derived species name; do not alter the saved nickname.
         directory = "front-shiny" if gift.get("shiny") else "front"
         sprite = _read_cache_png(os.path.join(cache, directory, "%03d.png" % gift["species"]))
         while True:

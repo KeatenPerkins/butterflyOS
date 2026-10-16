@@ -40,7 +40,8 @@ with tempfile.TemporaryDirectory() as directory:
   if not rom_path:continue
   rom=g.read_rom(rom_path);profile=g.rom_profile(rom);sizes=g.section_sizes(profile[0]);original=save.read_bytes();sections=g.active_sections(original,sizes)
   pc=b''.join(original[sections[n]:sections[n]+sizes[n]] for n in range(5,14));free=next(i for i in range(420) if pc[4+i*80:4+(i+1)*80]==bytes(80));box,slot=divmod(free,30);at=4+free*80
-  ot=struct.unpack_from('<I',original,sections[0]+10)[0]
+  recipient_ot=struct.unpack_from('<I',original,sections[0]+10)[0]
+  ot=recipient_ot^1
   for preset,(national,level,moves,items,policy,fateful) in expected.items():
    for order in range(24):
     if policy=='always':
@@ -64,7 +65,9 @@ with tempfile.TemporaryDirectory() as directory:
     assert not struct.unpack_from('<I',blocks[3],4)[0]&(1<<30)
     assert bool(struct.unpack_from('<I',blocks[3],8)[0]&(1<<31))==fateful
     origins=struct.unpack_from('<H',blocks[3],2)[0];assert origins&127==level and origins>>7&15==profile[1]
-    assert record[20:27]==original[sections[0]:sections[0]+7]
+    assert record[20:27]==bytes((0xBC,0xC6,0xC3,0xC8,0xC5,0xFF,0xFF))
+    assert struct.unpack_from('<I',record,4)[0]==ot and (ot&65535)!=(recipient_ot&65535)
+    assert blocks[3][1]==255  # Foreign OT + event location selects fateful encounter in Emerald.
     assert edited[:at]==pc[:at] and edited[at+80:]==pc[at+80:]
     allowed={sections[5+i//0xF80]+i%0xF80 for i in range(at,at+80)}|{sections[n]+j for n in range(5,14) for j in (0xFF6,0xFF7)}
     assert all(i in allowed for i,(a,b) in enumerate(zip(original,result)) if a!=b)

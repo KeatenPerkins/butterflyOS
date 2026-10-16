@@ -318,3 +318,22 @@ Six existing egg regression groups also passed (all 39 egg recipes, one layout
 each, plus sector-boundary, shiny, corruption and protected-flow checks).
 Original fixture saves remained unchanged. Live frontend and gift helper
 executable permissions were verified. In-game gift qualification remains pending.
+
+
+### Direct gift trainer memo revision
+
+New already-hatched gifts now use custom original trainer BLINK and an ID whose
+low 16 bits differ from the recipient. With met location 255 and nonzero met
+level, this selects the native fateful-encounter memo in supported Gen III games.
+Shiny generation is calculated against the actual BLINK ID, preserving guaranteed
+shiny Zigzagoon and the never-shiny policies. Normal traded-Pokémon obedience and
+experience rules apply. Eggs retain the player's trainer and normal hatch data.
+Existing Pokémon in user saves are not rewritten by this change.
+
+Trainer-memo revision validation passed: all 600 direct-gift/layout/game
+combinations and 25 protected commits passed again with BLINK's actual trainer
+ID, including guaranteed-shiny/native-reader checks. Tests assert the distinct
+low trainer ID, BLINK name, event location 255 and nonzero met level. Six egg
+regression groups passed, confirming eggs retain their original identity policy.
+The memo branch was checked against pret's Ruby, Emerald and FireRed summary
+implementations; visual in-game confirmation of the revised text is pending.
