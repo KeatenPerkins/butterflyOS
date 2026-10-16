@@ -103,7 +103,7 @@ PRESETS.update(PROMOTIONAL_PRESETS)
 PCNY_PRESETS = {'pcny-farfetchd-egg': (83, (281, 273, 0, 0)), 'pcny-drowzee-egg': (96, (187, 273, 0, 0)), 'pcny-exeggcute-egg': (102, (230, 273, 0, 0)), 'pcny-lickitung-egg': (108, (215, 273, 0, 0)), 'pcny-chansey-egg': (113, (230, 273, 0, 0)), 'pcny-kangaskhan-egg': (115, (281, 273, 0, 0))}
 PRESETS.update(PCNY_PRESETS)
 
-# Numeric gameplay equivalents; recipient identity, never forged distributor records.
+# Numeric gameplay equivalents; custom BLINK identity, not distributor records.
 # national species, level, complete moves, possible held items, shiny policy, fateful
 DIRECT_PRESETS = {
     'gift-jirachi': (385, 5, (273, 93, 156, 0), (169, 170), 'random', False),
@@ -186,13 +186,16 @@ def make_egg(rom, save2, preset):
     stats = rom[stats_at+species*28:stats_at+(species+1)*28]
     exp = struct.unpack_from('<I', rom, exp_at+stats[19]*404+level*4)[0]
     ot_id = struct.unpack_from('<I', save2, 10)[0]
+    # A distinct low trainer ID guarantees the event-memo branch even for a
+    # recipient whose name happens to be BLINK. Recalculate shininess for this OT.
+    if not egg: ot_id ^= 1
     personality = choose_personality(ot_id, preset)
     header = bytearray(32)
     struct.pack_into('<II', header, 0, personality, ot_id)
     encoded_name = rom[names_at+species*11:names_at+(species+1)*11]
     header[8:18] = (bytes((0xBF, 0xC1, 0xC1, 0xFF)) + b'\xff'*6) if egg else encoded_name[:10]
     header[18:20] = bytes((2, 6 if egg else 2))  # English; hasSpecies; isEgg only for eggs.
-    header[20:27] = save2[:7]
+    header[20:27] = save2[:7] if egg else bytes((0xBC, 0xC6, 0xC3, 0xC8, 0xC5, 0xFF, 0xFF))  # BLINK
     growth, attacks, effort, misc = (bytearray(12) for _ in range(4))
     struct.pack_into('<HHI', growth, 0, species, held, exp)
     growth[9] = stats[17] if egg else stats[18]  # Egg cycles or base friendship.
