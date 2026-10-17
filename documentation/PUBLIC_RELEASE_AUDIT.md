@@ -45,7 +45,7 @@ require fresh checks; none of these records proves universal compatibility.
 - Published as Latest stable, with no draft/prerelease flag, after the user
   boot-tested and approved the full image. All nine uploaded asset sizes and
   GitHub SHA-256 digests matched local verified files. The public update
-  manifest matched, and `.17` discovered `20261008` via a read-only check.
+  manifest matched, and `the local test device` discovered `20261008` via a read-only check.
   No device download, installation, or reboot was initiated.
 - Binary source: `4db62112ad358dc290f47c4cbe6fd157e0e6afb4`.
 - Build: `CUSTOM_VERSION=20261008 make docker-RK3566-Miyoo-Flip-V2-aarch64`;
@@ -82,7 +82,7 @@ require fresh checks; none of these records proves universal compatibility.
 
 - Published as Latest stable, with no draft/prerelease flag. All nine uploaded
   asset sizes and GitHub SHA-256 digests matched local verified files. The public
-  update manifest matched, and `.17` returned `20261007` from its update check.
+  update manifest matched, and `the local test device` returned `20261007` from its update check.
   No device download, installation, or reboot was initiated.
 
 - Binary source: `886a8696d438ef9ec428de72c68ca48e63a51418`; updater build ID `20261007`.
@@ -143,7 +143,7 @@ menu and SSH banner changes; its hashes do not identify the bundled release.
   continue recommending at least 3 GB free on the OS card.
 - Device qualification: live GB measured around 47 FPS before the fix and
   60 FPS afterward. The user confirmed GB, GBA, and NES work with the fix.
-  Both device configurations were validated; .17 was subsequently reverted
+  Both device configurations were validated; the local test device was subsequently reverted
   at the user's request to test the published Tools installer. The new full
   image has passed host checks but has not yet been installed on hardware.
 - Full check records are supplied as build-verification.json. The release
@@ -403,7 +403,7 @@ corrections, removal impacts, and the free-release policy are recorded in
 ## v1.0.4 — tested build 20261013
 
 The stable candidate is the exact `local-test-20261013-r2` image that the user
-confirmed passed live testing on .17. All 668 package steps, image filesystem
+confirmed passed live testing on the local test device. All 668 package steps, image filesystem
 and payload checks, and 23 lid-shutdown tests passed. Image SHA-256:
 `999473fa8943f99d00ffc2f9af476eea0825005305c11421d02817fd4f52b991`.
 The image embeds build-time HEAD `bcf7a8a58f4c7251e6bac597198eb1477e0fc7f3`

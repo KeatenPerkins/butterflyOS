@@ -31,7 +31,7 @@ The first test patch is
   initial charge. There is no new periodic polling or logging loop.
 
 The existing charge-counter latching fix and off-state SYS_CAN_SD patch remain
-in place. A read-only snapshot of .17 showed register 0xe6 at 0x40, with
+in place. A read-only snapshot of the local test device showed register 0xe6 at 0x40, with
 SYS_CAN_SD clear. No additional PMIC register writes were made during diagnosis.
 The initial test retains the 30-minute recalibration policy and existing
 charging voltage/current settings.
@@ -55,7 +55,7 @@ contains the diagnostic marker, uses kernel release 7.0.2 and has the same
 configuration and all 13,159 exported kernel-symbol versions as the original.
 `KERNEL-battery-diagnostic`, its checksums, the known-good
 `KERNEL-original-20261010` and `verification.json` are in the artifact directory.
-The diagnostic kernel was installed on .17 on October 8. Its first normal
+The diagnostic kernel was installed on the local test device on October 8. Its first normal
 reboot passed with no failed systemd services. The boot record retained the
 charge-counter estimate (saved 80.490%, selected 80.366%, off_count=0), and the
 first displayed reading was 80%. Both the active kernel and boot-partition
@@ -65,7 +65,7 @@ and gameplay qualification remain pending. The kernel has not been published.
 
 ## First device tests
 
-Use .17 for development. Keep the known-good kernel and its checksum available
+Use the local test device for development. Keep the known-good kernel and its checksum available
 on the PC and boot card before trying a kernel replacement. This experiment
 changes the SD boot kernel, not the internal preloader. A kernel boot test
 requires a reboot; the driver is built in and cannot be replaced live.
@@ -100,7 +100,7 @@ reinstalled on the test card. A charger connected during either phase prevents
 a meaningful powered-off drain comparison. No software can log measurements
 while this device is fully powered off.
 
-## First long-off result on .17
+## First long-off result on the local test device
 
 The October 8 normal shutdown/boot interval was about 52 minutes. The boot
 record reported `off_count=5` and `source=off-time-voltage`: saved state of
@@ -116,7 +116,7 @@ correction in this run. Counter retention/calibration needs investigation
 alongside the voltage policy. Captures and analysis are in
 `device-tests/17-long-off/` under the artifact directory.
 
-## Short-off comparison on .17
+## Short-off comparison on the local test device
 
 The next shutdown-to-boot log interval was approximately 6 minutes 42 seconds,
 including shutdown/startup. With `off_count=0`, the driver selected
@@ -132,7 +132,7 @@ behavior and PMIC shutdown state before changing the long-off policy.
 
 ## Counter and shutdown follow-up
 
-Read-only PMIC snapshot on .17 showed OFF_SOURCE=0x08 (DEV_OFF),
+Read-only PMIC snapshot on the local test device showed OFF_SOURCE=0x08 (DEV_OFF),
 CHRG_TERM=0x40 (SYS_CAN_SD clear), and identical CAL_OFFSET/IOFFSET values
 0x8049. The DTS sense resistor is 10 mOhm, matching the locally archived
 stock firmware's sample_res=10. These checks do not measure physical off-state
@@ -152,7 +152,7 @@ Sources: [RK817 datasheet, pp. 125 and 133](https://rockchip.fr/RK817%20datashee
 Local historical current tests are in butterflyOS-tools/miyoo-flip-reference/
 docs/miyoo-flip-power-off-investigation.md, section 18.
 
-A temporary .17-only systemd recorder now captures power readings and PMIC
+A temporary the local test device-only systemd recorder now captures power readings and PMIC
 registers at service startup and shutdown, preserving each record under its
 boot ID in /storage/battery-kernel-captures. It performs no periodic polling
 and writes no PMIC registers. Source copies are in the diagnostic artifact
@@ -278,7 +278,7 @@ preserves normal eight-second monitoring and charging limits.
 
 The isolated full kernel build passed, configuration and exported kernel
 symbol CRCs matched the previous test kernel, and patch checks passed.
-After installation on .17, normal boot passed with no failed services. The
+After installation on the local test device, normal boot passed with no failed services. The
 first unplug test updated battery status 0.88 seconds after the online change;
 replug took 1.18 seconds, compared with the prior 5.27 seconds. The user
 observed icon disappearance in about 2.5–3 seconds and appearance in about

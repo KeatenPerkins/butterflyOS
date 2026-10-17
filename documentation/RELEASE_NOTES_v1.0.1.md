@@ -46,7 +46,7 @@ For a quick fix on v1.0.0 without a full OS update, use the separate
 ## Validation scope
 
 GB was measured near 47 FPS before the fix and near 60 FPS afterward on
-`.17`; increasing CPU/GPU clocks did not resolve the original slowdown.
+`the local test device`; increasing CPU/GPU clocks did not resolve the original slowdown.
 The user also confirmed GBA and NES work with the corrected audio setting.
 The persistent configuration was validated on both devices. The rebuilt
 release's artifact checks are recorded separately; the live configuration

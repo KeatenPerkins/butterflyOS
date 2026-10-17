@@ -2,7 +2,7 @@
 
 The final documented-catalog expansion adds 79 actual eggs and 16 shiny adult
 gifts. The user confirmed all 95 additions and the split egg/adult menu working
-in Crystal on .17. Together with earlier batches, all 104 PCNY eggs, 16 shiny
+in Crystal on the local test device. Together with earlier batches, all 104 PCNY eggs, 16 shiny
 adult gifts and 15 Japanese Mystery Eggs passed user gameplay testing.
 
 Reopen Butterfly Link → Local transfer → Gen 2 → PCNY Gifts. Choose **Special-Move Eggs** (104) or **Shiny Adult Gifts** (16). New eggs

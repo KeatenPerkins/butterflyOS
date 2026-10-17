@@ -115,7 +115,7 @@ a free PC slot, withdraw it and walk with it in your party to hatch it normally.
 The preview shows the hatchling. Hatch counters come from your ROM; DVs are
 random, including the normal shiny chance. Eggs are not registered in the
 Pokédex before hatching, and Blink requires hatching before transfer selection.
-The user confirmed all fifteen egg recipes work in-game in Crystal on .17. These are generated equivalents, rather than
+The user confirmed all fifteen egg recipes work in-game in Crystal on the local test device. These are generated equivalents, rather than
 an emulation of the Japanese distribution hardware.
 The additions are Petal Dance Psyduck, Chikorita, Pichu, Cleffa, Igglybuff and
 Smoochum; Swift Cleffa; Belly Drum Wooper; Encore Phanpy; and Metronome Smoochum.
@@ -137,9 +137,9 @@ Both SRAM box representations are updated when adding to the current box;
 native primary/backup checksums and gift Pokédex bits are maintained.
 
 Automated gift checks cover all fourteen boxes across all three games. The user
-confirmed all three gifts work in Crystal on .17. Gold/Silver have automated
+confirmed all three gifts work in Crystal on the local test device. Gold/Silver have automated
 and disposable-save device coverage. The Celebi gift passed user testing in
-Gold on .17, including withdrawal and save/reload persistence; Silver Celebi
+Gold on the local test device, including withdrawal and save/reload persistence; Silver Celebi
 and broader Gold/Silver gift gameplay still need qualification.
 
 ### PCNY gifts (catalog expansion; unreleased)
@@ -154,7 +154,7 @@ natural shiny chance rather than recreating the historical machine's enhanced
 shiny odds. Specifically named shiny adult gifts are guaranteed shiny and use
 their documented levels, rather than being eggs. The documented PCNY recipes are implemented except the incomplete non-shiny
 Suicune entry; overlapping Mystery Egg recipes
-are already offered separately. The first fifteen PCNY eggs passed user testing in Crystal on .17, including
+are already offered separately. The first fifteen PCNY eggs passed user testing in Crystal on the local test device, including
 hatching, special moves and save/reload. The second batch was:
 
 | Egg | Special move |
@@ -171,7 +171,7 @@ hatching, special moves and save/reload. The second batch was:
 | Marill | Dizzy Punch |
 
 The third batch adds ten recipes, all confirmed working by user testing in
-Crystal on .17:
+Crystal on the local test device:
 
 | Egg | Special move |
 | --- | --- |
@@ -187,7 +187,7 @@ Crystal on .17:
 | Elekid | Dizzy Punch |
 
 The remaining documented catalog adds 79 eggs and 16 shiny adults, all
-confirmed working by user testing in Crystal on .17. Choose **Special-Move Eggs** (104 recipes) or **Shiny Adult Gifts**
+confirmed working by user testing in Crystal on the local test device. Choose **Special-Move Eggs** (104 recipes) or **Shiny Adult Gifts**
 (16 recipes). New eggs append after the first 25 within the egg list. See the [remaining-gift test checklist](BUTTERFLY_LINK_GEN2_PCNY_CHECKLIST.md)
 for every addition, levels, testing steps and catalog coverage.
 
@@ -208,7 +208,7 @@ Existing eggs, Pokemon, items, breeding progress and Celebi quest state remain
 unchanged. The qualified retail ROM supplies the dialogue, egg choice, Dizzy
 Punch movesets, shiny odds and hatching. No donor egg records are bundled.
 Automated preservation and protected-Commit checks pass. Native Odd Egg
-delivery and replay also passed user testing on .17.
+delivery and replay also passed user testing on the local test device.
 [Native Day-Care script](https://github.com/pret/pokecrystal/blob/master/maps/DayCare.asm).
 
 ### Crystal Celebi quest (v1.0.3)
@@ -231,15 +231,15 @@ and follow the game's normal timing and quest progression to Ilex Forest.
 The tool changes verified quest state; the game supplies the dialogue,
 animation and encounter. It bundles no ROM content or Pokémon records.
 
-Enable and Replay both passed user testing on .17: Goldenrod delivery, Kurt
+Enable and Replay both passed user testing on the local test device: Goldenrod delivery, Kurt
 progression and the shrine encounter. Kurt's waiting timer was cleared manually
 for testing; the normal next-day wait is retained in the tool. Automated save,
 backup, cancellation and preservation tests also pass. All fifteen documented Japanese Mystery Egg species/moveset recipes are
-implemented and passed user testing in Crystal on .17. Odd Egg delivery and
+implemented and passed user testing in Crystal on the local test device. Odd Egg delivery and
 replay also passed user testing. Gold/Silver Celebi and the documented PCNY gifts
 are implemented; Celebi passed the user
-PC/save/reload test in Gold on .17. All 104 PCNY eggs, 16 shiny adult gifts and the split egg/adult menu passed
-user testing in Crystal on .17. Silver Celebi still needs gameplay qualification.
+PC/save/reload test in Gold on the local test device. All 104 PCNY eggs, 16 shiny adult gifts and the split egg/adult menu passed
+user testing in Crystal on the local test device. Silver Celebi still needs gameplay qualification.
 Non-shiny Suicune lacks documented recipe data.
 See [Gen II event scope and validation](BUTTERFLY_LINK_GEN2_EVENTS_PLAN.md).
 
