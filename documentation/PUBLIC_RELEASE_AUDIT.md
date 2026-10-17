@@ -5,6 +5,20 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## October 17, 2026 stable release: v1.1.0
+
+Exact tested image source: `7c3d4c994725ee1d71ab85f039cfac97251494cf`.
+Compressed image SHA-256: `0219a31d00a3315f6677516ee2c9d617fe7cc75e2e041ac88eb2f2d3429adfb5`.
+All 668 package steps, gzip/GPT/FAT/ext4, boot payload consistency and packaged
+content checks passed. Complete written SD-card bytes matched read-back.
+User approved the local test device after long-term testing; all three recorded
+sleep cycles passed both storage probes, including approximately 8h58m asleep.
+Wi-Fi transition/regulatory and isolated display diagnostics remain recorded.
+The release uses these exact image bytes; release documentation does not imply
+a rebuild. Strict five-file OTA packaging is checked by the actual updater.
+Optional verification/provenance/environment/upload records are in one
+`release-audit.zip`. Private test logs, saves, ROMs and BIOS are excluded.
+
 ## October 8, 2026 stable release: v1.0.3
 
 - Published as Latest stable after draft-upload verification. All ten public

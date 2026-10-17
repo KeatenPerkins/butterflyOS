@@ -38,24 +38,26 @@ still depends on the game and peripheral.
 
 ## Hardware qualification
 
-- **Quick lid close/reopen (next image):** if you close and reopen the lid
+- **Quick lid close/reopen (v1.1.0):** if you close and reopen the lid
   quickly, the lid-open sensor event may be missed while the device enters
   sleep, leaving it asleep with the lid open. Close the lid again, then reopen
   it to wake the device.
-- **USB charging wake (next image):** connecting or disconnecting USB power
+- **USB charging wake (v1.1.0):** connecting or disconnecting USB power
   while asleep briefly wakes the device for about 10 seconds to update charging
   status and the LED. If the lid stays closed and **Sleep When Lid Closed** is
   enabled, it automatically returns to deep sleep. Opening the lid or pressing
   the power button keeps it awake. A retry limit prevents repeated wake/sleep
-  loops. Plug-in and unplug tests passed on the development device; this fix
-  is not included in the C3 test image.
-- Hardware and ROCKNIX fake suspend are disabled on the previous Flip safety baseline.
-  The Suspend selector and Suspend System action are hidden so the unsafe
-  `mem` mode cannot be re-enabled through the GUI. Closing the lid turns off
-  only the LCD backlight; opening restores it without changing the selected
-  brightness. Games, audio, networking, and the rest of the system continue
-  running while closed. This favors stability and filesystem safety over
-  maximum standby battery life.
+  loops. Plug-in and unplug tests passed on the local test device; the fix is included
+  in v1.1.0.
+- v1.1.0 enables tested deep lid sleep by default. The local test device passed
+  an approximately 8-hour-58-minute sleep with both SD-card read/write probes
+  passing after resume. Other hardware/peripheral combinations remain subject
+  to further testing. Disable **Sleep When Lid Closed** for screen-only blanking
+  during HDMI gameplay. Earlier releases used screen-only blanking for safety.
+- Wi-Fi transition/regulatory warnings and one earlier display underrun were
+  observed during qualification. Wi-Fi reconnected and the overnight resume
+  succeeded; these diagnostics remain tracked rather than declared fixed.
+- Rear USB host keyboard/peripheral support remains unqualified.
 - A September 15 overnight test left HDMI and power connected to a powered-off
   4K television. After returning to the handheld display, the Games interface
   became malformed and the device stopped responding to the frontend, ping,

@@ -57,6 +57,7 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 - ButterflyOS-themed authenticated web file transfer for games, BIOS, music,
   videos, saves, and all storage
 - Second-card files exposed through the same web transfer interface
+- USB Gadget File Transfer (MTP) through the front charging/data USB-C port
 - Samba/SFTP support inherited from the ROCKNIX base
 
 ## Media and display
@@ -72,8 +73,7 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
   off only the built-in display while games, networking and HDMI audio continue.
   The preference persists across reboots. A detected suspend failure disables
   lid sleep until it is explicitly re-enabled.
-- Lid-Closed Shutdown and Save Game Before Lid Shutdown are retired in the next
-  build. Closing the lid no longer starts a shutdown timer or changes audio mute.
+- Lid-Closed Shutdown and Save Game Before Lid Shutdown are retired in v1.1.0. Closing the lid no longer starts a shutdown timer or changes audio mute.
 
 ## Setup and recovery
 
