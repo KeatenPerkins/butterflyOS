@@ -28,7 +28,7 @@ only. It was run read-only against the existing saves:
 - Emerald: Gen III, Emerald save type, three party Pokémon, 413 occupied box
   slots.
 
-The Sapphire/Ruby device at `192.168.1.17` was also confirmed to contain its
+The Sapphire/Ruby local test device was also confirmed to contain its
 expected saves. No original save was written during this test.
 
 The device root is read-only during normal operation, so the full Tools menu

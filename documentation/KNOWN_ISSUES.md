@@ -132,19 +132,19 @@ still depends on the game and peripheral.
   not reproduce historical distribution metadata.
 - Crystal GS Ball Enable/Replay is included from v1.0.3.
   Automated save/checksum, backup, cancellation, ROM qualification and Pokémon
-  preservation checks pass. Enable and Replay passed user testing on .17 through
+  preservation checks pass. Enable and Replay passed user testing on the local test device through
   delivery, Kurt and the shrine encounter; Kurt's timer was manually cleared for
   testing. The tool retains the normal wait.
 - Gen II Mew and Stadium 2 Farfetch'd/Gligar gifts are included from v1.0.3.
   All fourteen PC boxes across Gold/Silver/Crystal pass automated checks,
   including native reload, backups, cancellation and full/occupied refusal.
-  All three gifts passed user testing in Crystal on .17. Actual Gold/Silver
+  All three gifts passed user testing in Crystal on the local test device. Actual Gold/Silver
   gameplay remains unqualified. All fifteen documented Japanese Mystery Egg
   recipes are implemented and all fifteen passed user testing in Crystal
-  on .17. Native Odd Egg delivery and replay also passed user testing.
+  on the local test device. Native Odd Egg delivery and replay also passed user testing.
   Celebi passed user testing in Gold, including save/reload persistence.
   All 104 PCNY eggs, 16 shiny adult gifts and the split menu passed user testing
-  in Crystal on .17. Silver Celebi awaits gameplay qualification.
+  in Crystal on the local test device. Silver Celebi awaits gameplay qualification.
   The incomplete non-shiny Suicune recipe is unavailable; Gen III events are
   pending. See the [PCNY checklist](BUTTERFLY_LINK_GEN2_PCNY_CHECKLIST.md).
 

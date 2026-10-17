@@ -48,7 +48,7 @@ Reviewed: 2026-10-08.
   UI, and authorized stable publication. Published as
   [Latest stable](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.2).
   All nine uploaded asset sizes/GitHub SHA-256 digests matched, and the public
-  update manifest matched. `.17` discovered `20261008` with a read-only check;
+  update manifest matched. `the local test device` discovered `20261008` with a read-only check;
   no device download, installation, or reboot was initiated.
 - Includes SD Card Info and the Format 2nd SD Card graphical conversion using
   Butterfly Link's renderer/controls; Game Settings first and Network Settings
@@ -63,14 +63,14 @@ Reviewed: 2026-10-08.
   on the PC and excluded from the build. Performance settings are unchanged.
 - Quick Start, Controls Guide, System Manager, diagnostics, and recovery
   graphical conversions remain future work. The performance tester is excluded.
-- This is not exhaustive emulator/peripheral validation. `.17` remains on its
+- This is not exhaustive emulator/peripheral validation. `the local test device` remains on its
   older release for a separate update test that skips the intermediate version.
 
 ## Bundled v1.0.1 maintenance release
 
 - Published [v1.0.1](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.0.1)
   as Latest stable. All nine uploaded assets passed checksum/size verification;
-  `.17` discovers build `20261007` without initiating installation.
+  `the local test device` discovers build `20261007` without initiating installation.
 
 - Public version `v1.0.1`; updater build ID `20261007`; Miyoo Flip V2 only.
 - Includes the confirmed GB/GBA/NES audio pacing fix, normal-mode
@@ -140,7 +140,7 @@ to pending rebuilds describe earlier candidates, not the release above.
 Patch 043 fixes scraper metadata persistence for console systems grouped under
 Games, flushes completed scrape batches, and preserves dirty recovery entries
 until merged into the main game list. The frontend package compiled and was
-deployed live on .17. Existing artwork links were recovered for 1,505 games and
+deployed live on the local test device. Existing artwork links were recovered for 1,505 games and
 passed loaded-metadata/sample-image checks across two frontend restarts.
 A fresh full-SNES scrape wrote persistent metadata for 388 games. The user
 confirmed artwork and favorites remained after reboot. The successful October 3
@@ -211,18 +211,18 @@ hardware qualification.
   storage before every copy, swap, Time Capsule conversion, and evolution write.
 - Converted Gen I/II nicknames and original-trainer names now use the game's
   required 0x50 text terminator. The initial persistence fix exposed malformed
-  converted names when opening Crystal's PC (white screen). Crystal on .17
+  converted names when opening Crystal's PC (white screen). Crystal on the local test device
   was repaired from the session backup, preserving the copied Pikachu; the
   in-game PC-open/save/exit/reopen retest passed with the prior live helper;
   the same code is now in the current image.
 - Regression test: `tests/butterflyos-gen2-box-persistence-test.py`. All 48
-  cases pass on the workstation and on .17 using private fixtures; the old
+  cases pass on the workstation and on the local test device using private fixtures; the old
   helper fails the same test. It checks both SRAM banks and simulates Continue's
   banked-box load and validates occupied-box name terminators. The real
   Crystal PC-open/save/exit/reopen retest has also passed on the live helper.
 - Live helper SHA-256:
   `25b60281206c9c9403f18ec56920baba70a16d858ab103849d73fb4089b6a06e`.
-  It is bind-mounted over `/usr/bin/butterflyos-save-trade` on .20 and .17.
+  It is bind-mounted over `/usr/bin/butterflyos-save-trade` on .20 and the local test device.
   The override disappears on reboot; its source code is included in the
   current image. Original helpers and live replacement are retained under
   `/storage/.config/butterflyos/save-trade/helpers/`.
