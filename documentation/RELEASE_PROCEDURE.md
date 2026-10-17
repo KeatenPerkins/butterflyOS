@@ -35,3 +35,16 @@ Stable is separate from LTS. An LTS label needs an explicit support period,
 supported hardware, and a policy for maintenance and security fixes.
 
 GitHub reference: [Managing releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+
+## Download presentation and validation wording
+
+Put a clearly labeled direct image download and matching checksum near the top
+of release notes, before the changelog. Explain that updater files, developer
+audit records, and GitHub's Source code archives are not needed for flashing.
+For future releases, bundle optional verification, provenance, source hashes,
+and build-environment records into `release-audit.zip`; keep the image, update
+package, their checksums, updater manifest, and license manifest separate.
+
+Refer to hardware validation as "tested on the local test device." Describe
+images as "rebuilt locally and tested on the local test device" when applicable.
+Do not expose private device addresses or imply the handheld compiled the image.
