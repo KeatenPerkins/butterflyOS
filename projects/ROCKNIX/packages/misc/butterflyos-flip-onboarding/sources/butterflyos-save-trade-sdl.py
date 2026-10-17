@@ -892,11 +892,40 @@ class SDLFrontEnd:
             self.close()
             raise RuntimeError(self.sdl.SDL_GetError().decode("utf-8", "replace"))
         self.sdl.SDL_RenderSetLogicalSize(self.renderer, WIDTH, HEIGHT)
+        # Keep layout coordinates in handheld pixels, but rasterize fonts at
+        # the actual output density so HDMI does not magnify 480p text.
+        output_width, output_height = ctypes.c_int(), ctypes.c_int()
+        result = self.sdl.SDL_GetRendererOutputSize(
+            self.renderer, ctypes.byref(output_width), ctypes.byref(output_height)
+        )
+        self.text_scale = (max(1.0, min(output_width.value / WIDTH,
+                                       output_height.value / HEIGHT))
+                           if result == 0 else 1.0)
         if not keyboard_bridge:
             self._open_input_devices()
         self.font_path = self._find_font()
         self.fonts = {}
         self.textures = {}
+
+    def refresh_text_scale(self) -> None:
+        # Wayland fullscreen size may arrive after the first frame. Recheck
+        # while drawing, including when HDMI is connected or disconnected.
+        width, height = ctypes.c_int(), ctypes.c_int()
+        if self.sdl.SDL_GetRendererOutputSize(
+                self.renderer, ctypes.byref(width), ctypes.byref(height)) != 0:
+            return
+        scale = max(1.0, min(width.value / WIDTH, height.value / HEIGHT))
+        if abs(scale - self.text_scale) < 0.001:
+            return
+        for texture, _, _ in self.textures.values():
+            self.sdl.SDL_DestroyTexture(texture)
+        self.textures.clear()
+        for font in self.fonts.values():
+            self.ttf.TTF_CloseFont(font)
+        self.fonts.clear()
+        self.text_scale = scale
+        print("Blink output: %dx%d, text scale %.3f" %
+              (width.value, height.value, scale), flush=True)
 
     def _configure_api(self) -> None:
         s = self.sdl
@@ -912,6 +941,10 @@ class SDLFrontEnd:
         s.SDL_CreateRenderer.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_uint32]
         s.SDL_CreateRenderer.restype = ctypes.c_void_p
         s.SDL_DestroyRenderer.argtypes = [ctypes.c_void_p]
+        s.SDL_GetRendererOutputSize.argtypes = [ctypes.c_void_p,
+                                                ctypes.POINTER(ctypes.c_int),
+                                                ctypes.POINTER(ctypes.c_int)]
+        s.SDL_GetRendererOutputSize.restype = ctypes.c_int
         s.SDL_RenderSetLogicalSize.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
         s.SDL_SetRenderDrawColor.argtypes = [ctypes.c_void_p, ctypes.c_uint8,
                                               ctypes.c_uint8, ctypes.c_uint8, ctypes.c_uint8]
@@ -980,7 +1013,7 @@ class SDLFrontEnd:
         # adding another font package to the image.
         key = (size, bold)
         if key not in self.fonts:
-            opened = self.ttf.TTF_OpenFont(self.font_path.encode(), size)
+            opened = self.ttf.TTF_OpenFont(self.font_path.encode(), round(size * self.text_scale))
             if not opened:
                 raise RuntimeError(self.sdl.SDL_GetError().decode("utf-8", "replace"))
             self.fonts[key] = opened
@@ -1002,7 +1035,8 @@ class SDLFrontEnd:
         self.sdl.SDL_FreeSurface(surface)
         if not texture:
             raise RuntimeError(self.sdl.SDL_GetError().decode("utf-8", "replace"))
-        self.textures[key] = (texture, width.value, height.value)
+        self.textures[key] = (texture, round(width.value / self.text_scale),
+                              round(height.value / self.text_scale))
         return self.textures[key]
 
     def draw_text(self, value: str, x: int, y: int, size: int,
@@ -1040,6 +1074,7 @@ class SDLFrontEnd:
     def draw_message(self, title: str, message: str, footer: str,
                      offset: int = 0) -> int:
         """Full-width, wrapped notice; return its maximum scroll offset."""
+        self.refresh_text_scale()
         self.sdl.SDL_SetRenderDrawColor(self.renderer, 6, 9, 22, 255)
         self.sdl.SDL_RenderClear(self.renderer)
         self.outline(10, 10, 620, 460, (38, 129, 190), 3)
@@ -1083,6 +1118,7 @@ class SDLFrontEnd:
 
     def draw_list(self, title: str, prompt: str, items: list[tuple[str, str]],
                   selected: int, footer: str = "UP/DOWN Navigate    A / START Select    B / MENU Back") -> None:
+        self.refresh_text_scale()
         self.sdl.SDL_SetRenderDrawColor(self.renderer, 6, 9, 22, 255)
         self.sdl.SDL_RenderClear(self.renderer)
         self.outline(10, 10, 620, 460, (38, 129, 190), 3)
@@ -1135,6 +1171,7 @@ class SDLFrontEnd:
     def draw_sprite_browser(self, save_name: str, cache_name: str,
                             records: list[dict], selected: int,
                             sprite: Optional[tuple[int, int, bytes]]) -> None:
+        self.refresh_text_scale()
         self.sdl.SDL_SetRenderDrawColor(self.renderer, 6, 9, 22, 255)
         self.sdl.SDL_RenderClear(self.renderer)
         self.outline(10, 10, 620, 460, (38, 129, 190), 3)
