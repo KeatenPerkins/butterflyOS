@@ -9,7 +9,7 @@ The stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
 
-Current release: [v1.0.4 notes](RELEASE_NOTES_v1.0.4.md), updater build **20261013**.
+Current release: [v1.1.0 notes](RELEASE_NOTES_v1.1.0.md), updater build **20261016**.
 
 ## For users and testers
 
@@ -18,7 +18,7 @@ Current release: [v1.0.4 notes](RELEASE_NOTES_v1.0.4.md), updater build **202610
 - [SD Card Info](SD_CARD_INFO.md): fast space and mount-status checks for both
   cards, available starting with v1.0.2.
 - [How to transfer games](TRANSFERRING_GAMES.md): web uploads, SD-card copying,
-  SMB, SFTP/SCP, rsync, device password setup, and USB File Transfer test instructions.
+  SMB, SFTP/SCP, rsync, device password setup, and USB Gadget File Transfer instructions.
 - [Installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md): the
   device-specific SD-boot change, backup export, reflashing, and exact restore.
 - [Features](FEATURES.md): current capabilities and their limits.

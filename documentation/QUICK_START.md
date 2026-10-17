@@ -132,8 +132,7 @@ starting, especially the current exact-restoration and licensing caveats.
 ## Add games and BIOS files
 
 See [How to transfer games](TRANSFERRING_GAMES.md) for step-by-step web uploads,
-SD-card copying, SMB, SFTP/SCP, rsync, and the local test image’s USB File Transfer
-instructions (verified by user testing).
+SD-card copying, SMB, SFTP/SCP, rsync, and USB Gadget File Transfer instructions.
 
 Copy legally obtained games into `STORAGE/roms/<system>` (shown on-device as
 `/storage/roms/<system>`). Common aliases such
@@ -209,7 +208,7 @@ and wait for the device to power off
 before removing the card. See [Controls and hotkeys](HOTKEYS.md) for in-game
 exit and save-state shortcuts.
 
-The next build sleeps when the lid closes by default. To keep a game running
+From v1.1.0, the device sleeps when the lid closes by default. To keep a game running
 while using HDMI and a controller, disable **System Settings → Hardware →
 Sleep When Lid Closed**. Closing then turns off only the built-in screen.
 
@@ -231,7 +230,7 @@ change stays in the device's internal preloader; do not reinstall it merely
 because you rewrote the OS card. Restore the correct device's recovery folder
 to the new boot partition as described in the installation guide.
 
-## Lid sleep (next build)
+## Lid sleep (v1.1.0 and newer)
 
 **System Settings → Hardware → Sleep When Lid Closed** controls lid behavior:
 

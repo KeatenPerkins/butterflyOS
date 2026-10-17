@@ -32,7 +32,7 @@ No internet service or SSH login is required for its remote-transfer workflow.
   Pokémon when the app offers it. Remote transfers do not offer this prompt.
 - **Browse your collection:** preview party Pokémon and PC boxes, with sprites
   and available Pokémon details such as level, moves, nature, and held item.
-  Available fields vary by generation and ROM. The next image includes these
+  Available fields vary by generation and ROM. v1.1.0 includes these
   inspector improvements:
   The inspector shows English move names for supported Gen I, II, and III
   ROMs. Names are extracted locally from your matching ROM; older sprite-only
@@ -52,7 +52,7 @@ the GBA ROM picker checks its internal game code, not its filename. Renaming a
 non-English ROM does not make it supported. This restriction applies to Butterfly
 Link, not to playing those games in an emulator.
 
-The next build also supports Gen I/II `.zip` archives containing exactly one
+From v1.1.0, Gen I/II ROM selection also supports `.zip` archives containing exactly one
 `.gb` or `.gbc` ROM. Sprites and move names are read directly from the archive;
 manual extraction is unnecessary. Archives with multiple ROMs are rejected.
 
@@ -254,12 +254,12 @@ user testing in Crystal on the local test device. Silver Celebi still needs game
 Non-shiny Suicune lacks documented recipe data.
 See [Gen II event scope and validation](BUTTERFLY_LINK_GEN2_EVENTS_PLAN.md).
 
-Gen III island events are deferred and excluded from v1.0.4. The
+Gen III island events are deferred and excluded from v1.1.0. The
 AuroraTicket prototype still requires gameplay qualification before release.
 Gen III trading and copying remain available.
 See the [Gen III event checklist and testing status](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md).
 
-### Gen III direct gifts (development test batch)
+### Gen III direct gifts (v1.1.0)
 
 **Local Transfer → Gen 3 → Gen 3 Gifts** adds already-hatched Pokémon directly
 to an empty PC slot in any of the five qualified English Gen III games.
@@ -287,15 +287,14 @@ Save normally, exit the game, select a destination and matching ROM, choose the
 gift and an empty PC slot, inspect the preview, then choose **Add Gift**. The
 existing protected Commit and backup process applies. Withdraw the Pokémon,
 check its level, moves and item, try a battle, then save and reload normally.
-Gameplay qualification for this first direct-gift batch is pending on the local
-test device. No story, ticket, Pokédex or event flags are changed. Giving
+User testing of the gift workflow passed on the local test device; automated validation covers all 25 gift/game combinations. This does not establish exhaustive gameplay qualification for every destination. No story, ticket, Pokédex or event flags are changed. Giving
 Zigzagoon or Jirachi does **not** repair the Ruby/Sapphire berry-clock glitch.
 
 References: [primary numeric gift recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs),
 [bonus-disc gifts and Jirachi berries](https://bulbapedia.bulbagarden.net/wiki/List_of_game-based_Pok%C3%A9mon_distributions_in_Generation_III),
 [Liechi Berry distribution](https://bulbapedia.bulbagarden.net/wiki/Liechi_Berry).
 
-### Gen III egg game support (next image)
+### Gen III egg game support (v1.1.0)
 
 All 39 egg options are available for these qualified English retail revisions:
 Emerald, Ruby/Sapphire revision 2, and FireRed/LeafGreen revision 1. Both raw
@@ -310,7 +309,7 @@ on later evolution still apply. Emerald has gameplay coverage for the earlier
 batches; PCNY eggs and the newly added destination games need live hatch and
 save/reload confirmation.
 
-### Gen III Box eggs (development test batch)
+### Gen III Box eggs (v1.1.0)
 
 **Local Transfer → Gen 3 → Gen 3 Box Eggs** offers four generated egg
 equivalents for the qualified English Gen III ROM/save pairs below:
@@ -335,7 +334,7 @@ The user confirmed all four eggs working in Emerald on the local test device.
 Hatching and save/reload in the other games still need gameplay confirmation. See the [event plan](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md)
 and [documented egg recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
-### Gen III PokéPark eggs (development test batch)
+### Gen III PokéPark eggs (v1.1.0)
 
 **Local Transfer → Gen 3 → PokéPark Eggs** adds 15 generated egg equivalents
 for the qualified English Gen III ROM/save pairs. They use the same protected preview,
@@ -368,7 +367,7 @@ Duplicate delivery methods are grouped into one recipe per species. The
 [full move recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs)
 are the reference. The user confirmed all 15 eggs working on the local test device.
 
-### Gen III anniversary eggs (development test batch)
+### Gen III anniversary eggs (v1.1.0)
 
 **Local Transfer → Gen 3 → Anniversary Eggs** offers eight recipes and two
 separately labeled guaranteed-shiny Pichu variants for the qualified English Gen III games:
@@ -398,7 +397,7 @@ the other eggs. All hatch at level 5 with no held item and normal ROM-derived
 hatch counters. The user confirmed all ten entries working on the local test device.
 [Anniversary recipe reference](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
-### Gen III promotional eggs (development test batch)
+### Gen III promotional eggs (v1.1.0)
 
 **Local Transfer → Gen 3 → Promotional Eggs** offers Oddish with Leech Seed,
 Meowth with Petal Dance, Poliwag with Sweet Kiss and Bellsprout with Teeter Dance.
@@ -410,7 +409,7 @@ protected Commit, backup and ordinary hatch/save/reload process as the other egg
 The user confirmed all four promotional eggs working on the local test device.
 [Recipe reference](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
-### Gen III PCNY Wish eggs (development test batch)
+### Gen III PCNY Wish eggs (v1.1.0)
 
 **Local Transfer → Gen 3 → PCNY Wish Eggs** offers six eggs. Each knows Wish:
 
@@ -453,17 +452,16 @@ ROM hacks, and unrecognized revisions are not generally qualified.
 |---|---|---|---|
 | Gen I → Gen I | Trade or copy | Trade or copy | PC-box Pokémon |
 | Gen II → Gen II | Trade or copy | Trade or copy | PC-box Pokémon |
-| Gen III → Gen III | Trade or copy | Trade or copy | PC-box Pokémon; Trade requires matching save-format families |
+| Gen III → Gen III | Trade or copy | Trade or copy | PC-box Pokémon; cross-family conversion supported from v1.0.4 |
 | Gen I → Gen II | Copy | Copy | Time Capsule conversion; banked-box/name fixes included, not every save pairing qualified |
 | Gen II → Gen III | Copy | Copy | One-way conversion; verified held-item equivalents preserved from v1.0.3 |
 | Gen II → Gen I | Unavailable | Unavailable | No reverse Time Capsule conversion |
 | Gen III → earlier generations | Unavailable | Unavailable | No reverse conversion |
 
-The current Gen III Trade helper refuses different save-format families:
-Ruby/Sapphire, Emerald, and FireRed/LeafGreen are separate families. Thus
-Ruby ↔ Sapphire and FireRed ↔ LeafGreen can trade, while Ruby ↔ Emerald
-Trade is refused. Gen III Copy does not have that same-format restriction.
-Do not interpret the table as qualification of every Gen III game pairing.
+From v1.0.4, Gen III trades support conversion between Ruby/Sapphire,
+Emerald and FireRed/LeafGreen save families, including the tested Emerald ↔
+LeafGreen pairing. Both trade and copy retain save validation and protected
+backups. This does not qualify every game/save pairing.
 
 Gen II → III is a Butterfly Link conversion, not an original-game cable feature.
 Compatible identity/training data is converted; generation-specific fields need
@@ -526,7 +524,7 @@ which can contain older save data.
 The normal flow commits at final confirmation. There is no extra main-menu
 Commit step after a successful transfer.
 
-### Move and held-item names (next image)
+### Move and held-item names (v1.1.0)
 
 When you browse party Pokémon or select a Pokémon in a PC box, the inspector
 shows English move names for supported Gen I, II and III games instead of

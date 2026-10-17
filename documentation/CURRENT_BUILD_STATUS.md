@@ -1,6 +1,22 @@
 # Current build and test status
 
-Reviewed: 2026-10-08.
+Reviewed: 2026-10-17.
+
+## v1.1.0 stable release
+
+- Public version **v1.1.0**, updater build **20261016**, Miyoo Flip V2 only.
+- Exact tested image built from `7c3d4c994725ee1d71ab85f039cfac97251494cf`.
+  Release commits update documentation/packaging records without rebuilding.
+- Includes deep lid sleep, charging LEDs and charger-wake retry; persistent sleep
+  toggle; ROM-derived inspector names, GB/GBC ZIP support, sharp HDMI text;
+  39 Gen III egg recipes and five direct gifts; updated Tools artwork.
+- All 668 package steps, GPT/FAT/ext4, image/payload checks and full card read-back
+  passed. User approved long-term testing on the local test device. Three sleep
+  cycles passed both-card read/write probes; overnight sleep lasted 8h58m.
+- Wi-Fi transition/regulatory and isolated display diagnostics remain tracked.
+  Gen III island events and rear USB keyboard support remain unqualified.
+- See [v1.1.0 release notes](RELEASE_NOTES_v1.1.0.md),
+  [Known issues](KNOWN_ISSUES.md), and [How to update](UPDATES.md#how-to-update).
 
 ## v1.0.3 stable release
 

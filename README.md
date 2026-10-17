@@ -38,6 +38,7 @@ Project direction is documented in the [vision](docs/VISION.md) and
 - Wi-Fi, Bluetooth controllers and audio, SSH, and themed web file transfer
 - Music and compatible video playback
 - HDMI video and audio output
+- Deep sleep on lid close, with a screen-only option for HDMI play
 - Combined libraries from the OS card and an optional second game card
 - PortMaster in Tools for installing compatible game ports
 - Online ButterflyOS updates from System Settings
@@ -56,7 +57,9 @@ who also has ButterflyOS. Gen II → III is a one-way copy. From v1.0.3, it keep
 verified Gen III held-item equivalents and clears unmatched items; releases
 through v1.0.2 clear all held items on the copy. Gen I → II copies include the confirmed
 Gen II PC-box persistence fix.
-Transfers currently use PC-box Pokémon only.
+Transfers currently use PC-box Pokémon only. Version 1.1.0 adds Gen III gift eggs
+and direct gifts, ROM-derived move/item names, and sharper HDMI text; see the
+[Butterfly Link guide](documentation/BUTTERFLY_LINK.md).
 
 ### Media compatibility on Miyoo Flip V2
 
