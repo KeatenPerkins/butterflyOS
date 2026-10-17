@@ -10,7 +10,7 @@
 +	if (Utils::FileSystem::exists("/usr/bin/butterflyos-suspend-test.py"))
 +	{
 +		auto lidSleep = std::make_shared<SwitchComponent>(mWindow);
-+		lidSleep->setState(Utils::FileSystem::exists("/storage/.config/butterflyos/experimental-lid-suspend.enabled"));
++		lidSleep->setState(Utils::FileSystem::exists("/storage/.config/butterflyos/experimental-lid-suspend.enabled", false));
 +		s->addWithDescription(_("SLEEP WHEN LID CLOSED"), _("Suspend when closed. When off, only the built-in screen turns off; games and HDMI audio keep running."), lidSleep);
 +		s->addSaveFunc([lidSleep] {
 +			Utils::Platform::runSystemCommand(std::string("/usr/bin/butterflyos-suspend-test.py set-lid-sleep ") + (lidSleep->getState() ? "on" : "off"), "", nullptr);
