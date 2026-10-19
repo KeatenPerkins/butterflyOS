@@ -9,7 +9,7 @@ The stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
 
-Current release: [v1.1.0 notes](RELEASE_NOTES_v1.1.0.md), updater build **20261016**.
+Current release: [v1.2.0 notes](RELEASE_NOTES_v1.2.0.md), updater build **20261018**.
 
 ## For users and testers
 
@@ -19,7 +19,7 @@ Current release: [v1.1.0 notes](RELEASE_NOTES_v1.1.0.md), updater build **202610
   cards, available starting with v1.0.2.
 - [How to transfer games](TRANSFERRING_GAMES.md): web uploads, SD-card copying,
   SMB, SFTP/SCP, rsync, device password setup, and USB Gadget File Transfer instructions.
-- [Save backup and restore](SAVE_BACKUPS.md): upcoming automatic backups,
+- [Save backup and restore](SAVE_BACKUPS.md): automatic backups,
   supported saves, storage requirements, and manual restore instructions.
 - [Installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md): the
   device-specific SD-boot change, backup export, reflashing, and exact restore.
@@ -32,9 +32,9 @@ Current release: [v1.1.0 notes](RELEASE_NOTES_v1.1.0.md), updater build **202610
   saved system/game choices, CPU/GPU settings, and battery tradeoffs.
 - [Themes and customization](THEMES.md): theme switching, custom copies, image
   sizes, colors, fonts, installation and testing.
-- [Bdex](BDEX.md): upcoming Gen 1–3 collections, imports, copy exports, Trash,
+- [Bdex](BDEX.md): Gen 1–3 collections, imports, copy exports, Trash,
   database backup/recovery, sprite refresh and the read-only web viewer;
-  setup and limitations for the next release.
+  setup and limitations.
 - [Blink](BUTTERFLY_LINK.md): local/remote save transfers and supported
   generation directions.
 - [Known issues](KNOWN_ISSUES.md): incomplete testing and reported failures.

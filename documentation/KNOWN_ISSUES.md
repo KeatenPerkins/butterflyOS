@@ -202,7 +202,7 @@ still depends on the game and peripheral.
 - The release hides untested Cloud/VPN groups unless Advanced Mode is on.
   Their appearance does not establish a supported cloud/VPN workflow.
 
-## Save Backup and Bdex — next release
+## Save Backup and Bdex — v1.2.0
 
 - Automatic Save Backup requires both prepared, writable SD cards and leaves
   10% of each destination free. It skips files changed in the last two minutes;

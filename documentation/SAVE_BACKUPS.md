@@ -1,8 +1,7 @@
 # Save backups and restoring progress
 
-**Next release feature; not included in the v1.1.0 stable download.** Backend,
-menu and live device checks have passed. The next image includes this feature;
-both cards are required and the setting remains off by default.
+Available from **v1.2.0**. Requires two prepared, writable SD cards and remains
+**off by default**. Enable it under System Settings → Hardware.
 
 ## Turn automatic backups on or off
 
