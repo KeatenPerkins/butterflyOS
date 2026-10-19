@@ -535,38 +535,38 @@ class Bdex:
     def options(self):
         while True:
             choice = self.choose('GEN %d OPTIONS' % self.generation, [
+                ('Filters and sorting', 'Name group, type, sorting, jump, clear all'),
                 ('Species filter', self.filter), ('Source game', (self.game or 'All').title()),
+                ('Web viewer', 'Read-only collection viewer on your local network'),
+                ('Refresh sprites', 'Rebuild ROM artwork and repair matching cache references'),
                 ('Prepare ROM cache', 'Share sprites and names with Blink'),
-                ('Trash', 'Inspect, restore or permanently delete copies'),
                 ('Database backup', 'Create a checked collection backup'),
                 ('Database recovery', 'Restore the entire collection from a backup'),
-                ('About Bdex', 'Storage, safety and current scope'),
-                ('Filters and sorting', 'Name group, type, sorting, jump, clear all'),
-                ('Web viewer', 'Read-only collection viewer on your local network'),
-                ('Refresh sprites', 'Rebuild ROM artwork and repair matching cache references')])
+                ('Trash', 'Inspect, restore or permanently delete copies'),
+                ('About Bdex', 'Storage, safety and current scope')])
             if choice is None:
                 return
-            if choice == 0:
+            if choice == 1:
                 values = ['All', 'Owned', 'Missing']
                 picked = self.choose('SPECIES FILTER', [(value, 'Show ' + value.lower() + ' species') for value in values])
                 if picked is not None:
                     self.filter = values[picked]
                     self.position = 0
-            elif choice == 1:
+            elif choice == 2:
                 values = [None] + list(self.games)
                 picked = self.choose('IMPORTED-FROM FILTER', [((value or 'All').title(), 'Filter stored copies by confirmed source game') for value in values])
                 if picked is not None:
                     self.game = values[picked]
                     self.position = 0
-            elif choice == 9:
+            elif choice == 4:
                 self.guarded(self.refresh_sprites)
-            elif choice == 8:
-                self.guarded(self.web_viewer)
-            elif choice == 7:
-                self.filters_menu()
-            elif choice == 2:
-                self.guarded(self.prepare_cache)
             elif choice == 3:
+                self.guarded(self.web_viewer)
+            elif choice == 0:
+                self.filters_menu()
+            elif choice == 5:
+                self.guarded(self.prepare_cache)
+            elif choice == 8:
                 while True:
                     rows = self.store.entries(trash=True)
                     if not rows:
@@ -591,12 +591,12 @@ class Bdex:
                                         (record['name'], record['game'].title(), ident)):
                             self.store.delete(ident)
                             self.ui.message('COPY DELETED', 'This copy was removed from Bdex. An older whole-database backup can still contain it.')
-            elif choice == 4:
+            elif choice == 6:
                 path = self.store.backup(manual=True)
                 self.ui.message('DATABASE BACKUP CREATED', 'Copy this file to a PC or another drive too:\n%s\nIt includes the collection and its source snapshots, but not ROM-derived sprites.' % path)
-            elif choice == 5:
+            elif choice == 7:
                 self.guarded(self.recovery)
-            elif choice == 6:
+            elif choice == 9:
                 self.ui.message('ABOUT BDEX', 'Gen 1, Gen 2 and Gen 3 collection prototype. Forward copy exports: Gen 1 to Gen 2, Gen 2 to Gen 3. An optional read-only web viewer is available in Options.\n\nImports and exports copy; originals stay intact. Source badges mean imported from the selected game, not necessarily the Pokemon\'s birthplace.\n\nExact native-record duplicates are skipped across all saves, cards, games and slots. Different native data can be stored separately. Copies in Trash also block duplicate imports; restore them from Trash instead.\n\nCollections: /storage/bdex/collection.sqlite3 (Gen 1), /storage/bdex/gen2/collection.sqlite3 (Gen 2), /storage/bdex/gen3/collection.sqlite3 (Gen 3)\nThree automatic database backups are kept before changes; manual backups remain until you remove them. Copy a database backup off the device for card-failure protection. Automatic Save Backup does not yet include Bdex databases.\n\nNo ROMs, saves, names or sprites are bundled.')
 
             self.save_settings()

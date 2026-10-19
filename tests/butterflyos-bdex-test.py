@@ -339,7 +339,7 @@ class ImportFlowTests(unittest.TestCase):
     def test_cancelled_permanent_delete_keeps_trashed_copy(self):
         self.store.import_records(self.value, [self.value['records'][0]])
         self.store.trash(1)
-        with patch.object(self.app, 'choose', side_effect=[3, 0, 2, None, None]), \
+        with patch.object(self.app, 'choose', side_effect=[8, 0, 2, None, None]), \
              patch.object(self.app, 'confirm', return_value=False):
             self.app.options()
         self.assertEqual(len(self.store.entries(trash=True)), 1)
@@ -348,7 +348,7 @@ class ImportFlowTests(unittest.TestCase):
         self.store.import_records(self.value, [self.value['records'][0]])
         self.store.import_records(self.value, [self.value['records'][1]])
         self.store.trash(1)
-        with patch.object(self.app, 'choose', side_effect=[3, 0, 2, None]), \
+        with patch.object(self.app, 'choose', side_effect=[8, 0, 2, None]), \
              patch.object(self.app, 'confirm', return_value=True):
             self.app.options()
         self.assertEqual(self.store.entries(trash=True), [])

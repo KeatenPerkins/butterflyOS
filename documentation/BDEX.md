@@ -42,6 +42,10 @@ of where the Pokémon was originally obtained; it may have been traded earlier.
 Gen 3 uses **R/S/E/FR/LG**; Gen 2 markers use **G/S/C** for Gold, Silver and Crystal. Red/Blue share a save
 format, as do Gold/Silver; confirm the correct source ROM when asked.
 
+**Options** starts with **Filters and sorting**, **Species filter**,
+**Source game** and **Web viewer**. Sprite tools, backups, recovery and Trash
+follow below.
+
 **Options → Filters and sorting** adds controller-only browsing:
 
 - Combine **All / Owned / Missing**, **source game**, **name group** (A–D, E–H,
