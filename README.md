@@ -16,14 +16,14 @@ Start here:
 
 - [Quick Start](documentation/QUICK_START.md)
 - [How to transfer games](documentation/TRANSFERRING_GAMES.md)
-- [Save backup and restore — upcoming feature](documentation/SAVE_BACKUPS.md)
+- [Save backup and restore](documentation/SAVE_BACKUPS.md)
 - [How to update](documentation/UPDATES.md#how-to-update)
 - [Installation and recovery](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md)
 - [Controls and hotkeys](documentation/HOTKEYS.md)
 - [Emulators and performance tuning](documentation/EMULATORS_AND_PERFORMANCE.md)
 - [Features](documentation/FEATURES.md)
 - [Blink save trading](documentation/BUTTERFLY_LINK.md)
-- [Bdex collections and read-only web viewer — upcoming feature](documentation/BDEX.md)
+- [Bdex collections and read-only web viewer](documentation/BDEX.md)
 - [Documentation index](documentation/README.md)
 - [Compatibility matrix](documentation/BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md)
 - [Known issues](documentation/KNOWN_ISSUES.md)
@@ -43,6 +43,8 @@ Project direction is documented in the [vision](docs/VISION.md) and
 - Deep sleep on lid close, with a screen-only option for HDMI play
 - Combined libraries from the OS card and an optional second game card
 - PortMaster in Tools for installing compatible game ports
+- Optional cross-card automatic save backups with version history
+- Bdex for storing and browsing supported Gen 1–3 Pokémon collections
 - Online ButterflyOS updates from System Settings
 - Reversible SD-card boot setup that preserves the internal Miyoo OS
 - Beginner-facing settings with optional Advanced Mode

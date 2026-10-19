@@ -1,81 +1,18 @@
 # Current build and test status
 
-Reviewed: 2026-10-18.
+Reviewed: 2026-10-19.
 
-## Next committed rebuild
+## v1.2.0 stable release
 
-- The user confirmed the Bdex fixes work. Rebuild authorization includes the
-  corrected Save Backup timer and Blink display-name change.
-- The timer starts three minutes after activation and repeats five minutes
-  after runs. The corrected timer and verified cross-card backups passed a
-  live check. An isolated real-systemd test also verifies disabled startup,
-  enable/restart and three consecutive automatic runs.
-- The next image must include onboarding 2.6.36, modules 1.5 and frontend patch
-  063. Rebuild the frontend and build-identity package, then verify the actual
-  image source ID, normal-mode Blink entry, timer configuration and assets.
-- This is a local test image. No push or public release is authorized yet.
-
-## Final local rebuild: 20261018, revision 2
-
-- The user reports the complete local device test checklist passed on the first
-  20261018 image, including Save Backup and Bdex. Refresh sprites passed a
-  subsequent live check. This does not imply exhaustive species/game coverage.
-- Revision 2 incorporates the updated Bdex Tools/web artwork and the Refresh
-  sprites action directly into the image, replacing the temporary live overlays.
-- User guides cover enable/disable, importing, copy exports, duplicate behavior,
-  Trash, database recovery, browser login, supported save/ROM profiles, and
-  manual game-save restoration. The feature remains absent from v1.1.0.
-- Save Backup remains off by default, keeps five versions on the other card,
-  leaves 10% free and excludes save states and Bdex databases.
-- Bdex's read-only web viewer remains off by default and uses the current root
-  SSH password with browser username `bdex`.
-- Rebuild passed all 668 package steps. Final SHA-256/gzip, GPT, FAT/ext4,
-  image/update payload consistency and exact packaged-source checks passed.
-- All 97 regression checks passed: 75 Bdex, 13 Save Backup, 7 web viewer and
-  2 refresh-action checks. A short smoke check of the final rebuilt image is
-  pending; the prior full device checklist and live refresh test passed.
-- New artwork is verified in both Tools and the web header. Nothing published.
-
-## Post-R2 backup timer correction
-
-- A live check after enabling backups found no run and no next deadline:
-  `OnBootSec` was already past after a skipped disabled run.
-- Changed the initial deadline to **three minutes after timer activation**
-  (`OnActiveSec`), retaining the five-minute interval after completed runs.
-  The local test device has the persistent correction; source package 2.6.35
-  includes it for the next image. The archived R2 image is unchanged.
-- Production backup run copied all 12 restored saves with zero errors;
-  destination backups matched current sources by SHA-256.
-- Include and verify this timer correction before publishing the release.
-
-## Post-R2 Blink naming update
-
-- The next image names the Tools entry and app text **Blink**. The existing
-  `Butterfly Link.sh` launcher path and guide URLs remain compatible.
-- Current README/user guides use Blink; historical release notes retain their
-  original name. The guide explains the menu-name change for older releases.
-- Frontend patch 063 permits Blink in normal Tools mode while retaining the
-  old metadata name for compatibility. The module sync applies the new label
-  on startup. Refresh/rebuild the frontend package before the next image.
-- Frontend patch dry-run, Python/shell syntax, menu metadata/links and focused
-  UI checks passed. This rename is queued; it is not in the archived R2 image.
-
-## First local image 20261018: completed
-
-- Full aarch64 image build completed; all 668 package steps passed.
-- SHA-256/gzip, GPT, FAT/ext4, boot checksums and image/update payload equality
-  passed. Packaged scripts, services, artwork, native commands and frontend
-  settings matched their reviewed source files.
-- Included the Save Backup Hardware setting and timer re-arm, Bdex Gen 1–3,
-  normal Tools visibility, native copy/export support and the web viewer.
-- Regression checks passed: 73 Bdex, 13 Save Backup and 7 web viewer tests.
-- Flash and complete read-back passed. Collections and test saves were restored.
-- A restore omitted Blue's old ZIP-keyed sprite folder. Matching verified Blue
-  artwork repaired it; all restored collection sprite requests then passed.
-  Refresh sprites now rebuilds/reconnects exact-ROM artwork without altering
-  native Pokémon data. The user confirmed it works.
-- User approved the live tests. The first image's archived bytes are unchanged;
-  revision 2 packages the subsequent artwork and refresh changes.
+- Public version **v1.2.0**, updater build **20261018**, Miyoo Flip V2.
+- Exact image: locally rebuilt R4 from source `8eecb5e28c620b2076eff1ff52de67653bbc3c8c`. Subsequent release documentation does not change its bytes.
+- Adds opt-in cross-card Save Backup, Bdex Gen 1–3 collections, read-only browser access, sprite refresh/repair, new Bdex artwork and Blink display naming.
+- All 668 package steps, GPT/FAT/ext4, image/update consistency, source/artwork/service checks and full card read-back passed.
+- User approved the final image after testing on the local test device. All 12 ordinary test-save backups matched their originals with zero errors.
+- Earlier feature regression checks passed: 75 Bdex, 13 Save Backup, 7 web viewer and 2 refresh checks, plus a real-systemd recurring-timer lifecycle test. These supplement, rather than replace, final-image device testing.
+- Automatic backups and the browser viewer remain off by default. Bdex databases need separate backups; save states are excluded from ordinary Save Backup.
+- Unfinished Gen III island-event prototypes remain excluded. Supported ROM profiles and inherited suspend/USB limitations remain documented.
+- See [release notes](RELEASE_NOTES_v1.2.0.md), [Bdex](BDEX.md), [Save Backup](SAVE_BACKUPS.md) and [known issues](KNOWN_ISSUES.md).
 
 ## v1.1.0 stable release
 

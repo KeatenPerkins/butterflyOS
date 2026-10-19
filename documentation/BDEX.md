@@ -2,10 +2,8 @@
 
 <img src="assets/bdex.png" alt="Bdex collection tool" width="144">
 
-**Next release feature; not included in the v1.1.0 stable download.** Device
-checks have passed, including the read-only web viewer and Refresh sprites.
-The final local image includes the updated artwork and refresh option; build,
-filesystem and packaged-source checks passed. Public release is pending.
+Available from **v1.2.0** under Tools → Bdex. The optional read-only web viewer
+remains off by default.
 
 Bdex is an off-game collection, separate from your game saves. Imports and
 exports **copy** Pokémon. They do not remove Pokémon from the source save or
@@ -72,8 +70,7 @@ place in the collection. Collection counts reflect the active source filter.
    other tool editing the save.
 2. In the matching generation, select the **Import** tab and choose a compatible save. Bdex lists
    saves from both cards and identifies the trainer.
-3. Select or confirm the matching ROM/cache. The cache is shared with Butterfly
-   Link: either app can use sprites prepared by the other. Bdex upgrades an
+3. Select or confirm the matching ROM/cache. The cache is shared with Blink: either app can use sprites prepared by the other. Bdex upgrades an
    older cache when species names are missing.
 4. Choose **All Pokémon** for the party and all PC boxes, or **Choose Pokémon**.
    The latter lets you mark individual entries, mark an entire party/box, or

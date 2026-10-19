@@ -7,10 +7,9 @@ This lists development capabilities, not a guarantee for every game or
 controller. See [current build status](CURRENT_BUILD_STATUS.md) for changes
 awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 
-## Next release: save protection and Bdex
+## Save protection and Bdex
 
-These features passed local device tests and are being packaged for the next
-release. They are not in the current v1.1.0 stable download.
+Available from v1.2.0, rebuilt locally and tested on the local test device.
 
 - [Automatic Save Backup](SAVE_BACKUPS.md): opt in under System Settings →
   Hardware. Copies supported ordinary saves from each SD card to the other,

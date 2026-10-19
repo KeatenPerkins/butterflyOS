@@ -431,3 +431,14 @@ ZIP-aware Pokémon filtering/sprites, LeafGreen revision-1 sprites, cross-family
 Gen III swaps and box-back navigation. The unfinished Gen III event is excluded;
 true suspend remains disabled. See [v1.0.4 release notes](RELEASE_NOTES_v1.0.4.md)
 and the [package license manifest](PACKAGE_LICENSE_MANIFEST_v1.0.4.md).
+
+
+## October 19, 2026 — v1.2.0 save backups and Bdex
+
+- Updater build: `20261018`; source embedded in the exact tested R4 image: `8eecb5e28c620b2076eff1ff52de67653bbc3c8c`. Subsequent release documentation does not change image bytes.
+- Compressed image SHA-256: `727f97c4a71e796e42a0aabc16b13540c3d9f5877ca6064eb1678938a0f20b9f`.
+- Update archive SHA-256: `c0ed1a4d52276153e6c078ae90cb19c526b656cb7ece0f59096089402062d6a2`. The strict five-file archive contains matching SYSTEM/KERNEL and excludes bootloader/bootstrap payloads.
+- All 668 build steps, gzip/checksums, GPT, FAT/ext4, exact packaged-source/assets/services, image/update equality and full card read-back passed. Final user testing passed on the local test device.
+- Twelve ordinary test-save backups matched the source saves, with zero errors. Earlier 97 feature regression checks and the real-systemd lifecycle check passed. Updater rejection tests passed during final packaging.
+- User authorized stable publication. No ROMs, BIOS files, personal saves, collection databases or extracted sprite caches are included. Unfinished Gen III island-event prototypes remain excluded.
+- Release license manifest and optional audit ZIP accompany the image, checksum and updater assets. Upload verification compares GitHub server-computed SHA-256 digests and sizes before publication.
