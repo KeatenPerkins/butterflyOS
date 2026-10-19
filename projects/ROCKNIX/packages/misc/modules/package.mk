@@ -2,7 +2,7 @@
 # Copyright (C) 2024-present ROCKNIX (https://github.com/ROCKNIX)
 
 PKG_NAME="modules"
-PKG_VERSION="1.5"
+PKG_VERSION="1.6"
 PKG_LICENSE="GPL-2.0-only"
 PKG_SITE=""
 PKG_URL=""
