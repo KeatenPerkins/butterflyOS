@@ -19,6 +19,8 @@ Current release: [v1.1.0 notes](RELEASE_NOTES_v1.1.0.md), updater build **202610
   cards, available starting with v1.0.2.
 - [How to transfer games](TRANSFERRING_GAMES.md): web uploads, SD-card copying,
   SMB, SFTP/SCP, rsync, device password setup, and USB Gadget File Transfer instructions.
+- [Save backup and restore](SAVE_BACKUPS.md): upcoming automatic backups,
+  supported saves, storage requirements, and manual restore instructions.
 - [Installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md): the
   device-specific SD-boot change, backup export, reflashing, and exact restore.
 - [Features](FEATURES.md): current capabilities and their limits.
@@ -30,7 +32,10 @@ Current release: [v1.1.0 notes](RELEASE_NOTES_v1.1.0.md), updater build **202610
   saved system/game choices, CPU/GPU settings, and battery tradeoffs.
 - [Themes and customization](THEMES.md): theme switching, custom copies, image
   sizes, colors, fonts, installation and testing.
-- [Butterfly Link](BUTTERFLY_LINK.md): local/remote save transfers and supported
+- [Bdex](BDEX.md): upcoming Gen 1–3 collections, imports, copy exports, Trash,
+  database backup/recovery, sprite refresh and the read-only web viewer;
+  setup and limitations for the next release.
+- [Blink](BUTTERFLY_LINK.md): local/remote save transfers and supported
   generation directions.
 - [Known issues](KNOWN_ISSUES.md): incomplete testing and reported failures.
 - [Compatibility matrix](BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md): tested
@@ -53,7 +58,7 @@ Current release: [v1.1.0 notes](RELEASE_NOTES_v1.1.0.md), updater build **202610
 
 Package manifests, dated test reports, and older link-cable design documents
 are historical development records. They do not establish that a newer image
-passed the same checks. In particular, the older netplay/USB Butterfly Link
+passed the same checks. In particular, the older netplay/USB Blink
 plans do not describe the current save-transfer app.
 
 Inherited `PER_DEVICE_DOCUMENTATION` directories for other chipsets describe

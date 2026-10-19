@@ -1,0 +1,21 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -1815,6 +1815,18 @@
+ 	s->addGroup(_("HARDWARE"));
+ #endif
+ 
+ #if defined(BATOCERA) || defined(ROCKNIX)
++	if (Utils::FileSystem::exists("/usr/bin/butterflyos-save-backup.py"))
++	{
++		const bool wasEnabled = Utils::FileSystem::exists("/storage/.config/butterflyos/save-backup/enabled", false);
++		auto saveBackup = std::make_shared<SwitchComponent>(mWindow);
++		saveBackup->setState(wasEnabled);
++		s->addWithDescription(_("AUTOMATIC SAVE BACKUP"), _("Keep save copies on the other SD card. Both cards required; leaves 10% free. Save states excluded."), saveBackup);
++		s->addSaveFunc([saveBackup, wasEnabled] {
++			if (saveBackup->getState() != wasEnabled)
++				Utils::Platform::runSystemCommand(std::string("/usr/bin/butterflyos-save-backup.py ") + (saveBackup->getState() ? "enable" : "disable"), "", nullptr);
++		});
++	}
++
+ 	if (Utils::FileSystem::exists("/usr/bin/butterflyos-suspend-test.py"))
+ 	{

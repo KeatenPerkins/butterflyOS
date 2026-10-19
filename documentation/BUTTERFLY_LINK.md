@@ -1,10 +1,13 @@
-# Butterfly Link
+# Blink
 
-<img src="assets/butterfly-link.png" alt="Butterfly Link app icon" width="128">
+<img src="assets/butterfly-link.png" alt="Blink app icon" width="128">
 
-## What is Butterfly Link?
+**Menu name in the next release: Tools → Blink.** Earlier releases show
+**Tools → Butterfly Link**. The existing guide URL remains unchanged.
 
-Butterfly Link is ButterflyOS's built-in Pokémon **save-transfer application**.
+## What is Blink?
+
+Blink (previously named Butterfly Link) is ButterflyOS's built-in Pokémon **save-transfer application**.
 It lets you select Pokémon from an existing game's PC boxes and copy or exchange
 them with another compatible save, without entering the game's Cable Club.
 The receiving Pokémon is available when you next load the destination game's
@@ -43,9 +46,16 @@ No internet service or SSH login is required for its remote-transfer workflow.
 - **Prepare protected working copies:** review a transfer before confirming it,
   with pre-commit backups retained for troubleshooting or manual recovery.
 
+### Shared sprite-cache improvement (upcoming)
+
+The next build corrects Gen III shiny-palette offsets for Emerald,
+Ruby/Sapphire revision 2 and FireRed revision 1. These shared-cache fixes apply
+to Blink and Bdex. An older cache rebuilds when its ROM is selected
+again; sprite/name data continues to come from the user's ROM.
+
 ### What does it need?
 
-**ROM language support:** Butterfly Link currently supports the qualified
+**ROM language support:** Blink currently supports the qualified
 English ROMs listed below. French, Spanish, German, Italian and Japanese ROM
 versions are not supported at this time. A ROM's filename can be in any language;
 the GBA ROM picker checks its internal game code, not its filename. Renaming a
@@ -70,12 +80,12 @@ browsing a PC box to return to box selection.
   checks. ButterflyOS does not include Pokémon games, artwork, or saves.
 - Pokémon stored in PC boxes. Party Pokémon can be viewed but cannot currently
   be traded or copied directly; deposit them in a box and save first.
-- For remote transfers, another Flip running a compatible Butterfly Link build
+- For remote transfers, another Flip running a compatible Blink build
   and reachable on the same local Wi-Fi network.
 
 For example, you can copy a boxed Pikachu from Yellow into Crystal without
 removing it from Yellow, or exchange boxed Pokémon between Ruby and Sapphire.
-You cannot copy a Gen III Pokémon back into Gold, or use Butterfly Link to battle
+You cannot copy a Gen III Pokémon back into Gold, or use Blink to battle
 a friend. It is not a general-purpose Pokémon editor.
 
 ### Gen I event gifts (v1.0.3)
@@ -83,7 +93,7 @@ a friend. It is not a general-purpose Pokémon editor.
 The Gen 1 menu lists detected game saves first. Select a game for the normal
 trade/copy flow; Gen 1 Gifts and Stadium Gifts appear below the game list.
 
-Open **Tools → Butterfly Link → Local transfer → Gen 1 → Gen 1 Gifts** to add a generated level-5
+Open **Tools → Blink → Local transfer → Gen 1 → Gen 1 Gifts** to add a generated level-5
 Mew, Surfing/Flying Pikachu, Dragon Rage Magikarp, or Pay Day Fearow/Rapidash
 to a free PC slot. This first version accepts only the
 verified English retail Red, Blue and Yellow ROM revisions; other revisions,
@@ -429,17 +439,17 @@ without held items. Use a free PC slot, preview and protected Commit, then hatch
 and save/reload normally. Gameplay qualification is pending on the local test device.
 [Recipe reference](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs).
 
-## Opening Butterfly Link
+## Opening Blink
 
-Butterfly Link copies or exchanges Pokémon between selected emulator save files.
-Open **Tools → Butterfly Link**, from the home screen or **Start → Tools**.
+Blink copies or exchanges Pokémon between selected emulator save files.
+Open **Tools → Blink**, from the home screen or **Start → Tools**.
 Use the D-pad to navigate, **A/Start** to select, and **B/Menu** to go back.
 
 It works locally on one Flip or between two Flips on the same Wi-Fi network.
 It edits saves; it does not launch games, emulate a cable, or provide battles.
 Older netplay and USB-link plans describe historical experiments.
 
-Keep an independent backup, exit the emulator before opening Butterfly Link,
+Keep an independent backup, exit the emulator before opening Blink,
 and do not have the same save open in another application during a transfer.
 
 ## Supported games and transfer directions
@@ -463,7 +473,7 @@ Emerald and FireRed/LeafGreen save families, including the tested Emerald ↔
 LeafGreen pairing. Both trade and copy retain save validation and protected
 backups. This does not qualify every game/save pairing.
 
-Gen II → III is a Butterfly Link conversion, not an original-game cable feature.
+Gen II → III is a Blink conversion, not an original-game cable feature.
 Compatible identity/training data is converted; generation-specific fields need
 newly derived values. **Version 1.0.3 preserves verified Gen III held-item
 equivalents.** Items without a verified equivalent are cleared on the destination
@@ -531,7 +541,7 @@ shows English move names for supported Gen I, II and III games instead of
 labels such as `Move #10`. Gen II and III also show the held item's English
 name on a separate line, or **No held item** when empty. Gen I has no held items.
 
-Select the matching English ROM if prompted. Butterfly Link reads the names
+Select the matching English ROM if prompted. Blink reads the names
 and sprites locally from your ROM and refreshes older caches when needed;
 the first preparation can take a moment. Gen I/II ZIP archives containing
 exactly one `.gb` or `.gbc` ROM now work directly, alongside the existing
@@ -546,7 +556,7 @@ Live checks of move and held-item names passed on the local test device.
 
 ## Remote workflow
 
-1. Connect both Flips to the same Wi-Fi and open Butterfly Link; SSH is not required.
+1. Connect both Flips to the same Wi-Fi and open Blink; SSH is not required.
 2. The sender chooses **Remote Transfer → Host**, then a transfer mode.
 3. The other device chooses **Remote Transfer → Join** and selects the host.
 4. The host accepts the request and selects its save, boxed Pokémon, and action.

@@ -193,7 +193,7 @@ back to the default. Keep a working copy on your PC before large edits.
 
 This guide covers the EmulationStation theme: the home carousel, system/game
 lists and theme-aware menus. The save-state manager uses some menu colors and
-fonts, but its layout remains implemented in code. Butterfly Link and the other
+fonts, but its layout remains implemented in code. Blink and the other
 custom tool applications have their own styling. SSH branding and the boot
 splash are also separate from the selectable frontend theme.
 

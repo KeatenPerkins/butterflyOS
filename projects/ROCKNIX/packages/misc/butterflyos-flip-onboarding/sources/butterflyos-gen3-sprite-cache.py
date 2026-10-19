@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXTRACTOR_VERSION = "3"
+EXTRACTOR_VERSION = "5"
 DEFAULT_CACHE_ROOT = "/storage/.config/butterflyos/save-trade/sprite-cache"
 GBA_BASE = 0x08000000
 
@@ -66,7 +66,7 @@ ROM_LAYOUTS = {
         # another.  Its front table contains the taller animated frame data.
         "front": 0x30A18C,
         "palette": 0x303678,
-        "shiny_palette": 0x304288,
+        "shiny_palette": 0x304438,
         "count": 440,
     },
 }
@@ -78,14 +78,14 @@ REVISION_2_LAYOUTS = {
         "title": "Pokemon Ruby (revision 2)",
         "front": 0x1E836C,
         "palette": 0x1EA5CC,
-        "shiny_palette": 0x1EB1DC,
+        "shiny_palette": 0x1EB38C,
         "count": 440,
     },
     "AXPE": {
         "title": "Pokemon Sapphire (revision 2)",
         "front": 0x1E82FC,
         "palette": 0x1EA55C,
-        "shiny_palette": 0x1EB16C,
+        "shiny_palette": 0x1EB31C,
         "count": 440,
     },
 }
@@ -102,7 +102,7 @@ REVISION_1_LAYOUTS = {
         "title": "Pokemon FireRed (revision 1)",
         "front": 0x23511C,
         "palette": 0x23737C,
-        "shiny_palette": 0x237F8C,
+        "shiny_palette": 0x23813C,
         "count": 440,
     },
 }
@@ -275,10 +275,12 @@ def decode_name(raw):
     for byte in raw[:end]:
         if 0xBB <= byte <= 0xD4:
             result.append(chr(ord('A') + byte - 0xBB))
+        elif 0xD5 <= byte <= 0xEE:
+            result.append(chr(ord('a') + byte - 0xD5))
         elif 0xA1 <= byte <= 0xAA:
             result.append(chr(ord('0') + byte - 0xA1))
-        elif byte in (0x00, 0x1B, 0xAC, 0xAD, 0xAE, 0xB4, 0xBA):
-            result.append({0x00: ' ', 0x1B: 'é', 0xAC: '?', 0xAD: '.', 0xAE: '-', 0xB4: "'", 0xBA: '/'}[byte])
+        elif byte in (0x00, 0x1B, 0xAC, 0xAD, 0xAE, 0xB4, 0xB5, 0xB6, 0xBA, 0xAB, 0xB8, 0xB9, 0x5C, 0x5D, 0xF0, 0x36, 0x53, 0x54):
+            result.append({0x00: ' ', 0x1B: 'é', 0xAC: '?', 0xAD: '.', 0xAE: '-', 0xB4: "'", 0xB5: '♂', 0xB6: '♀', 0xBA: '/', 0xAB: '!', 0xB8: ',', 0xB9: '×', 0x5C: '(', 0x5D: ')', 0xF0: ':', 0x36: ';', 0x53: '<', 0x54: '>'}[byte])
         else:
             return None
     return ''.join(result).strip() or None
@@ -335,6 +337,44 @@ def item_names(data):
             return names
 
 
+def collection_names(data):
+    """Read bank catalog data only from the qualified user's retail revision."""
+    spec = importlib.util.spec_from_file_location('sprite_gen3_profiles', Path(__file__).with_name('butterflyos-gen3-gift.py'))
+    gifts = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gifts)
+    profile = gifts.ROM_PROFILES.get(hashlib.sha256(data).hexdigest())
+    if profile is None:
+        return {}  # Existing Blink sprite support remains independent of Bdex qualification.
+    _, _, mapping_at, stats_at, experience_at, _, names_at = profile
+    mapping = {internal: dex for internal, dex in enumerate(struct.unpack_from('<411H', data, mapping_at), 1)
+               if 1 <= dex <= 386}
+    if len(mapping) != 386 or set(mapping.values()) != set(range(1, 387)):
+        raise CacheError('invalid-gen3-national-mapping')
+    names, types, ratios, growth = {}, {}, {}, {}
+    for internal, dex in mapping.items():
+        key = str(dex)
+        name = decode_name(data[names_at + internal * 11:names_at + (internal + 1) * 11])
+        if not name:
+            raise CacheError('invalid-gen3-species-name')
+        names[key] = name
+        stats = data[stats_at + internal * 28:stats_at + (internal + 1) * 28]
+        types[key] = list(dict.fromkeys(stats[6:8]))
+        ratios[key], growth[key] = stats[16], stats[19]
+    encoded = lambda text: bytes(ord(c) - ord('A') + 0xbb for c in text)
+    table = data.find(encoded('NORMAL') + b'\xff' + encoded('FIGHT'))
+    if table < 0:
+        raise CacheError('missing-gen3-type-names')
+    type_names = {str(ident): decode_name(data[table + ident * 7:table + (ident + 1) * 7])
+                  for ident in {value for values in types.values() for value in values}}
+    if not all(type_names.values()):
+        raise CacheError('invalid-gen3-type-names')
+    tables = {str(rate): list(struct.unpack_from('<101I', data, experience_at + rate * 404))
+              for rate in set(growth.values())}
+    return {'species': names, 'internal_to_national': {str(k): v for k, v in mapping.items()},
+            'types': types, 'type_names': type_names, 'gender_ratios': ratios,
+            'growth_rates': growth, 'experience_tables': tables}
+
+
 def cache_rom(rom_path, cache_root, force=False):
     rom_path = os.path.abspath(rom_path)
     if not os.path.isfile(rom_path):
@@ -361,6 +401,7 @@ def cache_rom(rom_path, cache_root, force=False):
         (temporary / "names.json").write_text(json.dumps({
             "format": "butterflyos-gen3-rom-names", "format_version": 1,
             "generation": 3, "moves": move_names(data), "items": item_names(data),
+            **collection_names(data),
         }, indent=2) + "\n")
         front_dir = temporary / "front"
         shiny_dir = temporary / "front-shiny"
@@ -385,7 +426,7 @@ def cache_rom(rom_path, cache_root, force=False):
             "format": "butterflyos-gen3-sprite-cache",
             "format_version": 1,
             "extractor_version": EXTRACTOR_VERSION,
-            "rom_sha256": digest,
+            "rom_sha256": digest, "rom_content_sha256": digest, "generation": 3,
             "rom_filename": os.path.basename(rom_path),
             "game_code": code,
             "rom_revision": revision,

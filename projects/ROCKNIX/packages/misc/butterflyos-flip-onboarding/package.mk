@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.27"
+PKG_VERSION="2.6.36"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
@@ -67,6 +67,7 @@ makeinstall_target() {
   mkdir -p "${INSTALL}/usr/config/modules/images"
   cp -a "${PKG_DIR}/sources/ButterflyOS Boot Check.sh" \
         "${PKG_DIR}/sources/Butterfly Link.sh" \
+        "${PKG_DIR}/sources/Bdex.sh" \
         "${PKG_DIR}/sources/Extended Diagnostics.sh" \
         "${PKG_DIR}/sources/SD Card Info.sh" \
         "${PKG_DIR}/sources/Export ButterflyOS Recovery Backup.sh" \
@@ -84,7 +85,12 @@ makeinstall_target() {
         "${PKG_DIR}/sources/save-trade-ui.sh" \
         "${INSTALL}/usr/share/butterflyos/"
   mkdir -p "${INSTALL}/usr/bin"
-  cp -a "${PKG_DIR}/sources/butterflyos-game-card" \
+  cp -a "${PKG_DIR}/sources/bdex-web" "${INSTALL}/usr/bin/"
+  cp -a "${PKG_DIR}/sources/butterflyos-bdex-web.py" "${INSTALL}/usr/bin/"
+  cp -a "${PKG_DIR}/sources/butterflyos-bdex.py" \
+        "${PKG_DIR}/sources/butterflyos-bdex-sdl.py" \
+        "${PKG_DIR}/sources/butterflyos-save-backup.py" \
+        "${PKG_DIR}/sources/butterflyos-game-card" \
         "${PKG_DIR}/sources/butterflyos-gb-sprite-cache.py" \
         "${PKG_DIR}/sources/butterflyos-gen1-gift.py" \
         "${PKG_DIR}/sources/butterflyos-gen2-gift.py" \
@@ -104,7 +110,12 @@ makeinstall_target() {
         "${INSTALL}/usr/bin/"
 
   mkdir -p "${INSTALL}/usr/lib/systemd/system/var-log.mount.d"
-  cp -a "${PKG_DIR}/system.d/butterflyos-health-monitor.service" \
+  cp -a "${PKG_DIR}/system.d/butterflyos-bdex-web.service" "${INSTALL}/usr/lib/systemd/system/"
+  mkdir -p "${INSTALL}/usr/lib/systemd/system/multi-user.target.wants"
+  ln -sf ../butterflyos-bdex-web.service "${INSTALL}/usr/lib/systemd/system/multi-user.target.wants/butterflyos-bdex-web.service"
+  cp -a "${PKG_DIR}/system.d/butterflyos-save-backup.service" \
+        "${PKG_DIR}/system.d/butterflyos-save-backup.timer" \
+        "${PKG_DIR}/system.d/butterflyos-health-monitor.service" \
         "${PKG_DIR}/system.d/butterflyos-extended-diagnostics.service" \
         "${PKG_DIR}/system.d/butterflyos-lid-backlight.service" \
         "${INSTALL}/usr/lib/systemd/system/"
@@ -134,6 +145,7 @@ makeinstall_target() {
 
   chmod 0755 "${INSTALL}/usr/config/modules/ButterflyOS Boot Check.sh" \
              "${INSTALL}/usr/config/modules/Butterfly Link.sh" \
+             "${INSTALL}/usr/config/modules/Bdex.sh" \
              "${INSTALL}/usr/config/modules/Extended Diagnostics.sh" \
              "${INSTALL}/usr/config/modules/SD Card Info.sh" \
              "${INSTALL}/usr/config/modules/Export ButterflyOS Recovery Backup.sh" \
@@ -144,6 +156,9 @@ makeinstall_target() {
              "${INSTALL}/usr/share/butterflyos/save-trade-ui.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/manage.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/patch-preloader.sh" \
+             "${INSTALL}/usr/bin/butterflyos-bdex.py" \
+             "${INSTALL}/usr/bin/butterflyos-bdex-sdl.py" \
+             "${INSTALL}/usr/bin/butterflyos-save-backup.py" \
              "${INSTALL}/usr/bin/butterflyos-game-card" \
              "${INSTALL}/usr/bin/butterflyos-gb-sprite-cache.py" \
              "${INSTALL}/usr/bin/butterflyos-save-trade-sdl.py" \
@@ -163,6 +178,7 @@ makeinstall_target() {
 }
 
 post_install() {
+  enable_service butterflyos-save-backup.timer
   enable_service storage-log.service
   enable_service var-log.mount
   enable_service butterflyos-extended-diagnostics.service

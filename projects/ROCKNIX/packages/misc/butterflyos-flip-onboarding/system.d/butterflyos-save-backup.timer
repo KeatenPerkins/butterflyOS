@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for changed game saves every five minutes
+
+[Timer]
+OnActiveSec=3min
+OnUnitInactiveSec=5min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

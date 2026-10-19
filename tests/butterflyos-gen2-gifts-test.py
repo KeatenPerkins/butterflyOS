@@ -245,7 +245,8 @@ with tempfile.TemporaryDirectory(prefix='gen2-gifts-test-') as directory:
     class EggFrontend:
         def draw_sprite_browser(self,*args):pass
         def next_key(self):return next(keys)
-    with patch.object(ui,'choose_box',return_value=0),patch.object(ui,'_enrich_rom_names'),patch.object(ui,'notice') as note:
+    # B now returns to box selection; cancelling there exits the picker.
+    with patch.object(ui,'choose_box',side_effect=[0,None]),patch.object(ui,'_enrich_rom_names'),patch.object(ui,'notice') as note:
         assert ui.choose_record(EggFrontend(),'TEST',('test.srm','PLAYER','Crystal',[dict(parsed,box=0)]),None) is None
         assert note.call_count==1 and note.call_args[0][1]=='HATCH THE EGG FIRST'
 for path,data in inputs.items():assert path.read_bytes()==data

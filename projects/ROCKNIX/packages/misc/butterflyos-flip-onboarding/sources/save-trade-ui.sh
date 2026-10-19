@@ -4,8 +4,8 @@
 
 set -u
 
-TITLE="Butterfly Link"
-BACKTITLE="ButterflyOS  •  Butterfly Link"
+TITLE="Blink"
+BACKTITLE="ButterflyOS  •  Blink"
 # Dialog used a fixed 24x64 box, which left a large unused area on the Flip
 # and made the list feel detached from the rest of the ButterflyOS UI.  Size
 # each screen from the actual terminal while leaving a one-cell safe margin.
@@ -257,7 +257,7 @@ sprite_cache_workflow() {
     message "SPRITE CACHE FAILED\n\n${output}\n\nThe ROM and save files were not changed."
     return
   fi
-  message "SPRITE CACHE READY\n\n${output}\n\nFuture Butterfly Link screens will reuse this cache. It is regenerated automatically if the ROM changes."
+  message "SPRITE CACHE READY\n\n${output}\n\nFuture Blink screens will reuse this cache. It is regenerated automatically if the ROM changes."
 }
 
 box_count() {
@@ -552,7 +552,7 @@ prepare_workflow() {
   local left right left_box left_slot right_box right_slot id dir output
   local left_name right_name
   local left_out right_out
-  message "LOCAL TRADE  •  GENERATION 3\n\nChoose the first save file. Butterfly Link will show the trainer, party, and PC contents before you choose a Pokemon.\n\nOriginal saves are never edited during selection."
+  message "LOCAL TRADE  •  GENERATION 3\n\nChoose the first save file. Blink will show the trainer, party, and PC contents before you choose a Pokemon.\n\nOriginal saves are never edited during selection."
   left=$(select_save 1) || return
   message "PLAYER 1 SAVE\n\n$(save_card "${left}")\n\nNext: choose the second save file."
   right=$(select_save 1) || return
@@ -697,7 +697,7 @@ discard_latest() {
 }
 
 about() {
-  message "BUTTERFLY LINK\n\nChoose Local transfer to work with protected save copies. Trade / Swap exchanges two boxed Pokemon. Copy leaves the source unchanged and appends a duplicate to a destination PC box.\n\nOriginal saves are never changed during selection. Commit creates a verified backup first.\n\nSame-generation PC transfers are supported for Gen I, Gen II, and Gen III. Party transfers, Gen I-to-II conversion, trade evolution, and network transfer are intentionally not available yet.\n\nNormal and shiny Gen III sprites are cached from the user's own ROM and reused by the transfer preview."
+  message "BLINK\n\nChoose Local transfer to work with protected save copies. Trade / Swap exchanges two boxed Pokemon. Copy leaves the source unchanged and appends a duplicate to a destination PC box.\n\nOriginal saves are never changed during selection. Commit creates a verified backup first.\n\nSame-generation PC transfers are supported for Gen I, Gen II, and Gen III. Party transfers, Gen I-to-II conversion, trade evolution, and network transfer are intentionally not available yet.\n\nNormal and shiny Gen III sprites are cached from the user's own ROM and reused by the transfer preview."
 }
 
 run_requested_action() {
@@ -731,7 +731,7 @@ while true; do
     prepare "Resume prepared transfer" \
     commit "Commit prepared transfer" \
     discard "Discard prepared transfer" \
-    about "How Butterfly Link works" \
+    about "How Blink works" \
     close "Back to Tools") || break
   case "${choice}" in
     local) local_trade_workflow ;;

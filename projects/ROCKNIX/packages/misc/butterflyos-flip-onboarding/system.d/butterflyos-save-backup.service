@@ -1,0 +1,11 @@
+[Unit]
+Description=ButterflyOS ordinary save backups
+After=local-fs.target
+ConditionPathExists=/storage/.config/butterflyos/save-backup/enabled
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/butterflyos-save-backup.py run
+Nice=15
+IOSchedulingClass=idle
+TimeoutStartSec=5min

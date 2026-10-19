@@ -2,7 +2,7 @@
 
 **Historical plan (superseded).** The staging and network-disabled statements
 below record the initial prototype, not current features. The installed app is
-now called Butterfly Link; use [its current guide](BUTTERFLY_LINK.md) and
+now called Blink; use [its current guide](BUTTERFLY_LINK.md) and
 [current build status](CURRENT_BUILD_STATUS.md). Retain this document as design
 history rather than installation or testing instructions.
 
@@ -12,7 +12,7 @@ tested on hardware. Network transfer remains disabled.
 
 ## Sprite preview and cache
 
-Butterfly Link includes a full-screen SDL sprite-preview browser. It presents
+Blink includes a full-screen SDL sprite-preview browser. It presents
 the selected save's boxed Pokémon in a readable list and renders the selected
 front sprite in a dedicated lower preview pane. Cache creation is an explicit
 user action: the image includes extractors but contains no Pokémon artwork.
@@ -54,7 +54,7 @@ use different record layouts and species indexes.
 
 ## Planned Time Capsule conversion rules
 
-Butterfly Link will model the original Gen I/II **Time Capsule** rules rather
+Blink will model the original Gen I/II **Time Capsule** rules rather
 than treating a cross-generation request as an unrestricted save edit.
 
 - **Gen I -> Gen I:** valid boxed Pokémon can be swapped or copied.
@@ -64,7 +64,7 @@ than treating a cross-generation request as an unrestricted save edit.
   the Gen II held-item byte, and initialize Gen II-only fields safely.
 - **Gen II -> Gen I:** a copy or swap is allowed only for one of the original
   151 species with a fully Gen I-compatible move set. Gen II-only species,
-  eggs, and Gen II-only moves are rejected with an explanation; Butterfly Link
+  eggs, and Gen II-only moves are rejected with an explanation; Blink
   must never silently alter a Pokémon to force compatibility.
 - A cross-generation **swap** is available only when both directions pass those
   checks. A one-way **copy** remains available when only Gen I -> Gen II is
@@ -76,7 +76,7 @@ The first version remains PC-box-only. Party transfers, trade-evolution rules,
 and cross-save Gen I/II writes stay disabled until converted outputs have been
 opened and verified in their destination games.
 
-The **Butterfly Link** Tools entry now provides generation-aware save
+The **Blink** Tools entry now provides generation-aware save
 discovery, protected local Gen I/II/III box-swap/copy preparation, and a
 separate commit action. The commit action creates verified backups before
 replacing either selected save and attempts rollback if the second replacement
@@ -86,10 +86,10 @@ as working cable emulation.
 ## Next feature: Trade Evolution Assistant
 
 Trade evolution is a planned extension of a **Swap**, not of Copy. Since
-Butterfly Link edits saves rather than running a cable session, it must model
+Blink edits saves rather than running a cable session, it must model
 the evolution deliberately and visibly:
 
-1. After both boxed Pokémon are selected, Butterfly Link checks the incoming
+1. After both boxed Pokémon are selected, Blink checks the incoming
    Pokémon on each side for that generation's trade-evolution rule.
 2. It presents each eligible evolution, for example `Kadabra -> Alakazam`,
    with an explicit **Evolve / Keep unevolved** choice. This is equivalent to
@@ -109,7 +109,7 @@ must be tested in its original game after the save is written.
 
 ## Planned user flow
 
-1. The user opens **Butterfly Link > Save Trade** on each device.
+1. The user opens **Blink > Save Trade** on each device.
 2. Each device selects a local ROM/save pair. The app displays the exact card,
    path, save size, and checksum and creates a restore point.
 3. The devices exchange only save metadata and a list of selectable Pokémon.

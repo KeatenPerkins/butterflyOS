@@ -69,7 +69,7 @@ attribution. Do not use their logos to suggest an official relationship.
 ## Checks for each subsequent release
 
 - Rebuild from the final committed source after all current changes, then repeat
-  the clean-image audit and focused hardware tests, including Butterfly Link.
+  the clean-image audit and focused hardware tests, including Blink.
 - Recheck the final package/license manifest and embedded firmware/font notices.
 - Publish the exact corresponding source and immutable release tag beside the
   final binary and checksum.

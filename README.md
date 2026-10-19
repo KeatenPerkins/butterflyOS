@@ -16,12 +16,14 @@ Start here:
 
 - [Quick Start](documentation/QUICK_START.md)
 - [How to transfer games](documentation/TRANSFERRING_GAMES.md)
+- [Save backup and restore — upcoming feature](documentation/SAVE_BACKUPS.md)
 - [How to update](documentation/UPDATES.md#how-to-update)
 - [Installation and recovery](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md)
 - [Controls and hotkeys](documentation/HOTKEYS.md)
 - [Emulators and performance tuning](documentation/EMULATORS_AND_PERFORMANCE.md)
 - [Features](documentation/FEATURES.md)
-- [Butterfly Link save trading](documentation/BUTTERFLY_LINK.md)
+- [Blink save trading](documentation/BUTTERFLY_LINK.md)
+- [Bdex collections and read-only web viewer — upcoming feature](documentation/BDEX.md)
 - [Documentation index](documentation/README.md)
 - [Compatibility matrix](documentation/BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md)
 - [Known issues](documentation/KNOWN_ISSUES.md)
@@ -44,13 +46,13 @@ Project direction is documented in the [vision](docs/VISION.md) and
 - Online ButterflyOS updates from System Settings
 - Reversible SD-card boot setup that preserves the internal Miyoo OS
 - Beginner-facing settings with optional Advanced Mode
-- Butterfly Link for local and same-Wi-Fi Pokémon save trades/copies across
+- Blink for local and same-Wi-Fi Pokémon save trades/copies across
   supported Generation I, II, and III games; see its compatibility limits
 
-### Butterfly Link
+### Blink
 
-Butterfly Link is a tool for trading Pokemon for Generations 1, 2, and 3 games.
-Butterfly Link edits selected save files; it does not launch a cable-linked
+Blink is a tool for trading Pokemon for Generations 1, 2, and 3 games.
+Blink edits selected save files; it does not launch a cable-linked
 game or provide battles. Same-generation local and remote trades/copies have
 passed development testing. This means you can "trade" Pokemon with a friend
 who also has ButterflyOS. Gen II → III is a one-way copy. From v1.0.3, it keeps
@@ -59,7 +61,7 @@ through v1.0.2 clear all held items on the copy. Gen I → II copies include the
 Gen II PC-box persistence fix.
 Transfers currently use PC-box Pokémon only. Version 1.1.0 adds Gen III gift eggs
 and direct gifts, ROM-derived move/item names, and sharper HDMI text; see the
-[Butterfly Link guide](documentation/BUTTERFLY_LINK.md).
+[Blink guide](documentation/BUTTERFLY_LINK.md).
 
 ### Media compatibility on Miyoo Flip V2
 

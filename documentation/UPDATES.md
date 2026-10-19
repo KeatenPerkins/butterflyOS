@@ -8,7 +8,7 @@ migration fix described under [Current status](#current-status).
 
 ### Before downloading
 
-- Save and exit any running game or Butterfly Link session.
+- Save and exit any running game or Blink session.
 - Back up important saves and export your device's recovery backup.
 - Connect to Wi-Fi, charge the battery to **at least 50%**, and connect power
   through the **front USB-C port**. Keep the device powered throughout the update.

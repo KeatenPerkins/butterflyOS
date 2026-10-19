@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Butterfly Link's on-device SDL front end.
+"""Blink's on-device SDL front end.
 
 The save-transfer and backup logic remains in ``save-trade-ui.sh``.  This
-program owns the presentation of the top-level Butterfly Link screen so the
+program owns the presentation of the top-level Blink screen so the
 device uses the same large, high-contrast layout as the design preview.  A
 selected action is handed to the existing shell workflow; if SDL2/SDL_ttf is
 not available, the launcher falls back to that workflow directly.
@@ -84,12 +84,12 @@ class SDL_Color(ctypes.Structure):
 
 PAGES = {
     "main": (
-        "BUTTERFLY LINK",
+        "BLINK",
         "Choose an action.  A Select   B Back",
         [
             ("local", "Local transfer"),
             ("remote", "Another ButterflyOS device"),
-            ("about", "How Butterfly Link works"),
+            ("about", "How Blink works"),
             ("close", "Back to Tools"),
         ],
     )
@@ -259,7 +259,7 @@ STADIUM_GIFTS = [
     ("stadium-kabuto", "KABUTO", "Gym Leader Castle gift equivalent"),
 ]
 
-# Butterfly Link never opens a router port or contacts an Internet service.
+# Blink never opens a router port or contacts an Internet service.
 # Discovery and the short-lived pairing socket are intentionally limited to
 # devices already on the same local network.
 LAN_DISCOVERY_PORT = 42676
@@ -280,11 +280,11 @@ REMOTE_MODES = [
 
 
 class LinkNetworkError(RuntimeError):
-    """A local Butterfly Link network session could not be established."""
+    """A local Blink network session could not be established."""
 
 
 def _device_name() -> str:
-    # Butterfly Link is a user-facing ButterflyOS feature.  Do not expose an
+    # Blink is a user-facing ButterflyOS feature.  Do not expose an
     # upstream hostname such as "rocknix" during pairing, even if a base image
     # has not yet updated /etc/hostname.
     try:
@@ -312,7 +312,7 @@ def _local_ip() -> str:
 def _wire_send(connection: socket.socket, document: dict) -> None:
     payload = json.dumps(document, separators=(",", ":")).encode("utf-8") + b"\n"
     if len(payload) > LAN_MAX_MESSAGE:
-        raise LinkNetworkError("Butterfly Link message was unexpectedly large.")
+        raise LinkNetworkError("Blink message was unexpectedly large.")
     connection.sendall(payload)
 
 
@@ -327,9 +327,9 @@ def _wire_receive(connection: socket.socket, timeout: float) -> dict:
             try:
                 document = json.loads(line.decode("utf-8"))
             except (UnicodeDecodeError, json.JSONDecodeError) as error:
-                raise LinkNetworkError("Butterfly Link received an invalid local message.") from error
+                raise LinkNetworkError("Blink received an invalid local message.") from error
             if not isinstance(document, dict):
-                raise LinkNetworkError("Butterfly Link received an invalid local message.")
+                raise LinkNetworkError("Blink received an invalid local message.")
             return document
         remaining = max(0.01, deadline - time.monotonic())
         ready, _write, _error = select.select([connection], [], [], remaining)
@@ -340,7 +340,7 @@ def _wire_receive(connection: socket.socket, timeout: float) -> dict:
             raise LinkNetworkError("The other ButterflyOS device disconnected.")
         data.extend(chunk)
         if len(data) > LAN_MAX_MESSAGE:
-            raise LinkNetworkError("Butterfly Link rejected an oversized message.")
+            raise LinkNetworkError("Blink rejected an oversized message.")
     raise LinkNetworkError("The other ButterflyOS device did not respond.")
 
 
@@ -356,7 +356,7 @@ def _send_save_copy(connection: socket.socket, path: str, label: str) -> None:
     """Send a working-save copy only after the peer explicitly accepts it."""
     size = os.path.getsize(path)
     if size <= 0 or size > 1024 * 1024:
-        raise LinkNetworkError("Butterfly Link rejected an unexpected save-file size.")
+        raise LinkNetworkError("Blink rejected an unexpected save-file size.")
     digest = _file_digest(path)
     _wire_send(connection, {"type": "butterfly-link-save-offer", "label": label,
                             "size": size, "sha256": digest})
@@ -382,7 +382,7 @@ def _receive_save_copy(connection: socket.socket, destination: str) -> tuple[str
     except (KeyError, TypeError, ValueError) as error:
         raise LinkNetworkError("The other ButterflyOS device sent invalid save details.") from error
     if size <= 0 or size > 1024 * 1024 or len(expected) != 64:
-        raise LinkNetworkError("Butterfly Link rejected an unexpected save-file size.")
+        raise LinkNetworkError("Blink rejected an unexpected save-file size.")
     _wire_send(connection, {"type": "butterfly-link-save-ready"})
     temporary = destination + ".receiving"
     digest, remaining = hashlib.sha256(), size
@@ -442,7 +442,7 @@ def commit_remote_output(session: str, original: str, output: str) -> tuple[bool
         copy_with_sync(original, backup)
         replace_save_with_verified_output(original, output, backup)
         write_session_value(session, "state", "COMMITTED")
-        return True, "Local save committed. Its original remains in this Butterfly Link session."
+        return True, "Local save committed. Its original remains in this Blink session."
     except OSError as error:
         return False, "Commit failed safely: %s" % error
 
@@ -471,7 +471,7 @@ def _discover_hosts(frontend: 'SDLFrontEnd') -> list[dict]:
         sock.setblocking(False)
         hosts, deadline = {}, time.monotonic() + 7.0
         while time.monotonic() < deadline:
-            frontend.draw_list("FINDING BUTTERFLY LINK HOSTS",
+            frontend.draw_list("FINDING BLINK HOSTS",
                                "Looking on your current Wi-Fi network. B cancels.",
                                [("SEARCHING", "Waiting for a host session…")], 0,
                                "B / MENU Cancel")
@@ -627,7 +627,7 @@ def remote_host_transfer(frontend: 'SDLFrontEnd', connection: socket.socket,
             local_output, peer_output = None, session_output(session, "destination-")
             review_right = {"name": "Empty PC slot", "box": destination_box, "slot": destination_slot}
         if not peer_output or (action == "trade" and not local_output):
-            raise LinkNetworkError("Butterfly Link could not find its protected working copies.")
+            raise LinkNetworkError("Blink could not find its protected working copies.")
         _wire_send(connection, {"type": "butterfly-link-prepared", "action": action,
                                 "record": _public_record(source_record)})
         _send_save_copy(connection, peer_output, "prepared-by-%s" % _device_name())
@@ -762,7 +762,7 @@ def remote_session_workflow(frontend: 'SDLFrontEnd') -> None:
     """Pair two devices and run a protected save transfer."""
     role = choose_list(frontend, "REMOTE TRANSFER",
                        "Both Flips must be on the same Wi-Fi network.",
-                       [("HOST", "Create a Butterfly Link session"),
+                       [("HOST", "Create a Blink session"),
                         ("JOIN", "Join a session created by another Flip")])
     if role is None:
         return
@@ -790,7 +790,7 @@ def remote_session_workflow(frontend: 'SDLFrontEnd') -> None:
                 if time.monotonic() - last_announce > 0.6:
                     _announce(announcer, session_id, mode)
                     last_announce = time.monotonic()
-                frontend.draw_list("HOSTING BUTTERFLY LINK",
+                frontend.draw_list("HOSTING BLINK",
                                    "Mode: %s. Waiting for another Flip to join." % remote_options[mode_index][0],
                                    [("WI-FI", "Session visible to nearby ButterflyOS devices")], 0,
                                    "B / MENU Cancel host session")
@@ -833,7 +833,7 @@ def remote_session_workflow(frontend: 'SDLFrontEnd') -> None:
         for host in hosts:
             label = "%s  •  %s" % (host.get("host", "ButterflyOS"), host.get("ip", "local network"))
             items.append((str(host.get("mode", "LINK")).upper()[:12], label[:58]))
-        selected = choose_list(frontend, "JOIN BUTTERFLY LINK",
+        selected = choose_list(frontend, "JOIN BLINK",
                                "Choose the Flip hosting the session.", items)
         if selected is None:
             return
@@ -842,7 +842,7 @@ def remote_session_workflow(frontend: 'SDLFrontEnd') -> None:
             connection = socket.create_connection((host["ip"], int(host.get("port", LAN_SESSION_PORT))), 5.0)
             _wire_send(connection, {"type": "butterfly-link-join", "version": LAN_PROTOCOL_VERSION,
                                     "session": host["session"], "device": _device_name()})
-            frontend.draw_list("JOINING BUTTERFLY LINK", "Waiting for the host to approve this device.",
+            frontend.draw_list("JOINING BLINK", "Waiting for the host to approve this device.",
                                [("WAITING", "The host must select Accept")], 0, "B / MENU Cancel")
             answer = _wire_receive(connection, 10.0)
             if answer.get("type") == "butterfly-link-paired":
@@ -880,7 +880,7 @@ class SDLFrontEnd:
             raise RuntimeError(self.sdl.SDL_GetError().decode("utf-8", "replace"))
         flags = SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS
         self.window = self.sdl.SDL_CreateWindow(
-            b"Butterfly Link", 0x2FFF0000, 0x2FFF0000, 0, 0, flags
+            b"Blink", 0x2FFF0000, 0x2FFF0000, 0, 0, flags
         )
         if not self.window:
             self.close()
@@ -1005,7 +1005,7 @@ class SDLFrontEnd:
         ):
             if os.path.exists(path):
                 return path
-        raise RuntimeError("Butterfly Link font was not installed")
+        raise RuntimeError("Blink font was not installed")
 
     def font(self, size: int, bold: bool = False) -> ctypes.c_void_p:
         # The target dejavu package currently ships the condensed regular face.
@@ -1226,7 +1226,7 @@ class SDLFrontEnd:
             left = 438 - (image_width * scale) // 2
             top = 338 - (image_height * scale) // 2
             # Game Boy-era art has a transparent background that disappears
-            # into Butterfly Link's dark panel. Give Gen I/II a neutral card;
+            # into Blink's dark panel. Give Gen I/II a neutral card;
             # Gen III retains its existing sprite presentation and palette.
             if records and records[selected].get("generation") in (1, 2):
                 self.fill(366, 278, 144, 126, (216, 220, 226))
@@ -1475,7 +1475,7 @@ def _cache_for_generation(generation: int, save_path: str) -> tuple[Optional[str
 
 
 def _read_cache_png(path: str) -> Optional[tuple[int, int, bytes]]:
-    """Read Butterfly Link's own filter-0 RGBA cache PNGs without SDL_image."""
+    """Read Blink's own filter-0 RGBA cache PNGs without SDL_image."""
     try:
         data = open(path, "rb").read()
         if not data.startswith(b"\x89PNG\r\n\x1a\n"):
@@ -1603,9 +1603,9 @@ def notice(frontend: SDLFrontEnd, title: str, message: str,
     ready_at = time.monotonic() + (1.5 if completion else 0.0)
     while True:
         ready = time.monotonic() >= ready_at
-        prompt = ("Press A to return to Butterfly Link." if completion else
-                  "A or B returns to Butterfly Link.")
-        footer = ("A Return to Butterfly Link" if ready else "Transfer finished — please read the result")
+        prompt = ("Press A to return to Blink." if completion else
+                  "A or B returns to Blink.")
+        footer = ("A Return to Blink" if ready else "Transfer finished — please read the result")
         maximum = frontend.draw_message(title, message + "\n\n" + prompt,
                                         footer if completion else "A / B / MENU Return", offset)
         key = frontend.next_key()
@@ -1623,7 +1623,7 @@ def notice(frontend: SDLFrontEnd, title: str, message: str,
 def about_butterfly_link(frontend: SDLFrontEnd) -> None:
     """Short, readable explanation of the safety model and generation limits."""
     while True:
-        choice = choose_list(frontend, "HOW BUTTERFLY LINK WORKS",
+        choice = choose_list(frontend, "HOW BLINK WORKS",
                              "Choose a topic. B returns to the main menu.",
                              [("SAFE FLOW", "How every local transfer is protected"),
                               ("GENERATION RULES", "What can move between game generations"),
@@ -1634,7 +1634,7 @@ def about_butterfly_link(frontend: SDLFrontEnd) -> None:
             notice(frontend, "SAFE LOCAL FLOW", """
 1. Choose a source save and a boxed Pokemon.
 2. Choose Copy or Trade, then choose the destination.
-3. Butterfly Link creates protected working save copies.
+3. Blink creates protected working save copies.
 4. Review the result and choose Commit to continue.
 5. The original destination is backed up, then replaced atomically.
 Cancel at any review screen: every original save stays unchanged.
@@ -2024,7 +2024,7 @@ def choose_copy_destination(frontend: SDLFrontEnd, generation: int,
                "Every PC box in this save is full. Move or release a Pokémon in-game, then try again.")
         return None
     choice = choose_list(frontend, "COPY DESTINATION",
-                         "Choose a PC box. Butterfly Link adds the Pokémon to its next empty slot.",
+                         "Choose a PC box. Blink adds the Pokémon to its next empty slot.",
                          choices)
     if choice is None:
         return None
@@ -2172,7 +2172,7 @@ def offer_trade_evolution(frontend: SDLFrontEnd, session: str, output: str,
     native_target = internal_species_for(national_target, destination_generation, destination_cache)
     if native_target is None:
         notice(frontend, "EVOLUTION SKIPPED",
-               "Butterfly Link could not map %s safely in the destination game. The prepared copy is unchanged." % target_name)
+               "Blink could not map %s safely in the destination game. The prepared copy is unchanged." % target_name)
         return True
     choice = choose_list(frontend, "TRADE EVOLUTION?",
                          "%s normally evolves through trading." % source_name,
@@ -2257,7 +2257,7 @@ def commit_swap(session: str) -> tuple[bool, str]:
             os.sync()
             raise
         write_session_value(session, "state", "COMMITTED")
-        return True, "Both saves were committed. Verified backups are in this Butterfly Link session."
+        return True, "Both saves were committed. Verified backups are in this Blink session."
     except (OSError, StopIteration) as error:
         return False, "Commit failed safely: %s" % error
 
@@ -2279,7 +2279,7 @@ def commit_copy(session: str) -> tuple[bool, str]:
         copy_with_sync(destination, backup)
         replace_save_with_verified_output(destination, output, backup)
         write_session_value(session, "state", "COMMITTED")
-        return True, "The copy was committed. A verified original is in this Butterfly Link session."
+        return True, "The copy was committed. A verified original is in this Blink session."
     except (OSError, StopIteration) as error:
         return False, "Copy commit failed safely: %s" % error
 
@@ -3029,7 +3029,7 @@ def main() -> int:
                     about_butterfly_link(frontend)
                     continue
     except (OSError, RuntimeError) as error:
-        print(f"Butterfly Link SDL front end unavailable: {error}", file=sys.stderr)
+        print(f"Blink SDL front end unavailable: {error}", file=sys.stderr)
         return 127
     finally:
         stop_controller(controller)

@@ -78,7 +78,8 @@ case "${1}" in
     umount /storage/roms 2>/dev/null ||:
     umount /storage/games-external 2>/dev/null ||:
     cd /
-    find /storage -mindepth 1 \( ! -regex '^/storage/.update.*' -a ! -regex '^/storage/roms.*' -a ! -regex '^/storage/games-.*' \) -delete 2>/dev/null
+    # Bdex is user collection data, not a preference to erase during reset.
+    find /storage -mindepth 1 \( ! -regex '^/storage/.update.*' -a ! -regex '^/storage/roms.*' -a ! -regex '^/storage/games-.*' -a ! -path '/storage/bdex' -a ! -path '/storage/bdex/*' \) -delete 2>/dev/null
     mkdir /storage/.config/
     sync 2>/dev/null
     systemctl reboot

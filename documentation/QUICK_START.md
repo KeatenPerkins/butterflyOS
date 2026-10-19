@@ -149,7 +149,7 @@ present.
 Use a matching basename for ordinary game saves: for example,
 `Pokemon - Gold Version (USA, Europe).gbc` and
 `Pokemon - Gold Version (USA, Europe).srm`. Emulator save states are separate
-from in-game/battery saves. See [Butterfly Link](BUTTERFLY_LINK.md) before
+from in-game/battery saves. See [Blink](BUTTERFLY_LINK.md) before
 transferring Pokémon.
 
 ## Optional second game card

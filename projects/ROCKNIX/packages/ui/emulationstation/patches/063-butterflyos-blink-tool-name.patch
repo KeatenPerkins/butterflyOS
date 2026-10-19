@@ -1,0 +1,10 @@
+--- a/es-app/src/FileData.cpp
++++ b/es-app/src/FileData.cpp
+@@ -1095,6 +1095,7 @@
+ 			(*it)->getName() != "Quick Start" &&
+ 			(*it)->getName() != "Controls Guide" &&
+ 			(*it)->getName() != "Butterfly Link" &&
++			(*it)->getName() != "Blink" &&
+ 			(*it)->getName() != "PortMaster" &&
+ 			(*it)->getName() != "Format 2nd SD Card")
+ 			continue;
