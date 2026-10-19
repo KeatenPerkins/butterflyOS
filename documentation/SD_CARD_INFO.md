@@ -15,7 +15,7 @@ It shows:
   to download or stage an OS update. Three GiB is the usual guide; the updater
   checks the exact release requirement.
 
-The interface uses Butterfly Link's graphical style. Use the D-pad to scroll,
+The interface uses Blink's graphical style. Use the D-pad to scroll,
 **A** to select, and **B** to go back. An overview opens first, followed by
 separate OS-card, game-card, and update-space pages, plus **Refresh**,
 **Save**, and **Close** actions. No keyboard is required. A themed terminal

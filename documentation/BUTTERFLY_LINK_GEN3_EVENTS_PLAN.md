@@ -1,4 +1,4 @@
-# Butterfly Link: Gen III event checklist
+# Blink: Gen III event checklist
 
 Researched October 9, 2026; implementation status updated October 16, 2026.
 All 39 planned egg entries are implemented across five qualified English Gen III

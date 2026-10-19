@@ -1,7 +1,7 @@
-# Butterfly Link USB-C transport (Plan B)
+# Blink USB-C transport (Plan B)
 
 Historical emulator-link research. This does not describe the installed
-save-transfer Butterfly Link app. See [the current user guide](../documentation/BUTTERFLY_LINK.md).
+save-transfer Blink app. See [the current user guide](../documentation/BUTTERFLY_LINK.md).
 
 The Miyoo Flip's lower/front USB-C connector can run as a CDC-NCM peripheral
 when the image uses the Plan B device tree. The upper/rear connector remains a

@@ -1,7 +1,7 @@
-# Butterfly Link: one-core-per-device design
+# Blink: one-core-per-device design
 
 Historical emulator-link research. This does not describe the installed
-save-transfer Butterfly Link app. See [the current user guide](../documentation/BUTTERFLY_LINK.md).
+save-transfer Blink app. See [the current user guide](../documentation/BUTTERFLY_LINK.md).
 
 ## Why the current prototype is being replaced
 
@@ -67,7 +67,7 @@ thread may call RetroArch state save/load while a transfer is active.
 * Both sides complete the handshake before launching their normal single-ROM
   RetroArch command.
 * A clean disconnect sends `disconnect`, flushes the local save, and returns
-  to the Butterfly Link screen.
+  to the Blink screen.
 * A lost peer stops link I/O, leaves the local emulator recoverable, and offers
   “save and exit” or “exit without committing”; it must not reboot the device.
 * Working saves continue to use `butterflyos-link-save`. Only the local

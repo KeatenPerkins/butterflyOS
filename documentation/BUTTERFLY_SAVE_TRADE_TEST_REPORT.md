@@ -1,7 +1,7 @@
 # ButterflyOS Save Trade Prototype Test Report
 
 This is a historical September 29–30 prototype report. Its UI/network limits
-do not describe the current app. See [Butterfly Link](BUTTERFLY_LINK.md) and
+do not describe the current app. See [Blink](BUTTERFLY_LINK.md) and
 [current build status](CURRENT_BUILD_STATUS.md) for subsequent implementation
 and hardware observations.
 

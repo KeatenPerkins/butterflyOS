@@ -1,6 +1,81 @@
 # Current build and test status
 
-Reviewed: 2026-10-17.
+Reviewed: 2026-10-18.
+
+## Next committed rebuild
+
+- The user confirmed the Bdex fixes work. Rebuild authorization includes the
+  corrected Save Backup timer and Blink display-name change.
+- The timer starts three minutes after activation and repeats five minutes
+  after runs. The corrected timer and verified cross-card backups passed a
+  live check. An isolated real-systemd test also verifies disabled startup,
+  enable/restart and three consecutive automatic runs.
+- The next image must include onboarding 2.6.36, modules 1.5 and frontend patch
+  063. Rebuild the frontend and build-identity package, then verify the actual
+  image source ID, normal-mode Blink entry, timer configuration and assets.
+- This is a local test image. No push or public release is authorized yet.
+
+## Final local rebuild: 20261018, revision 2
+
+- The user reports the complete local device test checklist passed on the first
+  20261018 image, including Save Backup and Bdex. Refresh sprites passed a
+  subsequent live check. This does not imply exhaustive species/game coverage.
+- Revision 2 incorporates the updated Bdex Tools/web artwork and the Refresh
+  sprites action directly into the image, replacing the temporary live overlays.
+- User guides cover enable/disable, importing, copy exports, duplicate behavior,
+  Trash, database recovery, browser login, supported save/ROM profiles, and
+  manual game-save restoration. The feature remains absent from v1.1.0.
+- Save Backup remains off by default, keeps five versions on the other card,
+  leaves 10% free and excludes save states and Bdex databases.
+- Bdex's read-only web viewer remains off by default and uses the current root
+  SSH password with browser username `bdex`.
+- Rebuild passed all 668 package steps. Final SHA-256/gzip, GPT, FAT/ext4,
+  image/update payload consistency and exact packaged-source checks passed.
+- All 97 regression checks passed: 75 Bdex, 13 Save Backup, 7 web viewer and
+  2 refresh-action checks. A short smoke check of the final rebuilt image is
+  pending; the prior full device checklist and live refresh test passed.
+- New artwork is verified in both Tools and the web header. Nothing published.
+
+## Post-R2 backup timer correction
+
+- A live check after enabling backups found no run and no next deadline:
+  `OnBootSec` was already past after a skipped disabled run.
+- Changed the initial deadline to **three minutes after timer activation**
+  (`OnActiveSec`), retaining the five-minute interval after completed runs.
+  The local test device has the persistent correction; source package 2.6.35
+  includes it for the next image. The archived R2 image is unchanged.
+- Production backup run copied all 12 restored saves with zero errors;
+  destination backups matched current sources by SHA-256.
+- Include and verify this timer correction before publishing the release.
+
+## Post-R2 Blink naming update
+
+- The next image names the Tools entry and app text **Blink**. The existing
+  `Butterfly Link.sh` launcher path and guide URLs remain compatible.
+- Current README/user guides use Blink; historical release notes retain their
+  original name. The guide explains the menu-name change for older releases.
+- Frontend patch 063 permits Blink in normal Tools mode while retaining the
+  old metadata name for compatibility. The module sync applies the new label
+  on startup. Refresh/rebuild the frontend package before the next image.
+- Frontend patch dry-run, Python/shell syntax, menu metadata/links and focused
+  UI checks passed. This rename is queued; it is not in the archived R2 image.
+
+## First local image 20261018: completed
+
+- Full aarch64 image build completed; all 668 package steps passed.
+- SHA-256/gzip, GPT, FAT/ext4, boot checksums and image/update payload equality
+  passed. Packaged scripts, services, artwork, native commands and frontend
+  settings matched their reviewed source files.
+- Included the Save Backup Hardware setting and timer re-arm, Bdex Gen 1–3,
+  normal Tools visibility, native copy/export support and the web viewer.
+- Regression checks passed: 73 Bdex, 13 Save Backup and 7 web viewer tests.
+- Flash and complete read-back passed. Collections and test saves were restored.
+- A restore omitted Blue's old ZIP-keyed sprite folder. Matching verified Blue
+  artwork repaired it; all restored collection sprite requests then passed.
+  Refresh sprites now rebuilds/reconnects exact-ROM artwork without altering
+  native Pokémon data. The user confirmed it works.
+- User approved the live tests. The first image's archived bytes are unchanged;
+  revision 2 packages the subsequent artwork and refresh changes.
 
 ## v1.1.0 stable release
 
@@ -67,7 +142,7 @@ Reviewed: 2026-10-17.
   update manifest matched. The local test device discovered `20261008` with a read-only check;
   no device download, installation, or reboot was initiated.
 - Includes SD Card Info and the Format 2nd SD Card graphical conversion using
-  Butterfly Link's renderer/controls; Game Settings first and Network Settings
+  Blink's renderer/controls; Game Settings first and Network Settings
   second; RetroAchievements statistics-browser API gate; 30-second journal sync;
   supplied OpenBOR/EasyRPG, Quick Start, and transparent storage artwork; and
   light-blue SSH banner, final build stamps, and corrected hostname setup.
@@ -179,9 +254,9 @@ image includes the fix. See
 - Built from a development working tree; it is not an immutable release tag
   or proof of clean-checkout reproducibility.
 
-The current app is **Butterfly Link**, implemented as a save-transfer tool.
+The current app is **Blink**, implemented as a save-transfer tool.
 The old link-cable/netplay launcher has been removed from the installed
-Butterfly Link workflow.
+Blink workflow.
 
 ## Hardware observations
 
@@ -200,7 +275,7 @@ Butterfly Link workflow.
 
 ## Changes included in this image
 
-- Long Butterfly Link notices and confirmation filenames wrap to rendered
+- Long Blink notices and confirmation filenames wrap to rendered
   screen width; long notices can be scrolled with Up/Down.
 - Clear trade/copy completion messages explain which original save changed
   and that backups were retained. A short input guard prevents accidental

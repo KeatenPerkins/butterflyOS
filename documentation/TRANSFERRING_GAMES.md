@@ -171,7 +171,11 @@ not automatically expose the SD-card partitions.
 ## Protect your saves
 
 Back up existing saves before replacing or importing them. Do not overwrite a
-save while its game or Butterfly Link is running. Save filenames generally
+save while its game or Blink is running. Save filenames generally
 need to match their ROM's basename; save states and in-game saves are different
 formats. See [Quick Start](QUICK_START.md#add-games-and-bios-files) and
-[Butterfly Link](BUTTERFLY_LINK.md) for save-transfer guidance.
+[Blink](BUTTERFLY_LINK.md) for save-transfer guidance.
+
+The upcoming [Automatic Save Backup guide](SAVE_BACKUPS.md) explains cross-card
+backup copies and how to restore an ordinary save. This feature is being tested
+and is not included in v1.1.0.

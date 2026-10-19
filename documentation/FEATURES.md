@@ -7,6 +7,24 @@ This lists development capabilities, not a guarantee for every game or
 controller. See [current build status](CURRENT_BUILD_STATUS.md) for changes
 awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 
+## Next release: save protection and Bdex
+
+These features passed local device tests and are being packaged for the next
+release. They are not in the current v1.1.0 stable download.
+
+- [Automatic Save Backup](SAVE_BACKUPS.md): opt in under System Settings →
+  Hardware. Copies supported ordinary saves from each SD card to the other,
+  keeps five versions and leaves 10% free. Requires two prepared writable cards;
+  save states and Bdex databases are excluded. Restoration is manual.
+- [Bdex](BDEX.md): Tools collection browser for supported Gen 1–3 Pokémon saves,
+  all/marked party and PC imports, exact-duplicate filtering, inspector,
+  same-generation and supported forward copy exports, Trash and database recovery.
+- Bdex **Refresh sprites** rebuilds matching ROM-derived artwork and repairs cache
+  references; the optional read-only web viewer uses the root SSH password.
+- Names and sprites come from the user's matching ROMs. No Pokémon ROMs, saves
+  or extracted sprite caches are bundled. See the guides for compatibility,
+  cross-generation conversion and backup limitations.
+
 ## Console interface
 
 <img src="assets/tools.png" alt="ButterflyOS Tools icon" width="96">
@@ -87,9 +105,9 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 - Controller-operated **Format 2nd SD Card** tool for second-slot detection,
   status, exFAT formatting, folder creation, and library refresh
 
-## Butterfly Link
+## Blink
 
-<img src="assets/butterfly-link.png" alt="Butterfly Link app icon" width="96">
+<img src="assets/butterfly-link.png" alt="Blink app icon" width="96">
 
 - SDL interface operated with D-pad, A/Start, and B/Menu
 - Save discovery on both SD cards; party preview and PC-box transfers
@@ -125,7 +143,7 @@ need qualification.
 
 This app manipulates save files; it does not provide in-game cable sessions,
 battles, party transfers, Gen II → I conversion, or Gen III → II conversion.
-See [Butterfly Link](BUTTERFLY_LINK.md) for supported games, workflow, and limits.
+See [Blink](BUTTERFLY_LINK.md) for supported games, workflow, and limits.
 
 ButterflyOS does not include commercial games or proprietary console BIOS
 files. See [Known Issues](KNOWN_ISSUES.md) for compatibility limitations.

@@ -1,8 +1,8 @@
 # Butterfly Save Trade: Gen III sprite cache
 
-This extractor reference belongs to the current **Butterfly Link** app.
+This extractor reference belongs to the current **Blink** app.
 Its user guide covers all three generations and their current limitations:
-[Butterfly Link](BUTTERFLY_LINK.md).
+[Blink](BUTTERFLY_LINK.md).
 
 ButterflyOS does not ship Pokémon artwork. The Save Trade tool can extract
 front sprites and normal/shiny palettes from a user's own Gen III `.gba` ROM.

@@ -25,7 +25,7 @@ import zipfile
 from pathlib import Path
 
 
-VERSION = "4"
+VERSION = "7"
 DEFAULT_CACHE_ROOT = "/storage/.config/butterflyos/save-trade/sprite-cache"
 
 
@@ -250,7 +250,7 @@ def gb_name_table(data, first_encoded, expected_second, count):
     raise CacheError("unexpected-gb-name-table")
 
 
-def write_name_cache(data, destination, generation, species_ids=None):
+def write_name_cache(data, destination, generation, species_ids=None, types=None, gender_ratios=None):
     """Cache labels derived from this user-owned ROM; ship no game text."""
     pound = bytes((0x8F, 0x8E, 0x94, 0x8D, 0x83))
     master_ball = bytes((0x8C, 0x80, 0x92, 0x93, 0x84, 0x91, 0x7F,
@@ -270,6 +270,36 @@ def write_name_cache(data, destination, generation, species_ids=None):
         # conversion derived from the user's matching ROM, never ship it.
         payload["internal_to_national"] = {str(internal): dex
                                            for internal, dex in species_ids.items()}
+    if generation == 1 and species_ids:
+        names_at = find_bytes(data, bytes((0x91, 0x87, 0x98, 0x83, 0x8e, 0x8d)) + b"\x50" * 4 +
+                              bytes((0x8a, 0x80, 0x8d, 0x86, 0x80, 0x92, 0x8a, 0x87, 0x80, 0x8d)))
+        payload["species"] = {str(dex): decode_gb_text(data[names_at + (internal - 1) * 10:
+                                                            names_at + internal * 10].split(b"\x50")[0])
+                              for internal, dex in species_ids.items()}
+    if generation == 2 and species_ids:
+        encoded = lambda text: bytes(ord(c) - ord('A') + 0x80 for c in text)
+        names_at = find_bytes(data, encoded('BULBASAUR') + b'\x50' + encoded('IVYSAUR'))
+        payload['species'] = {str(dex): decode_gb_text(data[names_at + (dex - 1) * 10:
+                                                         names_at + dex * 10].split(b'\x50')[0])
+                              for dex in species_ids}
+    if gender_ratios:
+        payload['gender_ratios'] = gender_ratios
+    if types:
+        first = find_bytes(data, bytes((0x8d, 0x8e, 0x91, 0x8c, 0x80, 0x8b, 0x50)))
+        offsets = [first]
+        for _ in range(2):
+            offsets.append(data.index(0x50, offsets[-1], offsets[-1] + 20) + 1)
+        pointers = [offset if offset < 0x4000 else 0x4000 + offset % 0x4000 for offset in offsets]
+        table = find_bytes(data, struct.pack('<3H', *pointers))
+        bank = table // 0x4000 * 0x4000
+        labels = {}
+        for ident in sorted({value for values in types.values() for value in values}):
+            pointer = struct.unpack_from('<H', data, table + ident * 2)[0]
+            offset = pointer if pointer < 0x4000 else bank + pointer - 0x4000
+            end = data.index(0x50, offset, offset + 20)
+            labels[str(ident)] = decode_gb_text(data[offset:end])
+        payload['types'] = types
+        payload['type_names'] = labels
     (destination / "names.json").write_text(json.dumps(payload, indent=2) + "\n")
 
 
@@ -289,10 +319,12 @@ def gen1_cache(rom_path, data, title, destination):
                  (100, 117, 139, 255), (18, 29, 46, 255))
     front = destination / "front"
     front.mkdir()
+    types = {}
     for dex in range(1, 152):
         stats = mew if dex == 151 and mew >= 0 else base + (dex - 1) * 28
         if stats + 15 > len(data):
             raise CacheError("truncated-gen1-base-stats")
+        types[str(dex)] = list(dict.fromkeys(data[stats + 6:stats + 8]))
         internal = internal_by_dex[dex]
         pointer = struct.unpack_from("<H", data, stats + 11)[0]
         if internal == 0x15 and mew >= 0:
@@ -314,7 +346,7 @@ def gen1_cache(rom_path, data, title, destination):
         # Save IDs are Gen I internal IDs, not National Dex IDs.
         write_png(front / f"{internal:03d}.png", width, height, pixels, grayscale)
     write_name_cache(data, destination, 1,
-                     {internal: dex for dex, internal in internal_by_dex.items()})
+                     {internal: dex for dex, internal in internal_by_dex.items()}, types=types)
     return {"generation": 1, "game_title": title, "species_count": 151,
             "variants": ["front"], "save_species_ids": "gen1-internal",
             "name_cache": "names.json"}
@@ -435,7 +467,11 @@ def gen2_cache(data, title, destination):
     crystal = title == "PM_CRYSTAL"
     normal_dir, shiny_dir = destination / "front", destination / "front-shiny"
     normal_dir.mkdir(); shiny_dir.mkdir()
+    types, ratios = {}, {}
     for species in range(1, 252):
+        base = stats + (species - 1) * 32
+        types[str(species)] = list(dict.fromkeys(data[base + 7:base + 9]))
+        ratios[str(species)] = data[base + 13]
         at = stats + (species - 1) * 32 + 17
         if at >= len(data): raise CacheError("truncated-gen2-base-stats")
         size = data[at]
@@ -453,7 +489,7 @@ def gen2_cache(data, title, destination):
     # so cross-generation migration can validate a selected Pokémon without
     # guessing or shipping game data.
     write_name_cache(data, destination, 2,
-                     {species: species for species in range(1, 252)})
+                     {species: species for species in range(1, 252)}, types=types, gender_ratios=ratios)
     return {"generation": 2, "game_title": label, "species_count": 251,
             "variants": ["front", "front-shiny"], "save_species_ids": "national",
             "name_cache": "names.json"}
@@ -506,6 +542,7 @@ def cache_rom(rom_path, cache_root, force=False):
         details = gen1_cache(rom_path, data, title, temporary) if generation == 1 else gen2_cache(data, title, temporary)
         details.update({"format": "butterflyos-gameboy-sprite-cache", "format_version": 1,
                         "extractor_version": VERSION, "rom_sha256": digest,
+                        "rom_content_sha256": hashlib.sha256(data).hexdigest(),
                         "rom_filename": os.path.basename(rom_path)})
         (temporary / "manifest.json").write_text(json.dumps(details, indent=2) + "\n")
         if destination.exists(): shutil.rmtree(destination)

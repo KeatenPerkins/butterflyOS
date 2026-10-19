@@ -134,7 +134,7 @@ still depends on the game and peripheral.
 - HDMI/hotplug and media behavior passed development tests, but long-duration
   external-display use and every video codec/profile are not qualified.
 
-## Butterfly Link
+## Blink
 
 - Gen I event gifts are included from v1.0.3, with generated
   level-5 Mew, Surfing/Flying Pikachu, Dragon Rage Magikarp and Pay Day
@@ -201,6 +201,30 @@ still depends on the game and peripheral.
   Historical GUI/password issues should be reported with logs if they recur.
 - The release hides untested Cloud/VPN groups unless Advanced Mode is on.
   Their appearance does not establish a supported cloud/VPN workflow.
+
+## Save Backup and Bdex — next release
+
+- Automatic Save Backup requires both prepared, writable SD cards and leaves
+  10% of each destination free. It skips files changed in the last two minutes;
+  it cannot capture unsaved gameplay and does not run during sleep/shutdown.
+- Only supported ordinary save extensions/locations are included. Save states,
+  standalone-emulator saves outside `roms`, and Bdex databases need separate
+  backups. Restoring a save is manual; files are not a coordinated game snapshot.
+- Bdex is limited to supported English retail ROM/save profiles. It does not
+  emulate a link cable, battle, trigger trade evolutions or provide backward
+  exports. Gen 2 → Gen 3 is a generated equivalent with documented conversions.
+- Bdex counts active stored species, including eggs; exact native-data repeats
+  are skipped, including copies already in Trash. Changed records can be stored
+  separately. Source badges describe the imported-from save.
+- Missing sprites after a restore can be repaired with **Options → Refresh
+  sprites** and the exact matching ROM. Refresh each affected game separately.
+- Bdex's local backups are on the OS card too. Download a checked backup for
+  each generation before formatting/reflashing or relying on card-failure recovery.
+- The web viewer is read-only, requires the same network and an awake device,
+  and uses the root SSH password. Local HTTP is unencrypted; keep it on a trusted
+  network. Artwork needs existing matching ROM caches.
+
+See [Save Backup and restore](SAVE_BACKUPS.md) and [Bdex](BDEX.md) for instructions.
 
 Report issues with the ButterflyOS version, device revision, controller model,
 system/emulator, steps to reproduce, and whether the problem survives a reboot.

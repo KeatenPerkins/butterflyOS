@@ -1,4 +1,4 @@
-# Butterfly Link diagnostic core 022 — 2026-09-25
+# Blink diagnostic core 022 — 2026-09-25
 
 Built on patch 021. This adds optional instrumentation, not a transfer timing fix.
 The full SD image has not been rebuilt. Both devices use temporary bind mounts

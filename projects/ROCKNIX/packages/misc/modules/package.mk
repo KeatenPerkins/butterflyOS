@@ -2,7 +2,7 @@
 # Copyright (C) 2024-present ROCKNIX (https://github.com/ROCKNIX)
 
 PKG_NAME="modules"
-PKG_VERSION="1.2"
+PKG_VERSION="1.5"
 PKG_LICENSE="GPL-2.0-only"
 PKG_SITE=""
 PKG_URL=""
@@ -48,6 +48,7 @@ post_makeinstall_target() {
       -d '/gameList/game[path="./Export ButterflyOS Recovery Backup.sh"]' \
       -d '/gameList/game[path="./Restore Stock Miyoo Boot.sh"]' \
       -d '/gameList/game[path="./SD Card Info.sh"]' \
+      -d '/gameList/game[path="./Bdex.sh"]' \
       "${INSTALL}/usr/config/modules/gamelist.xml"
   else
     # Hide generic ROCKNIX utilities that do not apply to the non-touchscreen,

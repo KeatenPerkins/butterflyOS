@@ -5,7 +5,7 @@ gifts. The user confirmed all 95 additions and the split egg/adult menu working
 in Crystal on the local test device. Together with earlier batches, all 104 PCNY eggs, 16 shiny
 adult gifts and 15 Japanese Mystery Eggs passed user gameplay testing.
 
-Reopen Butterfly Link → Local transfer → Gen 2 → PCNY Gifts. Choose **Special-Move Eggs** (104) or **Shiny Adult Gifts** (16). New eggs
+Reopen Blink → Local transfer → Gen 2 → PCNY Gifts. Choose **Special-Move Eggs** (104) or **Shiny Adult Gifts** (16). New eggs
 append after the first 25 within the egg list. Close the game before editing,
 choose a free PC slot, review and Commit. Withdraw an egg, hatch it, check its
 special move, save and reload. For shiny adults, check level, moves and shiny

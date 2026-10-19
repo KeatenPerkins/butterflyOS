@@ -8,6 +8,8 @@ Use [Features](../documentation/FEATURES.md) and
 [current build status](../documentation/CURRENT_BUILD_STATUS.md) for implemented
 behavior. Older sprint notes below retain their historical dates.
 
+New feature plans: [Save Backup, Pokémon Bank and its local web viewer](../documentation/SAVE_BACKUP_AND_BANK_PLAN.md).
+
 ## Milestone 0: Bootable foundation
 
 Status: **Alpha 2 public-release candidate; remaining limitations tracked**
@@ -207,7 +209,7 @@ can recover from common problems without a shell.
 Acceptance: another owner can independently install, use, update, and recover
 ButterflyOS on the supported Miyoo Flip V2 revision.
 
-## Flagship feature: Butterfly Link
+## Flagship feature: Blink
 
 The current approach is **save-based trade/copy**, implemented in a native C
 helper backed by PKSav and a controller-operated SDL Python interface.
@@ -215,7 +217,7 @@ The former netplay/USB cable emulation remains research history. The current
 application does not launch games or provide battles.
 
 Current capabilities and hardware evidence are documented in
-[Butterfly Link](../documentation/BUTTERFLY_LINK.md) and
+[Blink](../documentation/BUTTERFLY_LINK.md) and
 [current build status](../documentation/CURRENT_BUILD_STATUS.md).
 
 ### Implemented development scope

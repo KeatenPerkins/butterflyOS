@@ -1,4 +1,4 @@
-# Butterfly Link: Gen I event feasibility
+# Blink: Gen I event feasibility
 
 Research reviewed October 7, 2026. The first implementation is local and
 unreleased: six level-5 gifts (Mew, Surfing/Flying Pikachu, Dragon Rage Magikarp, and
@@ -69,7 +69,7 @@ the native helper appends the record using the player's trainer identity.
 
 This is a design for **no bundled Pokemon game assets**, not a claim of zero
 Pokemon IP or a legal clearance. Pokemon names/references are already present
-in Butterfly Link. Gifts must be identified as generated equivalents; verified
+in Blink. Gifts must be identified as generated equivalents; verified
 historical recreation, where possible, would be a separate feature. The tool
 must not label generated gifts as original official distributions.
 

@@ -1,7 +1,7 @@
-# Butterfly Link buffered-trade prototype
+# Blink buffered-trade prototype
 
 Historical emulator-link research. This does not describe the installed
-save-transfer Butterfly Link app. See [the current user guide](../documentation/BUTTERFLY_LINK.md).
+save-transfer Blink app. See [the current user guide](../documentation/BUTTERFLY_LINK.md).
 
 ## Goal
 

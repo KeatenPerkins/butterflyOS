@@ -1,4 +1,4 @@
-# Butterfly Link: Gen II event scope
+# Blink: Gen II event scope
 
 Reviewed October 7, 2026. Crystal GS Ball Enable/Replay is implemented locally
 for a live development test on the local test device. Automated save-state, checksum, native

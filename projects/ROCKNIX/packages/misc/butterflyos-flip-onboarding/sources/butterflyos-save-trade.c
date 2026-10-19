@@ -28,6 +28,10 @@ static void usage(FILE* stream) {
     fprintf(stream,
         "Usage:\n"
         "  butterflyos-save-trade inspect --save FILE\n"
+        "  butterflyos-save-trade bdex-inspect-gen1|bdex-inspect-gen2 --save FILE\n"
+        "  butterflyos-save-trade bdex-export-gen1 --source FILE --source-kind party|box\n"
+        "      --source-box N --source-slot N --destination FILE --destination-box N\n"
+        "      --destination-slot N --national-species N --output-destination FILE\n"
         "  butterflyos-save-trade gift-gen1 --destination FILE --destination-box N\n"
         "      --destination-slot N --record FILE --national-species N\n"
         "      --nickname NAME --rom-family red-blue|yellow --output-destination FILE\n"
@@ -972,6 +976,28 @@ static uint8_t time_capsule_held_item(uint8_t catch_rate) {
     }
 }
 
+static void convert_gen1_pc_to_gen2(const struct pksav_gen1_pc_pokemon* pokemon,
+                                     unsigned national_species,
+                                     struct pksav_gen2_pc_pokemon* converted) {
+    memset(converted, 0, sizeof(*converted));
+    converted->species = (uint8_t) national_species;
+    converted->held_item = time_capsule_held_item(pokemon->catch_rate);
+    memcpy(converted->moves, pokemon->moves, sizeof(converted->moves));
+    converted->ot_id = pokemon->ot_id;
+    memcpy(converted->exp, pokemon->exp, sizeof(converted->exp));
+    converted->ev_hp = pokemon->ev_hp;
+    converted->ev_atk = pokemon->ev_atk;
+    converted->ev_def = pokemon->ev_def;
+    converted->ev_spd = pokemon->ev_spd;
+    converted->ev_spcl = pokemon->ev_spcl;
+    converted->iv_data = pokemon->iv_data;
+    memcpy(converted->move_pps, pokemon->move_pps, sizeof(converted->move_pps));
+    converted->friendship = 70;
+    converted->pokerus = 0;
+    converted->caught_data = 0;
+    converted->level = pokemon->level;
+}
+
 static int transfer_gen1_to_gen2(const char* source_path, unsigned source_box_num,
                                  unsigned source_slot, unsigned national_species,
                                  const char* destination_path, unsigned destination_box_num,
@@ -1020,22 +1046,7 @@ static int transfer_gen1_to_gen2(const char* source_path, unsigned source_box_nu
 
     /* These fields are shared by the Game Boy PC record formats. The fields
      * new to Gen II intentionally use the values a Time Capsule arrival gets. */
-    converted.species = (uint8_t) national_species;
-    converted.held_item = time_capsule_held_item(source_box->entries[source_slot].catch_rate);
-    memcpy(converted.moves, source_box->entries[source_slot].moves, sizeof(converted.moves));
-    converted.ot_id = source_box->entries[source_slot].ot_id;
-    memcpy(converted.exp, source_box->entries[source_slot].exp, sizeof(converted.exp));
-    converted.ev_hp = source_box->entries[source_slot].ev_hp;
-    converted.ev_atk = source_box->entries[source_slot].ev_atk;
-    converted.ev_def = source_box->entries[source_slot].ev_def;
-    converted.ev_spd = source_box->entries[source_slot].ev_spd;
-    converted.ev_spcl = source_box->entries[source_slot].ev_spcl;
-    converted.iv_data = source_box->entries[source_slot].iv_data;
-    memcpy(converted.move_pps, source_box->entries[source_slot].move_pps, sizeof(converted.move_pps));
-    converted.friendship = 70;
-    converted.pokerus = 0;
-    converted.caught_data = 0;
-    converted.level = source_box->entries[source_slot].level;
+    convert_gen1_pc_to_gen2(&source_box->entries[source_slot], national_species, &converted);
     if ((error = pksav_gen1_import_text(source_box->otnames[source_slot], text,
              PKSAV_GEN1_POKEMON_OTNAME_LENGTH)) != PKSAV_ERROR_NONE ||
         (error = export_gb_name(text, destination_box->otnames[destination_slot],
@@ -1097,6 +1108,96 @@ static uint32_t migration_personality(const struct pksav_gen2_pc_pokemon* source
     return value ? value : 1u;
 }
 
+/* Translate qualified English name bytes without depending on installed locales. */
+static enum pksav_error export_gen2_text_to_gen3(const uint8_t* input, size_t chars,
+                                                uint8_t* output, size_t output_chars) {
+    memset(output, 0xff, output_chars);
+    for (size_t i = 0; i < chars; ++i) {
+        unsigned c = input[i], converted = 0xff;
+        if (c == 0x50) return PKSAV_ERROR_NONE;
+        if (i >= output_chars) return PKSAV_ERROR_PARAM_OUT_OF_RANGE;
+        if (c >= 0x80 && c <= 0x99) converted = c - 0x80 + 0xbb;
+        else if (c >= 0xa0 && c <= 0xb9) converted = c - 0xa0 + 0xd5;
+        else if (c >= 0xf6) converted = c - 0xf6 + 0xa1;
+        else switch (c) {
+            case 0x7f: converted = 0; break;
+            case 0xe0: converted = 0xb4; break;
+            case 0xe1: converted = 0x53; break;
+            case 0xe2: converted = 0x54; break;
+            case 0xe3: converted = 0xae; break;
+            case 0xe6: converted = 0xac; break;
+            case 0xe7: converted = 0xab; break;
+            case 0xe8: converted = 0xad; break;
+            case 0xea: converted = 0x1b; break;
+            case 0xef: converted = 0xb5; break;
+            case 0xf5: converted = 0xb6; break;
+            case 0xf1: converted = 0xb9; break;
+            case 0xf3: converted = 0xba; break;
+            case 0xf4: converted = 0xb8; break;
+            case 0x9a: converted = 0x5c; break;
+            case 0x9b: converted = 0x5d; break;
+            case 0x9c: converted = 0xf0; break;
+            case 0x9d: converted = 0x36; break;
+            default: return PKSAV_ERROR_PARAM_OUT_OF_RANGE;
+        }
+        output[i] = (uint8_t)converted;
+    }
+    return PKSAV_ERROR_NONE;
+}
+
+static enum pksav_error convert_gen2_pc_to_gen3(const struct pksav_gen2_pc_pokemon* old_pokemon,
+                                               unsigned national_species,
+                                               struct pksav_gen3_pc_pokemon* converted,
+                                               unsigned* cleared_item, unsigned* reduced_evs,
+                                               unsigned* cleared_moves) {
+    uint8_t gb_ivs[PKSAV_NUM_GB_IVS] = {0}, evs[6];
+    size_t experience = 0;
+    enum pksav_error error;
+    memset(converted, 0, sizeof(*converted));
+    converted->personality = pksav_littleendian32(migration_personality(old_pokemon, national_species));
+    converted->ot_id.id = pksav_littleendian32((uint32_t)pksav_bigendian16(old_pokemon->ot_id));
+    converted->language = pksav_littleendian16(PKSAV_GEN3_LANGUAGE_ENGLISH);
+    converted->blocks.growth.species = pksav_littleendian16((uint16_t)national_species);
+    converted->blocks.growth.held_item = pksav_littleendian16(gen2_held_item_to_gen3(old_pokemon->held_item, cleared_item));
+    if ((error = pksav_import_base256(old_pokemon->exp, sizeof(old_pokemon->exp), &experience)) != PKSAV_ERROR_NONE) {
+        return error;
+    }
+    converted->blocks.growth.exp = pksav_littleendian32((uint32_t)experience);
+    converted->blocks.growth.friendship = old_pokemon->friendship;
+    for (unsigned i = 0; i < 4; ++i) {
+        /* All defined Gen II moves are present in Gen III. Empty slots stay empty. */
+        if (old_pokemon->moves[i] > 251u) { ++*cleared_moves; continue; }
+        converted->blocks.attacks.moves[i] = pksav_littleendian16(old_pokemon->moves[i]);
+        converted->blocks.attacks.move_pps[i] = old_pokemon->move_pps[i] & PKSAV_GEN2_POKEMON_MOVE_PP_MASK;
+        converted->blocks.growth.pp_up |= (uint8_t)((old_pokemon->move_pps[i] >> 6u & 3u) << (i * 2u));
+    }
+    evs[0] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_hp));
+    evs[1] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_atk));
+    evs[2] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_def));
+    evs[3] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_spd));
+    evs[4] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_spcl));
+    evs[5] = evs[4];
+    normalize_gen3_evs(evs, reduced_evs);
+    converted->blocks.effort.ev_hp = evs[0]; converted->blocks.effort.ev_atk = evs[1];
+    converted->blocks.effort.ev_def = evs[2]; converted->blocks.effort.ev_spd = evs[3];
+    converted->blocks.effort.ev_spatk = evs[4]; converted->blocks.effort.ev_spdef = evs[5];
+    {
+        uint16_t native_ivs = pksav_bigendian16(old_pokemon->iv_data);
+        error = pksav_get_gb_IVs(&native_ivs, gb_ivs, sizeof(gb_ivs));
+    }
+    if (error != PKSAV_ERROR_NONE) {
+        return error;
+    }
+    /* Expand each 0..15 DV to the middle of its corresponding Gen III range. */
+    pksav_set_IV(PKSAV_IV_HP, (uint8_t)(gb_ivs[PKSAV_GB_IV_HP] * 2u + 1u), &converted->blocks.misc.iv_egg_ability);
+    pksav_set_IV(PKSAV_IV_ATTACK, (uint8_t)(gb_ivs[PKSAV_GB_IV_ATTACK] * 2u + 1u), &converted->blocks.misc.iv_egg_ability);
+    pksav_set_IV(PKSAV_IV_DEFENSE, (uint8_t)(gb_ivs[PKSAV_GB_IV_DEFENSE] * 2u + 1u), &converted->blocks.misc.iv_egg_ability);
+    pksav_set_IV(PKSAV_IV_SPEED, (uint8_t)(gb_ivs[PKSAV_GB_IV_SPEED] * 2u + 1u), &converted->blocks.misc.iv_egg_ability);
+    pksav_set_IV(PKSAV_IV_SPATK, (uint8_t)(gb_ivs[PKSAV_GB_IV_SPECIAL] * 2u + 1u), &converted->blocks.misc.iv_egg_ability);
+    pksav_set_IV(PKSAV_IV_SPDEF, (uint8_t)(gb_ivs[PKSAV_GB_IV_SPECIAL] * 2u + 1u), &converted->blocks.misc.iv_egg_ability);
+    return PKSAV_ERROR_NONE;
+}
+
 static int copy_gen2_to_gen3(const char* source_path, unsigned source_box_num,
                              unsigned source_slot, unsigned national_species,
                              const char* destination_path, unsigned destination_box_num,
@@ -1107,10 +1208,6 @@ static int copy_gen2_to_gen3(const char* source_path, unsigned source_box_num,
     struct pksav_gen3_pc_pokemon* destination_pokemon;
     const struct pksav_gen2_pc_pokemon* old_pokemon;
     struct pksav_gen3_pc_pokemon converted;
-    uint8_t gb_ivs[PKSAV_NUM_GB_IVS] = {0};
-    uint8_t evs[6];
-    char text[PKSAV_GEN2_POKEMON_NICKNAME_LENGTH + 1];
-    size_t experience = 0;
     unsigned cleared_item = 0, reduced_evs = 0, cleared_moves = 0;
     enum pksav_error error;
 
@@ -1147,55 +1244,14 @@ static int copy_gen2_to_gen3(const char* source_path, unsigned source_box_num,
         fprintf(stderr, "error=destination-slot-not-empty\n"); goto fail;
     }
     old_pokemon = &source_box->entries[source_slot];
-    converted.personality = pksav_littleendian32(migration_personality(old_pokemon, national_species));
-    converted.ot_id.id = pksav_littleendian32((uint32_t)pksav_bigendian16(old_pokemon->ot_id));
-    converted.language = pksav_littleendian16(PKSAV_GEN3_LANGUAGE_ENGLISH);
-    converted.blocks.growth.species = pksav_littleendian16((uint16_t)national_species);
-    converted.blocks.growth.held_item = pksav_littleendian16(gen2_held_item_to_gen3(old_pokemon->held_item, &cleared_item));
-    if ((error = pksav_import_base256(old_pokemon->exp, sizeof(old_pokemon->exp), &experience)) != PKSAV_ERROR_NONE) {
-        fprintf(stderr, "error=convert-exp:%s\n", pksav_strerror(error)); goto fail;
-    }
-    converted.blocks.growth.exp = pksav_littleendian32((uint32_t)experience);
-    converted.blocks.growth.friendship = old_pokemon->friendship;
-    for (unsigned i = 0; i < 4; ++i) {
-        /* All defined Gen II moves are present in Gen III. Empty slots stay empty. */
-        if (old_pokemon->moves[i] > 251u) { ++cleared_moves; continue; }
-        converted.blocks.attacks.moves[i] = pksav_littleendian16(old_pokemon->moves[i]);
-        converted.blocks.attacks.move_pps[i] = old_pokemon->move_pps[i] & PKSAV_GEN2_POKEMON_MOVE_PP_MASK;
-        converted.blocks.growth.pp_up |= (uint8_t)((old_pokemon->move_pps[i] >> 6u & 3u) << (i * 2u));
-    }
-    evs[0] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_hp));
-    evs[1] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_atk));
-    evs[2] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_def));
-    evs[3] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_spd));
-    evs[4] = scaled_gen2_ev(pksav_bigendian16(old_pokemon->ev_spcl));
-    evs[5] = evs[4];
-    normalize_gen3_evs(evs, &reduced_evs);
-    converted.blocks.effort.ev_hp = evs[0]; converted.blocks.effort.ev_atk = evs[1];
-    converted.blocks.effort.ev_def = evs[2]; converted.blocks.effort.ev_spd = evs[3];
-    converted.blocks.effort.ev_spatk = evs[4]; converted.blocks.effort.ev_spdef = evs[5];
-    {
-        uint16_t native_ivs = pksav_bigendian16(old_pokemon->iv_data);
-        error = pksav_get_gb_IVs(&native_ivs, gb_ivs, sizeof(gb_ivs));
-    }
-    if (error != PKSAV_ERROR_NONE) {
-        fprintf(stderr, "error=convert-ivs:%s\n", pksav_strerror(error)); goto fail;
-    }
-    /* Expand each 0..15 DV to the middle of its corresponding Gen III range. */
-    pksav_set_IV(PKSAV_IV_HP, (uint8_t)(gb_ivs[PKSAV_GB_IV_HP] * 2u + 1u), &converted.blocks.misc.iv_egg_ability);
-    pksav_set_IV(PKSAV_IV_ATTACK, (uint8_t)(gb_ivs[PKSAV_GB_IV_ATTACK] * 2u + 1u), &converted.blocks.misc.iv_egg_ability);
-    pksav_set_IV(PKSAV_IV_DEFENSE, (uint8_t)(gb_ivs[PKSAV_GB_IV_DEFENSE] * 2u + 1u), &converted.blocks.misc.iv_egg_ability);
-    pksav_set_IV(PKSAV_IV_SPEED, (uint8_t)(gb_ivs[PKSAV_GB_IV_SPEED] * 2u + 1u), &converted.blocks.misc.iv_egg_ability);
-    pksav_set_IV(PKSAV_IV_SPATK, (uint8_t)(gb_ivs[PKSAV_GB_IV_SPECIAL] * 2u + 1u), &converted.blocks.misc.iv_egg_ability);
-    pksav_set_IV(PKSAV_IV_SPDEF, (uint8_t)(gb_ivs[PKSAV_GB_IV_SPECIAL] * 2u + 1u), &converted.blocks.misc.iv_egg_ability);
-    if ((error = pksav_gen2_import_text(source_box->otnames[source_slot], text,
-             PKSAV_GEN2_POKEMON_OTNAME_LENGTH)) != PKSAV_ERROR_NONE ||
-        (error = pksav_gen3_export_text(text, converted.otname,
-             PKSAV_GEN3_POKEMON_OTNAME_LENGTH)) != PKSAV_ERROR_NONE ||
-        (error = pksav_gen2_import_text(source_box->nicknames[source_slot], text,
-             PKSAV_GEN2_POKEMON_NICKNAME_LENGTH)) != PKSAV_ERROR_NONE ||
-        (error = pksav_gen3_export_text(text, converted.nickname,
-             PKSAV_GEN3_POKEMON_NICKNAME_LENGTH)) != PKSAV_ERROR_NONE) {
+    if ((error = convert_gen2_pc_to_gen3(old_pokemon, national_species, &converted,
+                                         &cleared_item, &reduced_evs, &cleared_moves)) != PKSAV_ERROR_NONE) goto fail;
+    if ((error = export_gen2_text_to_gen3(source_box->otnames[source_slot],
+                                          PKSAV_GEN2_POKEMON_OTNAME_LENGTH, converted.otname,
+                                          PKSAV_GEN3_POKEMON_OTNAME_LENGTH)) != PKSAV_ERROR_NONE ||
+        (error = export_gen2_text_to_gen3(source_box->nicknames[source_slot],
+                                          PKSAV_GEN2_POKEMON_NICKNAME_LENGTH, converted.nickname,
+                                          PKSAV_GEN3_POKEMON_NICKNAME_LENGTH)) != PKSAV_ERROR_NONE) {
         fprintf(stderr, "error=convert-text:%s\n", pksav_strerror(error)); goto fail;
     }
     *destination_pokemon = converted;
@@ -1435,6 +1491,8 @@ fail:
     return 1;
 }
 
+#include "butterflyos-bdex-native.h"
+
 int main(int argc, char** argv) {
     const char* save = NULL;
     const char* left = NULL;
@@ -1449,6 +1507,70 @@ int main(int argc, char** argv) {
     unsigned destination_box = 0, destination_slot = 0;
 
     if (argc < 2) { usage(stderr); return 2; }
+    if (!strcmp(argv[1], "bdex-map-gen2-item")) {
+        unsigned item = 0;
+        if (argc != 4 || strcmp(argv[2], "--item") || !parse_index(argv[3], 255, &item)) return 2;
+        printf("%u\n", gen2_held_item_to_gen3((uint8_t)item, NULL)); return 0;
+    }
+    if (!strcmp(argv[1], "bdex-inspect-gen1")) {
+        if (argc != 4 || strcmp(argv[2], "--save")) return 2;
+        return bdex_inspect_gen1(argv[3]);
+    }
+    if (!strcmp(argv[1], "bdex-inspect-gen3")) {
+        if (argc != 4 || strcmp(argv[2], "--save")) return 2;
+        return bdex_inspect_gen3(argv[3]);
+    }
+    if (!strcmp(argv[1], "bdex-inspect-gen2")) {
+        if (argc != 4 || strcmp(argv[2], "--save")) return 2;
+        return bdex_inspect_gen2(argv[3]);
+    }
+    if (!strcmp(argv[1], "bdex-export-gen1") || !strcmp(argv[1], "bdex-export-gen2") ||
+        !strcmp(argv[1], "bdex-export-gen1-to-gen2") || !strcmp(argv[1], "bdex-export-gen3") ||
+        !strcmp(argv[1], "bdex-export-gen2-to-gen3")) {
+        bool forward = !strcmp(argv[1], "bdex-export-gen1-to-gen2");
+        bool gen3 = !strcmp(argv[1], "bdex-export-gen3");
+        bool migrate = !strcmp(argv[1], "bdex-export-gen2-to-gen3");
+        uint32_t personality = 0; bool have_personality = false;
+        bool gen2 = !strcmp(argv[1], "bdex-export-gen2");
+        bool party = false, have_location = false, have_source_slot = false;
+        bool have_box = false, have_slot = false;
+        unsigned national = 0;
+        if (argc % 2) return 2;
+        for (int i = 2; i + 1 < argc; i += 2) {
+            const char *key = argv[i], *value = argv[i + 1];
+            if (!strcmp(key, "--source")) source = value;
+            else if (!strcmp(key, "--destination")) destination = value;
+            else if (!strcmp(key, "--output-destination")) output_destination = value;
+            else if (!strcmp(key, "--source-kind")) {
+                if (strcmp(value, "party") && strcmp(value, "box")) return 2;
+                party = !strcmp(value, "party"); have_location = true;
+            }
+            else if (!strcmp(key, "--source-box")) { if (!parse_index(value, (gen2 || gen3 || migrate) ? 13 : 11, &source_box)) return 2; }
+            else if (!strcmp(key, "--source-slot")) { if (!parse_index(value, gen3 ? 29 : 19, &source_slot)) return 2; have_source_slot = true; }
+            else if (!strcmp(key, "--destination-box")) { if (!parse_index(value, (gen2 || forward || gen3 || migrate) ? 13 : 11, &destination_box)) return 2; have_box = true; }
+            else if (!strcmp(key, "--destination-slot")) { if (!parse_index(value, (gen3 || migrate) ? 29 : 19, &destination_slot)) return 2; have_slot = true; }
+            else if (!strcmp(key, "--national-species")) { if (!parse_index(value, gen3 ? 386 : (gen2 || migrate) ? 251 : 151, &national)) return 2; }
+            else if (!strcmp(key, "--personality") && migrate) {
+                char* end = NULL; errno = 0; unsigned long long value64 = strtoull(value, &end, 10);
+                if (errno || !value[0] || *end || value64 > UINT32_MAX) return 2;
+                personality = (uint32_t)value64; have_personality = true;
+            }
+            else return 2;
+        }
+        if (!source || !destination || !output_destination || !have_location || !have_source_slot || !have_box || !have_slot || !national) return 2;
+        if (gen3 || migrate) {
+            if (migrate && !have_personality) return 2;
+            return bdex_export_gen3(source, party, source_box, source_slot, destination,
+                                    destination_box, destination_slot, national, output_destination,
+                                    migrate, personality);
+        }
+        if (forward) return bdex_export_gen1_to_gen2(source, party, source_box, source_slot, destination,
+                                                   destination_box, destination_slot, national, output_destination);
+        if (gen2) return bdex_export_gen2(source, party, source_box, source_slot, destination,
+                                          destination_box, destination_slot, national, output_destination);
+        return bdex_export_gen1(source, party, source_box, source_slot, destination,
+                                 destination_box, destination_slot, national, output_destination);
+    }
     if (!strcmp(argv[1], "gift-gen1")) {
         const char* record = NULL;
         const char* nickname = NULL;

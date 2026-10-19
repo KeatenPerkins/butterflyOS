@@ -89,10 +89,10 @@ Opening an audio file automatically queues the other audio tracks in that
 folder. Playback advances to the next track when a song ends. After the final
 track, playback stops and returns to Media; the folder does not loop forever.
 
-## Home screen and Butterfly Link
+## Home screen and Blink
 
 - **Start** opens Main Menu; selecting **Settings** opens the same menu.
 - **Select** opens the shutdown menu. Confirm shutdown before removing a card.
 - **Tools** opens the tool list directly; it is also available from Main Menu.
-- Butterfly Link: D-pad navigates, **A/Start** selects, **B/Menu** goes back.
+- Blink: D-pad navigates, **A/Start** selects, **B/Menu** goes back.
   Long notices in the next build can be scrolled with Up/Down.
