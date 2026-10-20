@@ -2,10 +2,23 @@
 
 Reviewed: 2026-10-20.
 
-## Next test build — changes since v1.2.0
+## Local test build 20261020 — changes since v1.2.0
 
-No new image has been built or published yet. The following changes are ready in
-source for the next local test image:
+Built locally from runtime source `78e4f5f5da758cce309d2d853cabcf48e1c238a0`,
+onboarding package **2.6.49**. All 668 package steps completed. Final-image
+checks passed: compressed-image/update SHA-256, gzip integrity, GPT, read-only
+FAT/ext4 checks, matching flash/update KERNEL and SYSTEM payloads, rebuilt
+initramfs embedded in KERNEL with updater verification/failure handling and
+BusyBox applets, exact installed Python sources, all gift catalogs/submenus,
+and ROM/save exclusion checks (standard GZDoom PK3 engine resources accounted
+for separately).
+
+Image: `ROCKNIX-RK3566.aarch64-20261020-Miyoo_Flip_V2.img.gz`.
+SHA-256: `d117a0eee1fd62c85e53bf2b46a155ee615b03a2eb571171d66f5ccbe3aea9a4`.
+
+**Not published. Full-image testing on the local test device is pending.**
+Documentation-only commits after the runtime revision do not change image bytes.
+The following changes are included:
 
 - **Blink Purified Shadow Gifts:** 135 recipes in three groups: Colosseum
   (49 including two Suicune move sets), XD (83), Colosseum e-Reader (3).
