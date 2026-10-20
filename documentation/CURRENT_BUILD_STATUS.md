@@ -1,6 +1,50 @@
 # Current build and test status
 
-Reviewed: 2026-10-19.
+Reviewed: 2026-10-20.
+
+## Next test build — changes since v1.2.0
+
+No new image has been built or published yet. The following changes are ready in
+source for the next local test image:
+
+- **Blink native Gen III island events:** Emerald Eon Ticket (Southern Island),
+  MysticTicket (Navel Rock), AuroraTicket (Birth Island), and Old Sea Map (Faraway
+  Island). Qualified English FireRed/LeafGreen revision 1 supports MysticTicket
+  and AuroraTicket. Normal postgame travel requirements remain intact.
+- **Enable and Replay:** isolated preparation, explicit Commit, verified original
+  backups and changed-save refusal. Replay preserves existing Pokemon and resets
+  only the selected island event; MysticTicket resets both island encounters.
+  Southern Island replay preserves the normal roaming Pokemon. Old Sea Map is
+  labeled as an expanded English experience of a Japanese-only distribution.
+- **Normal event menu:** Blink → Local Transfer → Gen 3 → Gen 3 Island Events;
+  no development marker is required in the next image.
+- **Blink save protection:** copies, swaps and generation conversions verify their
+  source/destination fingerprints during preparation and before commit, with a
+  second check after backups. Missing fingerprints require fresh preparation.
+- **Bdex database recovery:** SQLite can recover an interrupted transaction before
+  the usual database-integrity and snapshot checks; the exclusive writer lock and
+  read-only backup/browser access remain in place.
+- **Safer boot-time updates:** write/remount checks and destination verification;
+  failure stops before success/cleanup/reboot and retains the package and log.
+  Required initramfs comparison utilities are enabled. This still uses in-place
+  replacement and does not add A/B slots; the first installation runs the old
+  installed updater.
+- **Bounded suspend diagnostics:** retain 20 previous successful cycles and 10
+  failed/incomplete cycles plus the active cycle, without changing sleep behavior.
+- **Updated Bdex artwork:** latest image for Tools, the browser viewer and docs.
+- **Documentation and regression coverage:** safety-review implementation notes,
+  updated native-event plan and recorded local-device results.
+
+Validation: the user reported all six Emerald/LeafGreen event paths working and
+confirmed a completed-event replay. FireRed has automated coverage only. Event
+checks include 224 game/event/rotation/action combinations, exact mutation bounds,
+native-reader validation, ZIP ROMs and protected UI Cancel/Commit; the normal-menu
+entry is also tested. Six on-device prepared-save checks and two story-refusal
+checks passed without changing the source saves. The safety fixes have host
+regressions; the next image still needs end-to-end local-device qualification.
+
+See [event implementation and testing](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md) and
+[safety fixes](CODE_REVIEW_FIXES_20261020.md).
 
 ## v1.2.0 stable release
 

@@ -1,17 +1,81 @@
 # Blink: Gen III event checklist
 
-Researched October 9, 2026; implementation status updated October 16, 2026.
-All 39 planned egg entries are implemented across five qualified English Gen III
-games. Five direct gift equivalents are now being qualified on the local test
-device. Native island events remain deferred until suitable LeafGreen/Emerald
-story progress is available. The AuroraTicket prototype is excluded from the
-image/menu pending gameplay qualification. No Gen III event feature is publicly
-released; existing Gen III transfers are separate.
+Researched October 9, 2026; native-island testing status updated October 20, 2026.
+All 39 planned egg entries and the first five direct gift equivalents are
+implemented across five qualified English Gen III games. Native island events
+now have an experimental implementation and successful reported Emerald/LeafGreen
+gameplay tests; see the October 20 section below. The event menu will be visible normally in the next test image. This native-island
+batch is not publicly released.
 
 Prefer native encounters and hatchable eggs, as with Gen II. Group repeated
 campaigns by distinct gameplay experience or species/moveset, while preserving
 meaningful regional differences. This is a scope checklist, not a completed
 inventory of every regional distribution recipe.
+
+## October 20 native island development build
+
+A protected test implementation now covers all four native Emerald island events:
+Eon Ticket/Southern Island, MysticTicket/Navel Rock, AuroraTicket/Birth Island,
+and Old Sea Map/Faraway Island. The qualified English FireRed/LeafGreen revision 1
+ROMs also support MysticTicket and AuroraTicket. Ruby/Sapphire event delivery is
+not implemented in this batch. This supersedes the earlier FireRed-only prototype;
+the user has reported all six Emerald/LeafGreen event paths working on the local
+test device. No stable release includes this native-island batch.
+
+The helper and normal menu entry are packaged for the next test image, with no
+local-test marker required. It appears under
+**Blink → Local Transfer → Gen 3 → Gen 3 Island Events**. The earlier live-test
+launcher on the local test device still uses its original test label until updated.
+Choose a save, its matching ROM, an event, Enable or Replay, then explicitly Commit.
+Cancel is selected by default. ZIP ROMs use the established qualified-ROM reader.
+
+Enable adds the event key item and its travel/receipt flags. Existing completion
+flags are preserved and completed encounters require explicit Replay instead.
+Replay changes only that island's completion, visibility, introduction and puzzle
+state. MysticTicket replay resets both Ho-Oh and Lugia and says so before Commit.
+Eon Ticket replay preserves normal roaming choice and roaming data. Existing
+party/PC Pokemon, older save slot, story and other events are preserved. Normal
+postgame ferry requirements remain necessary; edits are refused while saved on
+an event island. Old Sea Map is explicitly labeled as an expanded English
+experience of the historically Japanese-only distribution.
+
+Nine host regression groups passed, including 224 combinations across three
+qualified games, four/two supported events, all 14 save-sector rotations, and
+Enable/Replay. Independent native-reader validation and exact byte/bit change
+boundaries passed. Further cases cover wrong-family/modified ROMs, corruption,
+story/occupied-pocket/island refusal, already-enabled refusal, existing tickets,
+ZIP ROMs, counter rollover, preservation of roaming flags/choice, exclusive output,
+actual UI Cancel and Commit for all four Emerald events, verified backups,
+changed-after-preview and repeated-Commit refusal. A menu test verifies the entry
+is available without a development marker. Original fixtures stayed intact.
+
+Deployment and disposable-save checks are on the local test device. The existing
+Blink launcher is backed up under
+`/storage/.config/butterflyos/gen3-island-test/originals/`; the test override lives
+outside the read-only OS image. The local development record and detailed
+instructions are in `Documents/Blink-Gen3-Island-Development-20261020` on the
+maintainer's PC. Do not include downloaded test saves or ROMs in release artifacts.
+
+### Reported gameplay results — October 20
+
+| Game | Event | User-reported result |
+| --- | --- | --- |
+| Emerald | Eon Ticket / Southern Island Latios | Passed |
+| Emerald | MysticTicket / Navel Rock Lugia and Ho-Oh | Passed |
+| Emerald | AuroraTicket / Birth Island puzzle and Deoxys | Passed |
+| Emerald | Old Sea Map / Faraway Island chase and Mew | Passed |
+| LeafGreen | MysticTicket / Navel Rock | Passed |
+| LeafGreen | AuroraTicket / Birth Island | Passed |
+
+These are the user's confirmations after the requested event/gameplay steps.
+Individual capture and save/reload details were not separately recorded for every
+encounter. The user also confirmed Replay working after completing an encounter. The specific
+game/event was not identified, so this confirms the exercised replay path rather
+than claiming all six paths were replayed individually. Automated tests cover
+Replay across every supported game/event combination. FireRed has automated
+native-reader coverage; this session did not include a FireRed gameplay test. A full rebuilt-image
+test remains necessary before release. Avoid Auto Resume and save states during
+qualification; load the ordinary in-game save.
 
 ## Batch 1: native island events
 
@@ -163,12 +227,11 @@ game data and sprites from the user's qualified ROM. Do not bundle ROMs, saves,
 extracted sprites or premade event Pokémon records. Exact eligibility, offsets,
 gift generation and language support remain engineering work.
 
-The first implementation is **AuroraTicket in FireRed**, because the user has
-a postgame FireRed save available. Eon Ticket can follow once an Emerald test
-save is ready. Test native travel, encounter, capture, save/reload and Replay
-independently.
+The initial prototype was **AuroraTicket in FireRed**. The following subsection
+retains its historical validation record; the October 20 implementation and
+results above supersede its supported-game, menu and test-count statements.
 
-## AuroraTicket implementation status
+## Historical FireRed-only AuroraTicket prototype
 
 The helper qualifies English FireRed revision 1 by SHA-256
 `729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059`.

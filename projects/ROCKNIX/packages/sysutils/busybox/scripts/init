@@ -390,37 +390,52 @@ display_versions() {
   return 0
 }
 
+# Keep installation diagnostics with the staged package until all writes verify.
+update_failed() {
+  echo "Update FAILED: $1. Keep power connected. Update files have been retained." >&2
+  echo "Update FAILED: $1" >>"${UPDATE_ROOT}/install-error.log"
+  sync
+  # Returning would let init continue into a potentially partial installation.
+  # Exiting the diagnostic shell must not resume normal startup or cleanup.
+  while :; do
+    error "update_write" "$1; update retained in ${UPDATE_ROOT}"
+    sleep 1
+  done
+}
+
 update_file() {
-  if [ -f "${UPDATE_DIR}/$2" -a -f "$3" ]; then
-    mount -o remount,rw /flash
-
-    StartProgress percent "Updating $1... " "$3" $(stat -Lt "${UPDATE_DIR}/$2" | awk '{print $2}')
-      # use dd here with conv=fsync so that all writes are non-buffered
-      # ensuring accurate progress - take the sync hit during the
-      # transfer, rather than when flushing file buffers after the progress
-      # meter declares the transfer already complete
-      dd if=${UPDATE_DIR}/$2 of=$3 bs=1M conv=fsync 2>/dev/null
-
-      StopProgress
-
-    # loopback file needs writable /flash all the time
-    if [ "${disk%%=*}" != "FILE" ]; then
-      mount -o remount,ro /flash
-    fi
-    sync
+  local source="${UPDATE_DIR}/$2" destination="$3" result=0
+  [ -f "$source" ] && [ -f "$destination" ] || return 1
+  mount -o remount,rw /flash >>"${UPDATE_ROOT}/install-error.log" 2>&1 || return 1
+  StartProgress percent "Updating $1... " "$destination" $(stat -Lt "$source" | awk '{print $2}')
+  dd if="$source" of="$destination" bs=1M conv=fsync >>"${UPDATE_ROOT}/install-error.log" 2>&1 || result=1
+  StopProgress
+  # Read back the destination before accepting an installation or deleting inputs.
+  if [ "$result" -eq 0 ]; then
+    cmp -s "$source" "$destination" || result=1
   fi
+  if [ "${disk%%=*}" != "FILE" ]; then
+    mount -o remount,ro /flash >>"${UPDATE_ROOT}/install-error.log" 2>&1 || result=1
+  fi
+  sync
+  return "$result"
 }
 
 update_partition() {
-  local result
-
-  if [ -f "${UPDATE_DIR}/$2" -a -b "$3" ]; then
-    StartProgress spinner "Updating $1... "
-      result="$(dd if="${UPDATE_DIR}/$2" of="$3" 2>&1)"
-      StopProgress "done"
-      sync
-    echo "${result}"
+  local source="${UPDATE_DIR}/$2" destination="$3" result=0 size expected actual
+  [ -f "$source" ] && [ -b "$destination" ] || return 1
+  StartProgress spinner "Updating $1... "
+  dd if="$source" of="$destination" bs=1M conv=fsync >>"${UPDATE_ROOT}/install-error.log" 2>&1 || result=1
+  StopProgress
+  if [ "$result" -eq 0 ]; then
+    size=$(stat -Lt "$source" | awk '{print $2}')
+    expected=$(sha256sum "$source" | awk '{print $1}')
+    # The partition can be larger than the kernel; compare only bytes written.
+    actual=$(head -c "$size" "$destination" | sha256sum | awk '{print $1}')
+    [ -n "$expected" ] && [ "$actual" = "$expected" ] || result=1
   fi
+  sync
+  return "$result"
 }
 
 update_bootloader() {
@@ -431,7 +446,7 @@ update_bootloader() {
   if [ -f ${SYSTEM_ROOT}/usr/share/bootloader/update.sh ]; then
     echo ""
     echo "Updating Boot Files... "
-    sh ${SYSTEM_ROOT}/usr/share/bootloader/update.sh
+    sh ${SYSTEM_ROOT}/usr/share/bootloader/update.sh >>"${UPDATE_ROOT}/install-error.log" 2>&1 || return 1
     sync
     echo "Boot Files Updated."
     echo ""
@@ -1130,13 +1145,13 @@ check_update() {
   # all ok, update
   display_versions
   if [ -b "/${IMAGE_KERNEL}" ]; then
-    update_partition "Kernel" "${UPDATE_KERNEL}" "/${IMAGE_KERNEL}"
+    update_partition "Kernel" "${UPDATE_KERNEL}" "/${IMAGE_KERNEL}" || update_failed "Kernel write or verification failed"
   else
-    update_file "Kernel" "${UPDATE_KERNEL}" "/flash/${IMAGE_KERNEL}"
+    update_file "Kernel" "${UPDATE_KERNEL}" "/flash/${IMAGE_KERNEL}" || update_failed "Kernel write or verification failed"
   fi
   umount /sysroot &>/dev/null
-  update_file "System" "${UPDATE_SYSTEM}" "/flash/${IMAGE_SYSTEM}"
-  update_bootloader
+  update_file "System" "${UPDATE_SYSTEM}" "/flash/${IMAGE_SYSTEM}" || update_failed "System write or verification failed"
+  update_bootloader || update_failed "Boot-file update failed"
   echo "UPDATE" >/storage/.boot.hint
   sync
   StartProgress countdown "Update complete. Reboot in 5s... " 5 "NOW"

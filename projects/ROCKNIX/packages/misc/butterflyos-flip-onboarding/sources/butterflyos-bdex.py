@@ -48,8 +48,11 @@ def sync_directory(path):
         os.close(fd)
 
 
-def database_valid(path):
-    with closing(sqlite3.connect(Path(path).resolve().as_uri() + '?mode=ro', uri=True)) as connection:
+def database_valid(path, recover=False):
+    # mode=rw permits SQLite's own hot-journal recovery but never creates a
+    # missing database. Only the exclusively locked Store may request recovery.
+    mode = 'rw' if recover else 'ro'
+    with closing(sqlite3.connect(Path(path).resolve().as_uri() + '?mode=' + mode, uri=True)) as connection:
         if connection.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
             raise BdexError('Database integrity check failed.')
         if connection.execute('PRAGMA user_version').fetchone()[0] != SCHEMA_VERSION:
@@ -125,7 +128,7 @@ class Store:
         try:
             existed = self.path.exists()
             if existed:
-                database_valid(self.path)
+                database_valid(self.path, recover=True)
             self.connection = sqlite3.connect(self.path)
             self.connection.row_factory = sqlite3.Row
             self.connection.execute('PRAGMA foreign_keys=ON')
