@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Stage native Gen III island events in an isolated output; never edit inputs.
 
-Numeric layouts/flags follow pret/pokeemerald and pret/pokefirered. Only qualified
-English Emerald and FireRed/LeafGreen revision 1 ROMs are accepted. No event scripts,
+Numeric layouts/flags follow pret/pokeruby, pret/pokeemerald and pret/pokefirered.
+Only qualified English Ruby/Sapphire revision 2, Emerald and FRLG revision 1
+ROMs are accepted. No event scripts,
 ROM contents, official distributions or Pokemon records are bundled.
 """
 import argparse
@@ -29,6 +30,10 @@ EVENTS = {
 }
 # Completion flags are scoped to the island encounter, never the normal roamer.
 RULES = {
+    'Ruby/Sapphire': {
+        'eon-ticket': dict(travel=0x853, received=None, shown=None,
+                           completed=(0xCE,), clear=(), show=(), hide=(), variables=()),
+    },
     'Emerald': {
         'eon-ticket': dict(travel=0x8B3, received=None, shown=0x1AE,
                            completed=(0x1C8, 0x1C9), clear=(0xCE,), show=(), hide=(), variables=()),
@@ -54,23 +59,34 @@ RULES = {
 
 
 def load_save(data, rom):
-    family = gift.rom_profile(gift.read_rom(rom))[0]
+    profile = gift.rom_profile(gift.read_rom(rom))
+    family = profile[0]
     if family not in RULES:
-        raise ValueError('Island events currently support qualified English Emerald and FireRed/LeafGreen revision 1 only.')
+        raise ValueError('Use qualified English Ruby/Sapphire revision 2, Emerald or FireRed/LeafGreen revision 1.')
     sizes = gift.section_sizes(family)
     sections = gift.active_sections(data, sizes)
     save2 = data[sections[0]:sections[0] + sizes[0]]
     emerald = family == 'Emerald'
-    matches = (save2[0xAC:0xB0] == save2[0x1F4:0x1F8]) if emerald else (
-        struct.unpack_from('<I', save2, 0xAC)[0] == 1 and save2[0xAF8:0xAFC] == save2[0xF20:0xF24])
+    ruby_sapphire = family == 'Ruby/Sapphire'
+    if ruby_sapphire:
+        matches = struct.unpack_from('<I', save2, 0xAC)[0] == 0
+    elif emerald:
+        matches = save2[0xAC:0xB0] == save2[0x1F4:0x1F8]
+    else:
+        matches = struct.unpack_from('<I', save2, 0xAC)[0] == 1 and save2[0xAF8:0xAFC] == save2[0xF20:0xF24]
     if not matches:
         raise ValueError('Save family/security-key mismatch. Use a matching ROM and save.')
     block = bytearray().join(data[sections[n]:sections[n] + sizes[n]] for n in range(1, 5))
-    key = struct.unpack_from('<H', save2, 0xAC if emerald else 0xF20)[0]
-    flags, variables, pocket = (0x1270, 0x139C, 0x5D8) if emerald else (0xEE0, 0x1000, 0x3B8)
+    # Ruby/Sapphire quantities are plain u16 values and their key pocket has
+    # 20 slots, unlike Emerald/FRLG's 30 encrypted entries.
+    key = 0 if ruby_sapphire else struct.unpack_from('<H', save2, 0xAC if emerald else 0xF20)[0]
+    flags, variables, pocket, slots = {'Ruby/Sapphire': (0x1220, 0x1340, 0x5B0, 20),
+                                     'Emerald': (0x1270, 0x139C, 0x5D8, 30),
+                                     'FireRed/LeafGreen': (0xEE0, 0x1000, 0x3B8, 30)}[family]
     ctx = dict(family=family, sizes=sizes, sections=sections, block=block,
-               key=key, flags_at=flags, vars_at=variables, pocket_at=pocket)
-    entries = [struct.unpack_from('<HH', block, pocket + n * 4) for n in range(30)]
+               key=key, flags_at=flags, vars_at=variables, pocket_at=pocket,
+               pocket_slots=slots, origin=profile[1])
+    entries = [struct.unpack_from('<HH', block, pocket + n * 4) for n in range(slots)]
     ids = [item for item, _ in entries if item]
     if len(ids) != len(set(ids)) or any(item > (376 if emerald else 374) or
             (quantity ^ key) != (1 if item else 0) for item, quantity in entries):
@@ -101,17 +117,23 @@ def status(ctx, event):
     stage = 'Encounter finished or partly finished' if any(completed.values()) else (
         'Island travel enabled' if has_ticket and travel else 'Not enabled')
     group, number = ctx['block'][4:6]
-    if ctx['family'] == 'Emerald':
+    if ctx['family'] == 'Ruby/Sapphire':
+        on_island = group == 26 and number in (9, 10)
+        postgame = flag(ctx, 0x804) and flag(ctx, 0x123) and 265 in ctx['items']
+    elif ctx['family'] == 'Emerald':
         on_island = group == 26 and (number in (9, 10, 56, 57, 58, 59) or 66 <= number <= 87)
         postgame = flag(ctx, 0x864) and flag(ctx, 0x123) and 265 in ctx['items']
     else:
         on_island = group == 2 and (number == 0 or 36 <= number <= 56 or number in (58, 59))
         postgame = flag(ctx, 0x82C) and flag(ctx, 0x840) and variable(ctx, 0x4076) >= 5
+    description = info['description']
+    if ctx['family'] == 'Ruby/Sapphire':
+        description = 'Native %s encounter; the normal roaming Pokemon is preserved.' % ('Latias' if ctx['origin'] == 2 else 'Latios')
     return dict(event=event, title=info['title'], family=ctx['family'], stage=stage,
                 has_ticket=has_ticket, travel=travel, completed=completed,
-                free_key_slots=30-len(ctx['items']), island_map=on_island,
+                free_key_slots=ctx['pocket_slots']-len(ctx['items']), island_map=on_island,
                 postgame_travel=postgame, destination=info['destination'],
-                expanded_experience=event == 'old-sea-map', description=info['description'])
+                expanded_experience=event == 'old-sea-map', description=description)
 
 
 def inspect_event(data, rom, event='aurora-ticket'):
@@ -135,7 +157,7 @@ def prepare_event(data, rom, action, event='aurora-ticket'):
     if not before['has_ticket']:
         if not before['free_key_slots']:
             raise ValueError('Make room in the key-item pocket first.')
-        for n in range(30):
+        for n in range(ctx['pocket_slots']):
             at = ctx['pocket_at'] + n * 4
             if struct.unpack_from('<H', ctx['block'], at)[0] == 0:
                 struct.pack_into('<HH', ctx['block'], at, info['item'], ctx['key'] ^ 1)
@@ -144,7 +166,10 @@ def prepare_event(data, rom, action, event='aurora-ticket'):
     if rule['received'] is not None:
         set_flag(ctx, rule['received'], True)
     if action == 'replay':
-        for number in (*rule['completed'], *rule['clear'], *rule['show'], rule['shown']):
+        flags_to_clear = (*rule['completed'], *rule['clear'], *rule['show'])
+        if rule['shown'] is not None:
+            flags_to_clear += (rule['shown'],)
+        for number in flags_to_clear:
             set_flag(ctx, number, False)
         for number in rule['hide']:
             set_flag(ctx, number, True)

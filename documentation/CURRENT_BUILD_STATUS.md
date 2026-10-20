@@ -7,10 +7,54 @@ Reviewed: 2026-10-20.
 No new image has been built or published yet. The following changes are ready in
 source for the next local test image:
 
+- **Blink Purified Shadow Gifts:** 135 recipes in three groups: Colosseum
+  (49 including two Suicune move sets), XD (83), Colosseum e-Reader (3).
+  National Ribbon, documented purified moves, source-specific shiny policy,
+  XD fateful flag and zero-IV e-Reader equivalents. GBA gift delivery only;
+  capture/purification gameplay is not emulated. Automated checks passed 5,940
+  recipe/layout/game combinations and 675 protected commits across five games
+  (24 record layouts in Emerald; five representative layouts in each other
+  game), plus shiny candidates, exact ribbon bits, zero IVs and menu routes.
+  Regional regression (1,560 combinations/65 commits) and 11 safety tests passed.
+  Source fixture saves remained unchanged. Live installation and hashes verified
+  on the local test device. The user confirmed the purified gifts working;
+  specific recipe/game/ribbon/battle/save checks were not enumerated, so this
+  is not an exhaustive per-recipe/per-game qualification.
+- **Blink Regional Gifts:** 13 distinct generated campaign equivalents, with
+  non-shiny policies, Metang National Ribbon and Mew obedience flag. Existing
+  protected preview/backup/Commit applies. Automated checks passed 1,560
+  recipe/layout/game combinations and 65 protected commits across five games,
+  including exact ribbon/fateful bits and shiny rejection. The 720-combination
+  GameCube regression and 11 safety tests also passed. Live files and hashes
+  verified on the local test device. The user confirmed the current gifts working.
+- **Blink 10th Anniversary Gifts:** 24 distinct recipes across 23 species,
+  including Fly/standard Pikachu, grouping regional campaign duplicates. All
+  level 70, non-shiny, no held item, BLINK identity and protected Commit.
+  Automated checks passed 2,880 recipe/layout/game combinations and 120
+  protected commits across all five games, plus forced shiny rejection and
+  controller menu routing. Original fixture saves were preserved. Live files
+  and hashes verified on the local test device. The user confirmed the current gifts working.
+- **Blink PCNY Adult Gifts:** all 48 distinct recipes from the 50-entry reference
+  catalog, grouping two duplicate recipes. Alternate levels/moves are labeled;
+  original twelve options retain their order. BLINK identity, no held item,
+  non-shiny generation and protected Commit. Automated checks passed 5,760
+  recipe/layout/game combinations and 240 protected commits across all five
+  qualified games, including forced shiny rejection and menu routing. Original
+  fixture saves remained unchanged. Live installation and file hashes verified
+  on the local test device. The user confirmed the current gifts working. See the
+  complete PCNY checklist.
+  These confirmations are local-device reports, not exhaustive per-game matrices.
+- **Blink GameCube Gifts:** six generated reward equivalents: Pikachu, Ageto
+  Celebi, Ho-Oh, and the three XD starters. Automated validation passed 720
+  gift/layout/game combinations and 30 protected commits. The user confirmed all
+  six gifts and saving working on the local test device. Existing preview and
+  backup protections apply.
 - **Blink native Gen III island events:** Emerald Eon Ticket (Southern Island),
   MysticTicket (Navel Rock), AuroraTicket (Birth Island), and Old Sea Map (Faraway
   Island). Qualified English FireRed/LeafGreen revision 1 supports MysticTicket
-  and AuroraTicket. Normal postgame travel requirements remain intact.
+  and AuroraTicket. Qualified English Ruby/Sapphire revision 2 also supports
+  Eon Ticket; the user confirmed both native encounters working. Normal postgame travel
+  requirements remain intact.
 - **Enable and Replay:** isolated preparation, explicit Commit, verified original
   backups and changed-save refusal. Replay preserves existing Pokemon and resets
   only the selected island event; MysticTicket resets both island encounters.
@@ -37,7 +81,7 @@ source for the next local test image:
 
 Validation: the user reported all six Emerald/LeafGreen event paths working and
 confirmed a completed-event replay. FireRed has automated coverage only. Event
-checks include 224 game/event/rotation/action combinations, exact mutation bounds,
+checks include 280 game/event/rotation/action combinations, exact mutation bounds,
 native-reader validation, ZIP ROMs and protected UI Cancel/Commit; the normal-menu
 entry is also tested. Six on-device prepared-save checks and two story-refusal
 checks passed without changing the source saves. The safety fixes have host
