@@ -1552,6 +1552,7 @@ def sprite_browser(frontend: SDLFrontEnd) -> None:
 
 
 STATE_ROOT = "/storage/.config/butterflyos/save-trade"
+GEN3_GIFT_TOOL = os.environ.get("BUTTERFLYOS_GEN3_GIFT_TOOL", "/usr/bin/butterflyos-gen3-gift.py")
 GEN3_EVENT_TOOL = os.environ.get("BUTTERFLYOS_GEN3_EVENT_TOOL", "/usr/bin/butterflyos-gen3-event.py")
 DEBUG_LOG = "/storage/.config/butterflyos/logs/butterfly-link.log"
 
@@ -2387,7 +2388,7 @@ def prepare_gen3_gift(destination: tuple[str, int, int], rom: str,
     try:
         original_hash = _file_digest(path)
         output = os.path.join(session, "destination-" + os.path.basename(path))
-        result = subprocess.run(["python3", "/usr/bin/butterflyos-gen3-gift.py",
+        result = subprocess.run(["python3", GEN3_GIFT_TOOL,
                                  "--save", path, "--rom", rom, "--preset", preset,
                                  "--box", str(box), "--slot", str(slot), "--output", output],
                                 text=True, capture_output=True)
@@ -2425,10 +2426,27 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
                         "anniversary": (GEN3_ANNIVERSARY_EGGS, "ANNIVERSARY EGGS"),
                         "promotional": (GEN3_PROMOTIONAL_EGGS, "PROMOTIONAL EGGS"),
                         "pcny": (GEN3_PCNY_EGGS, "PCNY WISH EGGS"),
-                        "direct": (GEN3_DIRECT_GIFTS, "GEN 3 GIFTS")}[gen3_group]
-        eggs = gen3_group != "direct"
+                        "direct": (GEN3_DIRECT_GIFTS, "GEN 3 GIFTS"),
+                        "pcny-adults": (GEN3_PCNY_ADULT_GIFTS, "PCNY ADULT GIFTS"),
+                        "tenth-anniversary": (GEN3_TENTH_ANNIVERSARY_GIFTS, "10TH ANNIVERSARY GIFTS"),
+                        "regional": (GEN3_REGIONAL_GIFTS, "REGIONAL GIFTS"),
+                        "shadow-colo": (GEN3_SHADOW_COLO_GIFTS, "PURIFIED COLOSSEUM GIFTS"),
+                        "shadow-xd": (GEN3_SHADOW_XD_GIFTS, "PURIFIED XD GIFTS"),
+                        "shadow-ereader": (GEN3_SHADOW_EREADER_GIFTS, "PURIFIED E-READER GIFTS"),
+                        "gamecube": (GEN3_GAMECUBE_GIFTS, "GAMECUBE GIFTS")}[gen3_group]
+        eggs = gen3_group not in ("direct", "gamecube", "pcny-adults", "tenth-anniversary", "regional", "shadow-colo", "shadow-xd", "shadow-ereader")
         if gen3_group == "direct":
             notice(frontend, title, "Generated English gift equivalents from trainer BLINK, with a distinct trainer ID for the fateful-encounter memo. Normal traded-Pokemon obedience and experience rules apply. Arrive already hatched in a free PC slot; no story flags or island events are changed. Jirachi has normal shiny chance, Zigzagoon is shiny, the other three cannot be shiny.")
+        if gen3_group.startswith("shadow-"):
+            notice(frontend, title, "Already-purified gift equivalents from trainer BLINK, as if traded into your GBA game. Capture and purification take place in Colosseum/XD and are not recreated here. All include the National Ribbon. Colosseum gifts have normal shiny chance; XD gifts cannot be shiny. Lugia uses its normal purified appearance. E-Reader gifts are expanded English equivalents with zero IVs. Original GameCube RNG and distributor records are not reproduced.")
+        if gen3_group == "regional":
+            notice(frontend, title, "Generated English regional gift equivalents from trainer BLINK. All 13 cannot be shiny. Alternate Pikachu moves are listed separately; identical regional campaigns are grouped. Metang includes the National Ribbon. Original distributor identities, Japanese language and historical RNG are not reproduced.")
+        if gen3_group == "tenth-anniversary":
+            notice(frontend, title, "Generated tenth-anniversary equivalents from trainer BLINK. All 24 recipes arrive already hatched at level 70 and cannot be shiny. Duplicate regional campaigns are grouped; Pikachu has separate Fly and standard move sets. Original distributor identity and RNG are not reproduced.")
+        if gen3_group == "pcny-adults":
+            notice(frontend, title, "Generated PCNY adult equivalents from trainer BLINK. These gifts cannot be shiny and arrive already hatched. Documented levels and moves; no original distributor identity, RNG or campaign eligibility is reproduced.")
+        if gen3_group == "gamecube":
+            notice(frontend, title, "Generated reward equivalents from trainer BLINK. No GameCube game or bonus disc is required. Pikachu, Ageto Celebi and Ho-Oh cannot be shiny; XD starters have normal shiny chance. No GameCube progress, original distributor records or story flags are reproduced.")
         if gen3_group == "pcny":
             notice(frontend, title, "Expanded English Gen III equivalents of the FireRed/LeafGreen PCNY Wish campaign. Six eggs with Wish and a second special move; not original event records.")
         if gen3_group == "promotional":
@@ -2446,7 +2464,7 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
         eggs = category == 0
         gifts = egg_gifts if eggs else adult_gifts
         title = "PCNY EGGS" if eggs else "PCNY SHINY ADULTS"
-    identity = "trainer BLINK" if generation == 3 and gen3_group == "direct" else "your trainer identity"
+    identity = "trainer BLINK" if generation == 3 and gen3_group in ("direct", "gamecube", "pcny-adults", "tenth-anniversary", "regional", "shadow-colo", "shadow-xd", "shadow-ereader") else "your trainer identity"
     notice(frontend, title,
            "Generated equivalents, not original official distributions. Gifts use your ROM's data and %s. Choose a free PC slot, review, then Commit. Close the game first. No story flags are changed." % identity)
     destination = choose_save(frontend, generation, "GIFT DESTINATION SAVE")
@@ -2724,6 +2742,255 @@ GEN3_DIRECT_GIFTS = [
 ]
 
 
+GEN3_SHADOW_COLO_GIFTS = [
+    ('shadow-colo-359-lv48', 'ABSOL', 'Lv 48; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-190-lv43', 'AIPOM', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-168-lv43', 'ARIADOS', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-153-lv30', 'BAYLEEF', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-159-lv30', 'CROCONAW', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-225-lv45', 'DELIBIRD', 'Lv 45; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-206-lv33', 'DUNSPARCE', 'Lv 33; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-244-lv40', 'ENTEI', 'Lv 40; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-180-lv30', 'FLAAFFY', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-205-lv43', 'FORRETRESS', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-162-lv33', 'FURRET', 'Lv 33; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-207-lv43', 'GLIGAR', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-210-lv43', 'GRANBULL', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-214-lv45', 'HERACROSS', 'Lv 45; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-237-lv38', 'HITMONTOP', 'Lv 38; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-229-lv48', 'HOUNDOOM', 'Lv 48; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-166-lv40', 'LEDIAN', 'Lv 40; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-296-lv30', 'MAKUHITA', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-226-lv33', 'MANTINE', 'Lv 33; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-307-lv33', 'MEDITITE', 'Lv 33; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-376-lv50', 'METAGROSS', 'Lv 50; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-241-lv48', 'MILTANK', 'Lv 48; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-200-lv30', 'MISDREAVUS', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-198-lv43', 'MURKROW', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-164-lv30', 'NOCTOWL', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-221-lv43', 'PILOSWINE', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-195-lv30', 'QUAGSIRE', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-156-lv30', 'QUILAVA', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-211-lv33', 'QWILFISH', 'Lv 33; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-243-lv40', 'RAIKOU', 'Lv 40; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-223-lv20', 'REMORAID', 'Lv 20; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-213-lv45', 'SHUCKLE', 'Lv 45; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-227-lv47', 'SKARMORY', 'Lv 47; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-188-lv30', 'SKIPLOOM', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-218-lv30', 'SLUGMA', 'Lv 30; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-235-lv45', 'SMEARGLE', 'Lv 45; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-215-lv43', 'SNEASEL', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-234-lv43', 'STANTLER', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-185-lv35', 'SUDOWOODO', 'Lv 35; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-245-lv40-hydro-pump', 'SUICUNE (HYDRO PUMP) - HYDRO PUMP', 'Lv 40; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-245-lv40', 'SUICUNE (SURF) - SURF', 'Lv 40; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-192-lv45', 'SUNFLORA', 'Lv 45; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-333-lv33', 'SWABLU', 'Lv 33; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-176-lv20', 'TOGETIC', 'Lv 20; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-357-lv49', 'TROPIUS', 'Lv 49; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-248-lv55', 'TYRANITAR', 'Lv 55; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-217-lv45', 'URSARING', 'Lv 45; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-329-lv43', 'VIBRAVA', 'Lv 43; purified; National Ribbon; normal shiny chance'),
+    ('shadow-colo-193-lv33', 'YANMA', 'Lv 33; purified; National Ribbon; normal shiny chance'),
+]
+
+GEN3_SHADOW_XD_GIFTS = [
+    ('shadow-xd-334-lv36', 'ALTARIA', 'Lv 36; purified; National Ribbon; not shiny'),
+    ('shadow-xd-024-lv33', 'ARBOK', 'Lv 33; purified; National Ribbon; not shiny'),
+    ('shadow-xd-144-lv50', 'ARTICUNO', 'Lv 50; purified; National Ribbon; not shiny'),
+    ('shadow-xd-343-lv17', 'BALTOY', 'Lv 17; purified; National Ribbon; not shiny'),
+    ('shadow-xd-354-lv37', 'BANETTE', 'Lv 37; purified; National Ribbon; not shiny'),
+    ('shadow-xd-015-lv30', 'BEEDRILL', 'Lv 30; purified; National Ribbon; not shiny'),
+    ('shadow-xd-012-lv30', 'BUTTERFREE', 'Lv 30; purified; National Ribbon; not shiny'),
+    ('shadow-xd-318-lv15', 'CARVANHA', 'Lv 15; purified; National Ribbon; not shiny'),
+    ('shadow-xd-113-lv39', 'CHANSEY', 'Lv 39; purified; National Ribbon; not shiny'),
+    ('shadow-xd-301-lv18', 'DELCATTY', 'Lv 18; purified; National Ribbon; not shiny'),
+    ('shadow-xd-085-lv34', 'DODRIO', 'Lv 34; purified; National Ribbon; not shiny'),
+    ('shadow-xd-149-lv55', 'DRAGONITE', 'Lv 55; purified; National Ribbon; not shiny'),
+    ('shadow-xd-051-lv40', 'DUGTRIO', 'Lv 40; purified; National Ribbon; not shiny'),
+    ('shadow-xd-355-lv19', 'DUSKULL', 'Lv 19; purified; National Ribbon; not shiny'),
+    ('shadow-xd-125-lv43', 'ELECTABUZZ', 'Lv 43; purified; National Ribbon; not shiny'),
+    ('shadow-xd-103-lv46', 'EXEGGUTOR', 'Lv 46; purified; National Ribbon; not shiny'),
+    ('shadow-xd-083-lv36', "FARFETCH'D", 'Lv 36; purified; National Ribbon; not shiny'),
+    ('shadow-xd-055-lv33', 'GOLDUCK', 'Lv 33; purified; National Ribbon; not shiny'),
+    ('shadow-xd-088-lv23', 'GRIMER', 'Lv 23; purified; National Ribbon; not shiny'),
+    ('shadow-xd-058-lv28', 'GROWLITHE', 'Lv 28; purified; National Ribbon; not shiny'),
+    ('shadow-xd-316-lv17', 'GULPIN', 'Lv 17; purified; National Ribbon; not shiny'),
+    ('shadow-xd-107-lv38', 'HITMONCHAN', 'Lv 38; purified; National Ribbon; not shiny'),
+    ('shadow-xd-106-lv38', 'HITMONLEE', 'Lv 38; purified; National Ribbon; not shiny'),
+    ('shadow-xd-228-lv17', 'HOUNDOUR', 'Lv 17; purified; National Ribbon; not shiny'),
+    ('shadow-xd-097-lv34', 'HYPNO', 'Lv 34; purified; National Ribbon; not shiny'),
+    ('shadow-xd-115-lv35', 'KANGASKHAN', 'Lv 35; purified; National Ribbon; not shiny'),
+    ('shadow-xd-131-lv44', 'LAPRAS', 'Lv 44; purified; National Ribbon; not shiny'),
+    ('shadow-xd-165-lv10', 'LEDYBA', 'Lv 10; purified; National Ribbon; not shiny'),
+    ('shadow-xd-108-lv38', 'LICKITUNG', 'Lv 38; purified; National Ribbon; not shiny'),
+    ('shadow-xd-249-lv50', 'LUGIA', 'Lv 50; purified; National Ribbon; not shiny'),
+    ('shadow-xd-337-lv25', 'LUNATONE', 'Lv 25; purified; National Ribbon; not shiny'),
+    ('shadow-xd-219-lv38', 'MAGCARGO', 'Lv 38; purified; National Ribbon; not shiny'),
+    ('shadow-xd-126-lv36', 'MAGMAR', 'Lv 36; purified; National Ribbon; not shiny'),
+    ('shadow-xd-082-lv30', 'MAGNETON', 'Lv 30; purified; National Ribbon; not shiny'),
+    ('shadow-xd-296-lv18', 'MAKUHITA', 'Lv 18; purified; National Ribbon; not shiny'),
+    ('shadow-xd-310-lv44', 'MANECTRIC', 'Lv 44; purified; National Ribbon; not shiny'),
+    ('shadow-xd-179-lv17', 'MAREEP', 'Lv 17; purified; National Ribbon; not shiny'),
+    ('shadow-xd-105-lv44', 'MAROWAK', 'Lv 44; purified; National Ribbon; not shiny'),
+    ('shadow-xd-303-lv22', 'MAWILE', 'Lv 22; purified; National Ribbon; not shiny'),
+    ('shadow-xd-052-lv22', 'MEOWTH', 'Lv 22; purified; National Ribbon; not shiny'),
+    ('shadow-xd-146-lv50', 'MOLTRES', 'Lv 50; purified; National Ribbon; not shiny'),
+    ('shadow-xd-122-lv42', 'MR. MIME', 'Lv 42; purified; National Ribbon; not shiny'),
+    ('shadow-xd-177-lv22', 'NATU', 'Lv 22; purified; National Ribbon; not shiny'),
+    ('shadow-xd-299-lv26', 'NOSEPASS', 'Lv 26; purified; National Ribbon; not shiny'),
+    ('shadow-xd-322-lv14', 'NUMEL', 'Lv 14; purified; National Ribbon; not shiny'),
+    ('shadow-xd-046-lv28', 'PARAS', 'Lv 28; purified; National Ribbon; not shiny'),
+    ('shadow-xd-017-lv30', 'PIDGEOTTO', 'Lv 30; purified; National Ribbon; not shiny'),
+    ('shadow-xd-204-lv20', 'PINECO', 'Lv 20; purified; National Ribbon; not shiny'),
+    ('shadow-xd-127-lv35', 'PINSIR', 'Lv 35; purified; National Ribbon; not shiny'),
+    ('shadow-xd-062-lv42', 'POLIWRATH', 'Lv 42; purified; National Ribbon; not shiny'),
+    ('shadow-xd-261-lv10', 'POOCHYENA', 'Lv 10; purified; National Ribbon; not shiny'),
+    ('shadow-xd-057-lv34', 'PRIMEAPE', 'Lv 34; purified; National Ribbon; not shiny'),
+    ('shadow-xd-280-lv20', 'RALTS', 'Lv 20; purified; National Ribbon; not shiny'),
+    ('shadow-xd-078-lv40', 'RAPIDASH', 'Lv 40; purified; National Ribbon; not shiny'),
+    ('shadow-xd-020-lv34', 'RATICATE', 'Lv 34; purified; National Ribbon; not shiny'),
+    ('shadow-xd-112-lv46', 'RHYDON', 'Lv 46; purified; National Ribbon; not shiny'),
+    ('shadow-xd-315-lv22', 'ROSELIA', 'Lv 22; purified; National Ribbon; not shiny'),
+    ('shadow-xd-302-lv33', 'SABLEYE', 'Lv 33; purified; National Ribbon; not shiny'),
+    ('shadow-xd-373-lv50', 'SALAMENCE', 'Lv 50; purified; National Ribbon; not shiny'),
+    ('shadow-xd-123-lv40', 'SCYTHER', 'Lv 40; purified; National Ribbon; not shiny'),
+    ('shadow-xd-273-lv17', 'SEEDOT', 'Lv 17; purified; National Ribbon; not shiny'),
+    ('shadow-xd-086-lv23', 'SEEL', 'Lv 23; purified; National Ribbon; not shiny'),
+    ('shadow-xd-090-lv29', 'SHELLDER', 'Lv 29; purified; National Ribbon; not shiny'),
+    ('shadow-xd-285-lv15', 'SHROOMISH', 'Lv 15; purified; National Ribbon; not shiny'),
+    ('shadow-xd-143-lv43', 'SNORLAX', 'Lv 43; purified; National Ribbon; not shiny'),
+    ('shadow-xd-361-lv20', 'SNORUNT', 'Lv 20; purified; National Ribbon; not shiny'),
+    ('shadow-xd-338-lv41', 'SOLROCK', 'Lv 41; purified; National Ribbon; not shiny'),
+    ('shadow-xd-021-lv22', 'SPEAROW', 'Lv 22; purified; National Ribbon; not shiny'),
+    ('shadow-xd-363-lv17', 'SPHEAL', 'Lv 17; purified; National Ribbon; not shiny'),
+    ('shadow-xd-167-lv14', 'SPINARAK', 'Lv 14; purified; National Ribbon; not shiny'),
+    ('shadow-xd-121-lv41', 'STARMIE', 'Lv 41; purified; National Ribbon; not shiny'),
+    ('shadow-xd-277-lv43', 'SWELLOW', 'Lv 43; purified; National Ribbon; not shiny'),
+    ('shadow-xd-220-lv22', 'SWINUB', 'Lv 22; purified; National Ribbon; not shiny'),
+    ('shadow-xd-114-lv30', 'TANGELA', 'Lv 30; purified; National Ribbon; not shiny'),
+    ('shadow-xd-128-lv46', 'TAUROS', 'Lv 46; purified; National Ribbon; not shiny'),
+    ('shadow-xd-216-lv11', 'TEDDIURSA', 'Lv 11; purified; National Ribbon; not shiny'),
+    ('shadow-xd-175-lv25', 'TOGEPI', 'Lv 25; purified; National Ribbon; not shiny'),
+    ('shadow-xd-049-lv32', 'VENOMOTH', 'Lv 32; purified; National Ribbon; not shiny'),
+    ('shadow-xd-100-lv19', 'VOLTORB', 'Lv 19; purified; National Ribbon; not shiny'),
+    ('shadow-xd-037-lv18', 'VULPIX', 'Lv 18; purified; National Ribbon; not shiny'),
+    ('shadow-xd-070-lv32', 'WEEPINBELL', 'Lv 32; purified; National Ribbon; not shiny'),
+    ('shadow-xd-335-lv28', 'ZANGOOSE', 'Lv 28; purified; National Ribbon; not shiny'),
+    ('shadow-xd-145-lv50', 'ZAPDOS', 'Lv 50; purified; National Ribbon; not shiny'),
+]
+
+GEN3_SHADOW_EREADER_GIFTS = [
+    ('shadow-ereader-179-lv37', 'MAREEP', 'Lv 37; purified; National Ribbon; normal shiny chance'),
+    ('shadow-ereader-212-lv50', 'SCIZOR', 'Lv 50; purified; National Ribbon; normal shiny chance'),
+    ('shadow-ereader-175-lv20', 'TOGEPI', 'Lv 20; purified; National Ribbon; normal shiny chance'),
+]
+
+GEN3_REGIONAL_GIFTS = [
+    ('regional-jirachi-lv5', 'JIRACHI - LV 5', 'Lv 5; not shiny'),
+    ('regional-pikachu-ana', 'PIKACHU - ANA FLY', 'Lv 10; not shiny'),
+    ('regional-meowth', 'MEOWTH - POKEPARK', 'Lv 5; not shiny'),
+    ('regional-pikachu-surf', 'PIKACHU - SURF', 'Lv 10; not shiny'),
+    ('regional-pikachu-gw', 'PIKACHU - GW FLY', 'Lv 10; not shiny'),
+    ('regional-metang', 'METANG - REFRESH', 'Lv 30; not shiny; National Ribbon'),
+    ('regional-wobbuffet', 'WOBBUFFET - SUNDAY', 'Lv 5; not shiny'),
+    ('regional-regirock', 'REGIROCK - HADOU', 'Lv 40; not shiny'),
+    ('regional-regice', 'REGICE - HADOU', 'Lv 40; not shiny'),
+    ('regional-registeel', 'REGISTEEL - HADOU', 'Lv 40; not shiny'),
+    ('regional-mew-lv30', 'MEW - LV 30', 'Lv 30; not shiny'),
+    ('regional-celebi-lv10', 'CELEBI - MITSURIN', 'Lv 10; not shiny'),
+    ('regional-jirachi-lv30', 'JIRACHI - LV 30', 'Lv 30; not shiny'),
+]
+
+GEN3_TENTH_ANNIVERSARY_GIFTS = [
+    ('tenth-bulbasaur', 'BULBASAUR', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-charizard', 'CHARIZARD', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-blastoise', 'BLASTOISE', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-pikachu-fly', 'PIKACHU - FLY', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-pikachu-standard', 'PIKACHU - STANDARD', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-alakazam', 'ALAKAZAM', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-articuno', 'ARTICUNO', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-zapdos', 'ZAPDOS', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-moltres', 'MOLTRES', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-dragonite', 'DRAGONITE', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-typhlosion', 'TYPHLOSION', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-espeon', 'ESPEON', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-umbreon', 'UMBREON', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-raikou', 'RAIKOU', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-entei', 'ENTEI', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-suicune', 'SUICUNE', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-tyranitar', 'TYRANITAR', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-lugia', 'LUGIA', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-ho-oh', 'HO-OH', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-celebi', 'CELEBI', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-blaziken', 'BLAZIKEN', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-absol', 'ABSOL', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-latias', 'LATIAS', 'Lv 70; anniversary moves; cannot be shiny'),
+    ('tenth-latios', 'LATIOS', 'Lv 70; anniversary moves; cannot be shiny'),
+]
+
+GEN3_PCNY_ADULT_GIFTS = [
+    ('pcny-adult-pikachu', 'PIKACHU', 'Lv 50; PCNY moves; cannot be shiny'),
+    ('pcny-adult-gloom', 'GLOOM', 'Lv 50; PCNY moves; cannot be shiny'),
+    ('pcny-adult-staryu', 'STARYU', 'Lv 50; PCNY moves; cannot be shiny'),
+    ('pcny-adult-seadra', 'SEADRA - ICE BEAM', 'Lv 45; PCNY moves; cannot be shiny'),
+    ('pcny-adult-flygon', 'FLYGON - FLAMETHROWER', 'Lv 45; PCNY moves; cannot be shiny'),
+    ('pcny-adult-altaria', 'ALTARIA - FLAMETHROWER', 'Lv 45; PCNY moves; cannot be shiny'),
+    ('pcny-adult-seadra-leer', 'SEADRA - LEER', 'Lv 45; Dragon Rage, Hydro Pump, Twister, Leer; not shiny'),
+    ('pcny-adult-altaria-ice-beam', 'ALTARIA - ICE BEAM', 'Lv 45; Take Down, DragonBreath, Dragon Dance, Ice Beam; not shiny'),
+    ('pcny-adult-salamence-thrash', 'SALAMENCE - THRASH', 'Lv 50; Protect, DragonBreath, Thrash, Fly; not shiny'),
+    ('pcny-adult-shedinja', 'SHEDINJA', 'Lv 50; Spite, Confuse Ray, Shadow Ball, Grudge; not shiny'),
+    ('pcny-adult-cacturne', 'CACTURNE', 'Lv 50; Faint Attack, Spikes, Needle Arm, Cotton Spore; not shiny'),
+    ('pcny-adult-shuppet', 'SHUPPET', 'Lv 25; Screech, Night Shade, Curse, Spite; not shiny'),
+    ('pcny-adult-duskull-lv25-d2', 'DUSKULL - LV 25', 'Lv 25; non-shiny; review the full move set in preview'),
+    ('pcny-adult-exploud-lv50-d3', 'EXPLOUD - LV 50', 'Lv 50; non-shiny; review the full move set in preview'),
+    ('pcny-adult-exploud-lv100-d3', 'EXPLOUD - LV 100', 'Lv 100; non-shiny; review the full move set in preview'),
+    ('pcny-adult-aggron-lv50-d3', 'AGGRON - LV 50', 'Lv 50; non-shiny; review the full move set in preview'),
+    ('pcny-adult-aggron-lv100-d3', 'AGGRON - LV 100', 'Lv 100; non-shiny; review the full move set in preview'),
+    ('pcny-adult-wailord-lv50-d3', 'WAILORD - LV 50', 'Lv 50; non-shiny; review the full move set in preview'),
+    ('pcny-adult-wailord-lv100-d3', 'WAILORD - LV 100', 'Lv 100; non-shiny; review the full move set in preview'),
+    ('pcny-adult-crawdaunt-lv50-d3', 'CRAWDAUNT - LV 50', 'Lv 50; non-shiny; review the full move set in preview'),
+    ('pcny-adult-crawdaunt-lv100-d3', 'CRAWDAUNT - LV 100', 'Lv 100; non-shiny; review the full move set in preview'),
+    ('pcny-adult-altaria-lv45-d4', 'ALTARIA - REFRESH', 'Lv 45; non-shiny; review the full move set in preview'),
+    ('pcny-adult-flygon-lv45-d4', 'FLYGON - SCREECH', 'Lv 45; non-shiny; review the full move set in preview'),
+    ('pcny-adult-seadra-lv32-d4', 'SEADRA - LV 32', 'Lv 32; non-shiny; review the full move set in preview'),
+    ('pcny-adult-salamence-lv50-d4', 'SALAMENCE - SCARY FACE', 'Lv 50; non-shiny; review the full move set in preview'),
+    ('pcny-adult-gardevoir-lv35-d5', 'GARDEVOIR - LV 35', 'Lv 35; non-shiny; review the full move set in preview'),
+    ('pcny-adult-tropius-lv30-d5', 'TROPIUS - LV 30', 'Lv 30; non-shiny; review the full move set in preview'),
+    ('pcny-adult-houndour-lv5-d6', 'HOUNDOUR - LV 5', 'Lv 5; non-shiny; review the full move set in preview'),
+    ('pcny-adult-mareep-lv5-d6', 'MAREEP - LV 5', 'Lv 5; non-shiny; review the full move set in preview'),
+    ('pcny-adult-seviper-lv30-d7', 'SEVIPER - LV 30', 'Lv 30; non-shiny; review the full move set in preview'),
+    ('pcny-adult-absol-lv35-d7', 'ABSOL - SPITE', 'Lv 35; non-shiny; review the full move set in preview'),
+    ('pcny-adult-absol-lv35-d7-wish', 'ABSOL - WISH', 'Lv 35; non-shiny; review the full move set in preview'),
+    ('pcny-adult-azurill-lv5-d8', 'AZURILL - LV 5', 'Lv 5; non-shiny; review the full move set in preview'),
+    ('pcny-adult-wynaut-lv5-d8', 'WYNAUT - LV 5', 'Lv 5; non-shiny; review the full move set in preview'),
+    ('pcny-adult-huntail-lv20-d8', 'HUNTAIL - LV 20', 'Lv 20; non-shiny; review the full move set in preview'),
+    ('pcny-adult-gorebyss-lv20-d8', 'GOREBYSS - LV 20', 'Lv 20; non-shiny; review the full move set in preview'),
+    ('pcny-adult-kingdra-lv35-d9', 'KINGDRA - LV 35', 'Lv 35; non-shiny; review the full move set in preview'),
+    ('pcny-adult-zangoose-lv18-d9', 'ZANGOOSE - LV 18', 'Lv 18; non-shiny; review the full move set in preview'),
+    ('pcny-adult-seviper-lv18-d9', 'SEVIPER - LV 18', 'Lv 18; non-shiny; review the full move set in preview'),
+    ('pcny-adult-milotic-lv35-d9', 'MILOTIC - LV 35', 'Lv 35; non-shiny; review the full move set in preview'),
+    ('pcny-adult-sableye-lv18-d10', 'SABLEYE - LV 18', 'Lv 18; non-shiny; review the full move set in preview'),
+    ('pcny-adult-mawile-lv18-d10', 'MAWILE - LV 18', 'Lv 18; non-shiny; review the full move set in preview'),
+    ('pcny-adult-cradily-lv40-d10', 'CRADILY - LV 40', 'Lv 40; non-shiny; review the full move set in preview'),
+    ('pcny-adult-armaldo-lv40-d10', 'ARMALDO - LV 40', 'Lv 40; non-shiny; review the full move set in preview'),
+    ('pcny-adult-machamp-lv30-d11', 'MACHAMP - LV 30', 'Lv 30; non-shiny; review the full move set in preview'),
+    ('pcny-adult-golem-lv30-d11', 'GOLEM - LV 30', 'Lv 30; non-shiny; review the full move set in preview'),
+    ('pcny-adult-ludicolo-lv20-d11', 'LUDICOLO - LV 20', 'Lv 20; non-shiny; review the full move set in preview'),
+    ('pcny-adult-shiftry-lv20-d11', 'SHIFTRY - LV 20', 'Lv 20; non-shiny; review the full move set in preview'),
+]
+
+
+GEN3_GAMECUBE_GIFTS = [
+    ('cube-pikachu', 'COLOSSEUM PIKACHU', 'Lv 10; Light Ball; cannot be shiny'),
+    ('cube-ageto-celebi', 'AGETO CELEBI', 'Lv 10; Confusion, Recover, Heal Bell, Safeguard; not shiny'),
+    ('cube-mattle-ho-oh', 'MT. BATTLE HO-OH', 'Lv 70; Recover, Fire Blast, Sunny Day, Swift; not shiny'),
+    ('cube-xd-chikorita', 'XD CHIKORITA', 'Lv 5; AncientPower and Frenzy Plant; normal shiny chance'),
+    ('cube-xd-cyndaquil', 'XD CYNDAQUIL', 'Lv 5; Reversal and Blast Burn; normal shiny chance'),
+    ('cube-xd-totodile', 'XD TOTODILE', 'Lv 5; Crunch and Hydro Cannon; normal shiny chance'),
+]
+
+
 def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, str, list[dict]]]:
     while True:
         saves = generation_saves(3)
@@ -2735,12 +3002,32 @@ def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, st
                       ("PCNY WISH EGGS", "Six Wish eggs; expanded Gen III gifts"),
                       ("GEN 3 GIFTS", "Five direct gifts; already hatched")])
         items.append(("GEN 3 ISLAND EVENTS", "Native island tickets and encounter replay"))
+        items.append(("GAMECUBE GIFTS", "Six reward equivalents; already hatched"))
+        items.append(("PCNY ADULT GIFTS", "48 PCNY recipes; already hatched"))
+        items.append(("10TH ANNIVERSARY GIFTS", "24 level-70 recipes; already hatched"))
+        items.append(("REGIONAL GIFTS", "13 distinct campaign recipes; already hatched"))
+        items.append(("PURIFIED SHADOW GIFTS", "Colosseum, XD and e-Reader purified equivalents"))
         choice = choose_list(frontend, "GEN 3", "Choose a game, gift group or event. B returns.", items)
         if choice is None: return None
         if choice < len(saves): return saves[choice]
         group = choice - len(saves)
         if group == 6:
             gen3_event_workflow(frontend)
+        elif group == 11:
+            category = choose_list(frontend, "PURIFIED SHADOW GIFTS", "Already purified; choose a source game. B returns.",
+                                   [("COLOSSEUM", "49 recipes; 48 species, two Suicune movesets"),
+                                    ("XD", "83 purified recipes; non-shiny"),
+                                    ("COLOSSEUM E-READER", "Three expanded English gifts; zero IVs")])
+            if category is not None:
+                generated_gift_workflow(frontend, 3, gen3_group=("shadow-colo", "shadow-xd", "shadow-ereader")[category])
+        elif group == 10:
+            generated_gift_workflow(frontend, 3, gen3_group="regional")
+        elif group == 9:
+            generated_gift_workflow(frontend, 3, gen3_group="tenth-anniversary")
+        elif group == 8:
+            generated_gift_workflow(frontend, 3, gen3_group="pcny-adults")
+        elif group == 7:
+            generated_gift_workflow(frontend, 3, gen3_group="gamecube")
         else:
             generated_gift_workflow(frontend, 3, gen3_group=("box", "pokepark", "anniversary", "promotional", "pcny", "direct")[group])
 
@@ -2762,9 +3049,9 @@ def save_event_game_running() -> bool:
 def gen3_event_workflow(frontend: SDLFrontEnd) -> None:
     notice(frontend, "GEN 3 ISLAND EVENTS",
            "Save normally and exit the game first. Save away from event islands. Enable opens native ferry travel; Replay resets only the selected island's encounters. Existing Pokemon are kept. Load the in-game save afterward, not a save state.")
-    saves = [save for save in generation_saves(3) if save[2] in ("Emerald", "FireRed/LeafGreen")]
+    saves = [save for save in generation_saves(3) if save[2] in ("Ruby/Sapphire", "Emerald", "FireRed/LeafGreen")]
     if not saves:
-        notice(frontend, "EVENT SAVE NEEDED", "Use a supported English Emerald or FireRed/LeafGreen save with postgame ferry travel unlocked.")
+        notice(frontend, "EVENT SAVE NEEDED", "Use a supported English Ruby, Sapphire, Emerald or FireRed/LeafGreen save with postgame ferry travel unlocked.")
         return
     choice = choose_list(frontend, "ISLAND EVENT SAVE", "Choose a test save. B returns.",
                          [(save[2].upper(), os.path.basename(save[0])) for save in saves])
@@ -2828,7 +3115,7 @@ def gen3_event_workflow(frontend: SDLFrontEnd) -> None:
                 return
             ok, message = commit_copy(session)
             if ok:
-                port = "Lilycove City" if family == "Emerald" else "Vermilion City"
+                port = "Lilycove City" if family in ("Ruby/Sapphire", "Emerald") else "Vermilion City"
                 message = "Load the ordinary in-game save. Visit the ferry attendant in %s to travel to %s. Avoid loading a save state." % (port, info["destination"])
             notice(frontend, "ISLAND EVENT READY" if ok else "EVENT NOT COMMITTED", message, completion=ok)
     finally:

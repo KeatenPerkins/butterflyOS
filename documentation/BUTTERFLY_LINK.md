@@ -278,8 +278,11 @@ load the ordinary in-game save rather than Auto Resume or a save state.
   Map/Faraway Island (Mew chase). Use the Lilycove City ferry.
 - **FireRed/LeafGreen revision 1:** MysticTicket and AuroraTicket. Use the
   Vermilion City ferry. These and Emerald require the qualified English ROMs.
-- Normal postgame ferry requirements are preserved. Ruby/Sapphire event delivery
-  is not included in this batch.
+- **Ruby/Sapphire revision 2:** Eon Ticket/Southern Island. Ruby encounters Latias;
+  Sapphire encounters Latios. Use the Lilycove City ferry. This extension has
+  automated coverage and user-confirmed native encounters on the local test device.
+- Normal postgame ferry requirements are preserved. Ruby/Sapphire key items use
+  their own unencrypted save layout; the normal roaming Pokemon is kept.
 
 Replay keeps previously caught Pokemon and resets only the selected island's
 encounters; MysticTicket replay resets both Ho-Oh and Lugia. Save away from event
@@ -326,6 +329,91 @@ Zigzagoon or Jirachi does **not** repair the Ruby/Sapphire berry-clock glitch.
 References: [primary numeric gift recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/EncountersWC3.cs),
 [bonus-disc gifts and Jirachi berries](https://bulbapedia.bulbagarden.net/wiki/List_of_game-based_Pok%C3%A9mon_distributions_in_Generation_III),
 [Liechi Berry distribution](https://bulbapedia.bulbagarden.net/wiki/Liechi_Berry).
+
+### Purified Shadow gifts (next test build)
+
+Open **Blink → Local Transfer → Gen 3 → Purified Shadow Gifts**, then choose
+Colosseum (49 recipes/48 species, including two Suicune move sets), XD (83),
+or Colosseum e-Reader (three expanded English equivalents). Gifts arrive already
+purified in an empty PC slot with the National Ribbon, trainer BLINK and no held
+item. Colosseum gifts have normal shiny chance; XD gifts cannot be shiny.
+The e-Reader trio has zero IVs. All five qualified English Gen III games are
+supported with the existing preview, verified backup and Commit protections.
+
+Capture and purification take place in Colosseum/XD and are not recreated by
+Blink. GBA games receive ordinary Pokemon with purified moves, not Shadow
+state, Shadow moves or the dark Lugia model. Original GameCube identity, RNG,
+met data, capture balls and purification EXP are not reproduced.
+See the [complete moves and gameplay checklist](BUTTERFLY_LINK_GEN3_SHADOW_CHECKLIST.md).
+The user confirmed the purified gifts working on the local test device. Individual recipes, destination games and ribbon/battle/save checks were not enumerated; this is not an exhaustive per-recipe/per-game qualification.
+
+### Regional gifts (next test build)
+
+Open **Blink → Local Transfer → Gen 3 → Regional Gifts** for 13 generated
+English equivalents: three Pikachu move sets, Meowth, Refresh Metang, Sunday
+Wobbuffet, the three Hadou Regis, level-30 Mew, Mitsurin Celebi, and level-5/30
+Jirachi. All are non-shiny with no held item and trainer BLINK. Metang includes
+the National Ribbon. Duplicate campaigns share an option; original distributor
+identity and historical RNG are not reproduced. All five qualified English
+Gen III ROM/save pairs use the existing protected preview, backup and Commit.
+
+See the [full levels, moves and gameplay checklist](BUTTERFLY_LINK_GEN3_REGIONAL_CHECKLIST.md).
+The user confirmed the current gifts working on the local test device. This does not establish an exhaustive per-gift/per-game test matrix.
+
+### Tenth-anniversary gifts (next test build)
+
+Open **Blink → Local Transfer → Gen 3 → 10th Anniversary Gifts**. Choose from
+24 distinct recipes across 23 species, including Pikachu with Fly and standard
+Pikachu. Duplicate regional campaigns are grouped. All arrive already hatched
+at level 70, non-shiny, with no held item and trainer BLINK. The five qualified
+English Gen III games are supported, using the existing preview, backup and
+Commit flow. Normal traded-Pokemon obedience rules apply. Original distributor
+identities, language variants and historical RNG are not reproduced.
+
+See the [complete recipe and gameplay checklist](BUTTERFLY_LINK_GEN3_TENTH_ANNIVERSARY_CHECKLIST.md).
+The user confirmed the current gifts working on the local test device. This does not establish an exhaustive per-gift/per-game test matrix.
+
+### PCNY adult gifts (next test build)
+
+Open **Blink → Local Transfer → Gen 3 → PCNY Adult Gifts**. All **48 distinct
+adult recipes** from the numeric reference catalog are implemented. Its 50
+campaign entries include two duplicate recipes, which are grouped. The original
+twelve options remain first; the final 36 are appended. Alternate levels and
+move sets are labeled separately, with complete moves shown in the preview.
+See the [complete recipe and gameplay checklist](BUTTERFLY_LINK_GEN3_PCNY_CHECKLIST.md).
+
+All are non-shiny, have no held item, and use BLINK as their original trainer.
+They arrive already hatched in an empty PC slot. The five qualified English
+Gen III games are supported as expanded destinations; historical PCNY adult
+distributions targeted Ruby/Sapphire. Preview, backups, Commit and changed-save
+refusal apply. Original distributor identity and RNG are not reproduced.
+The user confirmed the current gifts working on the local test device. This does not establish an exhaustive per-gift/per-game test matrix.
+
+### GameCube gifts (next test build)
+
+Open **Blink → Local Transfer → Gen 3 → GameCube Gifts**. Choose a save
+and matching ROM, then preview and commit a gift into an empty PC slot.
+All five qualified English Gen III games are supported.
+
+| Gift equivalent | Level | Distinctive content | Shiny policy |
+| --- | --- | --- | --- |
+| Bonus-disc Pikachu | 10 | Light Ball; ThunderShock, Growl, Tail Whip, Thunder Wave | Never |
+| Ageto Celebi | 10 | Confusion, Recover, Heal Bell, Safeguard | Never |
+| Mt. Battle Ho-Oh | 70 | Recover, Fire Blast, Sunny Day, Swift | Never |
+| XD Chikorita | 5 | AncientPower, Tackle, Growl, Frenzy Plant | Normal chance |
+| XD Cyndaquil | 5 | Reversal, Tackle, Leer, Blast Burn | Normal chance |
+| XD Totodile | 5 | Crunch, Scratch, Leer, Hydro Cannon | Normal chance |
+
+These use BLINK as the original trainer and the same protected backup/Commit
+workflow as other direct gifts. They are generated equivalents: no GameCube
+disc, challenge completion, original distributor identity or historical RNG is
+recreated. Normal shiny chance is 1 in 8,192. Automated checks cover all six
+recipes across all five games. The user confirmed all six gifts and ordinary
+in-game saving working on the local test device; this does not establish a
+complete gameplay matrix across all five destination games.
+
+References: [Colosseum recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/Encounters3RSE.cs),
+[XD recipes](https://github.com/kwsch/PKHeX/blob/master/PKHeX.Core/Legality/Encounters/Data/Gen3/Encounters3XD.cs).
 
 ### Gen III egg game support (v1.1.0)
 

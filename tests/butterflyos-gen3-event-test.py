@@ -29,23 +29,24 @@ public,assets,helper=map(Path,sys.argv[1:4]);del sys.argv[1:4]
 FIXTURES=[('Emerald',public/'extracted/emerald-389hours/original.sav',assets/'Pokemon - Emerald Version - Bdex Gen3 Test.gba'),
           ('FireRed',assets/'Pokemon - FireRed Version - Bdex Gen3 Test.srm',assets/'Pokemon - FireRed Version - Bdex Gen3 Test.gba'),
           ('LeafGreen',public/'extracted/leafgreen-postgame/original.sav',assets/'Pokemon - LeafGreen Version - Bdex Gen3 Test.gba')]
+FIXTURES.extend((game,assets/('Pokemon - '+game+' Version - Bdex Gen3 Test.srm'),assets/('Pokemon - '+game+' Version - Bdex Gen3 Test.gba')) for game in ('Ruby','Sapphire'))
 ORIGINALS={p:hashlib.sha256(p.read_bytes()).hexdigest() for _,save,rom in FIXTURES for p in (save,rom)}
 
 
 def fixture(data,rom,rotation=0,finished=False):
     ctx=e.load_save(data,rom)
     for rule in e.RULES[ctx['family']].values():
-        for number in (rule['travel'],rule['shown'],*rule['completed'],*rule['clear'],*rule['show'],*rule['hide']):e.set_flag(ctx,number,False)
+        for number in (rule['travel'],*rule['completed'],*rule['clear'],*rule['show'],*rule['hide'],*(() if rule['shown'] is None else (rule['shown'],))):e.set_flag(ctx,number,False)
         if rule['received'] is not None:e.set_flag(ctx,rule['received'],False)
         if finished:
-            for number in (*rule['completed'],*rule['clear'],*rule['show'],rule['shown']):e.set_flag(ctx,number,True)
+            for number in (*rule['completed'],*rule['clear'],*rule['show'],*(() if rule['shown'] is None else (rule['shown'],))):e.set_flag(ctx,number,True)
             for number in rule['variables']:struct.pack_into('<H',ctx['block'],ctx['vars_at']+(number-0x4000)*2,17)
-    emerald=ctx['family']=='Emerald'
-    e.set_flag(ctx,0x864 if emerald else 0x82C,True)
-    e.set_flag(ctx,0x123 if emerald else 0x840,True)
-    if not emerald:struct.pack_into('<H',ctx['block'],ctx['vars_at']+(0x4076-0x4000)*2,5)
+    emerald=ctx['family']=='Emerald';rs=ctx['family']=='Ruby/Sapphire'
+    e.set_flag(ctx,0x804 if rs else 0x864 if emerald else 0x82C,True)
+    e.set_flag(ctx,0x123 if (rs or emerald) else 0x840,True)
+    if not (rs or emerald):struct.pack_into('<H',ctx['block'],ctx['vars_at']+(0x4076-0x4000)*2,5)
     ctx['block'][4:6]=bytes((3,0))
-    for n in range(30):struct.pack_into('<HH',ctx['block'],ctx['pocket_at']+4*n,0,ctx['key'])
+    for n in range(ctx['pocket_slots']):struct.pack_into('<HH',ctx['block'],ctx['pocket_at']+4*n,0,ctx['key'])
     struct.pack_into('<HH',ctx['block'],ctx['pocket_at'],265,ctx['key']^1)
     out=bytearray(data)
     for base,count in ((0,100),(0xE000,101)):
@@ -85,10 +86,10 @@ class IslandTests(unittest.TestCase):
             self.fail('Bad logical offset')
         rule=e.RULES[ctx['family']][event]
         flags=[rule['travel']]+([rule['received']] if rule['received'] is not None else [])
-        if action=='replay':flags+=list((*rule['completed'],*rule['clear'],*rule['show'],*rule['hide'],rule['shown']))
+        if action=='replay':flags+=list((*rule['completed'],*rule['clear'],*rule['show'],*rule['hide'],*(() if rule['shown'] is None else (rule['shown'],))))
         for number in flags:allowed_block(ctx['flags_at']+number//8,1<<(number%8))
         if e.EVENTS[event]['item'] not in ctx['items']:
-            for n in range(30):
+            for n in range(ctx['pocket_slots']):
                 at=ctx['pocket_at']+4*n
                 if struct.unpack_from('<H',ctx['block'],at)[0]==0:
                     for i in range(4):allowed_block(at+i)
@@ -130,10 +131,10 @@ class IslandTests(unittest.TestCase):
                 for case in ('story','island','full','finished','corrupt'):
                     with self.subTest(game=label,event=event,case=case):
                         ctx=e.load_save(data,rom)
-                        if case=='story':e.set_flag(ctx,0x864 if family=='Emerald' else 0x82C,False)
-                        if case=='island':ctx['block'][4:6]=bytes((26,58) if family=='Emerald' else (2,56))
+                        if case=='story':e.set_flag(ctx,0x804 if family=='Ruby/Sapphire' else 0x864 if family=='Emerald' else 0x82C,False)
+                        if case=='island':ctx['block'][4:6]=bytes((26,9) if family=='Ruby/Sapphire' else (26,58) if family=='Emerald' else (2,56))
                         if case=='full':
-                            for n in range(30):struct.pack_into('<HH',ctx['block'],ctx['pocket_at']+4*n,300+n,ctx['key']^1)
+                            for n in range(ctx['pocket_slots']):struct.pack_into('<HH',ctx['block'],ctx['pocket_at']+4*n,300+n,ctx['key']^1)
                         if case=='finished':e.set_flag(ctx,e.RULES[family][event]['completed'][0],True)
                         modified=bytearray(write_block(data,ctx))
                         if case=='corrupt':modified[ctx['sections'][1]+100]^=1
