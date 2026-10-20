@@ -151,6 +151,23 @@ def run_lid_cycles():
         print('Charger change while lid closed; returning to deep sleep (%d/3)' % retries, flush=True)
 
 
+def prune_diagnostics(active=None):
+    """Keep recent successes and failures separately; never follow symlinks."""
+    successes, failures = [], []
+    for path in ROOT.iterdir():
+        if path == active or path.is_symlink() or not path.is_dir():
+            continue
+        # Only cycle folders owned by this tool, not manual/user files.
+        if not re.fullmatch(r"[0-9]{8}-[0-9]{6}-[0-9]+", path.name):
+            continue
+        failed = (path / 'error.json').exists() or not (path / 'after.json').exists()
+        (failures if failed else successes).append(path)
+    import shutil
+    for paths, keep in ((successes, 20), (failures, 10)):
+        for path in sorted(paths, key=lambda p: p.name, reverse=True)[keep:]:
+            shutil.rmtree(path)
+
+
 def run_cycle(retry_inputs=None):
     if not DRIVER.exists():
         raise RuntimeError('Experimental firmware suspend driver is absent')
@@ -163,6 +180,7 @@ def run_cycle(retry_inputs=None):
         ROOT.mkdir(parents=True, exist_ok=True)
         cycle = ROOT / (time.strftime('%Y%m%d-%H%M%S') + '-' + str(time.time_ns()))
         cycle.mkdir()
+        prune_diagnostics(active=cycle)
         probes = []
         try:
             for target in targets:

@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.38"
+PKG_VERSION="2.6.41"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
@@ -95,6 +95,7 @@ makeinstall_target() {
         "${PKG_DIR}/sources/butterflyos-gen1-gift.py" \
         "${PKG_DIR}/sources/butterflyos-gen2-gift.py" \
         "${PKG_DIR}/sources/butterflyos-gen3-gift.py" \
+        "${PKG_DIR}/sources/butterflyos-gen3-event.py" \
         "${PKG_DIR}/sources/butterflyos-crystal-event.py" \
         "${PKG_DIR}/sources/butterflyos_rom_filter.py" \
         "${PKG_DIR}/sources/butterflyos-save-trade-sdl.py" \
@@ -163,6 +164,7 @@ makeinstall_target() {
              "${INSTALL}/usr/bin/butterflyos-gb-sprite-cache.py" \
              "${INSTALL}/usr/bin/butterflyos-save-trade-sdl.py" \
              "${INSTALL}/usr/bin/butterflyos-gen3-gift.py" \
+             "${INSTALL}/usr/bin/butterflyos-gen3-event.py" \
              "${INSTALL}/usr/bin/butterflyos-gen3-sprite-cache.py" \
              "${INSTALL}/usr/bin/butterflyos-save-trade" \
              "${INSTALL}/usr/bin/butterflyos-extended-diagnostics" \

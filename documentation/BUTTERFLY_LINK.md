@@ -264,10 +264,33 @@ user testing in Crystal on the local test device. Silver Celebi still needs game
 Non-shiny Suicune lacks documented recipe data.
 See [Gen II event scope and validation](BUTTERFLY_LINK_GEN2_EVENTS_PLAN.md).
 
-Gen III island events are deferred and excluded from v1.1.0. The
-AuroraTicket prototype still requires gameplay qualification before release.
-Gen III trading and copying remain available.
-See the [Gen III event checklist and testing status](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md).
+### Gen III native island events (next test build)
+
+Native island events are implemented for the next test image and are not included
+in the current stable v1.2.0 image. Open **Local Transfer → Gen 3 → Gen 3 Island
+Events** and select a save, matching qualified ROM, event, and **Enable** or
+**Replay**. Review the preview and choose **Commit**; a verified original backup
+is kept. Save normally and exit the game before using this feature. Afterward,
+load the ordinary in-game save rather than Auto Resume or a save state.
+
+- **Emerald:** Eon Ticket/Southern Island (Latias or Latios), MysticTicket/Navel
+  Rock (Lugia and Ho-Oh), AuroraTicket/Birth Island (Deoxys puzzle), and Old Sea
+  Map/Faraway Island (Mew chase). Use the Lilycove City ferry.
+- **FireRed/LeafGreen revision 1:** MysticTicket and AuroraTicket. Use the
+  Vermilion City ferry. These and Emerald require the qualified English ROMs.
+- Normal postgame ferry requirements are preserved. Ruby/Sapphire event delivery
+  is not included in this batch.
+
+Replay keeps previously caught Pokemon and resets only the selected island's
+encounters; MysticTicket replay resets both Ho-Oh and Lugia. Save away from event
+islands before using Enable or Replay. Southern Island replay preserves the normal
+roaming Pokemon. Old Sea Map is an expanded English experience: the historical
+distribution was Japanese-only.
+
+All six Emerald/LeafGreen event paths and a completed-event replay passed reported
+user testing on the local test device. FireRed has automated coverage only. A full
+rebuilt-image test remains before release. See the
+[Gen III event checklist and testing status](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md).
 
 ### Gen III direct gifts (v1.1.0)
 

@@ -1552,6 +1552,7 @@ def sprite_browser(frontend: SDLFrontEnd) -> None:
 
 
 STATE_ROOT = "/storage/.config/butterflyos/save-trade"
+GEN3_EVENT_TOOL = os.environ.get("BUTTERFLYOS_GEN3_EVENT_TOOL", "/usr/bin/butterflyos-gen3-event.py")
 DEBUG_LOG = "/storage/.config/butterflyos/logs/butterfly-link.log"
 
 
@@ -1981,6 +1982,30 @@ def helper_run(arguments: list[str]) -> tuple[bool, str]:
     return result.returncode == 0, result.stdout.strip()
 
 
+def prepare_checked_transfer(session: str, command: list[str], inputs: dict[str, str]) -> tuple[bool, str]:
+    """Reject changing inputs and retain fingerprints for every later commit."""
+    try:
+        hashes = {label: _file_digest(path) for label, path in inputs.items()}
+        success, message = helper_run(command)
+        if not success:
+            return False, message
+        if any(_file_digest(path) != hashes[label] for label, path in inputs.items()):
+            return False, "A save changed during preparation. Close the game and prepare again."
+        for label, digest in hashes.items():
+            write_session_value(session, "original-" + label + "-sha256", digest)
+        return True, message
+    except OSError as error:
+        return False, "Could not verify the selected saves: %s" % error
+
+
+def require_unchanged_save(session: str, label: str, path: str) -> None:
+    # Missing fingerprints are unsafe legacy sessions; prepare them again.
+    with open(os.path.join(session, "original-" + label + "-sha256"), encoding="utf-8") as handle:
+        expected = handle.read().strip()
+    if _file_digest(path) != expected:
+        raise OSError("A save changed after preparation. Prepare the operation again.")
+
+
 def prepare_swap(generation: int, left: tuple[str, dict],
                  right: tuple[str, dict]) -> tuple[Optional[str], str]:
     left_path, left_record = left
@@ -1996,7 +2021,7 @@ def prepare_swap(generation: int, left: tuple[str, dict],
         "--right-slot", str(right_record["slot"]),
         "--output-left", left_output, "--output-right", right_output,
     ]
-    success, output = helper_run(command)
+    success, output = prepare_checked_transfer(session, command, {"left": left_path, "right": right_path})
     if not success:
         shutil.rmtree(session, ignore_errors=True)
         return None, output or "The save helper rejected this swap."
@@ -2044,10 +2069,11 @@ def prepare_copy(generation: int, source: tuple[str, dict], destination: tuple[s
         "--destination", destination_path, "--destination-box", str(destination_box),
         "--destination-slot", str(destination_slot), "--output-destination", output,
     ]
-    success, message = helper_run(command)
+    success, message = prepare_checked_transfer(session, command, {"source": source_path, "destination": destination_path})
     if not success:
         shutil.rmtree(session, ignore_errors=True)
         return None, message or "The save helper rejected this copy."
+    write_session_value(session, "source-original", source_path)
     write_session_value(session, "destination-original", destination_path)
     write_session_value(session, "state", "READY")
     return session, message
@@ -2067,10 +2093,11 @@ def prepare_gen1_to_gen2(source: tuple[str, dict], national_species: int,
         "--destination", destination_path, "--destination-box", str(destination_box),
         "--destination-slot", str(destination_slot), "--output-destination", output,
     ]
-    success, message = helper_run(command)
+    success, message = prepare_checked_transfer(session, command, {"source": source_path, "destination": destination_path})
     if not success:
         shutil.rmtree(session, ignore_errors=True)
         return None, message or "The Time Capsule converter rejected this transfer."
+    write_session_value(session, "source-original", source_path)
     write_session_value(session, "destination-original", destination_path)
     write_session_value(session, "state", "READY")
     return session, message
@@ -2091,10 +2118,11 @@ def prepare_gen2_to_gen3(source: tuple[str, dict], national_species: int,
         "--destination", destination_path, "--destination-box", str(destination_box),
         "--destination-slot", str(destination_slot), "--output-destination", output,
     ]
-    success, message = helper_run(command)
+    success, message = prepare_checked_transfer(session, command, {"source": source_path, "destination": destination_path})
     if not success:
         shutil.rmtree(session, ignore_errors=True)
         return None, message or "The Gen 2 to Gen 3 converter rejected this copy."
+    write_session_value(session, "source-original", source_path)
     write_session_value(session, "destination-original", destination_path)
     write_session_value(session, "state", "READY")
     return session, message
@@ -2243,10 +2271,14 @@ def commit_swap(session: str) -> tuple[bool, str]:
                            if item.startswith("left-") and item != "left-original")
         right_output = next(os.path.join(session, item) for item in os.listdir(session)
                             if item.startswith("right-") and item != "right-original")
+        require_unchanged_save(session, "left", left)
+        require_unchanged_save(session, "right", right)
         left_backup = os.path.join(session, "original-left-backup")
         right_backup = os.path.join(session, "original-right-backup")
         copy_with_sync(left, left_backup)
         copy_with_sync(right, right_backup)
+        require_unchanged_save(session, "left", left)
+        require_unchanged_save(session, "right", right)
         try:
             replace_save_with_verified_output(left, left_output, left_backup)
             replace_save_with_verified_output(right, right_output, right_backup)
@@ -2267,16 +2299,19 @@ def commit_copy(session: str) -> tuple[bool, str]:
     try:
         with open(os.path.join(session, "destination-original"), encoding="utf-8") as handle:
             destination = handle.read().strip()
-        fingerprint = os.path.join(session, "original-destination-sha256")
-        if os.path.isfile(fingerprint):
-            with open(fingerprint, encoding="utf-8") as handle:
-                expected_original = handle.read().strip()
-            if _file_digest(destination) != expected_original:
-                return False, "The destination save changed after preparation. Prepare the operation again."
+        require_unchanged_save(session, "destination", destination)
+        source_record = os.path.join(session, "source-original")
+        if os.path.isfile(source_record):
+            with open(source_record, encoding="utf-8") as handle:
+                source = handle.read().strip()
+            require_unchanged_save(session, "source", source)
         output = next(os.path.join(session, item) for item in os.listdir(session)
                       if item.startswith("destination-") and item != "destination-original")
         backup = os.path.join(session, "original-destination-backup")
         copy_with_sync(destination, backup)
+        require_unchanged_save(session, "destination", destination)
+        if os.path.isfile(source_record):
+            require_unchanged_save(session, "source", source)
         replace_save_with_verified_output(destination, output, backup)
         write_session_value(session, "state", "COMMITTED")
         return True, "The copy was committed. A verified original is in this Blink session."
@@ -2602,14 +2637,14 @@ def gen2_to_gen3_workflow(frontend: SDLFrontEnd) -> None:
 
 
 def prepare_save_event(path: str, rom: str, action: str,
-                       tool: str) -> tuple[Optional[str], str]:
+                       tool: str, extra_arguments: tuple[str, ...] = ()) -> tuple[Optional[str], str]:
     session = new_session()
     try:
         original_hash = _file_digest(path)
         output = os.path.join(session, "destination-" + os.path.basename(path))
-        result = subprocess.run(["python3", "/usr/bin/" + tool,
+        result = subprocess.run(["python3", os.path.join("/usr/bin", tool),
                                  "--save", path, "--rom", rom, "--action", action,
-                                 "--output", output], text=True, capture_output=True)
+                                 "--output", output, *extra_arguments], text=True, capture_output=True)
         if result.returncode:
             raise ValueError(result.stderr.strip())
         summary = json.loads(result.stdout)
@@ -2699,11 +2734,108 @@ def choose_gen3_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, st
                       ("PROMOTIONAL EGGS", "Four special-move eggs; expanded Gen III gifts"),
                       ("PCNY WISH EGGS", "Six Wish eggs; expanded Gen III gifts"),
                       ("GEN 3 GIFTS", "Five direct gifts; already hatched")])
-        choice = choose_list(frontend, "GEN 3", "Choose a game to trade/copy, or a gift group. B returns.", items)
+        items.append(("GEN 3 ISLAND EVENTS", "Native island tickets and encounter replay"))
+        choice = choose_list(frontend, "GEN 3", "Choose a game, gift group or event. B returns.", items)
         if choice is None: return None
         if choice < len(saves): return saves[choice]
-        generated_gift_workflow(frontend, 3, gen3_group=("box", "pokepark", "anniversary", "promotional", "pcny", "direct")[choice-len(saves)])
+        group = choice - len(saves)
+        if group == 6:
+            gen3_event_workflow(frontend)
+        else:
+            generated_gift_workflow(frontend, 3, gen3_group=("box", "pokepark", "anniversary", "promotional", "pcny", "direct")[group])
 
+
+
+def save_event_game_running() -> bool:
+    for name in os.listdir("/proc"):
+        if not name.isdigit():
+            continue
+        try:
+            with open("/proc/" + name + "/comm", encoding="utf-8") as handle:
+                if handle.read().strip() in ("retroarch", "retroarch32"):
+                    return True
+        except (FileNotFoundError, PermissionError):
+            continue
+    return False
+
+
+def gen3_event_workflow(frontend: SDLFrontEnd) -> None:
+    notice(frontend, "GEN 3 ISLAND EVENTS",
+           "Save normally and exit the game first. Save away from event islands. Enable opens native ferry travel; Replay resets only the selected island's encounters. Existing Pokemon are kept. Load the in-game save afterward, not a save state.")
+    saves = [save for save in generation_saves(3) if save[2] in ("Emerald", "FireRed/LeafGreen")]
+    if not saves:
+        notice(frontend, "EVENT SAVE NEEDED", "Use a supported English Emerald or FireRed/LeafGreen save with postgame ferry travel unlocked.")
+        return
+    choice = choose_list(frontend, "ISLAND EVENT SAVE", "Choose a test save. B returns.",
+                         [(save[2].upper(), os.path.basename(save[0])) for save in saves])
+    if choice is None:
+        return
+    path, _trainer, family, _records = saves[choice]
+    try:
+        # Use the same ZIP-aware reader and qualified profiles as gifts.
+        spec = importlib.util.spec_from_file_location("island_events", GEN3_EVENT_TOOL)
+        events = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(events)
+        candidates = []
+        for candidate in _rom_candidates(3, path):
+            try:
+                actual = events.gift.rom_profile(events.gift.read_rom(candidate))[0]
+                if actual == family:
+                    candidates.append(candidate)
+            except (OSError, ValueError):
+                continue
+        if not candidates:
+            raise ValueError("The qualified matching English ROM was not found. ZIP ROMs are supported.")
+        rom_choice = 0 if len(candidates) == 1 else choose_list(frontend, "MATCHING EVENT ROM",
+            "Choose the ROM used for this save.", [("ROM", os.path.basename(p)) for p in candidates])
+        if rom_choice is None:
+            return
+        rom = candidates[rom_choice]
+        names = list(events.RULES[family])
+        choice = choose_list(frontend, "NATIVE ISLAND EVENTS", "Choose an event. Normal story requirements apply.",
+                             [(events.EVENTS[name]["title"].upper(), events.EVENTS[name]["destination"]) for name in names])
+        if choice is None:
+            return
+        event = names[choice]
+        info = events.EVENTS[event]
+        notice(frontend, info["title"].upper(), info["description"])
+        with open(path, "rb") as handle:
+            status = events.inspect_event(handle.read(), rom, event)
+        action_choice = choose_list(frontend, info["title"].upper(), "Current state: " + status["stage"],
+            [("ENABLE", "Open native island travel; completed encounters are preserved"),
+             ("REPLAY", "Restart this island's encounters; existing Pokemon are kept")])
+        if action_choice is None:
+            return
+        action = ("enable", "replay")[action_choice]
+        # Refuse while an emulator could overwrite the save after preparation.
+        if save_event_game_running():
+            raise ValueError("Exit the running game before using island events.")
+        session, before = prepare_save_event(path, rom, action, GEN3_EVENT_TOOL, ("--event", event))
+        if not session:
+            raise ValueError(before)
+    except (OSError, ValueError, KeyError, ImportError) as error:
+        notice(frontend, "EVENT NOT PREPARED", str(error))
+        return
+    try:
+        approved = choose_list(frontend, "COMMIT ISLAND EVENT?",
+            "%s: %s. %s A verified backup is kept." % (info["title"], before,
+             "Replay resets both Ho-Oh and Lugia." if event == "mystic-ticket" and action == "replay" else
+             "Replay resets this island encounter." if action == "replay" else "Enable native ferry travel."),
+            [("CANCEL", "Leave the save unchanged"), ("COMMIT", "Apply the previewed event changes")], selected=0)
+        if approved == 1:
+            if save_event_game_running():
+                notice(frontend, "EVENT NOT COMMITTED", "Exit the running game before changing its save.")
+                return
+            ok, message = commit_copy(session)
+            if ok:
+                port = "Lilycove City" if family == "Emerald" else "Vermilion City"
+                message = "Load the ordinary in-game save. Visit the ferry attendant in %s to travel to %s. Avoid loading a save state." % (port, info["destination"])
+            notice(frontend, "ISLAND EVENT READY" if ok else "EVENT NOT COMMITTED", message, completion=ok)
+    finally:
+        with open(os.path.join(session, "state"), encoding="utf-8") as handle:
+            committed = handle.read().strip() == "COMMITTED"
+        if not committed:
+            shutil.rmtree(session, ignore_errors=True)
 
 
 def crystal_event_workflow(frontend: SDLFrontEnd) -> None:
