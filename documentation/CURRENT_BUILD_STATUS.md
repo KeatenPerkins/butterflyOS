@@ -2,7 +2,7 @@
 
 Reviewed: 2026-10-20.
 
-## Local test build 20261020 — changes since v1.2.0
+## Stable release v1.3.0, build 20261020 — changes since v1.2.0
 
 Built locally from runtime source `78e4f5f5da758cce309d2d853cabcf48e1c238a0`,
 onboarding package **2.6.49**. All 668 package steps completed. Final-image
@@ -16,7 +16,7 @@ for separately).
 Image: `ROCKNIX-RK3566.aarch64-20261020-Miyoo_Flip_V2.img.gz`.
 SHA-256: `d117a0eee1fd62c85e53bf2b46a155ee615b03a2eb571171d66f5ccbe3aea9a4`.
 
-**Local-device checklist passed; not published.** The user confirmed the rebuilt
+**Local-device checklist passed; approved for stable publication.** The user confirmed the rebuilt
 image passed boot/storage, all new Blink menu groups, representative gift
 preview/Cancel/Commit and save/reload, Metang's National Ribbon, Mew battle
 obedience, a native island event, ordinary Blink transfer, Bdex/web viewer,

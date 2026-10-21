@@ -106,6 +106,11 @@ Available from v1.2.0, rebuilt locally and tested on the local test device.
 
 ## Blink
 
+From v1.3.0, qualified English Gen III games support protected native island
+event enable/replay and expanded GameCube, PCNY, tenth-anniversary, regional
+and purified Shadow gift equivalents. See the [Blink guide](BUTTERFLY_LINK.md)
+for game revisions, story requirements and generation/shiny policies.
+
 <img src="assets/butterfly-link.png" alt="Blink app icon" width="96">
 
 - SDL interface operated with D-pad, A/Start, and B/Menu

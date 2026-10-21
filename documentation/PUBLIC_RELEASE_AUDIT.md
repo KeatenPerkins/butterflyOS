@@ -5,6 +5,17 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## October 20, 2026 stable release: v1.3.0
+
+Runtime source: `78e4f5f5da758cce309d2d853cabcf48e1c238a0`. Image SHA-256:
+`d117a0eee1fd62c85e53bf2b46a155ee615b03a2eb571171d66f5ccbe3aea9a4`.
+All 668 build steps, gzip/GPT/FAT/ext4, flash/update payload matching, embedded
+initramfs updater tools, installed sources and private-content exclusion checks
+passed. Full card read-back matched. The user approved the local integration
+checklist; this is not a new overnight or exhaustive gift/game qualification.
+The release preserves those exact tested bytes. Optional audit records are
+bundled separately; private saves, ROMs, BIOS and raw device logs are excluded.
+
 ## October 17, 2026 stable release: v1.1.0
 
 Exact tested image source: `7c3d4c994725ee1d71ab85f039cfac97251494cf`.

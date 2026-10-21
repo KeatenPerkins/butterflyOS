@@ -46,9 +46,9 @@ No internet service or SSH login is required for its remote-transfer workflow.
 - **Prepare protected working copies:** review a transfer before confirming it,
   with pre-commit backups retained for troubleshooting or manual recovery.
 
-### Shared sprite-cache improvement (upcoming)
+### Shared sprite-cache improvement (v1.3.0)
 
-The next build corrects Gen III shiny-palette offsets for Emerald,
+Version 1.3.0 corrects Gen III shiny-palette offsets for Emerald,
 Ruby/Sapphire revision 2 and FireRed revision 1. These shared-cache fixes apply
 to Blink and Bdex. An older cache rebuilds when its ROM is selected
 again; sprite/name data continues to come from the user's ROM.
@@ -264,10 +264,9 @@ user testing in Crystal on the local test device. Silver Celebi still needs game
 Non-shiny Suicune lacks documented recipe data.
 See [Gen II event scope and validation](BUTTERFLY_LINK_GEN2_EVENTS_PLAN.md).
 
-### Gen III native island events (next test build)
+### Gen III native island events (v1.3.0)
 
-Native island events are implemented for the next test image and are not included
-in the current stable v1.2.0 image. Open **Local Transfer → Gen 3 → Gen 3 Island
+Native island events are available from v1.3.0. Open **Local Transfer → Gen 3 → Gen 3 Island
 Events** and select a save, matching qualified ROM, event, and **Enable** or
 **Replay**. Review the preview and choose **Commit**; a verified original backup
 is kept. Save normally and exit the game before using this feature. Afterward,
@@ -330,7 +329,7 @@ References: [primary numeric gift recipes](https://github.com/kwsch/PKHeX/blob/m
 [bonus-disc gifts and Jirachi berries](https://bulbapedia.bulbagarden.net/wiki/List_of_game-based_Pok%C3%A9mon_distributions_in_Generation_III),
 [Liechi Berry distribution](https://bulbapedia.bulbagarden.net/wiki/Liechi_Berry).
 
-### Purified Shadow gifts (next test build)
+### Purified Shadow gifts (v1.3.0)
 
 Open **Blink → Local Transfer → Gen 3 → Purified Shadow Gifts**, then choose
 Colosseum (49 recipes/48 species, including two Suicune move sets), XD (83),
@@ -347,7 +346,7 @@ met data, capture balls and purification EXP are not reproduced.
 See the [complete moves and gameplay checklist](BUTTERFLY_LINK_GEN3_SHADOW_CHECKLIST.md).
 The user confirmed the purified gifts working on the local test device. Individual recipes, destination games and ribbon/battle/save checks were not enumerated; this is not an exhaustive per-recipe/per-game qualification.
 
-### Regional gifts (next test build)
+### Regional gifts (v1.3.0)
 
 Open **Blink → Local Transfer → Gen 3 → Regional Gifts** for 13 generated
 English equivalents: three Pikachu move sets, Meowth, Refresh Metang, Sunday
@@ -360,7 +359,7 @@ Gen III ROM/save pairs use the existing protected preview, backup and Commit.
 See the [full levels, moves and gameplay checklist](BUTTERFLY_LINK_GEN3_REGIONAL_CHECKLIST.md).
 The user confirmed the current gifts working on the local test device. This does not establish an exhaustive per-gift/per-game test matrix.
 
-### Tenth-anniversary gifts (next test build)
+### Tenth-anniversary gifts (v1.3.0)
 
 Open **Blink → Local Transfer → Gen 3 → 10th Anniversary Gifts**. Choose from
 24 distinct recipes across 23 species, including Pikachu with Fly and standard
@@ -373,7 +372,7 @@ identities, language variants and historical RNG are not reproduced.
 See the [complete recipe and gameplay checklist](BUTTERFLY_LINK_GEN3_TENTH_ANNIVERSARY_CHECKLIST.md).
 The user confirmed the current gifts working on the local test device. This does not establish an exhaustive per-gift/per-game test matrix.
 
-### PCNY adult gifts (next test build)
+### PCNY adult gifts (v1.3.0)
 
 Open **Blink → Local Transfer → Gen 3 → PCNY Adult Gifts**. All **48 distinct
 adult recipes** from the numeric reference catalog are implemented. Its 50
@@ -389,7 +388,7 @@ distributions targeted Ruby/Sapphire. Preview, backups, Commit and changed-save
 refusal apply. Original distributor identity and RNG are not reproduced.
 The user confirmed the current gifts working on the local test device. This does not establish an exhaustive per-gift/per-game test matrix.
 
-### GameCube gifts (next test build)
+### GameCube gifts (v1.3.0)
 
 Open **Blink → Local Transfer → Gen 3 → GameCube Gifts**. Choose a save
 and matching ROM, then preview and commit a gift into an empty PC slot.

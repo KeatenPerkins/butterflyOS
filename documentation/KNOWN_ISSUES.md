@@ -228,3 +228,20 @@ See [Save Backup and restore](SAVE_BACKUPS.md) and [Bdex](BDEX.md) for instructi
 
 Report issues with the ButterflyOS version, device revision, controller model,
 system/emulator, steps to reproduce, and whether the problem survives a reboot.
+
+## Blink Gen III events and generated gifts (v1.3.0)
+
+Native island events require the qualified English ROM revisions and normal story
+progression described in the [Blink guide](BUTTERFLY_LINK.md). Other languages,
+ROM hacks and revisions are not qualified. Save normally and exit before editing;
+load the ordinary save afterward, rather than an older save state.
+
+Gift options create documented equivalents using a BLINK trainer identity. They
+do not reproduce original distribution identity/RNG, GameCube connectivity or
+Shadow capture/purification gameplay. Purified gifts arrive in a GBA PC box.
+Shiny rules vary by recipe; see the guide. Local integration testing is not an
+exhaustive qualification of every gift on every game.
+
+Updater verification is improved, but installation still writes in place; it is
+not a power-loss-proof A/B update. Keep power connected. The first update from an
+older installation is applied by that installation’s existing boot updater.
