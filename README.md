@@ -61,8 +61,9 @@ who also has ButterflyOS. Gen II → III is a one-way copy. From v1.0.3, it keep
 verified Gen III held-item equivalents and clears unmatched items; releases
 through v1.0.2 clear all held items on the copy. Gen I → II copies include the confirmed
 Gen II PC-box persistence fix.
-Transfers currently use PC-box Pokémon only. Version 1.1.0 adds Gen III gift eggs
-and direct gifts, ROM-derived move/item names, and sharper HDMI text; see the
+Transfers currently use PC-box Pokémon only. Blink also provides Gen III gift eggs,
+generated event gifts and native island event enable/replay options for qualified
+English games. Moves and held items are named using your matching ROM; see the
 [Blink guide](documentation/BUTTERFLY_LINK.md).
 
 ### Media compatibility on Miyoo Flip V2

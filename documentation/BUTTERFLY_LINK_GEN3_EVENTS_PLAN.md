@@ -3,9 +3,9 @@
 Researched October 9, 2026; native-island testing status updated October 20, 2026.
 All 39 planned egg entries and the first five direct gift equivalents are
 implemented across five qualified English Gen III games. Native island events
-now have an experimental implementation and successful reported Emerald/LeafGreen
-gameplay tests; see the October 20 section below. The event menu will be visible normally in the next test image. This native-island
-batch is not publicly released.
+are included in stable v1.3.0 after reported gameplay and full-image integration
+testing on the local test device; see the October 20 section below. Earlier dated
+sections retain their historical testing status.
 
 Prefer native encounters and hatchable eggs, as with Gen II. Group repeated
 campaigns by distinct gameplay experience or species/moveset, while preserving
@@ -20,9 +20,9 @@ and Old Sea Map/Faraway Island. The qualified English FireRed/LeafGreen revision
 ROMs also support MysticTicket and AuroraTicket. The qualified English Ruby and
 Sapphire revision 2 ROMs now support Eon Ticket/Southern Island as well; the user has now confirmed both native encounters working. This supersedes the earlier FireRed-only prototype;
 the user has reported all six Emerald/LeafGreen event paths working on the local
-test device. No stable release includes this native-island batch.
+test device. This native-island batch is included in v1.3.0.
 
-The helper and normal menu entry are packaged for the next test image, with no
+The helper and normal menu entry are packaged in v1.3.0, with no
 local-test marker required. It appears under
 **Blink → Local Transfer → Gen 3 → Gen 3 Island Events**. The earlier live-test
 launcher on the local test device still uses its original test label until updated.
