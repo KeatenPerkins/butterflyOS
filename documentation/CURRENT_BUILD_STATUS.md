@@ -16,7 +16,12 @@ for separately).
 Image: `ROCKNIX-RK3566.aarch64-20261020-Miyoo_Flip_V2.img.gz`.
 SHA-256: `d117a0eee1fd62c85e53bf2b46a155ee615b03a2eb571171d66f5ccbe3aea9a4`.
 
-**Local-device checklist passed; approved for stable publication.** The user confirmed the rebuilt
+**Published as [v1.3.0](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.3.0), Latest stable.**
+All seven uploaded asset sizes and GitHub SHA-256 digests match the local
+verified files. Public latest-release discovery and the downloaded updater
+manifest were checked; the manifest advertises build **20261020**.
+
+**Local-device checklist passed.** The user confirmed the rebuilt
 image passed boot/storage, all new Blink menu groups, representative gift
 preview/Cancel/Commit and save/reload, Metang's National Ribbon, Mew battle
 obedience, a native island event, ordinary Blink transfer, Bdex/web viewer,
