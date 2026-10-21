@@ -16,7 +16,13 @@ for separately).
 Image: `ROCKNIX-RK3566.aarch64-20261020-Miyoo_Flip_V2.img.gz`.
 SHA-256: `d117a0eee1fd62c85e53bf2b46a155ee615b03a2eb571171d66f5ccbe3aea9a4`.
 
-**Not published. Full-image testing on the local test device is pending.**
+**Local-device checklist passed; not published.** The user confirmed the rebuilt
+image passed boot/storage, all new Blink menu groups, representative gift
+preview/Cancel/Commit and save/reload, Metang's National Ribbon, Mew battle
+obedience, a native island event, ordinary Blink transfer, Bdex/web viewer,
+second-card Save Backup, game launch/audio/hotkeys, charging indication, lid
+sleep/resume, HDMI and shutdown/reboot. These are reported integration checks,
+not an exhaustive test of every gift on every game or a new overnight sleep test.
 Documentation-only commits after the runtime revision do not change image bytes.
 The following changes are included:
 
@@ -98,7 +104,7 @@ checks include 280 game/event/rotation/action combinations, exact mutation bound
 native-reader validation, ZIP ROMs and protected UI Cancel/Commit; the normal-menu
 entry is also tested. Six on-device prepared-save checks and two story-refusal
 checks passed without changing the source saves. The safety fixes have host
-regressions; the next image still needs end-to-end local-device qualification.
+regressions; the rebuilt image subsequently passed the reported local-device checklist above.
 
 See [event implementation and testing](BUTTERFLY_LINK_GEN3_EVENTS_PLAN.md) and
 [safety fixes](CODE_REVIEW_FIXES_20261020.md).
