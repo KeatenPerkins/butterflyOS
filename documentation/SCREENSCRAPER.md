@@ -10,6 +10,29 @@ quotas, and anonymous access are controlled by ScreenScraper.
 Developer credentials are separate from personal account fields. Do not enter
 the developer password in the GUI's personal account/password fields.
 
+## Create and use your own account
+
+A personal account is optional, but you can connect your own ScreenScraper account
+instead of relying on anonymous access. Creating an account does not provide
+unlimited scraping; ScreenScraper controls account limits and service availability.
+
+1. On your phone or PC, open the [ScreenScraper registration page](https://www.screenscraper.fr/membreinscription.php).
+   Create your own username and password, enter your email address, and complete
+   any verification requested by the site. If the page appears in French, use
+   its language selector or your browser's translation feature.
+2. Connect ButterflyOS to Wi-Fi and open **Start → Scraper**.
+3. On the main scraper page, select **ScreenScraper** as the provider.
+4. Open the **Accounts** tab. Under **ScreenScraper**, enter the **Username** and
+   **Password** you registered on the website. These are your personal
+   ScreenScraper credentials, separate from your ButterflyOS SSH password and
+   the release's developer credentials.
+5. Return to the main scraper page, choose the systems and artwork options you
+   want, and start scraping. Try one game first to confirm the account works.
+
+If login fails, check that the same credentials work on the ScreenScraper website
+and that any requested account verification is complete. If the service reports
+a quota or availability limit, wait and retry later.
+
 ## Private build setup
 
 The release builder supplies `.config/screenscraper.json` in the repository
