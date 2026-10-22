@@ -26,7 +26,9 @@ SHA-256: `3109b617d3dba28fbf6a094d261d8bd4f636bd637dbf47b9c2e9e723a30738d9`.
 The 32 GB development card was backed up, flashed, flushed and completely
 read-back verified against this corrected image. The private backup includes
 its test ROMs, twelve saves and available Bslap session data.
-**Fresh-boot confirmation that Bslap appears with Advanced Mode off is pending.**
+**Fresh-image device testing passed.** The user confirmed the corrected flashed
+image passes testing, including the normal-Tools visibility check that motivated
+this rebuild. The live frontend hotfix is not needed on this image.
 Nothing from this branch has been published. This documentation-only status
 commit does not change the delivered image. See [Bslap](BSLAP.md).
 
