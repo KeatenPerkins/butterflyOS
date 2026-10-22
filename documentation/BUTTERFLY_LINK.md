@@ -722,3 +722,10 @@ Remote Yellow → Crystal transfers passed testing, including opening the PC,
 saving, exiting, and reopening the game. Same-generation remote trade/copy and
 remote Gen II → III copy also passed user testing.
 See [current build status](CURRENT_BUILD_STATUS.md).
+
+
+## Live trading and battling
+
+[Bslap](BSLAP.md) provides live same-generation trades and battles between two
+ButterflyOS devices on the same local network. It is separate from Blink save
+editing and Bdex collection storage, and is included in the next image.

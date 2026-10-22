@@ -7,6 +7,26 @@ This lists development capabilities, not a guarantee for every game or
 controller. See [current build status](CURRENT_BUILD_STATUS.md) for changes
 awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 
+## Live Pokémon trades and battles with Bslap
+
+Included in tested build 20261022, awaiting publication; not in v1.3.0.
+
+- Open **Tools → Bslap** alongside Blink and Bdex, without Advanced Mode.
+- Host or join another ButterflyOS device on the same local network. Both
+  players confirm readiness before the host starts the games.
+- Trade and battle within Gen 1, Gen 2 or Gen 3 using supported English games.
+  Each player controls their own game. No cable or ESP32 adapter is required.
+- Per-session ordinary-save backups and logs. Gen 1/2 use working-save copies
+  and validate the local result before returning it after a clean exit.
+- Gen 3 can show a communication error on room exit. Let one player initiate
+  leaving; this gives better results but is not a guaranteed fix. Gen 1/2 passed
+  testing without that issue.
+- The dedicated newer RetroArch/gpSP pair is used only for Bslap Gen 3. Normal
+  gameplay keeps its existing frontend and cores; no kernel changes are needed.
+
+See [Bslap setup, recovery and limitations](BSLAP.md). No games, saves or Pokémon
+assets are bundled. Time Capsule trading and internet play are not included.
+
 ## Save protection and Bdex
 
 Available from v1.2.0, rebuilt locally and tested on the local test device.

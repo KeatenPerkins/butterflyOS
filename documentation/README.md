@@ -37,6 +37,9 @@ Current release: [v1.3.0 notes](RELEASE_NOTES_v1.3.0.md), updater build **202610
   setup and limitations.
 - [Blink](BUTTERFLY_LINK.md): local/remote save transfers and supported
   generation directions.
+- [Bslap](BSLAP.md): live same-generation Pokémon trades and battles, Host/Join
+  setup, save backups/recovery, and the Gen 3 room-exit limitation; included in
+  the next image.
 - [Known issues](KNOWN_ISSUES.md): incomplete testing and reported failures.
 - [Compatibility matrix](BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md): tested
   systems, sample titles, emulator choices, and exceptions.
