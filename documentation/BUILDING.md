@@ -54,3 +54,14 @@ source commit, image name, and checksum are recorded in the release notes.
 
 No game ROMs or proprietary console BIOS files are required to build the OS and
 none belong in the source tree or release image.
+
+
+## Bslap build inputs for the next image
+
+The Bslap backend package requires the checksum-verified, live-tested ARM32
+frontend/core build outputs in the local build cache. They are not committed
+binary blobs and are isolated from normal emulator defaults. A fresh checkout
+needs those pinned sources and build steps before image assembly; see the
+[Bslap backend build guide](../tools/bslap/README.md). Packaging stops if the
+inputs are missing or differ. Compiler/path/timestamp differences can change
+hashes and require review and renewed validation before updating the pins.

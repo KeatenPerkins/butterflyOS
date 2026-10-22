@@ -1,0 +1,77 @@
+--- a/rfu.c
++++ b/rfu.c
+@@ -163,6 +163,24 @@
+ // The table is indexed by client_id
+ static t_client_broadcast rfu_peer_bcst[MAX_RFU_PEERS];
+ 
++/* Experimental bounded error/teardown probes; no timing-policy changes. */
++static void butterfly_rfu_trace(const char *event, unsigned detail) {
++  static unsigned counts[6];
++  unsigned kind = !strcmp(event, "reset") ? 0 :
++                  !strcmp(event, "local-disconnect") ? 1 :
++                  !strcmp(event, "remote-disconnect") ? 2 :
++                  !strcmp(event, "peer-expired") ? 3 :
++                  !strcmp(event, "wait-disconnected") ? 4 : 5;
++  /* Log at most eight occurrences of each event per core process. */
++  if (counts[kind]++ >= 8) return;
++  fprintf(stderr, "[BF-RFU] event=%s ticks=%u state=%u com=%u cmd=%02x "
++          "detail=%u wait=%u response=%u host=%u client=%u\n",
++          event, (unsigned)cpu_ticks, (unsigned)rfu_state,
++          (unsigned)rfu_comstate, (unsigned)rfu_cmd, detail,
++          (unsigned)rfu_timeout_cycles, (unsigned)rfu_resp_timeout,
++          (unsigned)rfu_host.devid, (unsigned)rfu_client.devid);
++}
++
+ // Constants used for the network protocol.
+ 
+ #define NET_RFU_HEADER          0x52465531
+@@ -228,6 +246,7 @@
+ // pin flip in the external reset pin. We reset the device to a known state.
+ void rfu_reset() {
+   RFU_DEBUG_LOG("RFU reset!\n");
++butterfly_rfu_trace("reset", 0);
+   // Reset FSMs to a known state
+   rfu_prev_data = 0;
+   rfu_cnt = 0;
+@@ -528,7 +547,7 @@
+     return 0;
+ 
+   case RFU_CMD_DISCONNECT:
+-    if (rfu_state == RFU_STATE_CLIENT) {
++    butterfly_rfu_trace("local-disconnect", rfu_plen ? rfu_buf[0] : 0);    if (rfu_state == RFU_STATE_CLIENT) {
+       // Assuming self-disconnect?
+       rfu_net_send_cmd(rfu_client.host_id, NET_RFU_DISCONNECT,
+                        rfu_client.devid | (rfu_client.clnum << 16));
+@@ -702,6 +721,7 @@
+           if (++rfu_host.clients[i].clttl >= 240 /* 4s */) {
+             // The client hasn't sent stuff for a while, disconnect.
+             RFU_DEBUG_LOG("Disconnect client slot %d due to timeout\n", i);
++butterfly_rfu_trace("peer-expired", i);
+             memset(&rfu_host.clients[i], 0, sizeof(rfu_host.clients[i]));
+           }
+         }
+@@ -787,7 +807,7 @@
+       break;
+ 
+     case NET_RFU_DISCONNECT:
+-      if (rfu_state == RFU_STATE_HOST) {
++      butterfly_rfu_trace("remote-disconnect", client_id);      if (rfu_state == RFU_STATE_HOST) {
+         // Clear the client from the list
+         u32 clnum = (hdata >> 16) & 0x3;
+         u16 cldid = hdata & 0xffff;
+@@ -884,6 +904,7 @@
+         rfu_plen = 3;
+         rfu_comstate = RFU_COMSTATE_WAITRESP;
+         RFU_DEBUG_LOG("Wait command resp: disconnect\n");
++butterfly_rfu_trace("wait-disconnected", 0);
+       }
+       else if (rfu_data_avail()) {
+         // Some event is available!
+@@ -911,6 +932,7 @@
+         rfu_plen = 2;
+         rfu_comstate = RFU_COMSTATE_WAITRESP;
+         RFU_DEBUG_LOG("Wait command resp: timeout\n");
++butterfly_rfu_trace("wait-timeout", 0);
+       }
+     }
+   }

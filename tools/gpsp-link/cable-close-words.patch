@@ -1,0 +1,60 @@
+--- a/serial_proto.c
++++ b/serial_proto.c
+@@ -107,16 +107,33 @@
+ 
+ /* Close/standby commands only; no Pokemon payload data is logged. */
+ static unsigned bf_close_count;
++static unsigned bf_word_budget, bf_word_total;
+ static void bf_close_log(const char *event, unsigned peer, const u16 *packet) {
+   struct timespec now;
+   if (!packet || (packet[0] != 0x5FFF && packet[0] != 0x2FFE)) return;
+   if (bf_close_count >= 128) return;
+   bf_close_count++;
++  if (packet[0] == 0x5FFF) bf_word_budget = 24;
+   clock_gettime(CLOCK_MONOTONIC, &now);
+   fprintf(stderr, "[BF-CLOSE] event=%s id=%u peer=%u cmd=%04x offset=%u queue=%u,%u states=%u,%u mono=%lld.%03ld ticks=%u\n",
+     event, (unsigned)netplay_client_id, peer, packet[0], serstate.poke.offset,
+     serstate.poke.peer[0].count, serstate.poke.peer[1].count,
+     serstate.poke.peer[0].state, serstate.poke.peer[1].state,
++    (long long)now.tv_sec, now.tv_nsec/1000000, (unsigned)cpu_ticks);
++}
++
++/* Register injection snapshots, not proof that the game serviced its IRQ. */
++static void bf_word_snapshot(const char *event) {
++  struct timespec now;
++  if (!bf_word_budget || bf_word_total >= 256) return;
++  bf_word_budget--; bf_word_total++;
++  clock_gettime(CLOCK_MONOTONIC, &now);
++  fprintf(stderr, "[BF-WORD] event=%s id=%u offset=%u checksum=%04x recv=%04x,%04x,%04x,%04x send=%04x sio=%04x rcnt=%04x ie=%04x if=%04x ime=%04x mono=%lld.%03ld ticks=%u\n",
++    event, (unsigned)netplay_client_id, serstate.poke.offset, serstate.poke.checksum,
++    read_ioreg(REG_SIOMULTI0), read_ioreg(REG_SIOMULTI0+1),
++    read_ioreg(REG_SIOMULTI0+2), read_ioreg(REG_SIOMULTI0+3),
++    read_ioreg(REG_SIOMLT_SEND), read_ioreg(REG_SIOCNT), read_ioreg(REG_RCNT),
++    read_ioreg(REG_IE), read_ioreg(REG_IF), read_ioreg(REG_IME),
+     (long long)now.tv_sec, now.tv_nsec/1000000, (unsigned)cpu_ticks);
+ }
+ 
+@@ -150,6 +167,7 @@
+ void serialproto_reset(void) {
+   bf_cable_log(0, "reset", 0, 0);
+   SRPT_DEBUG_LOG("Reset serial-proto state\n");
++  bf_word_snapshot("reset-before");
+   memset(&serstate, 0, sizeof(serstate));
+ }
+ 
+@@ -270,6 +288,7 @@
+       }
+     }
+   }
++  bf_word_snapshot("master-transfer");
+ }
+ 
+ void serialpoke_frame_update(void) {
+@@ -413,6 +432,7 @@
+             }
+           }
+         }
++        bf_word_snapshot("client-transfer");
+         return true;
+       }
+     }

@@ -23,6 +23,7 @@ Start here:
 - [Emulators and performance tuning](documentation/EMULATORS_AND_PERFORMANCE.md)
 - [Features](documentation/FEATURES.md)
 - [Blink save trading](documentation/BUTTERFLY_LINK.md)
+- [Bslap live trades and battles](documentation/BSLAP.md)
 - [Bdex collections and read-only web viewer](documentation/BDEX.md)
 - [Documentation index](documentation/README.md)
 - [Compatibility matrix](documentation/BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md)
@@ -50,6 +51,16 @@ Project direction is documented in the [vision](docs/VISION.md) and
 - Beginner-facing settings with optional Advanced Mode
 - Blink for local and same-Wi-Fi Pokémon save trades/copies across
   supported Generation I, II, and III games; see its compatibility limits
+
+### Bslap
+
+Bslap provides live Pokémon trades and battles between two ButterflyOS devices
+on the same local network. Open **Tools → Bslap**, then Host or Join. English
+Gen 1, Gen 2 and Gen 3 games are supported within their own generation.
+Gen 3 can show a communication error on room exit; letting one player initiate
+leaving gives better results. See the [Bslap guide](documentation/BSLAP.md) for
+setup, save handling and limitations. This addition is being prepared for the
+next image and is not in the currently published v1.3.0 release.
 
 ### Blink
 

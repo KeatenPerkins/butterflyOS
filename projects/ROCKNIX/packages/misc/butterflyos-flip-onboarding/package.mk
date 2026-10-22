@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.49"
+PKG_VERSION="2.6.50"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
@@ -10,6 +10,9 @@ PKG_DEPENDS_TARGET="toolchain dialog SDL2 SDL2_ttf dejavu xxd Python3 pksav fbal
                     fbneo-lr genesis-plus-gx-lr genesis-plus-gx-wide-lr \
                     snes9x-lr snes9x2002-lr snes9x2005_plus-lr \
                     snes9x2010-lr supersnes9x-lr"
+if [ "${ARCH}" = "aarch64" ]; then
+  PKG_DEPENDS_TARGET+=" bslap-backend"
+fi
 PKG_LONGDESC="ButterflyOS guided Miyoo Flip multiboot setup and recovery tools"
 PKG_TOOLCHAIN="manual"
 
@@ -68,6 +71,7 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/sources/ButterflyOS Boot Check.sh" \
         "${PKG_DIR}/sources/Butterfly Link.sh" \
         "${PKG_DIR}/sources/Bdex.sh" \
+        "${PKG_DIR}/sources/Bslap.sh" \
         "${PKG_DIR}/sources/Extended Diagnostics.sh" \
         "${PKG_DIR}/sources/SD Card Info.sh" \
         "${PKG_DIR}/sources/Export ButterflyOS Recovery Backup.sh" \
@@ -89,6 +93,8 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/sources/butterflyos-bdex-web.py" "${INSTALL}/usr/bin/"
   cp -a "${PKG_DIR}/sources/butterflyos-bdex.py" \
         "${PKG_DIR}/sources/butterflyos-bdex-sdl.py" \
+        "${PKG_DIR}/sources/butterflyos-bslap.py" \
+        "${PKG_DIR}/sources/butterflyos-bslap-gb.py" \
         "${PKG_DIR}/sources/butterflyos-save-backup.py" \
         "${PKG_DIR}/sources/butterflyos-game-card" \
         "${PKG_DIR}/sources/butterflyos-gb-sprite-cache.py" \
@@ -147,6 +153,7 @@ makeinstall_target() {
   chmod 0755 "${INSTALL}/usr/config/modules/ButterflyOS Boot Check.sh" \
              "${INSTALL}/usr/config/modules/Butterfly Link.sh" \
              "${INSTALL}/usr/config/modules/Bdex.sh" \
+             "${INSTALL}/usr/config/modules/Bslap.sh" \
              "${INSTALL}/usr/config/modules/Extended Diagnostics.sh" \
              "${INSTALL}/usr/config/modules/SD Card Info.sh" \
              "${INSTALL}/usr/config/modules/Export ButterflyOS Recovery Backup.sh" \
@@ -159,6 +166,8 @@ makeinstall_target() {
              "${INSTALL}/usr/share/butterflyos/flip-preloader/patch-preloader.sh" \
              "${INSTALL}/usr/bin/butterflyos-bdex.py" \
              "${INSTALL}/usr/bin/butterflyos-bdex-sdl.py" \
+             "${INSTALL}/usr/bin/butterflyos-bslap.py" \
+             "${INSTALL}/usr/bin/butterflyos-bslap-gb.py" \
              "${INSTALL}/usr/bin/butterflyos-save-backup.py" \
              "${INSTALL}/usr/bin/butterflyos-game-card" \
              "${INSTALL}/usr/bin/butterflyos-gb-sprite-cache.py" \

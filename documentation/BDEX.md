@@ -312,3 +312,10 @@ copies in Trash. Names and sprites remain derived from the user's own ROM.
 The local device test checklist passed. Automated checks also cover supported
 save-family routes and conversion safeguards. This does not establish exhaustive
 in-game coverage of every species, game state, ROM revision or display.
+
+
+## Live trading and battling
+
+[Bslap](BSLAP.md) provides live same-generation trades and battles between two
+ButterflyOS devices on the same local network. It is separate from Blink save
+editing and Bdex collection storage, and is included in the next image.

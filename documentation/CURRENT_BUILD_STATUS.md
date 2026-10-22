@@ -1,6 +1,36 @@
 # Current build and test status
 
-Reviewed: 2026-10-20.
+Reviewed: 2026-10-22.
+
+## Corrected local test image 20261022: Bslap
+
+The user reported all tests passed on the previous candidate with the live
+frontend fix. Rebuilt the complete image from runtime commit
+`a6c1655968e3a02de57cb8e0825b76fab5d29ce8`, onboarding package 2.6.50.
+All 669 package steps completed. The Bslap normal-Tools allowlist patch is now
+compiled into the delivered frontend; Advanced Mode and the live hotfix are not
+required. Bslap appears alongside Blink and Bdex. The Gen 3-only room-exit
+limitation remains documented.
+
+Delivered-image checks passed: gzip/SHA-256 integrity, GPT CRCs, read-only FAT/ext4
+checks, matching flash/update KERNEL and SYSTEM, source commit, all four backend
+hashes, exact Bslap scripts/module/icon, generation order, Gen 3-only warning,
+unchanged normal RetroArch32/gpSP, ROM/save filename exclusion, and exact rebuilt
+frontend package with the Bslap visibility fix.
+
+Flash image: `ROCKNIX-RK3566.aarch64-20261022-Miyoo_Flip_V2.img.gz`.
+SHA-256: `e8897c0bf99590117c63bafb8d6c917c374d7d02889c30dfbc165c50446f069d`.
+Update archive: `ROCKNIX-RK3566.aarch64-20261022.tar`.
+SHA-256: `3109b617d3dba28fbf6a094d261d8bd4f636bd637dbf47b9c2e9e723a30738d9`.
+
+The 32 GB development card was backed up, flashed, flushed and completely
+read-back verified against this corrected image. The private backup includes
+its test ROMs, twelve saves and available Bslap session data.
+**Fresh-image device testing passed.** The user confirmed the corrected flashed
+image passes testing, including the normal-Tools visibility check that motivated
+this rebuild. The live frontend hotfix is not needed on this image.
+Nothing from this branch has been published. This documentation-only status
+commit does not change the delivered image. See [Bslap](BSLAP.md).
 
 ## Stable release v1.3.0, build 20261020 — changes since v1.2.0
 

@@ -1,0 +1,11 @@
+--- a/command.c
++++ b/command.c
+@@ -383,7 +383,7 @@
+    if (bind_address && !*bind_address)
+       bind_address = NULL;
+ 
+-   fd = socket_init((void**)&res, port, bind_address,
++   fd = socket_init((void**)&res, port, getenv("BUTTERFLYOS_LOCAL_NETCMD") ? "127.0.0.1" : bind_address,
+          SOCKET_TYPE_DATAGRAM, AF_INET);
+ 
+    RARCH_LOG("[NetCMD] %s %hu (%s).\n",
