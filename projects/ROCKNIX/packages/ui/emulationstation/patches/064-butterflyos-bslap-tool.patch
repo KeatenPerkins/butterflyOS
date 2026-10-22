@@ -1,0 +1,10 @@
+--- a/es-app/src/FileData.cpp
++++ b/es-app/src/FileData.cpp
+@@ -1092,6 +1092,7 @@
+ 			(*it)->getName() != "System Manager" &&
+ 			(*it)->getName() != "SD Card Info" &&
+ 			(*it)->getName() != "Bdex" &&
++			(*it)->getName() != "Bslap" &&
+ 			(*it)->getName() != "Quick Start" &&
+ 			(*it)->getName() != "Controls Guide" &&
+ 			(*it)->getName() != "Butterfly Link" &&
