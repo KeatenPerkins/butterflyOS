@@ -8,6 +8,20 @@ PortMaster, and interface testing. See
 [current build status](CURRENT_BUILD_STATUS.md) for the exact image and test record.
 Historical checks do not qualify every game or save combination.
 
+## Bslap: Gen 3 room-exit communication error
+
+Applies to the upcoming Bslap image, not the published v1.3.0 release.
+Gen 3 can display a communication error when leaving the Trade Center or
+Colosseum. Let **one player initiate leaving**, and respond to the resulting
+exit dialogue on the other device. Avoid independently initiating exit on both.
+This has improved results but does not guarantee success. An error does not
+confirm whether a trade was saved; check both ordinary saves after restarting.
+
+Gen 1 and Gen 2 use a different link implementation and passed user testing
+without this error or crashes. See [Bslap](BSLAP.md) for save backups, recovery,
+qualified games and other scope limits. Gen 1/2 clock persistence across cores
+has not been fully qualified; existing Gambatte RTC trailers are retained.
+
 ## Distribution licensing gate
 
 Alpha 1 bundled vendor-derived stock and patched preloader images and therefore

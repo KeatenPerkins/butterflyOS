@@ -1,8 +1,13 @@
 # Bslap: live Pokémon trades and battles
 
+<img src="assets/bslap.png" alt="Bslap arena icon" width="144">
+
+Included in the tested build **20261022**, awaiting publication. The currently
+published v1.3.0 image does not include Bslap.
+
 Bslap appears in the normal Tools menu alongside Blink and Bdex; Advanced Mode
-is not required. Open **Tools → Bslap** to trade or battle between two ButterflyOS devices on the
-same local network. Each player controls their own game. Blink remains the
+is not required. Open **Tools → Bslap** to trade or battle between two ButterflyOS
+devices on the same local network. Each player controls their own game. Blink remains the
 separate save-editing tool; Bdex stores your collection outside the games.
 
 ## Supported games
