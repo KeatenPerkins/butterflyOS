@@ -10,7 +10,7 @@ Historical checks do not qualify every game or save combination.
 
 ## Bslap: Gen 3 room-exit communication error
 
-Applies to the upcoming Bslap image, not the published v1.3.0 release.
+Applies to Bslap from v1.4.0, build 20261022.
 Gen 3 can display a communication error when leaving the Trade Center or
 Colosseum. Let **one player initiate leaving**, and respond to the resulting
 exit dialogue on the other device. Avoid independently initiating exit on both.

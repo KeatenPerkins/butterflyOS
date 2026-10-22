@@ -1,87 +1,52 @@
 # ButterflyOS vision
 
-ButterflyOS is a fast, friendly, controller-first ROCKNIX derivative for the
-Miyoo Flip V2. It should feel like a dedicated game console: quick to start,
-easy to understand, and dependable without requiring familiarity with Linux or
-RetroArch.
+ButterflyOS is an open-source, ROCKNIX-based operating system built to make a
+handheld feel like a dedicated game console: approachable, controller-friendly,
+and dependable without requiring Linux or RetroArch knowledge.
 
-## Target user
+The current released and hardware-tested target is the **Miyoo Flip V2**.
+Support for additional Miyoo hardware is a future possibility, dependent on
+access to devices, technical information and physical testing. Shared branding
+or a similar chipset alone does not establish compatibility.
 
-ButterflyOS is for Miyoo Flip V2 owners who want to add their legally obtained
-games and start playing with minimal setup. Routine use must not require a
-keyboard, terminal, knowledge of Linux paths, or manual emulator configuration.
+## What guides development
 
-## Core principles
+- **Simple everyday use.** Finding games, changing common settings, adding files
+  and updating should have clear instructions and predictable controls.
+- **Tested defaults with room to customize.** Games should start with sensible
+  emulator and control settings. Users can choose themes, alternative emulators
+  and per-system or per-game settings without making tuning a prerequisite.
+- **Protect saves and recovery.** Verify important writes, retain recovery
+  information, explain destructive operations and make backups understandable.
+  Backup features supplement the user's own copies; they cannot guarantee
+  recovery from every interruption or hardware failure.
+- **Measure before changing.** Judge performance, power use and reliability on
+  real hardware. Keep resource use modest and experimental changes separate
+  until testing supports a release.
+- **Clear limits.** Document supported games and hardware, known problems and
+  workarounds. Distinguish a working default from a guarantee for every game.
+- **Responsible distribution.** Users provide their own games and proprietary
+  BIOS files. Keep licenses, source revisions and build modifications available;
+  do not bundle Pokémon ROMs, saves or extracted sprite caches.
+- **Maintainable foundations.** Build on ROCKNIX and upstream emulator work,
+  keeping ButterflyOS changes documented and avoiding unnecessary divergence.
 
-1. **Console first.** Common actions use clear language, large controller-friendly
-   controls, and predictable navigation.
-2. **Fast by default.** Startup, shutdown, menus, and game launching should feel
-   immediate. Background services must justify their cost.
-3. **Tested defaults.** ButterflyOS chooses a supported emulator, mappings, video
-   settings, and performance profile for each system.
-4. **Automatic performance.** Lightweight systems conserve power; demanding
-   systems receive the CPU and GPU performance they need. Per-game overrides are
-   available without making tuning a prerequisite.
-5. **Safe customization.** Advanced controls remain available, but are separated
-   from the normal console experience and can be reset without losing games or
-   saves.
-6. **Friendly ownership.** Adding games, checking BIOS files, managing storage,
-   updating, backing up, and recovering should be understandable without Linux
-   terminology.
-7. **Legal distribution.** ButterflyOS distributes only software, firmware
-   replacements, and support data whose licenses permit redistribution. Users
-   provide proprietary games and BIOS files.
-8. **Maintainable inheritance.** Remain close enough to ROCKNIX to benefit from
-   upstream hardware, kernel, emulator, and security work while keeping
-   ButterflyOS-specific behavior isolated and documented.
+## A connected Pokémon experience
 
-## Product experience
+Three complementary tools extend the games without replacing ordinary play:
 
-The default interface centers on five destinations:
+- **Bslap** provides live same-generation trades and battles between two
+  supported devices on a local network.
+- **Blink** edits supported saves for transfers, generated gifts and qualified
+  native event experiences.
+- **Bdex** stores a collection outside the games, supports compatible copy
+  exports and offers an optional read-only local web viewer.
 
-- Games
-- Favorites
-- Recent
-- Applications
-- Settings
+They use the user's own files. Their generation, ROM and save requirements are
+part of the product, rather than details users should have to discover by trial
+and error.
 
-Settings use user-facing concepts such as Wi-Fi, Bluetooth, Display, Audio,
-Controls, Storage, Game Systems, Updates, and About. Linux services, governors,
-core names, logs, SSH, and detailed RetroArch options belong in an optional
-Advanced mode.
-
-The first release ships tested emulator cores in the read-only system image so
-initial setup works offline and every installation starts from known versions.
-A Game Systems screen enables or hides systems; a future catalog may deliver
-optional ports, themes, experimental emulators, and updates.
-
-## BIOS policy
-
-ButterflyOS does not ship proprietary console BIOS files. It should provide a
-controller-friendly BIOS manager which:
-
-- identifies the files needed by enabled systems;
-- reports missing, incorrectly named, and checksum-mismatched files;
-- explains where users should copy their own files;
-- recognizes valid alternatives where an emulator supports them; and
-- never offers unauthorized firmware downloads.
-
-## Performance model
-
-ButterflyOS builds on ROCKNIX's existing per-system and per-game governor
-support. The normal experience automatically selects one of these product-level
-profiles:
-
-- **Battery Saver** for lightweight systems
-- **Balanced** for most systems
-- **Performance** for demanding systems
-- **Custom** for an explicit per-game override
-
-These names describe user intent. Their CPU, GPU, memory, thermal, and emulator
-settings may evolve as measurements on real Miyoo Flip V2 hardware improve.
-
-## Success
-
-ButterflyOS succeeds when a new owner can flash an image, add games and any
-required BIOS files, navigate entirely with the built-in controls, and reliably
-play without learning that the device is running Linux.
+Success means an owner can install safely, add games, play, manage saves and
+recover from common problems using clear documentation and device controls.
+See [Features](../documentation/FEATURES.md) for released capabilities and the
+[roadmap](ROADMAP.md) for priorities and possible future work.
