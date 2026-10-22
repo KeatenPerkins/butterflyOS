@@ -29,9 +29,13 @@ its test ROMs, twelve saves and available Bslap session data.
 **Fresh-image device testing passed.** The user confirmed the corrected flashed
 image passes testing, including the normal-Tools visibility check that motivated
 this rebuild. The live frontend hotfix is not needed on this image.
-Approved for stable publication as **v1.4.0**. Release documentation and the merge
-commit do not change the delivered image. See [Bslap](BSLAP.md) and
-[v1.4.0 release notes](RELEASE_NOTES_v1.4.0.md).
+Published as **[v1.4.0](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.4.0)**, Latest stable. All eight uploaded asset sizes and GitHub SHA-256 digests
+match the verified local files. Public latest-release discovery and the downloaded
+updater manifest advertise build **20261022**. The narrow published updater archive
+repackages the tested KERNEL/SYSTEM unchanged; its SHA-256 is
+`ef6ab714171357eea747a1ca73f285016f26e55e5fc3dac6669608d4a1e62771`.
+Release documentation and the merge commit do not change the delivered image.
+See [Bslap](BSLAP.md) and [v1.4.0 release notes](RELEASE_NOTES_v1.4.0.md).
 
 ## Stable release v1.3.0, build 20261020 — changes since v1.2.0
 
