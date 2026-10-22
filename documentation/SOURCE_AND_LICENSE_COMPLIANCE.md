@@ -82,3 +82,18 @@ The flagged-package review is recorded in
 `PACKAGE_LICENSE_REVIEW_ALPHA2.md`; Art Book Next and ZeroTier are excluded
 from the post-review Flip V2 candidate. Nintendo DS was requalified using the
 open-source melonDS DS default on physical hardware.
+
+## Commit attribution cleanup — October 22, 2026
+
+At the maintainer's request, four AI co-author trailers were removed from
+published history. Descendant commit and tag IDs changed, but every affected
+source tree is identical. Released images, updater packages and their checksums
+were not modified. Original runtime hashes remain recorded in existing build
+records; use the [commit ID map](../docs/history/COMMIT_ID_MAP_20261022.json) to
+find their rewritten equivalents. Four previously signed descendant commits
+lost their signatures because changing ancestry invalidates those signatures.
+An original-history Git bundle is retained locally for recovery.
+
+Existing clones must account for rewritten branches and tags before pushing;
+merging an old branch can restore the removed attribution. Preserve local work
+and use the map when migrating unpublished commits.
