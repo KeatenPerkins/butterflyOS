@@ -1,0 +1,47 @@
+--- a/serial_proto.c
++++ b/serial_proto.c
+@@ -72,6 +72,7 @@
+     u16 checksum;
+     u8 offset;                   // Current frame offset
+     u8 hscnt;                    // Number of handshake tokens sent
++    u8 wait_master_handshake;    // Require a new host handshake before reconnecting.
+     unsigned frcnt;              // Frame counter for events.
+   } poke;
+ 
+@@ -264,6 +265,7 @@
+       return false; // Does nothing, no data will be sent.
+ 
+     else if (serstate.poke.peer[0].state == STATE_HANDSHAKE) {
++      serstate.poke.wait_master_handshake = 0;
+       // Move the client to the PREINIT state, then to HANDSHAKE if it replies correctly.
+       serstate.poke.peer[netplay_client_id].state = STATE_PREINIT;
+       // Check if the client wants to send a handshake.
+@@ -282,6 +284,10 @@
+       return true;
+     }
+     else {
++      // A previous CONNECTED announcement must not acknowledge a new handshake.
++      if (serstate.poke.wait_master_handshake)
++        return false;
++
+       // Connected mode, if we are still in handshake, simulate a MASTER sync
+       if (serstate.poke.peer[netplay_client_id].state == STATE_HANDSHAKE) {
+         SRPT_DEBUG_LOG("Triggering IRQ for master handshake (handshake->connected).\n");
+@@ -308,6 +314,7 @@
+           if (++serstate.poke.hscnt > SEQ_HANDSHAKE_TOKENS) {
+             SRPT_DEBUG_LOG("Detected handshake, switching state!\n");
+             serstate.poke.peer[netplay_client_id].state = STATE_HANDSHAKE;
++            serstate.poke.wait_master_handshake = 1;
+             return false;
+           }
+         }
+@@ -377,6 +384,9 @@
+     const u32 flags = netorder32(pkt[1]);
+ 
+     serstate.poke.peer[client_id].timeout = 0;
++    // Observe the handshake even if CONNECTED arrives in the same receive batch.
++    if (client_id == 0 && (flags & 0xFFFF) == STATE_HANDSHAKE)
++      serstate.poke.wait_master_handshake = 0;
+ 
+     serstate.poke.peer[client_id].state = flags & 0xFFFF;
+     SRPT_DEBUG_LOG("Received valid packet from client %d (state: %d)\n",

@@ -1,0 +1,70 @@
+--- a/serial_proto.c
++++ b/serial_proto.c
+@@ -23,6 +23,7 @@
+ // recreate some serial protocols.
+ 
+ #include <assert.h>
++#include <time.h>
+ #include "common.h"
+ 
+ // Debug print logic:
+@@ -104,6 +105,21 @@
+     serstate.poke.offset, serstate.poke.checksum, serstate.poke.hscnt, (unsigned)cpu_ticks);
+ }
+ 
++/* Close/standby commands only; no Pokemon payload data is logged. */
++static unsigned bf_close_count;
++static void bf_close_log(const char *event, unsigned peer, const u16 *packet) {
++  struct timespec now;
++  if (!packet || (packet[0] != 0x5FFF && packet[0] != 0x2FFE)) return;
++  if (bf_close_count >= 128) return;
++  bf_close_count++;
++  clock_gettime(CLOCK_MONOTONIC, &now);
++  fprintf(stderr, "[BF-CLOSE] event=%s id=%u peer=%u cmd=%04x offset=%u queue=%u,%u states=%u,%u mono=%lld.%03ld ticks=%u\n",
++    event, (unsigned)netplay_client_id, peer, packet[0], serstate.poke.offset,
++    serstate.poke.peer[0].count, serstate.poke.peer[1].count,
++    serstate.poke.peer[0].state, serstate.poke.peer[1].state,
++    (long long)now.tv_sec, now.tv_nsec/1000000, (unsigned)cpu_ticks);
++}
++
+ // Serial-Poke: emulates (via fakes) the pokemon serial protocol.
+ //
+ // The protocol has two phases: handshake and data exchange.
+@@ -144,8 +160,10 @@
+     netorder32(flags),               // Current device state
+     0, 0, 0, 0
+   };
+-  if (packet)
++  if (packet) {
++    bf_close_log("send", netplay_client_id, packet);
+     pack16(&pkt[2], packet, 8);
++  }
+ 
+   netpacket_send(RETRO_NETPACKET_BROADCAST, pkt, sizeof(pkt));
+ }
+@@ -217,6 +235,8 @@
+ 
+       for (i = 1; i <= 3; i++) {
+         if (serstate.poke.peer[i].recvd) {
++          if (serstate.poke.offset == 1)
++            bf_close_log("deliver-master", i, serstate.poke.peer[i].data[0]);
+           u16 w = serstate.poke.peer[i].data[0][serstate.poke.offset-1];
+           serstate.poke.checksum += w;
+           write_ioreg(REG_SIOMULTI0 + i, w);
+@@ -359,6 +379,8 @@
+ 
+           for (i = 0; i <= 3; i++) {
+             if (serstate.poke.peer[i].recvd) {
++              if (serstate.poke.offset == 1)
++                bf_close_log("deliver-client", i, serstate.poke.peer[i].data[0]);
+               u16 w = serstate.poke.peer[i].data[0][serstate.poke.offset-1];
+               write_ioreg(REG_SIOMULTI0 + i, w);
+               serstate.poke.checksum += w;
+@@ -418,6 +440,7 @@
+ 
+     if ((flags & 0x80000000) && count < MAX_QPACK) {
+       unpack16(serstate.poke.peer[client_id].data[count], &pkt[2], 8);
++      bf_close_log("receive", client_id, serstate.poke.peer[client_id].data[count]);
+       serstate.poke.peer[client_id].count++;
+     }
+     else if ((flags & 0x80000000)) {

@@ -1,0 +1,100 @@
+--- a/serial_proto.c
++++ b/serial_proto.c
+@@ -90,6 +90,19 @@
+   } aw;
+ } serstate;
+ 
++/* Bounded observational logging; counters survive serial resets. */
++static unsigned bf_counts[7];
++static void bf_cable_log(unsigned kind, const char *event, unsigned peer, unsigned detail) {
++  if (bf_counts[kind]++ >= 48) return;
++  fprintf(stderr, "[BF-CABLE] event=%s id=%u peer=%u detail=%u state=%u,%u,%u,%u queue=%u,%u,%u,%u offset=%u checksum=%u hscnt=%u ticks=%u\n",
++    event, (unsigned)netplay_client_id, peer, detail,
++    serstate.poke.peer[0].state, serstate.poke.peer[1].state,
++    serstate.poke.peer[2].state, serstate.poke.peer[3].state,
++    serstate.poke.peer[0].count, serstate.poke.peer[1].count,
++    serstate.poke.peer[2].count, serstate.poke.peer[3].count,
++    serstate.poke.offset, serstate.poke.checksum, serstate.poke.hscnt, (unsigned)cpu_ticks);
++}
++
+ // Serial-Poke: emulates (via fakes) the pokemon serial protocol.
+ //
+ // The protocol has two phases: handshake and data exchange.
+@@ -118,6 +131,7 @@
+ 
+ 
+ void serialproto_reset(void) {
++  bf_cable_log(0, "reset", 0, 0);
+   SRPT_DEBUG_LOG("Reset serial-proto state\n");
+   memset(&serstate, 0, sizeof(serstate));
+ }
+@@ -145,6 +159,7 @@
+   if (serstate.poke.peer[0].state == STATE_PREINIT) {
+     if (mvalue == SLAVE_HANDSHAKE) {
+       // Move to state handshake. Signal that to peers.
++      bf_cable_log(1, "master-handshake", 0, mvalue);
+       serstate.poke.peer[0].state = STATE_HANDSHAKE;
+       for (i = 1; i <= 3; i++)
+         write_ioreg(REG_SIOMULTI0 + i, 0);
+@@ -161,6 +176,7 @@
+     // Move to connection state.
+     if (mvalue == MASTER_HANDSHAKE) {
+       SRPT_DEBUG_LOG("Master handshake detected, moving to connected mode!\n");
++      bf_cable_log(2, "master-connected", 0, mvalue);
+       serstate.poke.peer[0].state = STATE_CONNECTED;
+       serstate.poke.checksum = 0;
+       serstate.poke.offset = 0;
+@@ -178,6 +194,7 @@
+     else {
+       if (++serstate.poke.hscnt > SEQ_HANDSHAKE_TOKENS) {
+         SRPT_DEBUG_LOG("Detected handshake, switching state!\n");
++        bf_cable_log(1, "master-rehandshake", 0, mvalue);
+         serstate.poke.peer[0].state = STATE_HANDSHAKE;
+         return;
+       }
+@@ -238,8 +255,11 @@
+   u32 i;
+   for (i = 0; i <= 3; i++) {
+     if (i != netplay_client_id)
+-      if (serstate.poke.peer[i].timeout++ >= MAX_FRAME_TIMEOUT)
++      if (serstate.poke.peer[i].timeout++ >= MAX_FRAME_TIMEOUT) {
++        if (serstate.poke.peer[i].state || serstate.poke.peer[i].count)
++          bf_cable_log(3, "peer-timeout", i, serstate.poke.peer[i].timeout);
+         memset(&serstate.poke.peer[i], 0, sizeof(serstate.poke.peer[i]));
++      }
+   }
+ }
+ 
+@@ -285,6 +305,7 @@
+       // Connected mode, if we are still in handshake, simulate a MASTER sync
+       if (serstate.poke.peer[netplay_client_id].state == STATE_HANDSHAKE) {
+         SRPT_DEBUG_LOG("Triggering IRQ for master handshake (handshake->connected).\n");
++        bf_cable_log(2, "client-connected", netplay_client_id, 0);
+         serstate.poke.peer[netplay_client_id].state = STATE_CONNECTED;
+         serstate.poke.checksum = 0;
+         serstate.poke.offset = 0;
+@@ -307,6 +328,7 @@
+         else {
+           if (++serstate.poke.hscnt > SEQ_HANDSHAKE_TOKENS) {
+             SRPT_DEBUG_LOG("Detected handshake, switching state!\n");
++            bf_cable_log(1, "client-rehandshake", netplay_client_id, nw);
+             serstate.poke.peer[netplay_client_id].state = STATE_HANDSHAKE;
+             return false;
+           }
+@@ -378,6 +400,8 @@
+ 
+     serstate.poke.peer[client_id].timeout = 0;
+ 
++    if (serstate.poke.peer[client_id].state != (flags & 0xFFFF))
++      bf_cable_log(4, "peer-state", client_id, flags & 0xFFFF);
+     serstate.poke.peer[client_id].state = flags & 0xFFFF;
+     SRPT_DEBUG_LOG("Received valid packet from client %d (state: %d)\n",
+                    client_id, serstate.poke.peer[client_id].state);
+@@ -387,6 +411,7 @@
+       serstate.poke.peer[client_id].count++;
+     }
+     else if ((flags & 0x80000000)) {
++      bf_cable_log(5, "queue-full", client_id, count);
+       SRPT_DEBUG_LOG("Packet dropped!\n");
+     }
+   }
