@@ -5,13 +5,13 @@ Stable release for **Miyoo Flip V2**, updater build **20261016**.
 ## Download for SD-card flashing
 
 Download **[ButterflyOS-v1.1.0-Miyoo-Flip-V2.img.gz](https://github.com/KeatenPerkins/butterflyOS/releases/download/v1.1.0/ButterflyOS-v1.1.0-Miyoo-Flip-V2.img.gz)** and its matching **[SHA-256 checksum](https://github.com/KeatenPerkins/butterflyOS/releases/download/v1.1.0/ButterflyOS-v1.1.0-Miyoo-Flip-V2.img.gz.sha256)**.
-Follow [installation and recovery](https://github.com/KeatenPerkins/butterflyOS/blob/butterfly-save-trade-prototype/documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md), including your device's own preloader backup. Returning users who only reflash an OS card do not need to repeat the internal preloader setup.
+Follow [installation and recovery](https://github.com/KeatenPerkins/butterflyOS/blob/butterflyOS-main/documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md), including your device's own preloader backup. Returning users who only reflash an OS card do not need to repeat the internal preloader setup.
 
 The `.tar` package and `butterflyos-update.json` are for the updater. `release-audit.zip` contains optional developer verification records. GitHub's **Source code** archives are not flashable images.
 
 ## Update an existing installation
 
-Save and exit games and Butterfly Link. Open **Start → System Settings → Update ButterflyOS**, download and verify the update, then restart the system to install. Keep power connected, battery at least 50%, and at least **3 GB free on the OS card's storage partition**. Check for build **20261016** after installation. See [How to update](https://github.com/KeatenPerkins/butterflyOS/blob/butterfly-save-trade-prototype/documentation/UPDATES.md#how-to-update).
+Save and exit games and Butterfly Link. Open **Start → System Settings → Update ButterflyOS**, download and verify the update, then restart the system to install. Keep power connected, battery at least 50%, and at least **3 GB free on the OS card's storage partition**. Check for build **20261016** after installation. See [How to update](https://github.com/KeatenPerkins/butterflyOS/blob/butterflyOS-main/documentation/UPDATES.md#how-to-update).
 
 ## Deep sleep and charging
 
@@ -32,12 +32,12 @@ Save and exit games and Butterfly Link. Open **Start → System Settings → Upd
 - Direct gifts use original trainer **BLINK** and a distinct trainer ID for the native fateful-encounter memo. Normal traded-Pokémon obedience/experience rules apply. Eggs retain the recipient's identity and normal hatch information.
 - Gift preview, explicit confirmation and protected backups remain in place. No ROMs, BIOS files, personal saves, bundled sprite caches or original distribution Pokémon records are included. Gen III island-event activation remains excluded pending gameplay qualification.
 
-See the [Butterfly Link guide](https://github.com/KeatenPerkins/butterflyOS/blob/butterfly-save-trade-prototype/documentation/BUTTERFLY_LINK.md) for recipes, supported revisions and save precautions.
+See the [Butterfly Link guide](https://github.com/KeatenPerkins/butterflyOS/blob/butterflyOS-main/documentation/BUTTERFLY_LINK.md) for recipes, supported revisions and save precautions.
 
 ## Artwork and documentation
 
 - Updated Restore Stock artwork and transparent controller artwork for Controls Guide.
-- Added verified [USB Gadget File Transfer instructions](https://github.com/KeatenPerkins/butterflyOS/blob/butterfly-save-trade-prototype/documentation/TRANSFERRING_GAMES.md#option-6-usb-file-transfer) for copying games through the front charging/data USB-C port.
+- Added verified [USB Gadget File Transfer instructions](https://github.com/KeatenPerkins/butterflyOS/blob/butterflyOS-main/documentation/TRANSFERRING_GAMES.md#option-6-usb-file-transfer) for copying games through the front charging/data USB-C port.
 - Clear image/checksum links for flashing, with optional developer records grouped into one audit ZIP.
 - RetroAchievements remains under **Settings / Start → Game Settings → RetroAchievements**.
 

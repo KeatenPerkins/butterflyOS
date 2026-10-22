@@ -5,7 +5,7 @@ Stable release for **Miyoo Flip V2**, updater build **20261020**.
 ## Download for SD-card flashing
 
 Download **[ButterflyOS-v1.3.0-Miyoo-Flip-V2.img.gz](https://github.com/KeatenPerkins/butterflyOS/releases/download/v1.3.0/ButterflyOS-v1.3.0-Miyoo-Flip-V2.img.gz)** and its matching **[SHA-256 checksum](https://github.com/KeatenPerkins/butterflyOS/releases/download/v1.3.0/ButterflyOS-v1.3.0-Miyoo-Flip-V2.img.gz.sha256)**.
-Follow [installation and recovery](https://github.com/KeatenPerkins/butterflyOS/blob/butterfly-save-trade-prototype/documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md), including exporting your device's own recovery backup. Returning users reflashing an OS card do not need to repeat the internal preloader setup.
+Follow [installation and recovery](https://github.com/KeatenPerkins/butterflyOS/blob/butterflyOS-main/documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md), including exporting your device's own recovery backup. Returning users reflashing an OS card do not need to repeat the internal preloader setup.
 
 The `.tar` package and `butterflyos-update.json` are for the updater. `release-audit.zip` contains optional developer verification records. The package-license manifest documents bundled components. GitHub's Source code archives are not flashable images.
 
@@ -13,7 +13,7 @@ The `.tar` package and `butterflyos-update.json` are for the updater. `release-a
 
 Save and exit your games and tools. Open **Start → System Settings → Update ButterflyOS**, wait for download and verification, then choose **Restart to Apply Update**. Keep power connected through the front USB-C port, charge to at least 50%, and have at least **3 GB free on the OS card**. After installation, check for build **20261020**.
 
-Normal updates retain games, saves, artwork, settings and Bdex collections. Back up important files first; flashing an image erases the card. See [How to update](https://github.com/KeatenPerkins/butterflyOS/blob/butterfly-save-trade-prototype/documentation/UPDATES.md#how-to-update).
+Normal updates retain games, saves, artwork, settings and Bdex collections. Back up important files first; flashing an image erases the card. See [How to update](https://github.com/KeatenPerkins/butterflyOS/blob/butterflyOS-main/documentation/UPDATES.md#how-to-update).
 
 ## Blink: native Gen III island events
 
@@ -24,7 +24,7 @@ Open **Tools → Blink → Local Transfer → Gen 3 → Gen 3 Island Events**. E
 - Qualified English Ruby/Sapphire revision 2: Eon Ticket, preserving the normal roaming Pokémon.
 - Normal story/postgame requirements remain. English Old Sea Map is labeled as an expanded experience; its historical distribution was Japanese.
 
-Save normally and exit before editing, then load the ordinary save rather than a save state. See the [Blink guide](https://github.com/KeatenPerkins/butterflyOS/blob/butterfly-save-trade-prototype/documentation/BUTTERFLY_LINK.md) for ROM requirements and ferry instructions.
+Save normally and exit before editing, then load the ordinary save rather than a save state. See the [Blink guide](https://github.com/KeatenPerkins/butterflyOS/blob/butterflyOS-main/documentation/BUTTERFLY_LINK.md) for ROM requirements and ferry instructions.
 
 ## Blink: new generated gift collections
 
@@ -49,4 +49,4 @@ These options support the five qualified English retail Gen III games. Gifts use
 
 The exact image was rebuilt locally and tested on the local test device. All 668 package steps, image checksums, GPT/FAT/ext4 checks, flash/update payload matching, installed-source and embedded-initramfs checks passed. Full SD-card read-back matched the written image. The user confirmed the full integration checklist, including gifts, an island event, save/reload, Blink/Bdex, save backup, charging, sleep and HDMI.
 
-Automated event, gift and save-safety checks also passed. This is not exhaustive qualification of every recipe/game combination or a new overnight sleep test. Existing USB wake and quick lid-reopen limitations remain. In-place updates are not power-loss-proof; the first update from an older build uses its installed boot updater. See [Known issues](https://github.com/KeatenPerkins/butterflyOS/blob/butterfly-save-trade-prototype/documentation/KNOWN_ISSUES.md).
+Automated event, gift and save-safety checks also passed. This is not exhaustive qualification of every recipe/game combination or a new overnight sleep test. Existing USB wake and quick lid-reopen limitations remain. In-place updates are not power-loss-proof; the first update from an older build uses its installed boot updater. See [Known issues](https://github.com/KeatenPerkins/butterflyOS/blob/butterflyOS-main/documentation/KNOWN_ISSUES.md).
