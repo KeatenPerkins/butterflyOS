@@ -9,7 +9,7 @@ The stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
 
-Current release: [v1.3.0 notes](RELEASE_NOTES_v1.3.0.md), updater build **20261020**.
+Current release: [v1.4.0 notes](RELEASE_NOTES_v1.4.0.md), updater build **20261022**.
 
 ## For users and testers
 
@@ -39,7 +39,7 @@ Current release: [v1.3.0 notes](RELEASE_NOTES_v1.3.0.md), updater build **202610
   generation directions.
 - [Bslap](BSLAP.md): live same-generation Pokémon trades and battles, Host/Join
   setup, save backups/recovery, and the Gen 3 room-exit limitation; included in
-  the next image.
+  v1.4.0 and newer.
 - [Known issues](KNOWN_ISSUES.md): incomplete testing and reported failures.
 - [Compatibility matrix](BUTTERFLYOS_ALPHA_COMPATIBILITY_MATRIX.md): tested
   systems, sample titles, emulator choices, and exceptions.

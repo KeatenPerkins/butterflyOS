@@ -2,7 +2,7 @@
 
 Reviewed: 2026-10-22.
 
-## Corrected local test image 20261022: Bslap
+## Stable v1.4.0, build 20261022: Bslap
 
 The user reported all tests passed on the previous candidate with the live
 frontend fix. Rebuilt the complete image from runtime commit
@@ -29,8 +29,9 @@ its test ROMs, twelve saves and available Bslap session data.
 **Fresh-image device testing passed.** The user confirmed the corrected flashed
 image passes testing, including the normal-Tools visibility check that motivated
 this rebuild. The live frontend hotfix is not needed on this image.
-Nothing from this branch has been published. This documentation-only status
-commit does not change the delivered image. See [Bslap](BSLAP.md).
+Approved for stable publication as **v1.4.0**. Release documentation and the merge
+commit do not change the delivered image. See [Bslap](BSLAP.md) and
+[v1.4.0 release notes](RELEASE_NOTES_v1.4.0.md).
 
 ## Stable release v1.3.0, build 20261020 — changes since v1.2.0
 

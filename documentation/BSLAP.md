@@ -2,8 +2,7 @@
 
 <img src="assets/bslap.png" alt="Bslap arena icon" width="144">
 
-Included in the tested build **20261022**, awaiting publication. The currently
-published v1.3.0 image does not include Bslap.
+Available from **v1.4.0**, build **20261022**.
 
 Bslap appears in the normal Tools menu alongside Blink and Bdex; Advanced Mode
 is not required. Open **Tools → Bslap** to trade or battle between two ButterflyOS

@@ -9,7 +9,7 @@ awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
 
 ## Live Pokémon trades and battles with Bslap
 
-Included in tested build 20261022, awaiting publication; not in v1.3.0.
+Available from **v1.4.0**, build **20261022**.
 
 - Open **Tools → Bslap** alongside Blink and Bdex, without Advanced Mode.
 - Host or join another ButterflyOS device on the same local network. Both

@@ -59,8 +59,7 @@ on the same local network. Open **Tools → Bslap**, then Host or Join. English
 Gen 1, Gen 2 and Gen 3 games are supported within their own generation.
 Gen 3 can show a communication error on room exit; letting one player initiate
 leaving gives better results. See the [Bslap guide](documentation/BSLAP.md) for
-setup, save handling and limitations. This addition is being prepared for the
-next image and is not in the currently published v1.3.0 release.
+setup, save handling and limitations. Available from **v1.4.0**, build **20261022**.
 
 ### Blink
 
