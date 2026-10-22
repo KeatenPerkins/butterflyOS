@@ -2,32 +2,33 @@
 
 Reviewed: 2026-10-22.
 
-## Local test image 20261022: Bslap
+## Corrected local test image 20261022: Bslap
 
-Bslap adds same-generation Gen 1/2/3 live Pokémon trades and battles, Host/Join
-readiness lobbies, per-session save backups, Gen 1/2 working-save exchange and
-return, and dedicated packaged Gen 3 components. Gen 1 and Gen 2 live tests
-passed; the Gen 3 room-exit error remains documented. Host lists Gen 1, Gen 2,
-Gen 3. Updated Bslap artwork is included. Built from runtime commit `43777a5c8cdb4f49d7a839d03631af5585864731`,
-onboarding package 2.6.50. All 669 package steps and eleven targeted tests passed.
+The user reported all tests passed on the previous candidate with the live
+frontend fix. Rebuilt the complete image from runtime commit
+`a6c1655968e3a02de57cb8e0825b76fab5d29ce8`, onboarding package 2.6.50.
+All 669 package steps completed. The Bslap normal-Tools allowlist patch is now
+compiled into the delivered frontend; Advanced Mode and the live hotfix are not
+required. Bslap appears alongside Blink and Bdex. The Gen 3-only room-exit
+limitation remains documented.
+
 Delivered-image checks passed: gzip/SHA-256 integrity, GPT CRCs, read-only FAT/ext4
 checks, matching flash/update KERNEL and SYSTEM, source commit, all four backend
 hashes, exact Bslap scripts/module/icon, generation order, Gen 3-only warning,
-unchanged normal RetroArch32/gpSP, and ROM/save filename exclusion.
+unchanged normal RetroArch32/gpSP, ROM/save filename exclusion, and exact rebuilt
+frontend package with the Bslap visibility fix.
 
 Flash image: `ROCKNIX-RK3566.aarch64-20261022-Miyoo_Flip_V2.img.gz`.
-SHA-256: `36ee23053feafea5a1abca53dd11784b064b8ee46168e8063c63657f94ed139f`.
+SHA-256: `e8897c0bf99590117c63bafb8d6c917c374d7d02889c30dfbc165c50446f069d`.
 Update archive: `ROCKNIX-RK3566.aarch64-20261022.tar`.
-SHA-256: `e23d3cf23e9b9692a9a52f1bfda647e5d8b943aa4dd3162b34fd75e8d2ea5405`.
+SHA-256: `3109b617d3dba28fbf6a094d261d8bd4f636bd637dbf47b9c2e9e723a30738d9`.
 
-**Fresh-image testing is in progress.** It exposed a missing frontend normal-Tools
-allowlist entry for Bslap: the packaged app was present but hidden unless Advanced
-Mode was enabled. Patch `064-butterflyos-bslap-tool.patch` fixes this for the next
-image. Both current test cards receive a rebuilt frontend hotfix restricted to
-this build; it survives reboot and skips future image builds. The existing
-20261022 image artifact predates this fix and will need rebuilding before release.
-Nothing from this branch has been published. The status-note commit does not change the delivered image.
-See [Bslap](BSLAP.md).
+The 32 GB development card was backed up, flashed, flushed and completely
+read-back verified against this corrected image. The private backup includes
+its test ROMs, twelve saves and available Bslap session data.
+**Fresh-boot confirmation that Bslap appears with Advanced Mode off is pending.**
+Nothing from this branch has been published. This documentation-only status
+commit does not change the delivered image. See [Bslap](BSLAP.md).
 
 ## Stable release v1.3.0, build 20261020 — changes since v1.2.0
 
