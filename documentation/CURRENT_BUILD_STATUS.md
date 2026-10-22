@@ -20,8 +20,13 @@ SHA-256: `36ee23053feafea5a1abca53dd11784b064b8ee46168e8063c63657f94ed139f`.
 Update archive: `ROCKNIX-RK3566.aarch64-20261022.tar`.
 SHA-256: `e23d3cf23e9b9692a9a52f1bfda647e5d8b943aa4dd3162b34fd75e8d2ea5405`.
 
-**Freshly flashed device testing is pending.** Nothing from this branch has been
-published. The status-note commit does not change the delivered image.
+**Fresh-image testing is in progress.** It exposed a missing frontend normal-Tools
+allowlist entry for Bslap: the packaged app was present but hidden unless Advanced
+Mode was enabled. Patch `064-butterflyos-bslap-tool.patch` fixes this for the next
+image. Both current test cards receive a rebuilt frontend hotfix restricted to
+this build; it survives reboot and skips future image builds. The existing
+20261022 image artifact predates this fix and will need rebuilding before release.
+Nothing from this branch has been published. The status-note commit does not change the delivered image.
 See [Bslap](BSLAP.md).
 
 ## Stable release v1.3.0, build 20261020 — changes since v1.2.0

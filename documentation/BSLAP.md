@@ -1,6 +1,7 @@
 # Bslap: live Pokémon trades and battles
 
-Open **Tools → Bslap** to trade or battle between two ButterflyOS devices on the
+Bslap appears in the normal Tools menu alongside Blink and Bdex; Advanced Mode
+is not required. Open **Tools → Bslap** to trade or battle between two ButterflyOS devices on the
 same local network. Each player controls their own game. Blink remains the
 separate save-editing tool; Bdex stores your collection outside the games.
 
