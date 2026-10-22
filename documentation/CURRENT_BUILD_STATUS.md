@@ -2,14 +2,27 @@
 
 Reviewed: 2026-10-22.
 
-## Next local image: Bslap
+## Local test image 20261022: Bslap
 
 Bslap adds same-generation Gen 1/2/3 live Pokémon trades and battles, Host/Join
 readiness lobbies, per-session save backups, Gen 1/2 working-save exchange and
 return, and dedicated packaged Gen 3 components. Gen 1 and Gen 2 live tests
 passed; the Gen 3 room-exit error remains documented. Host lists Gen 1, Gen 2,
-Gen 3. Updated Bslap artwork is included. Full-image validation and testing are
-pending; nothing from this branch has been published. See [Bslap](BSLAP.md).
+Gen 3. Updated Bslap artwork is included. Built from runtime commit `43777a5c8cdb4f49d7a839d03631af5585864731`,
+onboarding package 2.6.50. All 669 package steps and eleven targeted tests passed.
+Delivered-image checks passed: gzip/SHA-256 integrity, GPT CRCs, read-only FAT/ext4
+checks, matching flash/update KERNEL and SYSTEM, source commit, all four backend
+hashes, exact Bslap scripts/module/icon, generation order, Gen 3-only warning,
+unchanged normal RetroArch32/gpSP, and ROM/save filename exclusion.
+
+Flash image: `ROCKNIX-RK3566.aarch64-20261022-Miyoo_Flip_V2.img.gz`.
+SHA-256: `36ee23053feafea5a1abca53dd11784b064b8ee46168e8063c63657f94ed139f`.
+Update archive: `ROCKNIX-RK3566.aarch64-20261022.tar`.
+SHA-256: `e23d3cf23e9b9692a9a52f1bfda647e5d8b943aa4dd3162b34fd75e8d2ea5405`.
+
+**Freshly flashed device testing is pending.** Nothing from this branch has been
+published. The status-note commit does not change the delivered image.
+See [Bslap](BSLAP.md).
 
 ## Stable release v1.3.0, build 20261020 — changes since v1.2.0
 
