@@ -3,7 +3,7 @@
 <p align="center"><img src="artwork/branding/icons/butterflyos-emblem-transparent-1024.png" width="192" alt="ButterflyOS butterfly emblem"></p>
 
 ButterflyOS is a fast, friendly, controller-first operating system for the
-Miyoo Flip V2, with online updates and PortMaster support.
+Miyoo Flip V1/V2, with online updates and PortMaster support.
 
 Download the image and matching checksum from
 [the latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest).
