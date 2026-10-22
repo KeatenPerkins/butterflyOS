@@ -1,6 +1,15 @@
 # Current build and test status
 
-Reviewed: 2026-10-20.
+Reviewed: 2026-10-22.
+
+## Next local image: Bslap
+
+Bslap adds same-generation Gen 1/2/3 live Pokémon trades and battles, Host/Join
+readiness lobbies, per-session save backups, Gen 1/2 working-save exchange and
+return, and dedicated packaged Gen 3 components. Gen 1 and Gen 2 live tests
+passed; the Gen 3 room-exit error remains documented. Host lists Gen 1, Gen 2,
+Gen 3. Updated Bslap artwork is included. Full-image validation and testing are
+pending; nothing from this branch has been published. See [Bslap](BSLAP.md).
 
 ## Stable release v1.3.0, build 20261020 — changes since v1.2.0
 
