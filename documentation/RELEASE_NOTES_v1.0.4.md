@@ -6,7 +6,7 @@ exact local rebuild that passed image checks and user-confirmed live tests on th
 ## Download for SD-card flashing
 
 Download **[ButterflyOS-v1.0.4-Miyoo-Flip-V2.img.gz](https://github.com/KeatenPerkins/butterflyOS/releases/download/v1.0.4/ButterflyOS-v1.0.4-Miyoo-Flip-V2.img.gz)** and its matching **[SHA-256 checksum](https://github.com/KeatenPerkins/butterflyOS/releases/download/v1.0.4/ButterflyOS-v1.0.4-Miyoo-Flip-V2.img.gz.sha256)**.
-Follow the [installation and recovery guide](https://github.com/KeatenPerkins/butterflyOS/blob/butterfly-save-trade-prototype/documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md), including your device's preloader backup.
+Follow the [installation and recovery guide](https://github.com/KeatenPerkins/butterflyOS/blob/butterflyOS-main/documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md), including your device's preloader backup.
 
 The `.tar` package and `butterflyos-update.json` are for the updater. Verification JSON files, source records, and build-environment files are developer audit records; you do not need them to flash your card. GitHub's automatically generated **Source code** downloads are also not flashable images.
 
