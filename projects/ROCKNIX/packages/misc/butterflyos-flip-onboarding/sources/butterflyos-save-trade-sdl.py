@@ -1042,6 +1042,11 @@ class SDLFrontEnd:
     def draw_text(self, value: str, x: int, y: int, size: int,
                   color: tuple[int, int, int], *, bold: bool = False,
                   center: bool = False) -> None:
+        # Wrapped notices and optional list descriptions can contain blank lines.
+        # SDL_ttf rejects empty strings with "Text has zero width"; retain the
+        # caller's spacing without creating a texture for an empty line.
+        if not value:
+            return
         texture, width, height = self.text_texture(value, size, color, bold)
         if center:
             x -= width // 2
@@ -1769,7 +1774,14 @@ def _rom_candidates(generation: int, save_path: str) -> list[str]:
 
 def rom_cache_digest(generation: int, path: str) -> str:
     if generation != 3:
-        return _file_digest(path)
+        spec = importlib.util.spec_from_file_location(
+            "butterflyos_gb_rom_reader", os.path.join(os.path.dirname(__file__), "butterflyos-gb-sprite-cache.py"))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        try:
+            return hashlib.sha256(module.read_rom(path)).hexdigest()
+        except module.CacheError as error:
+            raise ValueError(str(error)) from error
     spec = importlib.util.spec_from_file_location(
         "butterflyos_rom_filter", os.path.join(os.path.dirname(__file__), "butterflyos_rom_filter.py"))
     module = importlib.util.module_from_spec(spec)

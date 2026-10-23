@@ -199,7 +199,7 @@ def reader():
 
 
 def qualified_rom(path):
-    data = Path(path).read_bytes()
+    data = reader().read_rom(path)
     digest = hashlib.sha256(data).hexdigest()
     if digest not in SUPPORTED_ROMS:
         raise ValueError('Use a qualified English retail Gold, Silver or Crystal ROM. Modified ROMs are refused.')

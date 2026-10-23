@@ -6,6 +6,7 @@ No ROM content or Pokemon records are bundled. Never modifies the input save.
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 
@@ -30,7 +31,15 @@ def set_flag(data, number, value):
 
 
 def validate(data, rom):
-    if hashlib.sha256(Path(rom).read_bytes()).hexdigest() != ROM_SHA256:
+    spec = importlib.util.spec_from_file_location(
+        'crystal_rom_reader', Path(__file__).with_name('butterflyos-gb-sprite-cache.py'))
+    reader = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(reader)
+    try:
+        rom_data = reader.read_rom(rom)
+    except reader.CacheError as error:
+        raise ValueError(str(error)) from error
+    if hashlib.sha256(rom_data).hexdigest() != ROM_SHA256:
         raise ValueError('Use the qualified English retail Crystal ROM. Gold/Silver and modified ROMs are unsupported.')
     if len(data) not in (0x8000, 0x8000 + 48):
         raise ValueError('Use an ordinary Crystal in-game save, not a save state.')

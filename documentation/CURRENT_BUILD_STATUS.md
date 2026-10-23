@@ -1,6 +1,27 @@
 # Current build and test status
 
-Reviewed: 2026-10-22.
+Reviewed: 2026-10-23.
+
+## Pending next image: Blink preview and GB/GBC ZIP handling
+
+- Skip empty text lines in the shared SDL renderer. A Gen 1 party preview with
+  no optional level/nature text previously exited to the dialog fallback with
+  `Text has zero width`. The old failure and corrected path were reproduced
+  using the local test device's SDL libraries, without changing saves.
+- Hash decompressed GB/GBC ROM contents for gift/cache matching. Gen 1/2 gift
+  generation and Crystal event validation now use the existing bounded,
+  single-ROM ZIP reader, retaining exact retail ROM checksum qualification.
+  The previous paths hashed/read the ZIP container and rejected valid games.
+- Three blank-text regressions and 48 raw/ZIP gift equivalence comparisons
+  passed, along with six ROM digest checks, modified-ROM refusals, Crystal ROM
+  qualification and ambiguous-ZIP refusal. The 11 Bslap regressions passed.
+- Live checks on the local test device generated all 45 Gen 1 game/gift
+  combinations from the original ZIPs, qualified Gen 2 ZIPs, staged and discarded
+  a gift into a populated PC box, and inspected Crystal events through its ZIP.
+  The inspected source saves remained unchanged.
+- Onboarding package 2.6.51 includes these fixes for the next full build.
+  Live test patches use temporary bind mounts and do not survive a reboot.
+  These changes are not in the published v1.4.0 image.
 
 ## Stable v1.4.0, build 20261022: Bslap
 

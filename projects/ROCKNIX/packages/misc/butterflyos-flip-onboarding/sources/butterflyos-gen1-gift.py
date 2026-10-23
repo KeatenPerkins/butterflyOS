@@ -44,11 +44,11 @@ def encoded(text):
 def gift_from_rom(rom, preset, dvs=None):
     if preset not in PRESETS:
         raise ValueError('unsupported-gift')
-    data = Path(rom).read_bytes()
+    gb = reader()
+    data = gb.read_rom(rom)
     digest = hashlib.sha256(data).hexdigest()
     if digest not in SUPPORTED_ROMS:
         raise ValueError('unsupported-gift-rom: use a verified English retail Red, Blue or Yellow ROM')
-    gb = reader()
     dex = PRESETS[preset]
     base = gb.find_bytes(data, bytes((1, 0x2d, 0x31, 0x31, 0x2d, 0x41)))
     order_at = gb.find_bytes(data, bytes((0x70, 0x73, 0x20, 0x23, 0x15, 0x64, 0x22, 0x50)))
