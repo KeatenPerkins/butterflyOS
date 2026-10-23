@@ -22,6 +22,7 @@ def load(name, path):
 HERE = Path(__file__).resolve().parent
 engine = load('bdex_engine', HERE / 'butterflyos-bdex.py')
 inspector_ui = load('bdex_inspector', HERE / 'butterflyos-bdex-inspector.py')
+locations = load('bdex_locations', HERE / 'butterflyos-bdex-locations.py')
 
 
 def database_backups(root):
@@ -538,6 +539,44 @@ class Bdex:
                 continue
             dirty = True
 
+    def where_to_find(self, dex):
+        gb = engine.load_module('bdex_location_rom', HERE / 'butterflyos-gb-sprite-cache.py')
+        gifts = engine.load_module('bdex_location_profiles', HERE / 'butterflyos-gen1-gift.py')
+        choices = []
+        for path in self.blink._rom_candidates(1, ''):
+            try:
+                digest = engine.sha(gb.read_rom(path))
+                if digest in gifts.SUPPORTED_ROMS:
+                    choices.append((path, gifts.SUPPORTED_ROMS[digest].title()))
+            except (OSError, ValueError, gb.CacheError):
+                continue
+        if not choices:
+            self.ui.message('MATCHING ROM NEEDED', 'Add a supported English retail Red, Blue or Yellow ROM, raw or in a single-ROM ZIP. Encounter locations are read from your ROM. No save or stored copy is required.')
+            return
+        choice = self.choose('WHERE TO FIND: SOURCE GAME', [(title, Path(path).name) for path, title in choices])
+        if choice is None:
+            return
+        self.front.draw_message('READING ENCOUNTERS', 'Reading locations from your ROM.', 'Please wait')
+        try:
+            index = locations.qualified_index(choices[choice][0], gb, gifts)
+        except gb.CacheError as error:
+            raise ValueError(str(error))
+        self.ui.message('WHERE TO FIND #%03d' % dex, locations.describe(index, dex))
+
+    def species_actions(self, dex):
+        if self.generation != 1:
+            return self.copies(dex)
+        while True:
+            action = self.choose('SPECIES #%03d' % dex, [
+                ('Stored copies', 'Inspect, export or delete your stored Pokemon'),
+                ('Where to find', 'Choose Red, Blue or Yellow; grass/caves and Surfing')])
+            if action is None:
+                return
+            if action == 0:
+                self.copies(dex)
+            else:
+                self.where_to_find(dex)
+
     def copies(self, dex):
         position = 0
         while True:
@@ -675,7 +714,8 @@ class Bdex:
     def draw_collection(self, species, selected, counts, names, tab):
         f = self.front
         f.refresh_text_scale()
-        f.fill(0, 0, 640, 480, (6, 9, 22))
+        f.sdl.SDL_SetRenderDrawColor(f.renderer, 6, 9, 22, 255)
+        f.sdl.SDL_RenderClear(f.renderer)
         f.outline(10, 10, 620, 460, (38, 129, 190), 3)
         f.draw_text('BDEX — GEN %d' % self.generation, 30, 25, 24, (36, 226, 224), bold=True)
         f.draw_text('Collected %d / %d   Stored %d' % (len(counts), self.species_limit, sum(counts.values())), 30, 59, 15, (210, 222, 235))
@@ -767,7 +807,7 @@ class Bdex:
                 self.position = (self.position + 1) % len(species)
             elif key in (link.KEY_RETURN, link.KEY_A, ord('A'), link.KEY_CONFIRM, ord('Z')):
                 if tab == 0 and species:
-                    self.guarded(lambda: self.copies(species[self.position]))
+                    self.guarded(lambda: self.species_actions(species[self.position]))
                 elif tab == 1:
                     self.guarded(self.import_workflow)
                 elif tab == 2:

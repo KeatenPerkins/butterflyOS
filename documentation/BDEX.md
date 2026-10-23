@@ -30,8 +30,33 @@ the OS card is the practical limit.
 
 - **Up/Down:** select a species.
 - **Left/Right:** select Collection, Import, Export or Options.
-- **A:** view stored copies or open the selected tab.
+- **A:** view stored copies or open the selected tab. In the next image, Gen 1
+  offers **Stored copies** and **Where to find**.
 - **B:** go back.
+
+## Where to find (pending next image)
+
+Open **Gen 1 → Collection → select a species → Where to find**, then select
+your supported English retail Red, Blue or Yellow ROM. You can look up a
+species even when you have no stored copies. Select **All** in the species
+filter if missing species are hidden by your current filter.
+
+This first version reads **grass/cave and Surfing encounter locations and
+levels** directly from that game's ROM, including version differences.
+A raw ROM or ZIP containing one ROM works. It uses no online service and
+does not modify the ROM, saves, or collection. Use Up/Down to scroll results;
+A/B returns to the previous screen.
+
+**Coverage is limited:** fishing, gifts, NPC trades, evolutions, and special
+encounters such as stationary legendary Pokémon are not indexed yet. An empty
+result does **not** mean a species is unobtainable. Gen 2/3 location lookup and
+live player-location/progress tracking are not included in this first version.
+
+The layout/map-label metadata follows the
+[pokered](https://github.com/pret/pokered/blob/master/data/wild/grass_water.asm)
+and [pokeyellow](https://github.com/pret/pokeyellow/blob/master/data/wild/grass_water.asm)
+disassemblies. Species and levels are extracted locally from the user's ROM;
+no encounter-species tables or ROM files are bundled.
 
 Selecting a species shows its individual stored copies, including nickname,
 level and original trainer. Red, blue and yellow source markers also have

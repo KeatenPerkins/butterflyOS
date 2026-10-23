@@ -54,6 +54,27 @@ KEY_Q = ord("q")
 # retro-emulator Z/X pair: Z is physical A, X is physical B/Menu.
 KEY_CONFIRM = ord("z")
 KEY_CANCEL = ord("x")
+# A window repaint is not a navigation key. Screens that redraw only when
+# dirty must repaint after Wayland finishes configuring/exposing the window.
+KEY_REDRAW = -1
+
+# SDL calls the bottom face button A. The Flip labels its right face button
+# A instead. Override only the two original built-in pad GUIDs, locally to
+# these tools; never change the shared controller database or emulator input.
+TOOL_PAD_MAPPINGS = '\n'.join(
+    guid + ',retrogame_joypad,a:b1,b:b0,x:b2,y:b3,back:b8,guide:b10,start:b9,'
+    'leftshoulder:b4,rightshoulder:b5,lefttrigger:b6,righttrigger:b7,'
+    'leftstick:b11,rightstick:b12,dpup:b13,dpdown:b14,dpleft:b15,dpright:b16,'
+    'leftx:a0,lefty:a1,rightx:a2,righty:a3,platform:Linux,'
+    for guid in ('03009b4d4b4800000111000000010000',
+                 '19009b4d4b4800000111000000010000'))
+
+
+def tool_controller_environment():
+    environment = os.environ.copy()
+    existing = environment.get('SDL_GAMECONTROLLERCONFIG', '').strip()
+    environment['SDL_GAMECONTROLLERCONFIG'] = ((existing + '\n') if existing else '') + TOOL_PAD_MAPPINGS
+    return environment
 
 # SDL_GameController button identifiers. These make the Flip's built-in pad
 # and standard Bluetooth pads work directly, without relying on a separate
@@ -874,6 +895,12 @@ class SDLFrontEnd:
         init_flags = SDL_INIT_VIDEO if keyboard_bridge else (SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER)
         if self.sdl.SDL_Init(init_flags) != 0:
             raise RuntimeError(self.sdl.SDL_GetError().decode("utf-8", "replace"))
+        if not keyboard_bridge:
+            add_mapping = self.sdl.SDL_GameControllerAddMapping
+            add_mapping.argtypes = [ctypes.c_char_p]
+            add_mapping.restype = ctypes.c_int
+            for mapping in TOOL_PAD_MAPPINGS.splitlines():
+                add_mapping(mapping.encode('utf-8'))
         if self.ttf.TTF_Init() != 0:
             self.sdl.SDL_Quit()
             # SDL_ttf exposes its errors through SDL_GetError on the target;
@@ -1256,6 +1283,8 @@ class SDLFrontEnd:
         event = ctypes.create_string_buffer(64)
         while self.sdl.SDL_PollEvent(event):
             event_type = int.from_bytes(event.raw[0:4], "little")
+            if event_type == 0x200 and event.raw[12] in (1, 3, 5, 6, 9, 18):
+                return KEY_REDRAW
             if event_type == SDL_QUIT:
                 return KEY_ESCAPE
             if event_type == SDL_KEYDOWN:
@@ -1327,7 +1356,8 @@ def start_controller() -> Optional[subprocess.Popen]:
             "exec /usr/bin/gptokeyb -c /usr/share/butterflyos/save-trade.gptk"
         )
         return subprocess.Popen(["/bin/sh", "-c", command],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                env=tool_controller_environment())
     except OSError:
         return None
 

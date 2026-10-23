@@ -2,6 +2,35 @@
 
 Reviewed: 2026-10-23.
 
+## Pending next image: Bdex Gen 1 encounter lookup
+
+- Gen 1 species now offer Stored copies / Where to find, including species
+  with no stored copies. Choose a qualified English retail Red, Blue or Yellow
+  ROM (raw or single-ROM ZIP) to read grass/cave and Surfing locations/levels.
+- Gen 2/3 navigation stays unchanged. Fishing, gifts, trades, evolutions and
+  special encounters are explicitly excluded; no-result text avoids claiming
+  that a species cannot be obtained. No live game/progress tracking yet.
+- Encounter reader validates the entire map-pointer alias structure and ROM
+  content checksum before decoding; no filenames used as proof of game/version.
+- Seven encounter/navigation/control tests pass, including all three private original
+  ROM ZIPs and corrupt/ambiguous table rejection. Inspector and collection
+  regressions also pass. Package 2.6.53 includes reader and layout metadata.
+- Temporarily installed on the local test device and Bdex reopened. On-device
+  decoding passed for all three original ZIPs; all seven checked Gen 1 saves
+  and collection databases retained their hashes. The user confirmed the
+  corrected controls and location lookup working on the local test device.
+- Live follow-up: Gen 1 could show a black screen while its process remained
+  alive. Clear the render target explicitly and request a collection redraw
+  after SDL window exposure/resize events. Verified the actual Wayland output
+  with before/after screenshots; the fixed display shows the collection and
+  sprites, and redraw activity settles. Window-event regression test passes.
+- Follow-up physical-button report: original Flip SDL pad mappings used the
+  opposite A/B layout. Tool-local overrides for the two built-in pad GUIDs now
+  use physical A to confirm and B to cancel, for the keyboard bridge and native
+  SDL input. Shared controller databases/emulator mappings are unchanged;
+  external pad mappings are preserved. The user confirmed the live correction.
+- No image build or release has been started for this feature.
+
 ## Pending next image: Bdex graphical inspector
 
 - Summary, Stats and Details pages retain all previous inspector fields/history
@@ -19,8 +48,8 @@ Reviewed: 2026-10-23.
   passed for all three generations. Actual stored Gen 1/2/3 Pokémon were rendered
   at 640×480 and 1280×960; all three collection database hashes stayed unchanged.
 - The inspector is installed live on the local test device. Training mode is
-  explicitly labeled as training counters, not battle stats. Final user
-  acceptance remains pending. Included in onboarding package 2.6.52 for the
+  explicitly labeled as training counters, not battle stats. The user accepted
+  the inspector after live testing. Included in onboarding package 2.6.52 for the
   next full build; no new OS image has been built or released.
 
 ## Pending next image: Blink preview and GB/GBC ZIP handling
