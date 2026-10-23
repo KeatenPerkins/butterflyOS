@@ -2,6 +2,24 @@
 
 Reviewed: 2026-10-23.
 
+## Local test candidate: build 20261023
+
+- Built the complete Flip image from runtime source
+  `99717919eab6c5dd5964606f33dbd8ad044b95c8`, onboarding package 2.6.53.
+  All 669 main-image package steps passed after rebuilding the required
+  compatibility packages. This candidate is not a published stable release.
+- Delivered-image verification passed: flash/update checksums, complete gzip
+  integrity, GPT CRCs, read-only FAT/ext4 checks, matching KERNEL/SYSTEM payloads,
+  embedded source commit, exact Blink/Bdex files and encounter metadata,
+  controller/repaint fixes, Bslap backend hashes and Tools visibility, and
+  exclusion of ROM/save filenames. Normal RetroArch32/gpSP hashes are unchanged.
+- Flashed the backed-up 32 GB development card and verified all 2,198,863,872
+  image bytes by reading the card back. Raw-image SHA-256:
+  `252c934bfb06ea1df70120beaf4bde25aafe73f4ba5caff64a8add522549850c`.
+- Private build/flash reports, the previous card files, and the fresh-image
+  checklist are in `.cache/bdex-build-20261023/`. Fresh-image device testing
+  remains pending; the earlier live patches passed the user's checks.
+
 ## Pending next image: Bdex Gen 1 encounter lookup
 
 - Gen 1 species now offer Stored copies / Where to find, including species
@@ -29,7 +47,7 @@ Reviewed: 2026-10-23.
   use physical A to confirm and B to cancel, for the keyboard bridge and native
   SDL input. Shared controller databases/emulator mappings are unchanged;
   external pad mappings are preserved. The user confirmed the live correction.
-- No image build or release has been started for this feature.
+- Included in local test candidate 20261023; not published yet.
 
 ## Pending next image: Bdex graphical inspector
 
@@ -49,8 +67,8 @@ Reviewed: 2026-10-23.
   at 640×480 and 1280×960; all three collection database hashes stayed unchanged.
 - The inspector is installed live on the local test device. Training mode is
   explicitly labeled as training counters, not battle stats. The user accepted
-  the inspector after live testing. Included in onboarding package 2.6.52 for the
-  next full build; no new OS image has been built or released.
+  the inspector after live testing. First included in onboarding package 2.6.52;
+  retained in package 2.6.53 and local test candidate 20261023. Not published yet.
 
 ## Pending next image: Blink preview and GB/GBC ZIP handling
 
@@ -89,7 +107,7 @@ Reviewed: 2026-10-23.
   combinations from the original ZIPs, qualified Gen 2 ZIPs, staged and discarded
   a gift into a populated PC box, and inspected Crystal events through its ZIP.
   The inspected source saves remained unchanged.
-- Fixes introduced in onboarding package 2.6.51 are retained in 2.6.52 for the next full build.
+- Fixes introduced in onboarding package 2.6.51 are retained in 2.6.53 and local test candidate 20261023.
   Live test patches use temporary bind mounts and do not survive a reboot.
   These changes are not in the published v1.4.0 image.
 
