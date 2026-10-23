@@ -2,6 +2,28 @@
 
 Reviewed: 2026-10-23.
 
+## Pending next image: Blink review and controller follow-up
+
+- Blink, Bdex and Bslap now use mapped SDL input for their native menus.
+  Ignore the duplicate raw joystick events emitted for mapped controllers;
+  one physical A/B press must produce one action. Ignore keyboard repeats
+  across screen transitions. Blink A/B behavior passed live user testing.
+- Load saved SDL controller mappings before applying the two built-in Flip
+  GUID overrides. Controllers must currently be connected before opening
+  these tools; connecting another controller while a tool is open requires
+  reopening it. External-controller behavior needs a live candidate check.
+- Gift-ROM matching skips an unreadable candidate and continues searching
+  for the exact matching decompressed ROM digest. A damaged ZIP previously
+  hid a valid matching ROM later in the list; that failure was reproduced.
+- The Blink refresh row displays **Sprites** on the left and **Refresh Sprites**
+  on the right, preserving its existing internal action and routing.
+- Review checks passed: eight SDL input/mapping/label regressions, four
+  blank-text/save-label regressions, two Bdex refresh regressions, 48 raw/ZIP
+  gift comparisons, invalid-ZIP matching, and forced damaged-sprite repair
+  across Gen 1/2/3. Refresh opens no saves; fixture ROM hashes stayed unchanged.
+- These follow-up fixes are source changes for onboarding package 2.6.57;
+  the last flashed image predates them and still needs to be rebuilt/tested.
+
 ## Pending next image: lower minimum brightness
 
 - Keep the menu minimum at 5%, but lower its backlight lookup-table value

@@ -50,10 +50,12 @@ def main():
                     'rom_content_sha256': before}))
                 fake_save = ('/private/' + name + '.srm', 'PLAYER', name, [])
                 prepare_name = 'prepare_gen%d_gift' % generation
+                unreadable = Path(folder) / ('broken-' + name + '.zip')
+                unreadable.write_bytes(b'not a ZIP archive')
                 with patch.object(ui, 'notice'), \
                         patch.object(ui, 'choose_save', return_value=fake_save), \
                         patch.object(ui, 'ensure_sprite_cache', return_value=str(cache)), \
-                        patch.object(ui, '_rom_candidates', return_value=[str(zipped)]), \
+                        patch.object(ui, '_rom_candidates', return_value=[str(unreadable), str(zipped)]), \
                         patch.object(ui, 'choose_list', return_value=0), \
                         patch.object(ui, 'choose_copy_destination', return_value=(0, 0)), \
                         patch.object(ui, prepare_name, return_value=(None, 'test stop')) as prepare:
@@ -97,7 +99,7 @@ def main():
             assert 'exactly-one' in str(error)
         else:
             raise AssertionError('Ambiguous ZIP accepted')
-    print('PASS:', count, 'raw/ZIP gift comparisons, six ROM digests and modified-ROM refusals, Crystal ROM qualification, ambiguous ZIP refusal; source ROMs unchanged.')
+    print('PASS:', count, 'raw/ZIP gift comparisons, six ROM digests and modified-ROM refusals, invalid ZIPs skipped during matching, Crystal ROM qualification, ambiguous ZIP refusal; source ROMs unchanged.')
 
 
 if __name__ == '__main__':

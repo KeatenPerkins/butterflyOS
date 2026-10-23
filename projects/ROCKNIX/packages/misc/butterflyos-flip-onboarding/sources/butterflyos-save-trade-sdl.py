@@ -924,11 +924,7 @@ class SDLFrontEnd:
         if self.sdl.SDL_Init(init_flags) != 0:
             raise RuntimeError(self.sdl.SDL_GetError().decode("utf-8", "replace"))
         if not keyboard_bridge:
-            add_mapping = self.sdl.SDL_GameControllerAddMapping
-            add_mapping.argtypes = [ctypes.c_char_p]
-            add_mapping.restype = ctypes.c_int
-            for mapping in TOOL_PAD_MAPPINGS.splitlines():
-                add_mapping(mapping.encode('utf-8'))
+            self._load_controller_mappings()
         if self.ttf.TTF_Init() != 0:
             self.sdl.SDL_Quit()
             # SDL_ttf exposes its errors through SDL_GetError on the target;
@@ -1043,6 +1039,25 @@ class SDLFrontEnd:
         t.TTF_CloseFont.argtypes = [ctypes.c_void_p]
         t.TTF_RenderUTF8_Blended.argtypes = [ctypes.c_void_p, ctypes.c_char_p, SDL_Color]
         t.TTF_RenderUTF8_Blended.restype = ctypes.c_void_p
+
+    def _load_controller_mappings(self) -> None:
+        # Retain the user's external-controller mappings, then override only
+        # the Flip's built-in pad. AddMappingsFromFile is a C macro; use its
+        # exported RWops equivalent when calling SDL through ctypes.
+        rw_from_file = self.sdl.SDL_RWFromFile
+        rw_from_file.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
+        rw_from_file.restype = ctypes.c_void_p
+        load_mappings = self.sdl.SDL_GameControllerAddMappingsFromRW
+        load_mappings.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        load_mappings.restype = ctypes.c_int
+        stream = rw_from_file(b'/storage/.config/SDL-GameControllerDB/gamecontrollerdb.txt', b'rb')
+        if stream:
+            load_mappings(stream, 1)
+        add_mapping = self.sdl.SDL_GameControllerAddMapping
+        add_mapping.argtypes = [ctypes.c_char_p]
+        add_mapping.restype = ctypes.c_int
+        for mapping in TOOL_PAD_MAPPINGS.splitlines():
+            add_mapping(mapping.encode('utf-8'))
 
     def _open_input_devices(self) -> None:
         for index in range(self.sdl.SDL_NumJoysticks()):
@@ -1230,7 +1245,9 @@ class SDLFrontEnd:
 
     def draw_page(self, page: str, selected: int) -> None:
         title, prompt, items = PAGES[page]
-        self.draw_list(title, prompt, items, selected)
+        display_items = [("Sprites" if action == "refresh-sprites" else action, label)
+                         for action, label in items]
+        self.draw_list(title, prompt, display_items, selected)
 
     def draw_sprite_browser(self, save_name: str, cache_name: str,
                             records: list[dict], selected: int,
@@ -2621,9 +2638,18 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
         # GB/GBC cache directories use the input-file hash, while ROM identity
         # uses decompressed content. A ZIP's container hash cannot identify its ROM.
         expected_digest = manifest.get("rom_content_sha256") or manifest.get("rom_sha256")
-        rom = next(path for path in _rom_candidates(generation, destination[0])
-                   if rom_cache_digest(generation, path) == expected_digest)
-    except (OSError, ValueError, StopIteration):
+        rom = None
+        for path in _rom_candidates(generation, destination[0]):
+            try:
+                if rom_cache_digest(generation, path) == expected_digest:
+                    rom = path
+                    break
+            except (OSError, ValueError):
+                # One damaged/unreadable ROM must not hide a later match.
+                continue
+    except (OSError, ValueError):
+        rom = None
+    if rom is None:
         notice(frontend, "MATCHING ROM NEEDED", "The cached art's matching ROM was not found. No save was changed.")
         return
     choice = choose_list(frontend, "CHOOSE " + title,
