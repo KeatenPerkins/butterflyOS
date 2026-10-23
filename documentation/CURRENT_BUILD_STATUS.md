@@ -2,7 +2,33 @@
 
 Reviewed: 2026-10-23.
 
-## Pending next image: Blink review and controller follow-up
+## Qualified local candidate: build 20261023
+
+- Runtime source `404c29e3af7da12d5552bfa63ce9f696a76010f1`, onboarding
+  package 2.6.57. All 669 image-package steps passed, including the kernel
+  rebuild for the 2/255 brightness floor. Delivered files match the source;
+  the boot DTB is byte-identical to the working live 2/255 test candidate.
+- Image/update checksums, filesystem checks, source identity, tool/backend
+  payloads and full direct SD read-back passed. Raw-image SHA-256:
+  `4952f8d9ccc83d2702bb533e4fa3426ff62956f2e028309cb0ad412c595cb9af`.
+  The user reported all fresh-image checks passed on the local test device,
+  including controls, brightness and the original Blink regression scenario.
+- Private OTA qualification passed from build 20261022 to 20261023 using
+  the installed updater's validation/staging and real reboot installer.
+  Only network requests were redirected through a temporary private source;
+  public GitHub release discovery was not exercised or changed.
+- After OTA, KERNEL, SYSTEM and all four checked tool/UI files exactly match
+  this candidate. The live backlight floor is 2/255, staging/downloads are
+  cleaned up, the normal updater is restored, and no services failed.
+- Before/after library inventories match: 41,813 file names/sizes/links and
+  all 31 ordinary save-file hashes. Six other saved configuration/database
+  files retain their hashes. EmulationStation's only changed settings field
+  is LastSystem (Tools to Favorites); user preferences are preserved.
+- Private verification, flash reports and the manual checklist are in
+  `.cache/test-build-20261023-404c29e3af/`; OTA inventory, backups and results
+  are in `.cache/ota-private-20261023/`. This image is not published yet.
+
+## Included in candidate: Blink review and controller follow-up
 
 - Blink, Bdex and Bslap now use mapped SDL input for their native menus.
   Ignore the duplicate raw joystick events emitted for mapped controllers;
@@ -11,7 +37,7 @@ Reviewed: 2026-10-23.
 - Load saved SDL controller mappings before applying the two built-in Flip
   GUID overrides. Controllers must currently be connected before opening
   these tools; connecting another controller while a tool is open requires
-  reopening it. External-controller behavior needs a live candidate check.
+  reopening it. External-controller testing remains a separate hardware check.
 - Gift-ROM matching skips an unreadable candidate and continues searching
   for the exact matching decompressed ROM digest. A damaged ZIP previously
   hid a valid matching ROM later in the list; that failure was reproduced.
@@ -21,10 +47,10 @@ Reviewed: 2026-10-23.
   blank-text/save-label regressions, two Bdex refresh regressions, 48 raw/ZIP
   gift comparisons, invalid-ZIP matching, and forced damaged-sprite repair
   across Gen 1/2/3. Refresh opens no saves; fixture ROM hashes stayed unchanged.
-- These follow-up fixes are source changes for onboarding package 2.6.57;
-  the last flashed image predates them and still needs to be rebuilt/tested.
+- These follow-up fixes are included in onboarding package 2.6.57 and the
+  qualified local image above.
 
-## Pending next image: lower minimum brightness
+## Included in candidate: lower minimum brightness
 
 - Keep the menu minimum at 5%, but lower its backlight lookup-table value
   from PWM 3/255 to 2/255. The 800 Hz frequency and 20 ms startup delay stay
@@ -34,9 +60,10 @@ Reviewed: 2026-10-23.
   checks on the local test device. Testing 1/255 left the screen dark, so
   2/255 is the tested floor for this device.
 - Restored the 2/255 boot table and normal brightness after the 1/255 test.
-  This source change still needs a rebuilt-image test before publication.
+  The rebuilt image and private OTA installation both delivered the 2/255
+  table; the user confirmed brightness operation on the fresh image.
 
-## Local test candidate: build 20261023
+## Superseded initial candidate: build 20261023
 
 - Built the complete Flip image from runtime source
   `99717919eab6c5dd5964606f33dbd8ad044b95c8`, onboarding package 2.6.53.
@@ -50,11 +77,11 @@ Reviewed: 2026-10-23.
 - Flashed the backed-up 32 GB development card and verified all 2,198,863,872
   image bytes by reading the card back. Raw-image SHA-256:
   `252c934bfb06ea1df70120beaf4bde25aafe73f4ba5caff64a8add522549850c`.
-- Private build/flash reports, the previous card files, and the fresh-image
-  checklist are in `.cache/bdex-build-20261023/`. Fresh-image device testing
-  remains pending; the earlier live patches passed the user's checks.
+- Private build/flash reports and the previous card files are in
+  `.cache/bdex-build-20261023/`. This initial image failed physical-control
+  testing and was superseded by the qualified candidate documented above.
 
-## Pending next image: Bdex Gen 1 encounter lookup
+## Included in candidate: Bdex Gen 1 encounter lookup
 
 - Gen 1 species now offer Stored copies / Where to find, including species
   with no stored copies. Choose a qualified English retail Red, Blue or Yellow
@@ -83,7 +110,7 @@ Reviewed: 2026-10-23.
   external pad mappings are preserved. The user confirmed the live correction.
 - Included in local test candidate 20261023; not published yet.
 
-## Pending next image: Bdex graphical inspector
+## Included in candidate: Bdex graphical inspector
 
 - Summary, Stats and Details pages retain all previous inspector fields/history
   while adding the ROM-derived sprite, radar graph and numeric stat values.
@@ -104,7 +131,7 @@ Reviewed: 2026-10-23.
   the inspector after live testing. First included in onboarding package 2.6.52;
   retained in package 2.6.53 and local test candidate 20261023. Not published yet.
 
-## Pending next image: Blink preview and GB/GBC ZIP handling
+## Included in candidate: Blink preview and GB/GBC ZIP handling
 
 - Add **Refresh Sprites** to Blink's main menu. Choose a generation and a
   checksum-qualified English ROM, then force a rebuild of the shared sprite/name
