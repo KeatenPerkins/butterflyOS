@@ -56,6 +56,11 @@ remain in [Known issues](../documentation/KNOWN_ISSUES.md).
 
 ## Possible future work
 
+- **Background music during games (maybe):** play the user's Media music while
+  optionally muting game audio, with controller controls for pause/resume,
+  previous/next track and separate music volume. Investigate audio sharing,
+  hotkey conflicts, sleep/output changes and performance before committing to
+  implementation. No work or release is scheduled.
 - **Additional Miyoo devices:** assess hardware samples and documentation,
   then establish device-specific builds, safe recovery and physical validation.
   No additional model is promised or supported by this roadmap.
