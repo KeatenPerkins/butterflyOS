@@ -2,6 +2,27 @@
 
 Reviewed: 2026-10-23.
 
+## Pending next image: Bdex graphical inspector
+
+- Summary, Stats and Details pages retain all previous inspector fields/history
+  while adding the ROM-derived sprite, radar graph and numeric stat values.
+  L/R or Left/Right changes pages; Up/Down changes graph mode or scrolls Details.
+- Read-only calculations distinguish Gen 1's five stats, Gen 2's shared Special
+  DV/stat experience, and Gen 3 IVs/EVs/nature/Shedinja. Graphs label their mode
+  and scale; current-level stat ceilings are shared rather than per-Pokémon.
+- GB/GBC cache version 8 and Gen 3 version 6 include ROM-derived base stats;
+  older caches offer explicit ROM refresh without reimporting Pokémon. No base
+  stat tables, sprites, ROMs or user records are bundled in source.
+- Known-value stat/rounding and page-navigation tests passed. Existing Bdex
+  tests passed (37 safety tests with three private-fixture tests skipped,
+  two refresh tests, seven viewer tests). Forced cache rebuild/repair regressions
+  passed for all three generations. Actual stored Gen 1/2/3 Pokémon were rendered
+  at 640×480 and 1280×960; all three collection database hashes stayed unchanged.
+- The inspector is installed live on the local test device. Training mode is
+  explicitly labeled as training counters, not battle stats. Final user
+  acceptance remains pending. Included in onboarding package 2.6.52 for the
+  next full build; no new OS image has been built or released.
+
 ## Pending next image: Blink preview and GB/GBC ZIP handling
 
 - Add **Refresh Sprites** to Blink's main menu. Choose a generation and a
@@ -39,7 +60,7 @@ Reviewed: 2026-10-23.
   combinations from the original ZIPs, qualified Gen 2 ZIPs, staged and discarded
   a gift into a populated PC box, and inspected Crystal events through its ZIP.
   The inspected source saves remained unchanged.
-- Onboarding package 2.6.51 includes these fixes for the next full build.
+- Fixes introduced in onboarding package 2.6.51 are retained in 2.6.52 for the next full build.
   Live test patches use temporary bind mounts and do not survive a reboot.
   These changes are not in the published v1.4.0 image.
 

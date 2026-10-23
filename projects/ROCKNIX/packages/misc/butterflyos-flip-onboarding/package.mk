@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.51"
+PKG_VERSION="2.6.52"
 PKG_LICENSE="GPL-2.0-or-later AND MIT"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
@@ -93,6 +93,7 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/sources/butterflyos-bdex-web.py" "${INSTALL}/usr/bin/"
   cp -a "${PKG_DIR}/sources/butterflyos-bdex.py" \
         "${PKG_DIR}/sources/butterflyos-bdex-sdl.py" \
+        "${PKG_DIR}/sources/butterflyos-bdex-inspector.py" \
         "${PKG_DIR}/sources/butterflyos-bslap.py" \
         "${PKG_DIR}/sources/butterflyos-bslap-gb.py" \
         "${PKG_DIR}/sources/butterflyos-save-backup.py" \

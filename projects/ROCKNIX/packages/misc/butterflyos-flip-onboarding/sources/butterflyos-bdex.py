@@ -563,7 +563,8 @@ def cache_info(cache):
             'names': labels, 'internal': {v: k for k, v in mapping.items()}, 'moves': names.get('moves', {}),
             'items': names.get('items', {}), 'gender_ratios': names.get('gender_ratios', {}),
             'types': names.get('types', {}), 'type_names': names.get('type_names', {}),
-            'growth_rates': names.get('growth_rates', {}), 'experience_tables': names.get('experience_tables', {})}
+            'growth_rates': names.get('growth_rates', {}), 'experience_tables': names.get('experience_tables', {}),
+            'base_stats': names.get('base_stats', {})}
 
 
 def import_bundle(native, path, cache):

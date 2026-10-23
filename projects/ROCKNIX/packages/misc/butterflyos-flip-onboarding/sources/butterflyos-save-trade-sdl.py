@@ -1267,6 +1267,8 @@ class SDLFrontEnd:
                     CONTROLLER_B: KEY_ESCAPE,
                     CONTROLLER_BACK: KEY_ESCAPE,
                     CONTROLLER_START: KEY_RETURN,
+                    9: KEY_LEFT,   # SDL_CONTROLLER_BUTTON_LEFTSHOULDER
+                    10: KEY_RIGHT, # SDL_CONTROLLER_BUTTON_RIGHTSHOULDER
                     CONTROLLER_DPAD_UP: KEY_UP,
                     CONTROLLER_DPAD_DOWN: KEY_DOWN,
                     CONTROLLER_DPAD_LEFT: KEY_LEFT,

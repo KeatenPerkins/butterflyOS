@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXTRACTOR_VERSION = "5"
+EXTRACTOR_VERSION = "6"
 DEFAULT_CACHE_ROOT = "/storage/.config/butterflyos/save-trade/sprite-cache"
 GBA_BASE = 0x08000000
 
@@ -350,7 +350,7 @@ def collection_names(data):
                if 1 <= dex <= 386}
     if len(mapping) != 386 or set(mapping.values()) != set(range(1, 387)):
         raise CacheError('invalid-gen3-national-mapping')
-    names, types, ratios, growth = {}, {}, {}, {}
+    names, types, ratios, growth, base_stats = {}, {}, {}, {}, {}
     for internal, dex in mapping.items():
         key = str(dex)
         name = decode_name(data[names_at + internal * 11:names_at + (internal + 1) * 11])
@@ -358,6 +358,7 @@ def collection_names(data):
             raise CacheError('invalid-gen3-species-name')
         names[key] = name
         stats = data[stats_at + internal * 28:stats_at + (internal + 1) * 28]
+        base_stats[key] = list(stats[:6])
         types[key] = list(dict.fromkeys(stats[6:8]))
         ratios[key], growth[key] = stats[16], stats[19]
     encoded = lambda text: bytes(ord(c) - ord('A') + 0xbb for c in text)
@@ -372,7 +373,7 @@ def collection_names(data):
               for rate in set(growth.values())}
     return {'species': names, 'internal_to_national': {str(k): v for k, v in mapping.items()},
             'types': types, 'type_names': type_names, 'gender_ratios': ratios,
-            'growth_rates': growth, 'experience_tables': tables}
+            'growth_rates': growth, 'experience_tables': tables, 'base_stats': base_stats}
 
 
 def cache_rom(rom_path, cache_root, force=False):

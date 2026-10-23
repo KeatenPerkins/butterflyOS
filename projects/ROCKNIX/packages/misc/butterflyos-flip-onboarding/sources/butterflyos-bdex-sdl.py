@@ -21,6 +21,7 @@ def load(name, path):
 
 HERE = Path(__file__).resolve().parent
 engine = load('bdex_engine', HERE / 'butterflyos-bdex.py')
+inspector_ui = load('bdex_inspector', HERE / 'butterflyos-bdex-inspector.py')
 
 
 def database_backups(root):
@@ -454,7 +455,7 @@ class Bdex:
         names, info = {}, {}
         try:
             info = engine.cache_info(record['cache'])
-            names = info['moves']
+            names = info.get('moves', {})
         except self.error_types:
             pass
         lines = [record['name'], 'Imported from: ' + record['game'].title(),
@@ -492,7 +493,50 @@ class Bdex:
             if event['action'] == 'export':
                 detail = json.loads(event['detail'])
                 lines.append('%s | Box %d, slot %d' % (detail['destination'], detail['box'], detail['slot']))
-        self.ui.message('STORED POKEMON #%d' % ident, '\n'.join(lines))
+        image = self.sprite(record['cache'], record['species'], record.get('shiny', False))
+        page, mode, offset, dirty = 0, 0, 0, True
+        maximum = 0
+        link = self.blink
+        while True:
+            if dirty:
+                maximum = inspector_ui.draw(self.front, record, info, image, ident,
+                                            page, mode, lines, offset)
+                dirty = False
+            key = self.front.next_key()
+            if key is None:
+                time.sleep(0.02)
+                continue
+            if key in (link.KEY_ESCAPE, link.KEY_B, ord('B'), link.KEY_CANCEL, ord('X'), link.KEY_Q, ord('Q')):
+                return
+            if key in (link.KEY_LEFT, ord('h')):
+                page, offset = (page - 1) % 3, 0
+            elif key in (link.KEY_RIGHT, ord('l')):
+                page, offset = (page + 1) % 3, 0
+            elif key in (link.KEY_UP, link.KEY_DOWN):
+                direction = 1 if key == link.KEY_DOWN else -1
+                if page == 2:
+                    offset = min(maximum, max(0, offset + direction))
+                else:
+                    mode = (mode + direction) % 3
+            elif key in (link.KEY_RETURN, link.KEY_A, ord('A'), link.KEY_CONFIRM, ord('Z')):
+                if page == 2:
+                    return
+                if not info.get('base_stats'):
+                    cache = self.prepare_cache(record.get('source_path', ''), force=True)
+                    if cache:
+                        refreshed = engine.cache_info(cache)
+                        if refreshed['rom_digest'] != record.get('rom_digest'):
+                            self.ui.message('MATCHING ROM NEEDED', 'Choose the same game and revision used when this Pokemon was imported. The stored Pokemon was not changed.')
+                        else:
+                            self.store.reconnect_cache(cache)
+                            info = refreshed
+                            self.sprites.clear()
+                            image = self.sprite(cache, record['species'], record.get('shiny', False))
+                else:
+                    mode = (mode + 1) % 3
+            else:
+                continue
+            dirty = True
 
     def copies(self, dex):
         position = 0

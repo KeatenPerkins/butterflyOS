@@ -103,6 +103,35 @@ otherwise the oldest trashed copy, and retains the combined history. Distinct
 native records are left alone. Older whole-database backups can contain the
 original duplicates; opening them in the updated app applies the same rule.
 
+### Inspector pages and stat graphs (next release after v1.4.0)
+
+Inspect opens a **Summary** with the ROM-derived sprite, trainer/source details,
+moves and a radar graph. **L/R** or **Left/Right** switches between **Summary**,
+**Stats** and **Details**. **Up/Down** changes the graph mode on Summary/Stats;
+on Details it scrolls the original full information and history. **B** returns.
+
+- **Calculated stats:** HP and other stats from level, ROM-derived base stats,
+  IVs/DVs and training; Gen 3 includes nature and Shedinja's fixed HP. These are
+  recalculated out-of-battle values, not live HP or battle boosts. At a given
+  level all Pokémon use the same labeled graph ceiling, rather than each one's
+  highest stat stretching to the edge.
+- **IVs/DVs:** Gen 3 uses six values on a 0–31 scale. Gen 1/2 DVs use 0–15,
+  with HP derived from the other DVs. Gen 2's Special DV applies to both Special
+  Attack and Special Defense.
+- **Training:** original Gen 3 EVs use a 0–255 per-stat scale and display the
+  total against 510; 252 is the effective per-stat maximum for stat calculation.
+  Gen 1/2 use their original 0–65535 stat experience, without modern EV caps.
+  Gen 2's Special stat experience applies to both Special stats.
+
+Gen 1 uses a five-point graph with one Special stat; Gen 2/3 use six points.
+Numbers remain visible alongside the graph. Older caches may lack base stats:
+press **A Refresh ROM data** and choose the exact matching ROM, or use Bdex's
+**Options → Refresh Sprites**. This updates ROM-derived cache data/references;
+it does not alter native Pokémon data or game saves. No additional import is
+needed. **A** otherwise cycles graph modes, or returns from Details.
+
+This inspector is available in live testing and the next image, not v1.4.0.
+
 Inspect a stored copy to see its moves and PP/PP Ups, original trainer and ID,
 level, experience, stat experience, DVs, source position, import date and history.
 Gen 1 also shows archived HP/status; it has no held-item field or shiny designation.

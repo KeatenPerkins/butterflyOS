@@ -25,7 +25,7 @@ import zipfile
 from pathlib import Path
 
 
-VERSION = "7"
+VERSION = "8"
 DEFAULT_CACHE_ROOT = "/storage/.config/butterflyos/save-trade/sprite-cache"
 
 
@@ -250,7 +250,8 @@ def gb_name_table(data, first_encoded, expected_second, count):
     raise CacheError("unexpected-gb-name-table")
 
 
-def write_name_cache(data, destination, generation, species_ids=None, types=None, gender_ratios=None):
+def write_name_cache(data, destination, generation, species_ids=None, types=None, gender_ratios=None,
+                     base_stats=None, growth_rates=None):
     """Cache labels derived from this user-owned ROM; ship no game text."""
     pound = bytes((0x8F, 0x8E, 0x94, 0x8D, 0x83))
     master_ball = bytes((0x8C, 0x80, 0x92, 0x93, 0x84, 0x91, 0x7F,
@@ -264,6 +265,8 @@ def write_name_cache(data, destination, generation, species_ids=None, types=None
         "generation": generation,
         "moves": {str(index + 1): name for index, name in enumerate(moves)},
         "items": {str(index + 1): name for index, name in enumerate(items)},
+        "base_stats": base_stats or {},
+        "growth_rates": growth_rates or {},
     }
     if species_ids:
         # Gen I save files use an internal species order. Retain only the
@@ -319,12 +322,14 @@ def gen1_cache(rom_path, data, title, destination):
                  (100, 117, 139, 255), (18, 29, 46, 255))
     front = destination / "front"
     front.mkdir()
-    types = {}
+    types, base_stats, growth_rates = {}, {}, {}
     for dex in range(1, 152):
         stats = mew if dex == 151 and mew >= 0 else base + (dex - 1) * 28
         if stats + 15 > len(data):
             raise CacheError("truncated-gen1-base-stats")
         types[str(dex)] = list(dict.fromkeys(data[stats + 6:stats + 8]))
+        base_stats[str(dex)] = list(data[stats + 1:stats + 6])
+        growth_rates[str(dex)] = data[stats + 19]
         internal = internal_by_dex[dex]
         pointer = struct.unpack_from("<H", data, stats + 11)[0]
         if internal == 0x15 and mew >= 0:
@@ -346,7 +351,8 @@ def gen1_cache(rom_path, data, title, destination):
         # Save IDs are Gen I internal IDs, not National Dex IDs.
         write_png(front / f"{internal:03d}.png", width, height, pixels, grayscale)
     write_name_cache(data, destination, 1,
-                     {internal: dex for dex, internal in internal_by_dex.items()}, types=types)
+                     {internal: dex for dex, internal in internal_by_dex.items()}, types=types,
+                     base_stats=base_stats, growth_rates=growth_rates)
     return {"generation": 1, "game_title": title, "species_count": 151,
             "variants": ["front"], "save_species_ids": "gen1-internal",
             "name_cache": "names.json"}
@@ -467,9 +473,11 @@ def gen2_cache(data, title, destination):
     crystal = title == "PM_CRYSTAL"
     normal_dir, shiny_dir = destination / "front", destination / "front-shiny"
     normal_dir.mkdir(); shiny_dir.mkdir()
-    types, ratios = {}, {}
+    types, ratios, base_stats, growth_rates = {}, {}, {}, {}
     for species in range(1, 252):
         base = stats + (species - 1) * 32
+        base_stats[str(species)] = list(data[base + 1:base + 7])
+        growth_rates[str(species)] = data[base + 22]
         types[str(species)] = list(dict.fromkeys(data[base + 7:base + 9]))
         ratios[str(species)] = data[base + 13]
         at = stats + (species - 1) * 32 + 17
@@ -489,7 +497,8 @@ def gen2_cache(data, title, destination):
     # so cross-generation migration can validate a selected Pokémon without
     # guessing or shipping game data.
     write_name_cache(data, destination, 2,
-                     {species: species for species in range(1, 252)}, types=types, gender_ratios=ratios)
+                     {species: species for species in range(1, 252)}, types=types, gender_ratios=ratios,
+                     base_stats=base_stats, growth_rates=growth_rates)
     return {"generation": 2, "game_title": label, "species_count": 251,
             "variants": ["front", "front-shiny"], "save_species_ids": "national",
             "name_cache": "names.json"}
