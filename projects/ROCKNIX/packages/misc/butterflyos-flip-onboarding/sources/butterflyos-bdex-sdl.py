@@ -841,7 +841,7 @@ def main():
     common = load('bdex_tool_ui', HERE / 'butterflyos-tool-ui.py')
     ui, app = None, None
     try:
-        ui = common.ToolUI('Bdex')
+        ui = common.ToolUI('Bdex', native_controller=True)
         try:
             store = engine.Store()
         except (sqlite3.DatabaseError, engine.BdexError) as error:

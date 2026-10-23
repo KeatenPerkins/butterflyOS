@@ -451,7 +451,7 @@ def load_ui():
     spec = importlib.util.spec_from_file_location('bslap_tool_ui', path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.ToolUI('Bslap')
+    return module.ToolUI('Bslap', native_controller=True)
 
 
 def choose_game(ui, games):
