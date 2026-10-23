@@ -2,6 +2,18 @@
 
 Reviewed: 2026-10-23.
 
+## Pending next image: lower minimum brightness
+
+- Keep the menu minimum at 5%, but lower its backlight lookup-table value
+  from PWM 3/255 to 2/255. The 800 Hz frequency and 20 ms startup delay stay
+  unchanged; index zero still turns the backlight off.
+- The live device-tree test confirmed 2/255 in the running kernel. The user
+  reported successful dimming, lid reopening and full power-off/power-on
+  checks on the local test device. Testing 1/255 left the screen dark, so
+  2/255 is the tested floor for this device.
+- Restored the 2/255 boot table and normal brightness after the 1/255 test.
+  This source change still needs a rebuilt-image test before publication.
+
 ## Local test candidate: build 20261023
 
 - Built the complete Flip image from runtime source

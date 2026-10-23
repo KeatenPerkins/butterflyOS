@@ -238,17 +238,18 @@
 	 *   12500 Hz  period=80000 ns   brightness 10-100
 	 *   25000 Hz  period=40000 ns   brightness 45-90
 	 *   40000 Hz  period=25000 ns   brightness 65-115  (stock default in MainUI)
-	 * Brightness index 0 disables the backlight. PWM 3/255 at 800 Hz
-	 * passed live dimming, lid reopen and cold-boot testing on the Flip V2. */
+	 * Brightness index 0 disables the backlight. PWM 2/255 at 800 Hz
+	 * passed live dimming, lid reopen and cold-boot testing on the Flip V2.
+	 * PWM 1/255 left the screen dark during live testing. */
 	backlight: backlight {
 		compatible = "pwm-backlight";
 		pwms = <&pwm4 0 1250000 0>;
 		post-pwm-on-delay-ms = <20>;
 		brightness-levels = <
-			  0   3   3   3   3   3   3   3
-			  3   3   3   3   3   3   3   3
-			  3   3   3   3   3   3   3   3
-			  3  15  16  17  18  19  20  21
+			  0   2   2   2   2   2   2   2
+			  2   2   2   2   2   2   2   2
+			  2   2   2   2   2   2   2   2
+			  2  15  16  17  18  19  20  21
 			 22  23  24  25  26  27  28  29
 			 30  31  32  33  34  35  36  37
 			 38  39  40  41  42  43  44  46
