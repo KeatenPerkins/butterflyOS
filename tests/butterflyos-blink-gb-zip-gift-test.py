@@ -3,9 +3,11 @@
 import argparse
 import hashlib
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import zipfile
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = ROOT / 'projects/ROCKNIX/packages/misc/butterflyos-flip-onboarding/sources'
@@ -39,6 +41,27 @@ def main():
                     archive.writestr('readme.txt', 'Not a ROM')
                     archive.write(raw, 'nested/' + raw.name)
                 assert ui.rom_cache_digest(generation, str(zipped)) == before
+                # Exercise the full gift routing with the real ZIP reader and
+                # cache metadata whose container/content hashes are different.
+                cache = Path(folder) / (name + '-cache')
+                cache.mkdir()
+                (cache / 'manifest.json').write_text(json.dumps({
+                    'rom_sha256': hashlib.sha256(zipped.read_bytes()).hexdigest(),
+                    'rom_content_sha256': before}))
+                fake_save = ('/private/' + name + '.srm', 'PLAYER', name, [])
+                prepare_name = 'prepare_gen%d_gift' % generation
+                with patch.object(ui, 'notice'), \
+                        patch.object(ui, 'choose_save', return_value=fake_save), \
+                        patch.object(ui, 'ensure_sprite_cache', return_value=str(cache)), \
+                        patch.object(ui, '_rom_candidates', return_value=[str(zipped)]), \
+                        patch.object(ui, 'choose_list', return_value=0), \
+                        patch.object(ui, 'choose_copy_destination', return_value=(0, 0)), \
+                        patch.object(ui, prepare_name, return_value=(None, 'test stop')) as prepare:
+                    if generation == 1:
+                        ui.gen1_gift_workflow(None)
+                    else:
+                        ui.gen2_gift_workflow(None)
+                    prepare.assert_called_once()
                 presets = module.PRESETS if generation == 1 else ['mew', 'odd-egg-pichu']
                 for preset in presets:
                     if preset not in module.PRESETS:

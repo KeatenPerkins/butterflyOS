@@ -2490,8 +2490,11 @@ def generated_gift_workflow(frontend: SDLFrontEnd, generation: int, stadium: boo
     try:
         with open(os.path.join(cache, "manifest.json"), encoding="utf-8") as handle:
             manifest = json.load(handle)
+        # GB/GBC cache directories use the input-file hash, while ROM identity
+        # uses decompressed content. A ZIP's container hash cannot identify its ROM.
+        expected_digest = manifest.get("rom_content_sha256") or manifest.get("rom_sha256")
         rom = next(path for path in _rom_candidates(generation, destination[0])
-                   if rom_cache_digest(generation, path) == manifest.get("rom_sha256"))
+                   if rom_cache_digest(generation, path) == expected_digest)
     except (OSError, ValueError, StopIteration):
         notice(frontend, "MATCHING ROM NEEDED", "The cached art's matching ROM was not found. No save was changed.")
         return

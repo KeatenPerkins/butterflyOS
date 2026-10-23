@@ -16,6 +16,14 @@ Reviewed: 2026-10-23.
   generation and Crystal event validation now use the existing bounded,
   single-ROM ZIP reader, retaining exact retail ROM checksum qualification.
   The previous paths hashed/read the ZIP container and rejected valid games.
+- Match gift ROMs against the cache's `rom_content_sha256`, with a fallback
+  for older manifests. GB/GBC ZIP caches retain a container hash for their
+  directory identity; comparing that with the ROM-content hash wrongly
+  reported a missing match after a successful sprite-cache rebuild.
+  The local test device's personal Blue save passed the full original-ZIP,
+  native gift preparation, sprite-preview and Cancel path with its original
+  save checksum unchanged. Six raw/ZIP routing regressions also cover this
+  distinction through the Gen 1/2 gift menus.
 - Three blank-text regressions and 48 raw/ZIP gift equivalence comparisons
   passed, along with six ROM digest checks, modified-ROM refusals, Crystal ROM
   qualification and ambiguous-ZIP refusal. The 11 Bslap regressions passed.
