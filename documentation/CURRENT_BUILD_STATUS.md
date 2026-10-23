@@ -4,6 +4,10 @@ Reviewed: 2026-10-23.
 
 ## Pending next image: Blink preview and GB/GBC ZIP handling
 
+- Show trainer names first and retain full wrapped filenames in gift-save
+  selection. Long original ROM filenames previously hid trainer identities
+  behind a 58-character truncation, making personal saves hard to distinguish
+  from development saves. Gen 1 local selection also puts the trainer first.
 - Skip empty text lines in the shared SDL renderer. A Gen 1 party preview with
   no optional level/nature text previously exited to the dialog fallback with
   `Text has zero width`. The old failure and corrected path were reproduced

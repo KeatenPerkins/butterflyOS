@@ -1731,8 +1731,8 @@ def choose_save(frontend: SDLFrontEnd, generation: int, title: str,
     items = []
     for path, trainer, save_type, records in saves:
         card = "Game Card" if path.startswith("/storage/games-external/") else "OS Card"
-        label = "%s: %s | %s | PC %d" % (card, os.path.basename(path), trainer, len(records))
-        items.append((save_type[:13].upper(), label[:58]))
+        label = "%s | %s | %s | PC %d" % (trainer, card, os.path.basename(path), len(records))
+        items.append((save_type[:13].upper(), label))
     choice = choose_list(frontend, title,
                          "Choose a Generation %d save. B returns." % generation, items)
     return saves[choice] if choice is not None else None
@@ -3286,7 +3286,7 @@ def choose_gen1_local_save(frontend: SDLFrontEnd) -> Optional[tuple[str, str, st
         for path, trainer, _save_type, records in saves:
             card = "Game Card" if path.startswith("/storage/games-external/") else "OS Card"
             game = os.path.splitext(os.path.basename(path))[0]
-            items.append(("GAME", "%s | %s | %s | PC %d" % (game, trainer, card, len(records))))
+            items.append(("GAME", "%s | %s | %s | PC %d" % (trainer, game, card, len(records))))
         items.extend([("GEN 1 GIFTS", "Six generated event gifts"),
                       ("STADIUM GIFTS", "Amnesia Psyduck and eight Castle gifts")])
         prompt = ("Choose a game to trade/copy, or a gift option. B returns." if saves else

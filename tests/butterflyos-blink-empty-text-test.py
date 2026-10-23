@@ -3,7 +3,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 SOURCE = Path(__file__).resolve().parents[1] / 'projects/ROCKNIX/packages/misc/butterflyos-flip-onboarding/sources/butterflyos-save-trade-sdl.py'
 spec = importlib.util.spec_from_file_location('blink_ui', SOURCE)
@@ -43,6 +43,17 @@ class BlankTextRegression(unittest.TestCase):
         self.front.draw_sprite_browser('Save', 'Party is read-only', [record], 0, None)
         self.assertIn('TEST', self.rendered)
         self.front.sdl.SDL_RenderPresent.assert_called_once()
+
+    def test_gift_save_label_keeps_trainer_and_full_filename(self):
+        filename = 'Pokemon - Blue Version (USA, Europe) (SGB Enhanced).srm'
+        save = ('/storage/roms/gb/' + filename, 'KeatenB', 'Red/Blue', [])
+        with patch.object(ui, 'generation_saves', return_value=[save]), \
+                patch.object(ui, 'choose_list', return_value=0) as menu:
+            self.assertEqual(ui.choose_save(None, 1, 'GIFT DESTINATION SAVE'), save)
+        label = menu.call_args.args[3][0][1]
+        self.assertTrue(label.startswith('KeatenB | OS Card | '))
+        self.assertIn(filename, label)
+        self.assertTrue(label.endswith('PC 0'))
 
 
 if __name__ == '__main__':
