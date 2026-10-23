@@ -89,6 +89,7 @@ PAGES = {
         [
             ("local", "Local transfer"),
             ("remote", "Another ButterflyOS device"),
+            ("refresh-sprites", "Refresh Sprites"),
             ("about", "How Blink works"),
             ("close", "Back to Tools"),
         ],
@@ -1830,6 +1831,57 @@ def ensure_sprite_cache(frontend: SDLFrontEnd, generation: int, save_path: str) 
     return cache
 
 
+def refresh_sprites(frontend: SDLFrontEnd) -> None:
+    """Explicitly rebuild one supported ROM's shared cache, without opening saves."""
+    choice = choose_list(frontend, "REFRESH SPRITES",
+                         "Choose a generation, then the ROM to rebuild. Saves stay unchanged. B returns.",
+                         [("GEN 1", "Red / Blue / Yellow"),
+                          ("GEN 2", "Gold / Silver / Crystal"),
+                          ("GEN 3", "Ruby / Sapphire / Emerald / FireRed / LeafGreen")])
+    if choice is None:
+        return
+    generation = choice + 1
+    directory = os.path.dirname(__file__)
+    def load(name: str):
+        spec = importlib.util.spec_from_file_location("blink_refresh_" + name,
+                                                     os.path.join(directory, name + ".py"))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    cache_tool = load("butterflyos-gen3-sprite-cache" if generation == 3
+                      else "butterflyos-gb-sprite-cache")
+    gifts = load("butterflyos-gen%d-gift" % generation)
+    supported = gifts.ROM_PROFILES if generation == 3 else gifts.SUPPORTED_ROMS
+    candidates = []
+    for rom in _rom_candidates(generation, ""):
+        try:
+            data = cache_tool.read_rom_info(rom)[0] if generation == 3 else cache_tool.read_rom(rom)
+            if hashlib.sha256(data).hexdigest() in supported:
+                candidates.append(rom)
+        except (OSError, ValueError, cache_tool.CacheError):
+            continue
+    if not candidates:
+        notice(frontend, "MATCHING ROM NEEDED",
+               "Add a supported English retail Gen %d ROM to its game folder. Raw ROMs and ZIPs containing one ROM are supported. No save is required or changed." % generation)
+        return
+    selection = choose_list(frontend, "CHOOSE ROM TO REFRESH",
+                            "Rebuild this game's sprites and names for Blink and Bdex. B cancels.",
+                            [("GAME CARD" if path.startswith("/storage/games-external/") else "OS CARD",
+                              os.path.basename(path)) for path in candidates])
+    if selection is None:
+        return
+    rom = candidates[selection]
+    frontend.draw_list("REFRESHING SPRITES", "Reading your ROM. Game saves stay unchanged.",
+                       [("PLEASE WAIT", os.path.basename(rom))], 0, "Working…")
+    try:
+        cache_tool.cache_rom(rom, STATE_ROOT + "/sprite-cache", force=True)
+    except (OSError, ValueError, cache_tool.CacheError) as error:
+        notice(frontend, "REFRESH FAILED", "%s\n\nNo game save was changed." % error)
+        return
+    notice(frontend, "SPRITES REFRESHED",
+           "Sprites and names were rebuilt from %s. Blink and Bdex share this cache. Refresh an open web viewer page to reload its images. Repeat for other games if needed. Game saves are unchanged." % os.path.basename(rom))
+
+
 def _load_rom_names(cache: Optional[str]) -> dict:
     """Load labels extracted locally from a supported user-owned ROM."""
     if not cache:
@@ -3439,6 +3491,9 @@ def main() -> int:
                     return 0
                 if action == "sprites":
                     sprite_browser(frontend)
+                    continue
+                if action == "refresh-sprites":
+                    refresh_sprites(frontend)
                     continue
                 if action == "local":
                     debug("main selected local transfer")

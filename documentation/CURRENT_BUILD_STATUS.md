@@ -4,6 +4,14 @@ Reviewed: 2026-10-23.
 
 ## Pending next image: Blink preview and GB/GBC ZIP handling
 
+- Add **Refresh Sprites** to Blink's main menu. Choose a generation and a
+  checksum-qualified English ROM, then force a rebuild of the shared sprite/name
+  cache. Raw and single-ROM ZIP inputs use existing readers. No save is required
+  or opened; missing ROMs and cancellation return safely.
+  Menu routing and forced damaged-sprite repairs passed for all three
+  generations. The live action rebuilt all 151 Blue sprites and names from
+  the original ZIP on the local test device; its ROM and all 16 adjacent saves
+  retained their checksums.
 - Show trainer names first and retain full wrapped filenames in gift-save
   selection. Long original ROM filenames previously hid trainer identities
   behind a 58-character truncation, making personal saves hard to distinguish

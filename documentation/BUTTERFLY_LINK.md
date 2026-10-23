@@ -697,6 +697,21 @@ can show normal/shiny artwork. Gen I/II sprites have a light-grey backing.
 Some move/item details may retain numeric IDs when name lookup is unavailable.
 No Pokémon sprite cache, ROM, or save is bundled in the image.
 
+### Refresh Sprites (next release after v1.4.0)
+
+If sprites are missing or damaged, open **Tools → Blink → Refresh Sprites**.
+Choose **Gen 1**, **Gen 2** or **Gen 3**, then select the supported matching ROM.
+Raw ROMs and ZIP archives containing one ROM are supported. Wait for
+**Sprites Refreshed**, then return to your transfer or gift workflow. Repeat
+for another game if needed; a save file is not required to refresh artwork.
+
+This forcibly rebuilds the selected ROM's shared sprites and names rather than
+reusing an existing cache. Blink and Bdex can reuse that cache. Game saves and
+Pokémon records are unchanged. Refresh an open web-viewer page to reload images.
+Bdex's own Refresh Sprites also repairs collection references; use that option
+if stored Bdex copies still point to an older cache after changing ROM files.
+This menu option is available in live testing and the next image, not v1.4.0.
+
 ## Backups and failure handling
 
 Working copies and pre-commit backups remain under:
