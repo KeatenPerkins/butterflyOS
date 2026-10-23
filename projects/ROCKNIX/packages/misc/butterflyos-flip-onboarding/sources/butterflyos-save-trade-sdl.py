@@ -16,6 +16,7 @@ import hashlib
 import importlib.util
 import json
 import os
+from pathlib import Path
 import select
 import shutil
 import signal
@@ -72,8 +73,34 @@ TOOL_PAD_MAPPINGS = '\n'.join(
 
 def tool_controller_environment():
     environment = os.environ.copy()
-    existing = environment.get('SDL_GAMECONTROLLERCONFIG', '').strip()
-    environment['SDL_GAMECONTROLLERCONFIG'] = ((existing + '\n') if existing else '') + TOOL_PAD_MAPPINGS
+    # gptokeyb loads SDL_GAMECONTROLLERCONFIG_FILE explicitly before SDL_Init.
+    # Its shell config resets that variable to the shared database, so the
+    # previous SDL_GAMECONTROLLERCONFIG environment override lost to the
+    # built-in mapping on a normal boot. Use a private merged DB instead.
+    source = Path('/storage/.config/SDL-GameControllerDB/gamecontrollerdb.txt')
+    destination = Path('/storage/.config/butterflyos/tool-controller-db.txt')
+    try:
+        lines = source.read_text(errors='replace').splitlines()
+    except OSError:
+        lines = []
+    overrides = {line.split(',', 1)[0].lower(): line
+                 for line in TOOL_PAD_MAPPINGS.splitlines()}
+    merged, found = [], set()
+    for line in lines:
+        guid = line.split(',', 1)[0].lower()
+        if guid in overrides:
+            if guid not in found:
+                merged.append(overrides[guid])
+                found.add(guid)
+        else:
+            merged.append(line)
+    merged.extend(overrides[guid] for guid in overrides if guid not in found)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = destination.with_suffix('.tmp')
+    temporary.write_text('\n'.join(merged) + '\n')
+    temporary.replace(destination)
+    environment.pop('SDL_GAMECONTROLLERCONFIG', None)
+    environment['BUTTERFLYOS_TOOL_CONTROLLER_DB'] = str(destination)
     return environment
 
 # SDL_GameController button identifiers. These make the Flip's built-in pad
@@ -1353,6 +1380,7 @@ def start_controller() -> Optional[subprocess.Popen]:
         command = (
             ". /storage/.config/gptokeyb/control.ini 2>/dev/null || true; "
             "get_controls 2>/dev/null || true; "
+            "export SDL_GAMECONTROLLERCONFIG_FILE=\"$BUTTERFLYOS_TOOL_CONTROLLER_DB\"; "
             "exec /usr/bin/gptokeyb -c /usr/share/butterflyos/save-trade.gptk"
         )
         return subprocess.Popen(["/bin/sh", "-c", command],
