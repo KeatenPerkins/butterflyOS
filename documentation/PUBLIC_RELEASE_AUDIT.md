@@ -5,6 +5,38 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## October 23, 2026 qualified release image: v1.5.0
+
+Runtime source: `404c29e3af7da12d5552bfa63ce9f696a76010f1`, updater build
+`20261023`, onboarding package 2.6.57. Compressed image SHA-256:
+`5538903d38f25d8c5e56a83676a6ad9a5ed324c475c12b54129a1c692d0170cb`.
+All 669 package steps passed, including the kernel rebuild. Image integrity,
+GPT/FAT/ext4, flash/update payload consistency, embedded source, Bslap backend
+hashes and private ROM/save filename exclusions passed. Complete direct SD
+read-back matched raw-image SHA-256
+`4952f8d9ccc83d2702bb533e4fa3426ff62956f2e028309cb0ad412c595cb9af`.
+
+The user approved the rebuilt image on the local test device, including
+controls, Bdex, HDMI, the original Blink regression scenario and lower
+brightness. The delivered backlight DTB exactly matches the live-tested
+2/255 table; the 1/255 experiment was rejected and is not included.
+Focused checks cover duplicate SDL events, keyboard repeats, controller
+mapping loading, blank text, trainer-first save labels, ROM matching and
+sprite refresh, including 48 raw/ZIP gift comparisons.
+
+A private OTA installation from build 20261022 to 20261023 passed using the
+installed updater's validation/staging and the real reboot installer. Only
+network request routing used a private source. Installed KERNEL/SYSTEM and
+tool hashes match the qualified image. The 41,813-file names/sizes/links
+inventory and 31 ordinary-save hashes were preserved; the only settings-field
+change was the last menu visited. The normal updater was restored after reboot,
+staging/downloads were cleaned up and no services failed. Public GitHub
+discovery remains a separate publication check.
+
+Release documentation does not change the tested runtime bytes. Optional
+audit records contain aggregate results and hashes; private inventories,
+saves, configuration files, device addresses and raw logs are excluded.
+
 ## October 20, 2026 stable release: v1.3.0
 
 Runtime source: `78e4f5f5da758cce309d2d853cabcf48e1c238a0`. Image SHA-256:

@@ -22,6 +22,14 @@ without this error or crashes. See [Bslap](BSLAP.md) for save backups, recovery,
 qualified games and other scope limits. Gen 1/2 clock persistence across cores
 has not been fully qualified; existing Gambatte RTC trailers are retained.
 
+## Connecting controllers while a tool is open
+
+Blink, Bdex and Bslap use native SDL input from v1.5.0. Connect an external
+controller before opening the tool. Connecting another controller while a tool
+is already open currently requires closing and reopening it. Saved controller
+mappings are loaded, but arbitrary controller models are not exhaustively
+qualified. This limitation concerns tool menus, not emulator hotkey settings.
+
 ## Distribution licensing gate
 
 Alpha 1 bundled vendor-derived stock and patched preloader images and therefore

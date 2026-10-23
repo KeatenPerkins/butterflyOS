@@ -2,7 +2,7 @@
 
 <img src="assets/butterfly-link.png" alt="Blink app icon" width="128">
 
-**Menu name in the next release: Tools → Blink.** Earlier releases show
+**Open Tools → Blink.** Earlier releases may show
 **Tools → Butterfly Link**. The existing guide URL remains unchanged.
 
 ## What is Blink?
@@ -697,9 +697,10 @@ can show normal/shiny artwork. Gen I/II sprites have a light-grey backing.
 Some move/item details may retain numeric IDs when name lookup is unavailable.
 No Pokémon sprite cache, ROM, or save is bundled in the image.
 
-### Refresh Sprites (next release after v1.4.0)
+### Refresh Sprites (v1.5.0 and newer)
 
 If sprites are missing or damaged, open **Tools → Blink → Refresh Sprites**.
+The row shows **Sprites** on the left and **Refresh Sprites** on the right.
 Choose **Gen 1**, **Gen 2** or **Gen 3**, then select the supported matching ROM.
 Raw ROMs and ZIP archives containing one ROM are supported. Wait for
 **Sprites Refreshed**, then return to your transfer or gift workflow. Repeat
@@ -710,7 +711,7 @@ reusing an existing cache. Blink and Bdex can reuse that cache. Game saves and
 Pokémon records are unchanged. Refresh an open web-viewer page to reload images.
 Bdex's own Refresh Sprites also repairs collection references; use that option
 if stored Bdex copies still point to an older cache after changing ROM files.
-This menu option is available in live testing and the next image, not v1.4.0.
+This menu option is included from v1.5.0.
 
 ## Backups and failure handling
 
@@ -743,4 +744,4 @@ See [current build status](CURRENT_BUILD_STATUS.md).
 
 [Bslap](BSLAP.md) provides live same-generation trades and battles between two
 ButterflyOS devices on the same local network. It is separate from Blink save
-editing and Bdex collection storage, and is included in the next image.
+editing and Bdex collection storage, and is available from v1.4.0.

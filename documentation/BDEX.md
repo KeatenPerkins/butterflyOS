@@ -30,11 +30,11 @@ the OS card is the practical limit.
 
 - **Up/Down:** select a species.
 - **Left/Right:** select Collection, Import, Export or Options.
-- **A:** view stored copies or open the selected tab. In the next image, Gen 1
+- **A:** view stored copies or open the selected tab. From v1.5.0, Gen 1
   offers **Stored copies** and **Where to find**.
 - **B:** go back.
 
-## Where to find (pending next image)
+## Where to find (v1.5.0 and newer)
 
 Open **Gen 1 → Collection → select a species → Where to find**, then select
 your supported English retail Red, Blue or Yellow ROM. You can look up a
@@ -128,7 +128,7 @@ otherwise the oldest trashed copy, and retains the combined history. Distinct
 native records are left alone. Older whole-database backups can contain the
 original duplicates; opening them in the updated app applies the same rule.
 
-### Inspector pages and stat graphs (next release after v1.4.0)
+### Inspector pages and stat graphs (v1.5.0 and newer)
 
 Inspect opens a **Summary** with the ROM-derived sprite, trainer/source details,
 moves and a radar graph. **L/R** or **Left/Right** switches between **Summary**,
@@ -155,7 +155,7 @@ press **A Refresh ROM data** and choose the exact matching ROM, or use Bdex's
 it does not alter native Pokémon data or game saves. No additional import is
 needed. **A** otherwise cycles graph modes, or returns from Details.
 
-This inspector is available in live testing and the next image, not v1.4.0.
+This inspector is included from v1.5.0.
 
 Inspect a stored copy to see its moves and PP/PP Ups, original trainer and ID,
 level, experience, stat experience, DVs, source position, import date and history.
@@ -372,4 +372,4 @@ in-game coverage of every species, game state, ROM revision or display.
 
 [Bslap](BSLAP.md) provides live same-generation trades and battles between two
 ButterflyOS devices on the same local network. It is separate from Blink save
-editing and Bdex collection storage, and is included in the next image.
+editing and Bdex collection storage, and is available from v1.4.0.

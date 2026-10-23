@@ -4,8 +4,8 @@ ButterflyOS is a hardware-tested Miyoo Flip V2 release focused on a clean,
 controller-first experience.
 
 This lists development capabilities, not a guarantee for every game or
-controller. See [current build status](CURRENT_BUILD_STATUS.md) for changes
-awaiting the next image and [known issues](KNOWN_ISSUES.md) for open failures.
+controller. See [current build status](CURRENT_BUILD_STATUS.md) for the exact
+tested image and [known issues](KNOWN_ISSUES.md) for open failures.
 
 ## Live Pokémon trades and battles with Bslap
 
@@ -40,6 +40,9 @@ Available from v1.2.0, rebuilt locally and tested on the local test device.
   same-generation and supported forward copy exports, Trash and database recovery.
 - Bdex **Refresh sprites** rebuilds matching ROM-derived artwork and repairs cache
   references; the optional read-only web viewer uses the root SSH password.
+- From v1.5.0, Bdex's inspector adds sprites and generation-aware stat graphs.
+  Gen 1 **Where to find** reads grass/cave and Surfing locations from a matching
+  supported Red, Blue or Yellow ROM; other encounter types are not indexed yet.
 - Names and sprites come from the user's matching ROMs. No Pokémon ROMs, saves
   or extracted sprite caches are bundled. See the guides for compatibility,
   cross-generation conversion and backup limitations.
@@ -105,6 +108,8 @@ Available from v1.2.0, rebuilt locally and tested on the local test device.
 - HDMI video and audio output
 - Return to the internal 640×480 display after HDMI disconnection
 - On-the-fly brightness adjustment with M+Up and M+Down
+- Lower minimum brightness from v1.5.0 for dark-room use; the minimum menu
+  setting remains 5%.
 - **System Settings → Hardware → Sleep When Lid Closed**: enabled by default.
   Closing the lid suspends to RAM; opening wakes the device. Disable it to turn
   off only the built-in display while games, networking and HDMI audio continue.

@@ -9,7 +9,7 @@ The stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
 
-Current release: [v1.4.0 notes](RELEASE_NOTES_v1.4.0.md), updater build **20261022**.
+Current release: [v1.5.0 notes](RELEASE_NOTES_v1.5.0.md), updater build **20261023**.
 
 ## For users and testers
 
@@ -33,7 +33,8 @@ Current release: [v1.4.0 notes](RELEASE_NOTES_v1.4.0.md), updater build **202610
 - [Themes and customization](THEMES.md): theme switching, custom copies, image
   sizes, colors, fonts, installation and testing.
 - [Bdex](BDEX.md): Gen 1–3 collections, imports, copy exports, Trash,
-  database backup/recovery, sprite refresh and the read-only web viewer;
+  database backup/recovery, graphical stat inspector, Gen 1 encounter lookup,
+  sprite refresh and the read-only web viewer;
   setup and limitations.
 - [Blink](BUTTERFLY_LINK.md): local/remote save transfers and supported
   generation directions.
