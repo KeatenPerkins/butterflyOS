@@ -917,6 +917,7 @@ class SDLFrontEnd:
         self.ttf = ctypes.CDLL(ttf_name)
         self._configure_api()
         self.controllers = []
+        self.raw_joystick_ids = set()
         self.keyboard_bridge = keyboard_bridge
         self.closed = False
         init_flags = SDL_INIT_VIDEO if keyboard_bridge else (SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER)
@@ -1030,6 +1031,8 @@ class SDLFrontEnd:
         s.SDL_JoystickOpen.argtypes = [ctypes.c_int]
         s.SDL_JoystickOpen.restype = ctypes.c_void_p
         s.SDL_JoystickClose.argtypes = [ctypes.c_void_p]
+        s.SDL_JoystickInstanceID.argtypes = [ctypes.c_void_p]
+        s.SDL_JoystickInstanceID.restype = ctypes.c_int32
 
         t = self.ttf
         t.TTF_Init.argtypes = []
@@ -1051,6 +1054,7 @@ class SDLFrontEnd:
                 opened = self.sdl.SDL_JoystickOpen(index)
                 if opened:
                     self.controllers.append(("joystick", opened))
+                    self.raw_joystick_ids.add(self.sdl.SDL_JoystickInstanceID(opened))
 
     @staticmethod
     def _find_font() -> str:
@@ -1315,6 +1319,8 @@ class SDLFrontEnd:
             if event_type == SDL_QUIT:
                 return KEY_ESCAPE
             if event_type == SDL_KEYDOWN:
+                if event.raw[13]:
+                    continue  # A held key must not activate the next screen.
                 return int.from_bytes(event.raw[20:24], "little", signed=True)
             if event_type == SDL_CONTROLLERBUTTONDOWN:
                 button = event.raw[12]
@@ -1331,9 +1337,19 @@ class SDLFrontEnd:
                     CONTROLLER_DPAD_RIGHT: KEY_RIGHT,
                 }.get(button)
             if event_type == SDL_JOYBUTTONDOWN:
+                # SDL emits both raw joystick and mapped controller events
+                # for game controllers. Only handle raw events for devices
+                # opened as generic joysticks, otherwise one press can select
+                # a screen and immediately cancel it through the raw A/B map.
+                instance = int.from_bytes(event.raw[8:12], "little", signed=True)
+                if instance not in self.raw_joystick_ids:
+                    continue
                 # Generic joysticks use the common first-button A/B layout.
                 return {0: KEY_RETURN, 1: KEY_ESCAPE}.get(event.raw[12])
             if event_type == SDL_JOYHATMOTION:
+                instance = int.from_bytes(event.raw[8:12], "little", signed=True)
+                if instance not in self.raw_joystick_ids:
+                    continue
                 direction = event.raw[13]
                 if direction & HAT_UP:
                     return KEY_UP
@@ -3520,15 +3536,11 @@ def local_swap_workflow(frontend: SDLFrontEnd) -> None:
 
 
 def main() -> int:
-    controller = None
     frontend = None
     try:
-        # The Flip's physical pad is exposed through the established ButterflyOS
-        # gptokeyb bridge.  It maps A to Enter and B/Menu to Escape consistently
-        # across the built-in pad and standard Bluetooth controllers.
-        controller = start_controller()
-        time.sleep(0.15)
-        frontend = SDLFrontEnd(keyboard_bridge=controller is not None)
+        # Use the same mapped SDL controller events as Bdex and Bslap.
+        # The keyboard bridge reverses the Flip's A/B labels in these menus.
+        frontend = SDLFrontEnd(keyboard_bridge=False)
         selected = 0
         while True:
             frontend.draw_page("main", selected)
@@ -3581,7 +3593,6 @@ def main() -> int:
         print(f"Blink SDL front end unavailable: {error}", file=sys.stderr)
         return 127
     finally:
-        stop_controller(controller)
         if frontend is not None:
             frontend.close()
 
