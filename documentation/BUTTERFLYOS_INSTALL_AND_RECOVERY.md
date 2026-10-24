@@ -49,7 +49,29 @@ Installation changes the internal preloader even though the OS runs from SD.
 Stock system partitions are preserved; this is not a zero-write installation.
 Exact reversal requires the backup from this particular device.
 
-## Intended installation experience
+## Already installed ButterflyOS before?
+
+**The bootloader setup is normally needed only once per device.** Downloading
+and flashing a newer ButterflyOS image does not undo the bootloader change.
+If this Flip already booted ButterflyOS and you have not restored its original
+Miyoo bootloader, **skip the left-hand-slot Setup process below**.
+
+- To update an existing installation, use **Start → System Settings → Update
+  ButterflyOS**. See the [update guide](UPDATES.md).
+- To start again with a freshly flashed card, fully power off, put the new OS
+  card in the **right-hand slot**, and turn the device on. Flashing erases the
+  card, so first copy your games, saves, and exported recovery backup somewhere
+  safe. See [Export the recovery backup before reflashing](#export-the-recovery-backup-before-reflashing).
+- If you used **Restore Stock Miyoo Boot** since your last installation, follow
+  the first-time setup below again.
+
+If Setup returns to the stock Apps menu without shutting down, do not assume
+it completed or keep repeating it. An existing bootloader change or a failed
+check may explain this. Note any message shown and ask for help if the freshly
+flashed card will not boot from the right-hand slot. Keep your original
+device-specific recovery backup; reflashing does not create a new original.
+
+## First-time installation
 
 <img src="assets/boot-check.png" alt="ButterflyOS Boot Check icon" width="96">
 
