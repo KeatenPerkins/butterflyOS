@@ -2,6 +2,63 @@
 
 Reviewed: 2026-10-23.
 
+## Pending after v1.5.0: external-controller tool A/B mapping
+
+- The shared Blink/Bdex/Bslap SDL frontend now follows the saved main-menu
+  A/B button bindings for matching external controller GUIDs. SDL's device-name
+  CRC bytes are ignored when matching, since they differ between the menu's
+  saved Xbox-mode 8BitDo entry and SDL's current device GUID.
+- Built-in Flip overrides remain unchanged; emulator and global SDL mappings
+  are unchanged. Onboarding package bumped to 2.6.58 for the next image.
+- All 11 shared input regressions pass. On the local test device, actual SDL
+  mappings confirm external A=b1/B=b0 and the same correct built-in bindings.
+  Temporary live bind mount installed; user confirmed the 8BitDo A/B controls
+  work correctly in Bdex. The live change does not survive reboot; no image
+  rebuilt yet.
+
+## Local-only shared Player 1 controller test
+
+- RetroArch already supports many physical controller ports feeding one core
+  port. A game-only Gambatte remap for Pokemon Blue now maps physical ports
+  1 and 2 to game Player 1, using the existing external-first launch order.
+- Installed on the local long-term test device under
+  `/storage/remappings/Gambatte/Pokemon - Blue Version (USA, Europe) (SGB Enhanced).rmp`.
+  Previous settings and remap presence are recorded under
+  `/storage/.config/butterflyos/controller-tests/shared-player1-20261024/`.
+  Rollback while the game is closed restores `original.rmp` if `existed` is
+  true in `test.json`; otherwise remove only the test remap named in that record.
+- Scope is one external controller plus the built-in pad, for this game/core.
+  No binary, global input configuration, or save files changed. This remap is
+  persistent on this card. No general controller policy or image change yet.
+- User confirmed both pads control Player 1, built-in controls continue working
+  when Bluetooth is disconnected, and the external controller resumes Player 1
+  correctly after reconnecting. User also confirmed save/load-state hotkeys
+  leave both controllers working afterward.
+  Additional controllers and Bslap are not qualified;
+  remove the test remap before testing this same game/core through Bslap.
+
+## Pending next image: shared Player 1 defaults for ordinary RetroArch games
+
+- RetroArch patch `0015-shared-player-one-defaults.patch` maps the physical
+  player slot containing the built-in joystick to game Player 1 by default.
+  The existing external-first ordering therefore leaves the first external pad
+  on Player 1 and subsequent external pads on Players 2 onward. With no external
+  pad, the normal built-in Player 1 assignment remains unchanged.
+- The ordinary Flip launcher supplies a session-only opt-in containing the
+  built-in joystick index. Bslap sessions are explicitly excluded. Existing
+  game/core remap files may override these defaults; none are rewritten.
+- The extracted actual C helper compiles with warnings as errors and passes
+  zero/one/two/three external-controller routing, fallback-layout, and invalid
+  opt-in cases. Patch dry-run and launcher shell syntax checks pass. All 11
+  shared SDL input tests pass. Full RetroArch rebuild and image/device tests
+  of this general policy remain pending; rebuild the RetroArch package when
+  preparing the next image so the new patch is included.
+- This source change has not replaced the executable on the long-term test
+  device. Its successful Blue-only remap remains the current live experiment.
+  For a two-external-controller live test, update that remap while the game is
+  closed so physical port 2 maps to game Player 2, and the built-in physical
+  port 3 maps to Player 1. A multiplayer-capable game is needed to verify Player 2.
+
 ## Published v1.5.0: build 20261023
 
 - Runtime source `404c29e3af7da12d5552bfa63ce9f696a76010f1`, onboarding

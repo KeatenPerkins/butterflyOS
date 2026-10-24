@@ -1,0 +1,47 @@
+--- /dev/null
++++ b/input/butterflyos_shared_player1.h
+@@ -0,0 +1,21 @@
++/* ButterflyOS: opt-in session defaults; explicit remaps still take priority. */
++#ifndef BUTTERFLYOS_SHARED_PLAYER1_H
++#define BUTTERFLYOS_SHARED_PLAYER1_H
++#include <stdlib.h>
++
++static unsigned butterflyos_default_game_port(unsigned port,
++      const unsigned *joypad_indices, unsigned max_users,
++      const char *builtin_index)
++{
++   char *end;
++   unsigned long builtin;
++   if (!builtin_index || !*builtin_index || port == 0 || port >= max_users)
++      return port;
++   if (*builtin_index < '0' || *builtin_index > '9')
++      return port;
++   builtin = strtoul(builtin_index, &end, 10);
++   if (*end || builtin >= max_users || joypad_indices[0] == builtin)
++      return port;
++   return joypad_indices[port] == builtin ? 0 : port;
++}
++#endif
+--- a/input/input_driver.c
++++ b/input/input_driver.c
+@@ -7791,6 +7791,8 @@
+                                |    RUNLOOP_FLAG_REMAPS_GAME_ACTIVE);
+ }
+
++#include "butterflyos_shared_player1.h"
++
+ void input_remapping_set_defaults(bool clear_cache)
+ {
+    unsigned i, j;
+@@ -7818,7 +7820,10 @@
+
+       /* Controller port remaps */
+       configuration_set_uint(settings,
+-            settings->uints.input_remap_ports[i], i);
++            settings->uints.input_remap_ports[i],
++            butterflyos_default_game_port(i, settings->uints.input_joypad_index,
++               settings->uints.input_max_users,
++               getenv("BUTTERFLYOS_SHARED_PLAYER1_BUILTIN")));
+    }
+
+    /* Need to call 'input_remapping_update_port_map()'

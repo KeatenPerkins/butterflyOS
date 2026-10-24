@@ -26,6 +26,7 @@ import subprocess
 import sys
 import time
 import uuid
+import xml.etree.ElementTree as ET
 import zlib
 from typing import Optional
 
@@ -69,6 +70,33 @@ TOOL_PAD_MAPPINGS = '\n'.join(
     'leftx:a0,lefty:a1,rightx:a2,righty:a3,platform:Linux,'
     for guid in ('03009b4d4b4800000111000000010000',
                  '19009b4d4b4800000111000000010000'))
+
+
+def frontend_button_mapping(mapping, configurations):
+    """Use the menu's configured A/B buttons without changing SDL globally."""
+    fields = mapping.split(',')
+    guid = fields[0].lower()
+    # SDL includes a device-name CRC in bytes 2/3; ES and SDL versions may
+    # calculate it differently for the same Bluetooth device.
+    def identity(value):
+        value = value.lower()
+        return value[:4] + '0000' + value[8:] if len(value) == 32 else value
+    if identity(guid) in {identity(line.split(',', 1)[0])
+                          for line in TOOL_PAD_MAPPINGS.splitlines()}:
+        return mapping
+    for configuration in configurations:
+        if identity(configuration.get('deviceGUID', '')) != identity(guid):
+            continue
+        buttons = {}
+        for binding in configuration.findall('input'):
+            name, index = binding.get('name'), binding.get('id', '')
+            if name in ('a', 'b') and binding.get('type') == 'button' and index.isdigit():
+                buttons[name] = 'b' + index
+        if len(buttons) != 2 or buttons['a'] == buttons['b']:
+            continue
+        fields = [field for field in fields if not field.startswith(('a:', 'b:'))]
+        return ','.join(fields).rstrip(',') + ',a:' + buttons['a'] + ',b:' + buttons['b'] + ','
+    return mapping
 
 
 def tool_controller_environment():
@@ -1060,6 +1088,7 @@ class SDLFrontEnd:
             add_mapping(mapping.encode('utf-8'))
 
     def _open_input_devices(self) -> None:
+        self._load_frontend_button_mappings()
         for index in range(self.sdl.SDL_NumJoysticks()):
             if self.sdl.SDL_IsGameController(index):
                 opened = self.sdl.SDL_GameControllerOpen(index)
@@ -1070,6 +1099,29 @@ class SDLFrontEnd:
                 if opened:
                     self.controllers.append(("joystick", opened))
                     self.raw_joystick_ids.add(self.sdl.SDL_JoystickInstanceID(opened))
+
+    def _load_frontend_button_mappings(self) -> None:
+        try:
+            configurations = ET.parse('/storage/.config/emulationstation/es_input.cfg').getroot().findall('inputConfig')
+        except (OSError, ET.ParseError):
+            return
+        mapping_for_index = self.sdl.SDL_GameControllerMappingForDeviceIndex
+        mapping_for_index.argtypes = [ctypes.c_int]
+        mapping_for_index.restype = ctypes.c_void_p
+        free = self.sdl.SDL_free
+        free.argtypes = [ctypes.c_void_p]
+        free.restype = None
+        for index in range(self.sdl.SDL_NumJoysticks()):
+            pointer = mapping_for_index(index)
+            if not pointer:
+                continue
+            try:
+                mapping = ctypes.string_at(pointer).decode('utf-8')
+            finally:
+                free(pointer)
+            updated = frontend_button_mapping(mapping, configurations)
+            if updated != mapping:
+                self.sdl.SDL_GameControllerAddMapping(updated.encode('utf-8'))
 
     @staticmethod
     def _find_font() -> str:

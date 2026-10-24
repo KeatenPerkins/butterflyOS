@@ -38,6 +38,25 @@ def frontend(events=(), raw_ids=()):
 
 
 class InputRegression(unittest.TestCase):
+    def test_bluetooth_uses_menu_labels_despite_guid_crc_difference(self):
+        config = ui.ET.fromstring('<inputConfig deviceGUID="030082795e040000e002000000006800"><input name="a" type="button" id="1"/><input name="b" type="button" id="0"/></inputConfig>')
+        mapping = '0300003e5e040000e002000000006800,Xbox,a:b0,b:b1,x:b2,start:b6,'
+        updated = ui.frontend_button_mapping(mapping, [config])
+        self.assertIn(',a:b1,b:b0,', updated)
+        self.assertIn(',x:b2,start:b6,', updated)
+
+    def test_other_devices_and_incomplete_bindings_keep_sdl_mapping(self):
+        mapping = '0300003e5e040000e002000000006800,Xbox,a:b0,b:b1,'
+        for xml in ('<inputConfig deviceGUID="different"/>',
+                    '<inputConfig deviceGUID="030082795e040000e002000000006800"><input name="a" type="button" id="1"/></inputConfig>'):
+            self.assertEqual(mapping, ui.frontend_button_mapping(mapping, [ui.ET.fromstring(xml)]))
+
+    def test_flip_override_is_not_reversed_by_saved_frontend_configuration(self):
+        mapping = ui.TOOL_PAD_MAPPINGS.splitlines()[0]
+        guid = mapping.split(',')[0]
+        config = ui.ET.fromstring('<inputConfig deviceGUID="%s"><input name="a" type="button" id="0"/><input name="b" type="button" id="1"/></inputConfig>' % guid)
+        self.assertEqual(mapping, ui.frontend_button_mapping(mapping, [config]))
+
     def test_flip_press_is_one_action_in_both_event_orders(self):
         # Raw button 1 is mapped A on the Flip, but the generic fallback maps
         # it to Back. Raw button 0 has the inverse conflict.

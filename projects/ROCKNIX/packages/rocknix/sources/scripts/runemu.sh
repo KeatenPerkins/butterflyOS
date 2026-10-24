@@ -267,6 +267,22 @@ case ${EMULATOR} in
     # RetroArch's local command socket without changing normal game controls.
     if grep -qa "Miyoo Flip" /proc/device-tree/model 2>/dev/null; then
       export BUTTERFLYOS_LOCAL_NETCMD=1
+      # Opt ordinary games into shared Player 1 defaults. Bslap uses its own
+      # qualified frontend and controller policy. No shared/global config is
+      # rewritten; explicit game/core remaps retain priority in RetroArch.
+      unset BUTTERFLYOS_SHARED_PLAYER1_BUILTIN
+      if [ -z "${BSLAP_SESSION}" ]; then
+        BUTTERFLY_SHARED_BUILTIN=$(awk '
+          BEGIN { RS="" }
+          /N: Name="retrogame_joypad"/ && match($0, /js[0-9]+/) {
+            print substr($0, RSTART + 2, RLENGTH - 2)
+            exit
+          }
+        ' /proc/bus/input/devices)
+        if [[ "${BUTTERFLY_SHARED_BUILTIN}" =~ ^[0-9]+$ ]]; then
+          export BUTTERFLYOS_SHARED_PLAYER1_BUILTIN="${BUTTERFLY_SHARED_BUILTIN}"
+        fi
+      fi
       echo 'network_cmd_enable = "true"' >> "${RETROARCH_APPEND_CONFIG}"
       echo 'network_cmd_port = "55355"' >> "${RETROARCH_APPEND_CONFIG}"
     fi
