@@ -2,7 +2,7 @@
 
 Reviewed: 2026-10-23.
 
-## Qualified local candidate: build 20261023
+## Published v1.5.0: build 20261023
 
 - Runtime source `404c29e3af7da12d5552bfa63ce9f696a76010f1`, onboarding
   package 2.6.57. All 669 image-package steps passed, including the kernel
@@ -26,9 +26,14 @@ Reviewed: 2026-10-23.
   is LastSystem (Tools to Favorites); user preferences are preserved.
 - Private verification, flash reports and the manual checklist are in
   `.cache/test-build-20261023-404c29e3af/`; OTA inventory, backups and results
-  are in `.cache/ota-private-20261023/`. This image is not published yet.
+  are in `.cache/ota-private-20261023/`.
+- Published as [v1.5.0](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.5.0),
+  Latest stable, after all eight uploaded asset sizes and GitHub SHA-256
+  digests matched the verified local files. Public production-updater discovery
+  returned build 20261023 and the matching official release manifest; this
+  publication check did not initiate another download or installation.
 
-## Included in candidate: Blink review and controller follow-up
+## Included in v1.5.0: Blink review and controller follow-up
 
 - Blink, Bdex and Bslap now use mapped SDL input for their native menus.
   Ignore the duplicate raw joystick events emitted for mapped controllers;
@@ -50,7 +55,7 @@ Reviewed: 2026-10-23.
 - These follow-up fixes are included in onboarding package 2.6.57 and the
   qualified local image above.
 
-## Included in candidate: lower minimum brightness
+## Included in v1.5.0: lower minimum brightness
 
 - Keep the menu minimum at 5%, but lower its backlight lookup-table value
   from PWM 3/255 to 2/255. The 800 Hz frequency and 20 ms startup delay stay
@@ -81,7 +86,7 @@ Reviewed: 2026-10-23.
   `.cache/bdex-build-20261023/`. This initial image failed physical-control
   testing and was superseded by the qualified candidate documented above.
 
-## Included in candidate: Bdex Gen 1 encounter lookup
+## Included in v1.5.0: Bdex Gen 1 encounter lookup
 
 - Gen 1 species now offer Stored copies / Where to find, including species
   with no stored copies. Choose a qualified English retail Red, Blue or Yellow
@@ -110,7 +115,7 @@ Reviewed: 2026-10-23.
   external pad mappings are preserved. The user confirmed the live correction.
 - Included in local test candidate 20261023; not published yet.
 
-## Included in candidate: Bdex graphical inspector
+## Included in v1.5.0: Bdex graphical inspector
 
 - Summary, Stats and Details pages retain all previous inspector fields/history
   while adding the ROM-derived sprite, radar graph and numeric stat values.
@@ -131,7 +136,7 @@ Reviewed: 2026-10-23.
   the inspector after live testing. First included in onboarding package 2.6.52;
   retained in package 2.6.53 and local test candidate 20261023. Not published yet.
 
-## Included in candidate: Blink preview and GB/GBC ZIP handling
+## Included in v1.5.0: Blink preview and GB/GBC ZIP handling
 
 - Add **Refresh Sprites** to Blink's main menu. Choose a generation and a
   checksum-qualified English ROM, then force a rebuild of the shared sprite/name

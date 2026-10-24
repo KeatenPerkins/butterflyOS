@@ -5,7 +5,12 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
-## October 23, 2026 qualified release image: v1.5.0
+## October 23, 2026 stable release: v1.5.0
+
+Published as Latest stable after all eight uploaded asset sizes and GitHub
+SHA-256 digests matched the verified local files. Public production-updater
+discovery returned build 20261023 with the official v1.5.0 manifest. This
+read-only publication check initiated no additional download or installation.
 
 Runtime source: `404c29e3af7da12d5552bfa63ce9f696a76010f1`, updater build
 `20261023`, onboarding package 2.6.57. Compressed image SHA-256:
@@ -31,7 +36,7 @@ tool hashes match the qualified image. The 41,813-file names/sizes/links
 inventory and 31 ordinary-save hashes were preserved; the only settings-field
 change was the last menu visited. The normal updater was restored after reboot,
 staging/downloads were cleaned up and no services failed. Public GitHub
-discovery remains a separate publication check.
+discovery passed separately at publication, as recorded above.
 
 Release documentation does not change the tested runtime bytes. Optional
 audit records contain aggregate results and hashes; private inventories,
