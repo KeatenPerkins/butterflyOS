@@ -23,6 +23,9 @@ Current release: [v1.5.0 notes](RELEASE_NOTES_v1.5.0.md), updater build **202610
   supported saves, storage requirements, and manual restore instructions.
 - [Installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md): the
   device-specific SD-boot change, backup export, reflashing, and exact restore.
+- [ButterflyOS will not boot](BUTTERFLYOS_INSTALL_AND_RECOVERY.md#boot-troubleshooting-and-recovery):
+  card/slot checks, Windows Setup logs, other bootloaders, and the external
+  Spruce recovery guide when an original backup is unavailable.
 - [Features](FEATURES.md): current capabilities and their limits.
 - [How to update](UPDATES.md#how-to-update): free SD-card space, downloading,
   verification, restarting to install, and checking the new version.

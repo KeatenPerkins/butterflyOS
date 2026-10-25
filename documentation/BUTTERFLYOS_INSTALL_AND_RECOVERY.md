@@ -1,5 +1,8 @@
 # ButterflyOS installation and recovery
 
+**ButterflyOS will not start?** Begin with
+[Boot troubleshooting and recovery](#boot-troubleshooting-and-recovery) below.
+
 **ATTENTION**
 
 Your Miyoo Flip V2 comes with Miyoo's original operating system installed inside the
@@ -220,6 +223,90 @@ The export protects the preloader recovery files, not your games, saves, media,
 or settings. Back those up separately. If SD boot remains enabled after a
 reflash, put the rewritten OS card in the right slot and boot it; the stock-side
 setup does not need to be rerun. Never substitute another unit's recovery archive.
+
+## Boot troubleshooting and recovery
+
+### ButterflyOS does not boot, but Miyoo's stock operating system does
+
+A device that still starts the stock operating system is not necessarily
+bricked. Start with the card and installer checks:
+
+1. Fully shut down before moving cards. The ButterflyOS OS card goes in the
+   **right-hand slot**, viewed from the front. The left-hand slot is used for
+   first-time Setup and, afterward, an optional games card.
+2. If this device already ran ButterflyOS and its original bootloader has not
+   been restored or replaced since, do not repeat bootloader installation just
+   because you flashed a newer image. See
+   [Already installed ButterflyOS before?](#already-installed-butterflyos-before).
+3. If Setup stops or returns to Apps unexpectedly, collect its logs before
+   restoring internal firmware or repeatedly reflashing the card. Back up the
+   card's games, saves, and recovery files before any reflash.
+
+**Previously used another OS?** Its setup may have changed the internal
+bootloader. For example, [KNULLI's Flip preparation instructions](https://knulli.org/devices/miyoo/flip/)
+use GammaLoader. ButterflyOS Setup checks for a qualified stock preloader and
+can refuse an unknown or modified one. A custom splash picture alone does not
+prove the preloader changed. The installer log identifies which check failed;
+do not bypass the check or assume every other OS needs full recovery.
+
+### Collect Setup logs on Windows
+
+The stock-side app is **Apps → ButterflyOS Setup**, not the Boot Check tool
+inside ButterflyOS. To collect a read-only compatibility check:
+
+1. Wait **more than five minutes since the last Setup launch**. A second launch
+   within five minutes after a successful first check confirms installation.
+2. With the prepared card in the **left-hand slot**, open **ButterflyOS Setup
+   once** from stock Apps. Let it finish and do not open it a second time.
+3. Shut down normally, then put the card into your Windows PC.
+4. Open **File Explorer → This PC → BUTTERFLYOS**. If Windows offers to format
+   another partition, choose **Cancel**; Windows cannot normally read the
+   card's Linux storage partition.
+5. Copy these files and include them with your support request:
+
+   - **App → ButterflyOS_Setup → setup-last.log**
+   - **butterflyos-recovery → install-last.log**
+
+If only one log exists, send that one. If neither exists, report that too.
+Include the Flip revision and any other OS or bootloader installers previously
+used. Keep recovery images private; these two text logs are what support needs
+first. A successful first check does not mean installation has happened.
+
+### ButterflyOS boots and you want to restore stock boot behavior
+
+Use **Tools → Restore Stock Miyoo Boot** with this device's verified original
+backup. See [Returning to stock boot](#returning-to-stock-boot). This is the
+ButterflyOS restore path tested on local Flip V2 devices.
+
+### Neither OS boots, or the original preloader backup is unavailable
+
+Losing the backup file does not itself damage the installed bootloader. If
+ButterflyOS still boots, check whether **Tools → Export Recovery Backup** can
+export the original pair still on the card. It cannot recreate an original
+that is no longer available.
+
+If the bootloader was damaged or replaced and there is no usable original
+backup, external firmware recovery may be needed. The Spruce team maintains:
+
+**[Miyoo Flip recovery guide — SpruceOS](https://github.com/spruceUI/spruceOS/wiki/16.-Miyoo-Flip-Unbricking)**
+
+Thank you to the Spruce team for maintaining this resource and allowing us to
+link to it. Their guide covers Windows drivers, RKDevTool, opening the device,
+and entering Rockchip MASKROM mode to restore internal firmware. This is a
+full firmware recovery procedure, not an SD-card reflash or a splash reset.
+
+**Before proceeding, confirm with the guide's maintainers that its recovery
+files support your exact Flip hardware revision.** ButterflyOS has not
+qualified that external package across its supported hardware. Preserve any
+existing backups, follow the current external instructions, and do not
+substitute another device's ButterflyOS preloader backup.
+
+After restoring stock firmware, first verify that Miyoo's stock operating
+system boots without the ButterflyOS card. Then follow
+[First-time installation](#first-time-installation) again. ButterflyOS Setup
+will repeat its checks; a firmware restore does not guarantee its preloader
+revision is one ButterflyOS currently accepts. If it refuses, collect the logs
+above and request review instead of repeating the restore.
 
 ## Recovery if installation is interrupted
 

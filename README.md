@@ -19,6 +19,7 @@ Start here:
 - [Save backup and restore](documentation/SAVE_BACKUPS.md)
 - [How to update](documentation/UPDATES.md#how-to-update)
 - [Installation and recovery](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md)
+- [ButterflyOS will not boot](documentation/BUTTERFLYOS_INSTALL_AND_RECOVERY.md#boot-troubleshooting-and-recovery)
 - [Controls and hotkeys](documentation/HOTKEYS.md)
 - [Emulators and performance tuning](documentation/EMULATORS_AND_PERFORMANCE.md)
 - [Features](documentation/FEATURES.md)
