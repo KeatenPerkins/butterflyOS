@@ -286,12 +286,21 @@ export the original pair still on the card. It cannot recreate an original
 that is no longer available.
 
 If the bootloader was damaged or replaced and there is no usable original
-backup, external firmware recovery may be needed. The Spruce team maintains:
+backup, external firmware recovery may be needed. **If the stock operating
+system still boots, ask support about a supported stock-firmware restore
+before opening the device.** The Spruce team advises that a firmware restore
+may be sufficient without disassembly. The exact firmware package and update
+method must be confirmed for the device revision; a routine firmware update
+does not necessarily rewrite the preloader. We have not yet qualified or
+documented that software-only procedure here.
+
+For cases that require low-level recovery, the Spruce team maintains:
 
 **[Miyoo Flip recovery guide — SpruceOS](https://github.com/spruceUI/spruceOS/wiki/16.-Miyoo-Flip-Unbricking)**
 
 Thank you to the Spruce team for maintaining this resource and allowing us to
-link to it. Their guide covers Windows drivers, RKDevTool, opening the device,
+link to it. This is the low-level recovery route, rather than a required first
+step whenever ButterflyOS will not boot. Their guide covers Windows drivers, RKDevTool, opening the device,
 and entering Rockchip MASKROM mode to restore internal firmware. This is a
 full firmware recovery procedure, not an SD-card reflash or a splash reset.
 
