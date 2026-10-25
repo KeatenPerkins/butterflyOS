@@ -2,6 +2,40 @@
 
 Reviewed: 2026-10-23.
 
+## Pending palette selection fix
+
+- ES colorization used `-renderer.colorization` while the launcher read
+  `.renderer.colorization`. ES patch 065 writes the canonical dotted key and
+  falls back to the old key when displaying existing choices.
+- Gambatte setup reads both forms with literal-key comparisons and per-game
+  priority; fixes the quoted-literal file existence check that truncated its
+  options on every launch, retains unrelated/manual options, and maps the
+  menu's Auto choice to Gambatte's automatic mode.
+- Six isolated tests execute the actual launcher functions; shell syntax,
+  patch dry-run, and whitespace checks pass. Live temporary launcher bind
+  mount installed on the local test device with original launcher/options
+  backed up under `/storage/.config/butterflyos/palette-test-20261024/`.
+  User confirmed launching from Favorites applies GBC - Blue correctly.
+  Reboot persistence of the delivered fix awaits a rebuilt image; the live
+  launcher bind mount is temporary. No image rebuilt yet.
+
+## Advanced Game Options rough configuration pass
+
+- `tests/butterflyos-game-options-smoke-test.py` executes the actual settings
+  lookup and launcher functions against temporary configuration files only.
+  Forty system/game scenarios plus game-over-system and global-fallback cases
+  pass: smoothing, integer scaling, aspect ratio, shaders, disabling filters,
+  rewind, auto-save/load configuration, incremental states/retention, run-ahead,
+  audio latency, and FPS configuration. Six palette regression tests also pass.
+- These checks prove settings are translated into generated RetroArch options;
+  they do not launch cores or verify rendering, audio, timing, achievements,
+  performance governors, or save-state execution. They do not automate pressing
+  every ES menu entry. The palette fix has a separate user-confirmed live test.
+- Source review: ES includes automatic-frame-delay and VRR latency menu keys,
+  but the regular `setsettings.sh` launcher does not consume those keys. Treat
+  them as follow-up wiring issues, not as validated features. Their visibility
+  and hardware/backend support need review before changing behavior.
+
 ## Pending after v1.5.0: external-controller tool A/B mapping
 
 - The shared Blink/Bdex/Bslap SDL frontend now follows the saved main-menu

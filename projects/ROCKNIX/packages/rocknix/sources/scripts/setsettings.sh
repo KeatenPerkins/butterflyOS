@@ -1184,31 +1184,49 @@ function set_atari() {
     fi
 }
 
+function gambatte_setting() {
+    # Older ES menus wrote a dash before renderer.* instead of a dot.
+    # Match literal keys, so ROM punctuation cannot alter an awk pattern.
+    local key="$1" value
+    value=$(awk -v game="${PLATFORM}[\"${ROM}\"]" -v platform="${PLATFORM}" -v key="${key}" '
+      { pos=index($0,"="); if (pos) values[substr($0,1,pos-1)]=substr($0,pos+1) }
+      END {
+        keys[1]=game "." key; keys[2]=game "-" key;
+        keys[3]=platform "." key; keys[4]=platform "-" key;
+        for (i=1;i<=4;i++) if (values[keys[i]] != "") { print values[keys[i]]; exit }
+      }
+    ' "${SYSTEM_CONFIG}")
+    if [ -n "${value}" ]; then
+        printf '%s\n' "${value}"
+    else
+        game_setting "${key}"
+    fi
+}
+
 function set_gambatte() {
     log "Set up Gambatte..."
     if [ "${CORE}" = "gambatte" ]
     then
         GAMBATTECONF="${RETROARCH_PATH}/config/Gambatte/Gambatte.opt"
-        if [ ! -f "GAMBATTECONF" ]
+        mkdir -p "${GAMBATTECONF%/*}"
+        if [ ! -f "${GAMBATTECONF}" ]
         then
-            echo 'gambatte_gbc_color_correction = "disabled"' > ${GAMBATTECONF}
-        else
-            sed -i "/gambatte_gb_colorization =/d" ${GAMBATTECONF}
-            sed -i "/gambatte_gb_internal_palette =/d" ${GAMBATTECONF}
+            echo 'gambatte_gbc_color_correction = "disabled"' > "${GAMBATTECONF}"
         fi
-        local COLORIZATION=$(game_setting renderer.colorization)
-        local TWB1_COLORIZATION=$(game_setting renderer.twb1_colorization)
-        local TWB2_COLORIZATION=$(game_setting renderer.twb2_colorization)
-        local TWB3_COLORIZATION=$(game_setting renderer.twb3_colorization)
-        local PIXELSHIFT1_COLORIZATION=$(game_setting renderer.pixelshift1_colorization)
+        local COLORIZATION=$(gambatte_setting renderer.colorization)
+        local TWB1_COLORIZATION=$(gambatte_setting renderer.twb1_colorization)
+        local TWB2_COLORIZATION=$(gambatte_setting renderer.twb2_colorization)
+        local TWB3_COLORIZATION=$(gambatte_setting renderer.twb3_colorization)
+        local PIXELSHIFT1_COLORIZATION=$(gambatte_setting renderer.pixelshift1_colorization)
 
 	if [ -n "${COLORIZATION}" ]
         then
+            sed -i '/^gambatte_gb_colorization =/d; /^gambatte_gb_internal_palette =/d' "${GAMBATTECONF}"
             case ${COLORIZATION} in
                 0|false|none)
                     echo 'gambatte_gb_colorization = "disabled"' >> ${GAMBATTECONF}
                 ;;
-                "Best Guess")
+                "Best Guess"|auto)
                     echo 'gambatte_gb_colorization = "auto"' >> ${GAMBATTECONF}
                 ;;
                 GBC|SGB)
@@ -1217,10 +1235,19 @@ function set_gambatte() {
                 *)
                     echo 'gambatte_gb_colorization = "internal"' >> ${GAMBATTECONF}
                     echo 'gambatte_gb_internal_palette = "'${COLORIZATION}'"' >> ${GAMBATTECONF}
-                    echo 'gambatte_gb_palette_twb64_1 = "'${TWB1_COLORIZATION}'"' >> ${GAMBATTECONF}
-                    echo 'gambatte_gb_palette_twb64_2 = "'${TWB2_COLORIZATION}'"' >> ${GAMBATTECONF}
-                    echo 'gambatte_gb_palette_twb64_3 = "'${TWB3_COLORIZATION}'"' >> ${GAMBATTECONF}
-		            echo 'gambatte_gb_palette_pixelshift_1 = "'${PIXELSHIFT1_COLORIZATION}'"' >> ${GAMBATTECONF}
+                    local option value
+                    for option in twb64_1 twb64_2 twb64_3 pixelshift_1; do
+                        case ${option} in
+                            twb64_1) value=${TWB1_COLORIZATION} ;;
+                            twb64_2) value=${TWB2_COLORIZATION} ;;
+                            twb64_3) value=${TWB3_COLORIZATION} ;;
+                            pixelshift_1) value=${PIXELSHIFT1_COLORIZATION} ;;
+                        esac
+                        if [ -n "${value}" ]; then
+                            sed -i "/^gambatte_gb_palette_${option} =/d" "${GAMBATTECONF}"
+                            printf 'gambatte_gb_palette_%s = "%s"\n' "${option}" "${value}" >> "${GAMBATTECONF}"
+                        fi
+                    done
                 ;;
             esac
         fi
