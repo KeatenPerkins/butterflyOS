@@ -23,6 +23,7 @@ HERE = Path(__file__).resolve().parent
 engine = load('bdex_engine', HERE / 'butterflyos-bdex.py')
 inspector_ui = load('bdex_inspector', HERE / 'butterflyos-bdex-inspector.py')
 locations = load('bdex_locations', HERE / 'butterflyos-bdex-locations.py')
+acquisition = load('bdex_acquisition', HERE / 'butterflyos-bdex-acquisition.py')
 
 
 def database_backups(root):
@@ -541,35 +542,46 @@ class Bdex:
 
     def where_to_find(self, dex):
         gb = engine.load_module('bdex_location_rom', HERE / 'butterflyos-gb-sprite-cache.py')
-        gifts = engine.load_module('bdex_location_profiles', HERE / 'butterflyos-gen1-gift.py')
+        gifts = engine.load_module('bdex_location_profiles', HERE / ('butterflyos-gen%d-gift.py' % self.generation))
+        reader = gb.read_rom
+        if self.generation == 3:
+            rom_filter = engine.load_module('bdex_location_gba', HERE / 'butterflyos_rom_filter.py')
+            reader = rom_filter.read_gen3_rom
+        allowlist = acquisition.supported_games(self.generation, gifts)
         choices = []
-        for path in self.blink._rom_candidates(1, ''):
+        seen = set()
+        for path in self.blink._rom_candidates(self.generation, ''):
             try:
-                digest = engine.sha(gb.read_rom(path))
-                if digest in gifts.SUPPORTED_ROMS:
-                    choices.append((path, gifts.SUPPORTED_ROMS[digest].title()))
+                game, data = acquisition.qualify(path, reader, allowlist)
+                digest = engine.sha(data)
+                if digest not in seen:
+                    choices.append((path, acquisition.TITLES[game], digest))
+                    seen.add(digest)
             except (OSError, ValueError, gb.CacheError):
                 continue
         if not choices:
-            self.ui.message('MATCHING ROM NEEDED', 'Add a supported English retail Red, Blue or Yellow ROM, raw or in a single-ROM ZIP. Encounter locations are read from your ROM. No save or stored copy is required.')
+            self.ui.message('MATCHING ROM NEEDED', 'Add a qualified English retail ROM for Gen %d, raw or in a single-ROM ZIP. The game and revision are checked from ROM content. No save or stored copy is required.' % self.generation)
             return
-        choice = self.choose('WHERE TO FIND: SOURCE GAME', [(title, Path(path).name) for path, title in choices])
+        choice = self.choose('WHERE TO FIND: SOURCE GAME', [(title, Path(path).name) for path, title, digest in choices])
         if choice is None:
             return
-        self.front.draw_message('READING ENCOUNTERS', 'Reading locations from your ROM.', 'Please wait')
+        self.front.draw_message('READING ACQUISITION GUIDE', 'Checking the selected game and its acquisition methods.', 'Please wait')
         try:
-            index = locations.qualified_index(choices[choice][0], gb, gifts)
+            path, title, expected = choices[choice]
+            game, data = acquisition.qualify(path, reader, allowlist)
+            if engine.sha(data) != expected:
+                raise ValueError('The selected ROM changed; reopen Where to find')
+            index = locations.qualified_index(path, gb, gifts) if self.generation == 1 else None
         except gb.CacheError as error:
             raise ValueError(str(error))
-        self.ui.message('WHERE TO FIND #%03d' % dex, locations.describe(index, dex))
+        self.ui.message('WHERE TO FIND #%03d' % dex,
+                        acquisition.describe(game, dex, self.store.names(), rom_index=index))
 
     def species_actions(self, dex):
-        if self.generation != 1:
-            return self.copies(dex)
         while True:
             action = self.choose('SPECIES #%03d' % dex, [
                 ('Stored copies', 'Inspect, export or delete your stored Pokemon'),
-                ('Where to find', 'Choose Red, Blue or Yellow; grass/caves and Surfing')])
+                ('Where to find', 'Locations, evolutions, breeding and special sources')])
             if action is None:
                 return
             if action == 0:

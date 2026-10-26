@@ -2,8 +2,8 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.58"
-PKG_LICENSE="GPL-2.0-or-later AND MIT"
+PKG_VERSION="2.6.59"
+PKG_LICENSE="GPL-2.0-or-later AND MIT AND BSD-3-Clause"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
 PKG_DEPENDS_TARGET="toolchain dialog SDL2 SDL2_ttf dejavu xxd Python3 pksav fbalpha2012-lr fbalpha2019-lr \
@@ -95,6 +95,8 @@ makeinstall_target() {
         "${PKG_DIR}/sources/butterflyos-bdex-sdl.py" \
         "${PKG_DIR}/sources/butterflyos-bdex-inspector.py" \
         "${PKG_DIR}/sources/butterflyos-bdex-locations.py" \
+        "${PKG_DIR}/sources/butterflyos-bdex-acquisition.py" \
+        "${PKG_DIR}/sources/butterflyos-bdex-acquisition.json" \
         "${PKG_DIR}/sources/butterflyos-gen1-encounter-maps.json" \
         "${PKG_DIR}/sources/butterflyos-bslap.py" \
         "${PKG_DIR}/sources/butterflyos-bslap-gb.py" \

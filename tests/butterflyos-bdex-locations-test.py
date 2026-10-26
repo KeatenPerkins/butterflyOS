@@ -6,6 +6,7 @@ import ctypes
 import importlib.util
 from pathlib import Path
 import struct
+import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
@@ -90,23 +91,35 @@ class Tests(unittest.TestCase):
     def test_tool_pad_override_is_local_and_preserves_external_pads(self):
         renderer = load('butterflyos-save-trade-sdl')
         external = 'external-guid,external,a:b0,b:b1,'
-        with patch.dict(os.environ, {'SDL_GAMECONTROLLERCONFIG': external}):
+        with tempfile.TemporaryDirectory() as temporary, patch.dict(os.environ, {'SDL_GAMECONTROLLERCONFIG': external}):
+            source = Path(temporary) / 'source.txt'
+            source.write_text(external + '\n')
+            destination = Path(temporary) / 'private.txt'
+            def local_path(value):
+                return source if 'gamecontrollerdb.txt' in str(value) else destination
             before = os.environ.copy()
             with patch.object(renderer.subprocess, 'run'), \
+                    patch.object(renderer, 'Path', side_effect=local_path), \
                     patch.object(renderer.subprocess, 'Popen') as launch:
                 renderer.start_controller()
-            mappings = launch.call_args.kwargs['env']['SDL_GAMECONTROLLERCONFIG'].splitlines()
+            environment = launch.call_args.kwargs['env']
+            self.assertNotIn('SDL_GAMECONTROLLERCONFIG', environment)
+            self.assertEqual(str(destination), environment['BUTTERFLYOS_TOOL_CONTROLLER_DB'])
+            mappings = destination.read_text().splitlines()
             self.assertEqual(mappings[0], external)
             self.assertEqual(len(mappings), 3)
             self.assertTrue(all(',a:b1,b:b0,' in row for row in mappings[1:]))
             self.assertEqual(dict(os.environ), before)
 
-    def test_other_generations_keep_existing_navigation(self):
-        obj = app.Bdex.__new__(app.Bdex)
-        obj.generation = 2
-        obj.copies = Mock()
-        obj.species_actions(151)
-        obj.copies.assert_called_once_with(151)
+    def test_all_generations_offer_locations_without_stored_copies(self):
+        for generation in (1, 2, 3):
+            obj = app.Bdex.__new__(app.Bdex)
+            obj.generation = generation
+            obj.choose = Mock(side_effect=[1, None])
+            obj.where_to_find, obj.copies = Mock(), Mock()
+            obj.species_actions(151)
+            obj.where_to_find.assert_called_once_with(151)
+            obj.copies.assert_not_called()
 
     def test_private_retail_roms_when_available(self):
         files = list((ROOT / '.cache/bdex-locations').glob('*.zip'))

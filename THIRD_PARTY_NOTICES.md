@@ -146,3 +146,18 @@ from Andrew Ekstedt's `pokemon-sprites-rby` project, under BSD-2-Clause:
 
 The decoder source retains its attribution and the image already ships the
 BSD-2-Clause license text in its license bundle.
+
+## Bdex offline acquisition reference
+
+The Gen 1–3 acquisition guide contains transformed numerical encounter facts
+from [PokéAPI](https://github.com/PokeAPI/pokeapi), revision
+`2bf639e5572812a67d2b94903fdcb9d095f5aeb2`, under BSD-3-Clause.
+Copyright © 2013–2023 Paul Hallett and PokéAPI contributors. Its full license is
+in `licenses/pokeapi.txt` and the image's ButterflyOS license bundle.
+Pokémon and Pokémon character names are trademarks of Nintendo. No endorsement
+by PokéAPI, Nintendo or the game-research projects is claimed.
+
+Game-specific evolution facts are checked against the pret disassembly and
+decompilation projects. Exact references, data boundaries, corrections and
+regeneration instructions are in
+[Bdex acquisition sources](documentation/BDEX_ACQUISITION_SOURCES.md).

@@ -30,33 +30,62 @@ the OS card is the practical limit.
 
 - **Up/Down:** select a species.
 - **Left/Right:** select Collection, Import, Export or Options.
-- **A:** view stored copies or open the selected tab. From v1.5.0, Gen 1
-  offers **Stored copies** and **Where to find**.
+- **A:** open the selected tab or choose **Stored copies / Where to find** for
+  a species. Location lookup started with Gen 1 in v1.5.0; the next build extends
+  acquisition guidance to all three generations.
 - **B:** go back.
 
 ## Where to find (v1.5.0 and newer)
 
-Open **Gen 1 → Collection → select a species → Where to find**, then select
-your supported English retail Red, Blue or Yellow ROM. You can look up a
+Open **Gen 1, Gen 2 or Gen 3 → Collection → select a species → Where to find**,
+then select your qualified English retail ROM for that generation. You can look up a
 species even when you have no stored copies. Select **All** in the species
 filter if missing species are hidden by your current filter.
 
-This first version reads **grass/cave and Surfing encounter locations and
-levels** directly from that game's ROM, including version differences.
+Gen 1 **grass/cave and Surfing encounter locations and levels** are read directly
+from that game's ROM, including version differences. The next build also includes
+an offline, game-specific reference for **fishing, Headbutt/Rock Smash where
+applicable, gifts, eggs, fossil revival, NPC trades, static encounters, and roaming
+Pokémon**, plus **evolution and breeding requirements** across all 11 supported games.
 A raw ROM or ZIP containing one ROM works. It uses no online service and
 does not modify the ROM, saves, or collection. Use Up/Down to scroll results;
 A/B returns to the previous screen.
 
-**Coverage is limited:** fishing, gifts, NPC trades, evolutions, and special
-encounters such as stationary legendary Pokémon are not indexed yet. An empty
-result does **not** mean a species is unobtainable. Gen 2/3 location lookup and
-live player-location/progress tracking are not included in this first version.
+Evolution entries show the source Pokémon and how it evolves: level, stone,
+in-game trade, held item, friendship/time, stat comparison, Beauty, or a special
+branch. Pre-evolution locations and intermediate evolution steps are also shown.
+Names come from your shared ROM-derived catalog; without a prepared catalog,
+species numbers are used. Selecting a different game changes its locations and rules.
+
+Examples of generation-specific rules include Yellow's starter Pikachu refusing
+a Thunder Stone; Gen 2 versus Gen 3 friendship time windows; FireRed/LeafGreen
+lacking time-of-day evolutions; Wurmple's fixed personality branch; Shedinja's
+party-slot/ball requirements; and Sea/Lax Incense breeding in Gen 3. Ordinary
+trade evolutions require an actual in-game trade, such as a compatible Bslap
+session. **Blink/Bdex save copies do not trigger evolution.**
+
+**Historical events are not ordinary access:** ticket islands, distributions and
+regional restrictions are called out. In particular, the original Old Sea Map
+was distributed for Japanese Emerald, and Virtual Console Crystal availability
+does not apply to the supported original English retail ROM. Blink's separate
+generated gifts/event tools are distinguished from original distributions.
+
+**Limitations:** this is an acquisition guide, not a progress-aware walkthrough.
+Some sources require story progress, one-time choices, items, compatible trades,
+or historical event access. NPC trade entries identify the method/location, but
+do not describe every NPC dialogue or requested exchange. Missing reference
+entries are **not** proof of unobtainability. ROM hacks, unqualified revisions,
+other languages, glitches, live player-location tracking and automatic evolution
+are not supported. The web viewer does not expose this device-only guide yet.
 
 The layout/map-label metadata follows the
 [pokered](https://github.com/pret/pokered/blob/master/data/wild/grass_water.asm)
 and [pokeyellow](https://github.com/pret/pokeyellow/blob/master/data/wild/grass_water.asm)
 disassemblies. Species and levels are extracted locally from the user's ROM;
-no encounter-species tables or ROM files are bundled.
+no ROM files are bundled. Additional acquisition facts are compiled from pinned
+PokéAPI reference data and the pret game research, with numerical species IDs;
+no sprites or species-name table is included. Both sources are explicitly labelled
+in the guide. See [source provenance and regeneration](BDEX_ACQUISITION_SOURCES.md).
 
 Selecting a species shows its individual stored copies, including nickname,
 level and original trainer. Red, blue and yellow source markers also have
