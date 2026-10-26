@@ -1,0 +1,56 @@
+--- a/libgambatte/libretro/libretro.cpp
++++ b/libgambatte/libretro/libretro.cpp
+@@ -340,6 +340,7 @@
+ /***************************/
+
+ static bool internal_palette_active    = false;
++static bool palette_switch_buttons_enabled = false;
+ static size_t internal_palette_index   = 0;
+ static unsigned palette_switch_counter = 0;
+
+@@ -1386,8 +1387,8 @@
+    bool turbo_b                = false;
+    bool palette_prev           = false;
+    bool palette_next           = false;
+-   bool palette_switch_enabled = (libretro_supports_set_variable &&
+-         internal_palette_active);
++   bool palette_switch_enabled = (palette_switch_buttons_enabled &&
++         libretro_supports_set_variable && internal_palette_active);
+
+    if (libretro_supports_bitmasks)
+    {
+@@ -2118,6 +2119,11 @@
+
+    unsigned colorCorrection = 0;
+    struct retro_variable var = {0};
++   var.key = "gambatte_gb_palette_switching";
++   palette_switch_buttons_enabled =
++         environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value &&
++         !strcmp(var.value, "enabled");
++   var.value = NULL;
+    var.key = "gambatte_gbc_color_correction";
+    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+    {
+--- a/libgambatte/libretro/libretro_core_options.h
++++ b/libgambatte/libretro/libretro_core_options.h
+@@ -59,6 +59,20 @@
+ };
+
+ struct retro_core_option_v2_definition option_defs_us[] = {
++   {
++      "gambatte_gb_palette_switching",
++      "GB Palette Cycling with L/R",
++      NULL,
++      "Allow L/R shoulder buttons to cycle internal Game Boy palettes while playing. Disabled keeps the palette selected in settings. Save/load-state hotkeys are unaffected.",
++      NULL,
++      NULL,
++      {
++         { "disabled", NULL },
++         { "enabled", NULL },
++         { NULL, NULL },
++      },
++      "disabled"
++   },
+    {
+       "gambatte_gb_colorization",
+       "GB Colorization",

@@ -18,6 +18,27 @@ Reviewed: 2026-10-23.
   User confirmed launching from Favorites applies GBC - Blue correctly.
   Reboot persistence of the delivered fix awaits a rebuilt image; the live
   launcher bind mount is temporary. No image rebuilt yet.
+- Follow-up local Blue-only remap disables L/R core input on all five configured
+  physical ports to stop Gambatte's built-in internal-palette cycling. The
+  selected palette and shared-player routing are retained; the separate
+  ButterflyOS command bridge for save/load hotkeys is unchanged. Pre-change
+  remap backed up in the local controller-test directory. This workaround was
+  removed for the subsequent core-option test described below.
+- A subsequent Gambatte core patch adds **GB Palette Cycling with L/R**, disabled
+  by default and selectable in RetroArch Core Options. This gates only the
+  core's shoulder-button palette cycling; palette selection and the separate
+  hotkey bridge are unchanged. Gambatte-only aarch64 package rebuild passed;
+  no full image rebuilt. Candidate `.so` SHA-256:
+  `d2b31427529de39d2a330344dc49443dcc8e4754be7bc6fce39f9573b2e5dbaa`.
+  On 2026-10-26 the transfer succeeded, the full candidate checksum matched,
+  and the actual built core passed the target-side option-registration test.
+  Temporary bind mounts now cover both core launch paths. Originals and Blue's
+  remap backed up under `/storage/.config/butterflyos/gambatte-cycling-test-20261026/`.
+  Blue's temporary L/R blocking entries were removed; player routing retained.
+  User confirmed default-disabled, enabled cycling, disabling again, and
+  save/load hotkeys all work. The source change is ready for the next test
+  image; a full rebuilt-image/persistence check remains pending.
+  The live core replacement ends on reboot.
 
 ## Advanced Game Options rough configuration pass
 
