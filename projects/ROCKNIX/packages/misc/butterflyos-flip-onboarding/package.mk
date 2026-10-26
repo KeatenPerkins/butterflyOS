@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.60"
+PKG_VERSION="2.6.61"
 PKG_LICENSE="GPL-2.0-or-later AND MIT AND BSD-3-Clause"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""

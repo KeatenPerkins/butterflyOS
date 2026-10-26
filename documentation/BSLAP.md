@@ -50,6 +50,15 @@ initial Select hotkey in its Bslap session even though normal games used Menu.
 Bluetooth controllers retain their configured hotkeys; connect them before
 launching the session.
 
+In the next build, Bslap's Gen 1 sessions select **Special 3** for monochrome
+Game Boy rendering. SameBoy includes its separate background and two sprite
+palettes, using the color values from Gambatte's Special 3 preset. Red/Blue use
+this palette; Yellow retains its native GBC colors through automatic hardware
+selection. Gen 2 rendering and normal-game Gambatte choices are unchanged.
+This core update changes Bslap's compatibility identifier, so both devices need
+matching backends. A Gen 1 trade/battle and Gen 2 smoke test are required before
+release qualification of this change.
+
 B cancels a waiting lobby. Hosting does not start a game before the other player
 is ready and the host chooses Start. No passwords or ROM data are exchanged.
 

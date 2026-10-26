@@ -1,0 +1,105 @@
+--- a/Core/gb.h
++++ b/Core/gb.h
+@@ -65,6 +65,7 @@
+ extern const GB_palette_t GB_PALETTE_DMG;
+ extern const GB_palette_t GB_PALETTE_MGB;
+ extern const GB_palette_t GB_PALETTE_GBL;
++extern const GB_palette_t GB_PALETTE_SPECIAL3;
+ 
+ typedef union {
+     struct {
+--- a/Core/gb.c
++++ b/Core/gb.c
+@@ -1282,6 +1282,13 @@
+ const GB_palette_t GB_PALETTE_MGB  = {{{0x07, 0x10, 0x0E}, {0x3A, 0x4C, 0x3A}, {0x81, 0x8D, 0x66}, {0xC2, 0xCE, 0x93}, {0xCF, 0xDA, 0xAC}}};
+ const GB_palette_t GB_PALETTE_GBL  = {{{0x0A, 0x1C, 0x15}, {0x35, 0x78, 0x62}, {0x56, 0xB4, 0x95}, {0x7F, 0xE2, 0xC3}, {0x91, 0xEA, 0xD0}}};
+ 
++/* Gambatte's Special 3: separate background and two object palettes.
++ * These are presentation colors only; no emulated registers/state change. */
++const GB_palette_t GB_PALETTE_SPECIAL3 = {
++    .colors = {{0x00, 0x00, 0x00}, {0x49, 0x72, 0x6C},
++               {0xA5, 0x9E, 0x8C}, {0xF8, 0xF8, 0xF8}, {0xF8, 0xF8, 0xF8}}
++};
++
+ static void update_dmg_palette(GB_gameboy_t *gb)
+ {
+     const GB_palette_t *palette = gb->dmg_palette ?: &GB_PALETTE_GREY;
+@@ -1295,6 +1302,20 @@
+         gb->object_palettes_rgb[7] = gb->object_palettes_rgb[3] = gb->background_palettes_rgb[3] =
+         gb->rgb_encode_callback(gb, palette->colors[0].r, palette->colors[0].g, palette->colors[0].b);
+         
++        if (palette == &GB_PALETTE_SPECIAL3) {
++            static const uint8_t object_colors[2][4][3] = {
++                {{0xF8, 0xF8, 0xF8}, {0xE4, 0x96, 0x85}, {0x6E, 0x24, 0x1E}, {0, 0, 0}},
++                {{0xF8, 0xF8, 0xF8}, {0xD7, 0x54, 0x3C}, {0x7D, 0x30, 0x23}, {0, 0, 0}}
++            };
++            for (unsigned object = 0; object < 2; object++) {
++                for (unsigned color = 0; color < 4; color++) {
++                    const uint8_t *rgb = object_colors[object][color];
++                    gb->object_palettes_rgb[object * 4 + color] =
++                        gb->rgb_encode_callback(gb, rgb[0], rgb[1], rgb[2]);
++                }
++            }
++        }
++
+         // LCD off color
+         gb->background_palettes_rgb[4] =
+         gb->rgb_encode_callback(gb, palette->colors[4].r, palette->colors[4].g, palette->colors[4].b);
+--- a/libretro/libretro.c
++++ b/libretro/libretro.c
+@@ -809,6 +809,9 @@
+             else if (strcmp(var.value, "teal") == 0) {
+                 GB_set_palette(&gameboy[0], &GB_PALETTE_GBL);
+             }
++            else if (strcmp(var.value, "special3") == 0) {
++                GB_set_palette(&gameboy[0], &GB_PALETTE_SPECIAL3);
++            }
+         }
+ 
+         var.key = "sameboy_color_correction_mode";
+@@ -1041,6 +1044,9 @@
+             else if (strcmp(var.value, "teal") == 0) {
+                 GB_set_palette(&gameboy[0], &GB_PALETTE_GBL);
+             }
++            else if (strcmp(var.value, "special3") == 0) {
++                GB_set_palette(&gameboy[0], &GB_PALETTE_SPECIAL3);
++            }
+         }
+ 
+         var.key = "sameboy_mono_palette_2";
+@@ -1057,6 +1063,9 @@
+             }
+             else if (strcmp(var.value, "teal") == 0) {
+                 GB_set_palette(&gameboy[1], &GB_PALETTE_GBL);
++            }
++            else if (strcmp(var.value, "special3") == 0) {
++                GB_set_palette(&gameboy[1], &GB_PALETTE_SPECIAL3);
+             }
+         }
+ 
+--- a/libretro/libretro_core_options.inc
++++ b/libretro/libretro_core_options.inc
+@@ -141,6 +141,7 @@
+             { "lime",      "Lime (Game Boy)"         },
+             { "olive",     "Olive (Game Boy Pocket)" },
+             { "teal",      "Teal (Game Boy Light)"   },
++            { "special3",  "Special 3"               },
+             { NULL, NULL },
+         },
+         "greyscale"
+@@ -418,6 +419,7 @@
+             { "lime",      "Lime (Game Boy)"         },
+             { "olive",     "Olive (Game Boy Pocket)" },
+             { "teal",      "Teal (Game Boy Light)"   },
++            { "special3",  "Special 3"               },
+             { NULL, NULL },
+         },
+         "greyscale"
+@@ -434,6 +436,7 @@
+             { "lime",      "Lime (Game Boy)"         },
+             { "olive",     "Olive (Game Boy Pocket)" },
+             { "teal",      "Teal (Game Boy Light)"   },
++            { "special3",  "Special 3"               },
+             { NULL, NULL },
+         },
+         "greyscale"

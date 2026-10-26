@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 PKG_NAME="bslap-backend"
-PKG_VERSION="1.0.1"
+PKG_VERSION="1.0.2"
 PKG_ARCH="aarch64"
 PKG_LICENSE="GPL-3.0-or-later AND GPL-2.0-only AND MIT"
 PKG_SITE="https://github.com/libretro"

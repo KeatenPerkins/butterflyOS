@@ -58,7 +58,7 @@ class GBTests(unittest.TestCase):
                 save=root/'before.srm'; save.write_bytes(b'L'*32768)
                 remote=root/'peer-before.srm'; remote.write_bytes(b'P'*32768)
                 base=root/'base.cfg'; base.write_text('audio_driver = "pipewire"\n')
-                meta=dict(role=role, rom=str(rom), remote_rom_sha=gb.digest(peer), peer='192.168.1.20')
+                meta=dict(role=role, rom=str(rom), remote_rom_sha=gb.digest(peer), peer='192.168.1.20', game_code='G2CR')
                 args=['-L',str(gb.CORE),'--appendconfig',str(base),str(rom)]
                 with mock.patch.object(gb,'validate_backend'), mock.patch.object(gb,'exchange',return_value=remote), mock.patch.object(gb.time,'sleep'), mock.patch.object(gb.os,'execv') as execute:
                     gb.frontend(root,meta,args,lambda:[peer])
@@ -69,5 +69,25 @@ class GBTests(unittest.TestCase):
                 self.assertEqual((root/'content/player1.srm').read_bytes(), (b'L' if role=='host' else b'P')*32768)
                 self.assertEqual((root/'content/player2.srm').read_bytes(), (b'P' if role=='host' else b'L')*32768)
                 self.assertIn('savestate_auto_load = "false"',(root/'overrides.cfg').read_text())
+                self.assertNotIn('sameboy_mono_palette', (root/'options.cfg').read_text())
+
+    def test_gen1_special3_is_applied_to_both_players_without_changing_model(self):
+        for code in ('G1RE', 'G1BL', 'G1YE'):
+            with self.subTest(code=code), tempfile.TemporaryDirectory() as d:
+                root=Path(d)
+                rom=root/'local.gb';rom.write_bytes(b'LOCAL')
+                peer=root/'remote.gb';peer.write_bytes(b'REMOTE')
+                (root/'before.srm').write_bytes(b'L'*32768)
+                remote=root/'peer-before.srm';remote.write_bytes(b'P'*32768)
+                base=root/'base.cfg';base.write_text('audio_driver = "pipewire"\n')
+                meta=dict(role='host',rom=str(rom),remote_rom_sha=gb.digest(peer),game_code=code)
+                with mock.patch.object(gb,'validate_backend'),mock.patch.object(gb,'exchange',return_value=remote),mock.patch.object(gb.os,'execv'):
+                    gb.frontend(root,meta,['-L',str(gb.CORE),'--appendconfig',str(base),str(rom)],lambda:[peer])
+                options=(root/'options.cfg').read_text()
+                for key in ('sameboy_mono_palette','sameboy_mono_palette_1','sameboy_mono_palette_2'):
+                    self.assertIn(key+' = "special3"',options)
+                self.assertIn('sameboy_model_1 = "Auto"',options)
+                self.assertIn('sameboy_model_2 = "Auto"',options)
+                self.assertIn('sameboy_rtc = "accurate"',options)
 
 if __name__=='__main__': unittest.main()

@@ -187,6 +187,12 @@ def frontend(session, meta, args, find_games):
         'sameboy_rtc': 'accurate', 'sameboy_border': 'never',
         'sameboy_audio_interference': '0', 'sameboy_rumble': 'never',
     }
+    if meta['game_code'].startswith('G1'):
+        # DMG games use Gambatte's Special 3 colors on both simulated devices.
+        # Keep Auto model selection: Yellow retains its native GBC rendering.
+        options.update(sameboy_mono_palette='special3',
+                       sameboy_mono_palette_1='special3',
+                       sameboy_mono_palette_2='special3')
     (session / 'options.cfg').write_text(''.join('%s = "%s"\n' % item for item in options.items()))
     args = list(args)
     index = args.index('--appendconfig')
