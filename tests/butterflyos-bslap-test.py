@@ -71,10 +71,16 @@ class BslapTests(unittest.TestCase):
                 save=str(root / 'games with spaces/Emerald.srm'), role='join', peer='192.168.1.20')))
             base = root / 'base.cfg'
             base.write_text('audio_driver = "pipewire"\n')
-            args = ['--appendconfig', str(base), '-L', str(app.CORE), '/games/Emerald.gba']
+            current = root / 'generated.cfg'
+            current.write_text('input_enable_hotkey_btn = "10"\ninput_exit_emulator_btn = "9"\nquit_press_twice = "true"\n')
+            (session / 'retroarch.cfg').write_text('input_enable_hotkey_btn = "8"\n')
+            args = ['--config', str(session / 'retroarch.cfg'), '--appendconfig', str(base), '-L', str(app.CORE), '/games/Emerald.gba']
             with mock.patch.dict(app.os.environ, BSLAP_SESSION=str(session)), \
+                    mock.patch.object(app, 'SYSTEM_RETROARCH_CONFIG', current), \
                     mock.patch.object(app.os, 'execv') as execute:
                 app.frontend(args)
+            self.assertEqual(current.read_text(), (session / 'retroarch.cfg').read_text())
+            self.assertIn('input_enable_hotkey_btn = "10"', (session / 'retroarch.cfg').read_text())
             text = (session / 'overrides.cfg').read_text()
             for option in ['global_core_options = "true"', 'game_specific_options = "false"',
                            'savestate_auto_load = "false"', 'config_save_on_exit = "false"']:
@@ -85,6 +91,32 @@ class BslapTests(unittest.TestCase):
             command = execute.call_args.args[1]
             self.assertEqual(command[-2:], ['--connect', '192.168.1.20'])
             self.assertEqual(command[command.index('--appendconfig') + 1], str(session / 'overrides.cfg'))
+
+    def test_gen1_and_gen2_refresh_first_boot_hotkeys_before_backend_dispatch(self):
+        for game in ('G1RE', 'G2CR'):
+            for role in ('host', 'join'):
+                with self.subTest(game=game, role=role), tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    session = root / 'session'
+                    session.mkdir()
+                    (session / 'session.json').write_text(json.dumps(dict(game_code=game, role=role)))
+                    (session / 'retroarch.cfg').write_text('input_enable_hotkey_btn = "8"\n')
+                    current = root / 'generated.cfg'
+                    fresh = ('input_enable_hotkey_btn = "10"\ninput_exit_emulator_btn = "9"\n'
+                             'quit_press_twice = "true"\ninput_player1_joypad_index = "0"\n')
+                    current.write_text(fresh)
+                    backend = mock.Mock()
+                    def launch(actual_session, meta, args, find_games):
+                        self.assertEqual(actual_session, session)
+                        self.assertEqual(meta['role'], role)
+                        self.assertEqual((actual_session / 'retroarch.cfg').read_text(), fresh)
+                    backend.frontend.side_effect = launch
+                    with mock.patch.dict(app.os.environ, BSLAP_SESSION=str(session)), \
+                            mock.patch.object(app, 'SYSTEM_RETROARCH_CONFIG', current), \
+                            mock.patch.object(app, 'gb_backend', return_value=backend):
+                        app.frontend(['--config', str(session / 'retroarch.cfg')])
+                    backend.frontend.assert_called_once()
+                    self.assertEqual(current.read_text(), fresh)
 
     def test_header_filter_and_duplicate_mount(self):
         with tempfile.TemporaryDirectory() as d:

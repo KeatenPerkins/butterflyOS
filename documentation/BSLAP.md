@@ -40,7 +40,15 @@ Internet play and GB-Link/ESP32 hardware are outside the current feature.
    Gen 3 uses the cable rooms, rather than the wireless Union Room.
 5. Save normally in both games after finishing and leaving the room. For Gen 1/2,
    save on **both games before either player exits**. Exit both games with the
-   normal emulator-exit hotkey to return to Bslap.
+   normal emulator-exit hotkey to return to Bslap. On the Flip's built-in
+   controls, the default is **hold Menu and press Start twice**. This applies to
+   Gen 1, Gen 2 and Gen 3, whether hosting or joining. Save in-game first.
+
+Bslap uses the controller configuration generated for the current launch. The
+next build fixes an ordering bug where a newly flashed card could retain the
+initial Select hotkey in its Bslap session even though normal games used Menu.
+Bluetooth controllers retain their configured hotkeys; connect them before
+launching the session.
 
 B cancels a waiting lobby. Hosting does not start a game before the other player
 is ready and the host chooses Start. No passwords or ROM data are exchanged.

@@ -19,6 +19,7 @@ import threading
 import time
 
 ROOT = Path('/storage/.config/butterflyos/bslap')
+SYSTEM_RETROARCH_CONFIG = Path('/storage/.config/retroarch/retroarch.cfg')
 TEST = Path('/storage/.config/butterflyos/gpsp-link-tests')
 FRONTEND = TEST / 'retroarch-current/retroarch32'
 CORE = Path('/tmp/cores/gpsp_bfplain_libretro.so')
@@ -331,6 +332,11 @@ def frontend(args):
     """Test-only runemu executable target; append isolated overrides last."""
     session = Path(os.environ['BSLAP_SESSION'])
     meta = json.loads((session / 'session.json').read_text())
+    # runemu has now generated this launch's controller/hotkey configuration.
+    # prepare_session's earlier snapshot can still contain first-boot defaults
+    # (Select instead of Menu). Refresh before either backend reads --config.
+    # Keep the session copy isolated; never save emulator changes globally.
+    shutil.copyfile(SYSTEM_RETROARCH_CONFIG, session / 'retroarch.cfg')
     if meta.get('game_code', '').startswith('G'):
         return gb_backend().frontend(session, meta, args, find_games)
     append = session / 'overrides.cfg'
@@ -378,7 +384,7 @@ def prepare_session(rom, role, peer=''):
     (ROOT / 'sessions').mkdir(parents=True, exist_ok=True)
     session = Path(tempfile.mkdtemp(prefix=time.strftime('%Y%m%d-%H%M%S-'), dir=ROOT / 'sessions'))
     shutil.copy2(save, session / 'before.srm')
-    shutil.copy2('/storage/.config/retroarch/retroarch.cfg', session / 'retroarch.cfg')
+    shutil.copy2(SYSTEM_RETROARCH_CONFIG, session / 'retroarch.cfg')
     (session / 'states').mkdir()
     (session / 'options.cfg').write_text('gpsp_serial = "mul_poke"\n')
     meta = dict(rom=str(rom), save=str(save), role=role, peer=peer, game_code=game_code(rom),
