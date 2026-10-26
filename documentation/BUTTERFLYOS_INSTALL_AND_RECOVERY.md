@@ -285,14 +285,41 @@ ButterflyOS still boots, check whether **Tools → Export Recovery Backup** can
 export the original pair still on the card. It cannot recreate an original
 that is no longer available.
 
-If the bootloader was damaged or replaced and there is no usable original
-backup, external firmware recovery may be needed. **If the stock operating
-system still boots, ask support about a supported stock-firmware restore
-before opening the device.** The Spruce team advises that a firmware restore
-may be sufficient without disassembly. The exact firmware package and update
-method must be confirmed for the device revision; a routine firmware update
-does not necessarily rewrite the preloader. We have not yet qualified or
-documented that software-only procedure here.
+### Try Miyoo's official firmware recovery first
+
+**Before opening the device or using low-level recovery, check Miyoo's own
+firmware downloads and recovery instructions.** Reinstalling stock firmware
+from an SD card may resolve a stock-system or boot-image problem without
+disassembly, especially when the stock operating system still starts.
+
+1. Save any available Setup logs and recovery backups to your PC. Use a spare
+   card so the ButterflyOS card and its files can be kept intact.
+2. Open [Miyoo's firmware downloads](https://lomiyoo.com/pages/firmware) and find
+   the **Miyoo Flip** section. The **Miyoo Mini Flip is a different device**.
+3. Choose the firmware/reinstallation package appropriate to your Flip
+   revision. Miyoo lists regular firmware, a package for devices unable to boot,
+   and a stock SD-card file package; these serve different purposes. If unsure,
+   confirm the choice with Miyoo support before proceeding.
+4. Follow Miyoo's current instructions and the tutorial included in the
+   package. Its SD-card firmware procedure uses a FAT32 card with the extracted
+   `miyoo355_fw.img` copied to the card's top level. Copying that update file is
+   different from writing a ButterflyOS whole-card image with Rufus. Follow the
+   package's power/button instructions and do not interrupt power once flashing
+   has started.
+5. Miyoo also provides [boot troubleshooting and firmware reinstallation
+   guidance](https://lomiyoo.com/pages/technical-solutions). If the procedure
+   does not start or finish as described, ask for help before moving to a
+   different firmware package or low-level recovery.
+
+**A stock firmware reinstall is not necessarily a stock-preloader restore.**
+The SD-card recovery image inspected during ButterflyOS development rewrites
+U-Boot, the boot image, and the stock root filesystem, but not the SPL
+preloader. We have not qualified this external recovery procedure as a way to
+undo GammaLoader or every other bootloader modification. If stock starts again
+but ButterflyOS Setup still refuses installation, collect its logs and request
+review; do not bypass the preloader check or repeatedly reflash firmware.
+
+### Low-level recovery when the firmware route is insufficient
 
 For cases that require low-level recovery, the Spruce team maintains:
 
