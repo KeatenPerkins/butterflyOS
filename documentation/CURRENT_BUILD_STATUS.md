@@ -2,6 +2,31 @@
 
 Reviewed: 2026-10-23.
 
+## Local test image 20261026 ready for fresh-card testing
+
+- Runtime source `881ec063fa` includes the committed tool A/B mapping,
+  shared-Player-1 defaults for ordinary RetroArch games, saved palette lookup,
+  and opt-in Gambatte L/R palette cycling. RetroArch, EmulationStation,
+  onboarding tools and launchers were refreshed before assembly. All 669
+  image-package steps passed. No SD card flashed and no upload/release yet.
+- Verification caught a cached Bslap manifest recording the previous native
+  RetroArch hash. Package 1.0.1 now includes the native dependency recipes and
+  staging scripts in its cache fingerprint. The image was regenerated; every
+  delivered backend manifest hash now matches. New compatibility ID:
+  `bslap-v4-18645e5f666a28ca`. Use matching test builds on both Bslap peers.
+- Final image/update SHA-256 sidecars, complete gzip decompression, GPT CRCs,
+  read-only FAT/ext4 checks, matching image/update KERNEL and SYSTEM, embedded
+  source identity, exact delivered source files, and ROM/save filename scan pass.
+  Brightness retains the verified 2/255 floor, 800 Hz PWM and 20 ms startup delay.
+- Shipped Gambatte is byte-identical to the live-tested candidate after normal
+  symbol stripping (SHA-256 `ff6264786d7203a2fef9dec7e79e897f486cb9e4cafe3052a4ad97b4db6b40a7`).
+  Regular RetroArch32/gpSP and dedicated Gen 3 link binaries remain unchanged.
+- Image and update artifacts are under `target/` with build identity 20261026.
+  Verification records and fresh-image checklist:
+  `.cache/test-build-20261026-881ec063fa/`. Physical read-back and user tests are
+  pending. In particular, verify true Player 2 gameplay, controller reconnects,
+  HDMI tool controls, and palette/core-option persistence after cold boot.
+
 ## Pending palette selection fix
 
 - ES colorization used `-renderer.colorization` while the launcher read
