@@ -35,6 +35,12 @@ recorded validation.
 
 ## Current priorities
 
+**Next development goal, recorded October 26, 2026:** investigate a
+single-instance Gen 1/2 Bslap backend to improve responsiveness and audio.
+This is explicitly **deferred until after the current test build**; its working
+SameBoy backend stays in place for this build. See the
+[investigation plan](../documentation/BSLAP_SINGLE_INSTANCE_PLAN.md).
+
 1. **Maintain release reliability.** Investigate reproducible reports, protect
    saves and recovery paths, and validate installation, updates, normal game
    launches, sleep/resume, storage and HDMI when related code changes.
