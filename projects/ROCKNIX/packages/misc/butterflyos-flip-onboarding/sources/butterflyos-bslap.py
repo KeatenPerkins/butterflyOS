@@ -40,8 +40,18 @@ GAMES = {'AXVE': 'Ruby', 'AXPE': 'Sapphire', 'BPEE': 'Emerald', 'BPRE': 'FireRed
 GAMES.update({'G2CR': 'Crystal', 'G2GO': 'Gold', 'G2SI': 'Silver',
               'G1RE': 'Red', 'G1BL': 'Blue', 'G1YE': 'Yellow'})
 
-def gb_backend():
-    path = Path(__file__).with_name('butterflyos-bslap-gb.py')
+def gb_backend(mode=None):
+    if mode is None:
+        setting = ROOT / 'gb-backend'
+        mode = setting.read_text().strip() if setting.is_file() else (
+            'gambatte-netpacket' if MANIFEST.is_file() and
+            '/usr/lib/libretro/gambatte_bslap_libretro.so' in
+            json.loads(MANIFEST.read_text())['files'] else 'sameboy-dual')
+    names = {'sameboy-dual': 'butterflyos-bslap-gb.py',
+             'gambatte-netpacket': 'butterflyos-bslap-gb-netpacket.py'}
+    if mode not in names:
+        raise ValueError('Unknown Game Boy link backend.')
+    path = Path(__file__).with_name(names[mode])
     spec = importlib.util.spec_from_file_location('bslap_gb', path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -133,14 +143,24 @@ def valid_room(data, address):
         return None
 
 
-def discover(seconds=2.5):
+def discover(seconds=60.0, ui=None):
     rooms = {}
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sock.settimeout(0.2)
+        sock.settimeout(0.1)
         sock.bind(('', 0))
-        deadline, last = time.monotonic() + seconds, 0
+        deadline, last = time.monotonic() + seconds, float('-inf')
+        displayed = None
         while time.monotonic() < deadline:
+            if ui:
+                if ui.action() == 'back':
+                    return None
+                remaining = max(1, int(deadline - time.monotonic() + 0.999))
+                status = 'Host found. Checking nearby hosts...' if rooms else (
+                    'Searching your local network...\n%d seconds remaining.' % remaining)
+                if status != displayed:
+                    ui.frontend.draw_message('FINDING BSLAP HOSTS', status, 'B Cancel')
+                    displayed = status
             if time.monotonic() - last > 0.6:
                 sock.sendto(REQUEST, ('255.255.255.255', DISCOVERY_PORT))
                 last = time.monotonic()
@@ -148,6 +168,9 @@ def discover(seconds=2.5):
                 data, peer = sock.recvfrom(2048)
                 room = valid_room(data, peer[0])
                 if room:
+                    if not rooms:
+                        # Show hosts promptly, with a short window for other replies.
+                        deadline = min(deadline, time.monotonic() + 0.6)
                     rooms[room['ip']] = room
             except socket.timeout:
                 pass
@@ -236,6 +259,8 @@ def host_lobby(ui, meta):
                 if message:
                     if message['type'] == 'ready':
                         if (not compatible_games(meta['game_code'], message.get('game_code')) or
+                                (meta['game_code'].startswith('G') and
+                                 message.get('gb_backend', 'sameboy-dual') != meta.get('backend')) or
                                 message.get('backend') != BACKEND):
                             raise ValueError('The joining player has an unsupported game or Bslap build.')
                         meta['remote_rom_sha'] = message.get('rom_sha')
@@ -282,7 +307,7 @@ def join_lobby(ui, meta):
     with socket.create_connection((meta['peer'], LOBBY_PORT), timeout=5) as sock:
         connection = LobbyConnection(sock)
         connection.send('ready', rom_sha=meta['rom_sha'], backend=BACKEND,
-                        game_code=meta['game_code'])
+                        game_code=meta['game_code'], gb_backend=meta.get('backend'))
         started, deadline = False, None
         while True:
             message = connection.read()
@@ -338,7 +363,7 @@ def frontend(args):
     # Keep the session copy isolated; never save emulator changes globally.
     shutil.copyfile(SYSTEM_RETROARCH_CONFIG, session / 'retroarch.cfg')
     if meta.get('game_code', '').startswith('G'):
-        return gb_backend().frontend(session, meta, args, find_games)
+        return gb_backend(meta.get('backend')).frontend(session, meta, args, find_games)
     append = session / 'overrides.cfg'
     args = list(args)
     index = args.index('--appendconfig')
@@ -391,7 +416,9 @@ def prepare_session(rom, role, peer=''):
                 rom_sha=digest(rom), save_sha=digest(save), frontend_sha=FRONTEND_SHA, core_sha=CORE_SHA)
     if code.startswith('G'):
         gb = gb_backend()
-        meta.update(frontend_sha=gb.FRONTEND_SHA, core_sha=gb.CORE_SHA, backend='sameboy-dual')
+        meta.update(frontend_sha=gb.FRONTEND_SHA, core_sha=gb.CORE_SHA, backend=gb.ID)
+        if hasattr(gb, 'prepare_save'):
+            gb.prepare_save(session, meta)
     (session / 'session.json').write_text(json.dumps(meta, indent=2))
     return session, meta
 
@@ -416,7 +443,7 @@ def play(session, meta, lobby=None):
     (ROOT / 'host-ready').unlink(missing_ok=True)
     (ROOT / 'gb-exchange-ready').unlink(missing_ok=True)
     is_gb = meta['game_code'].startswith('G')
-    system, core = ('gbc', 'sameboy') if is_gb else ('gba', CORE.name.removesuffix('_libretro.so'))
+    system, core = ('gbc', 'gambatte' if meta.get('backend') == 'gambatte-netpacket' else 'sameboy') if is_gb else ('gba', CORE.name.removesuffix('_libretro.so'))
     try:
         env = dict(os.environ, BSLAP_SESSION=str(session))
         with subprocess.Popen([str(runner), meta['rom'], '-P' + system, '--core=' + core,
@@ -436,7 +463,7 @@ def play(session, meta, lobby=None):
                 lobby = None
             result = process.wait()
             if is_gb:
-                gb_backend().finish(session, meta, result)
+                gb_backend(meta.get('backend')).finish(session, meta, result)
             return result
     finally:
         if lobby:
@@ -498,10 +525,10 @@ def main():
                                'the host chooses Start. No typing is needed.\n\nChoose Continue '
                                'from the Pokemon title screen, then use the upstairs '
                                'Cable Club to trade or battle. Use the normal game-exit '
-                               'hotkey to return here.\n\nGen 1 and Gen 2 use SameBoy: both '
-                               'selected ROMs must exist on both devices. Temporary save '
-                               'copies are exchanged. Save in BOTH games before either '
-                               'player exits. The room-exit communication warning applies '
+                               'hotkey to return here.\n\nGen 1 and Gen 2 use the selected '
+                               'Game Boy link backend. The single-instance test runs only '
+                               'your own game; SameBoy fallback requires both ROMs on both '
+                               'devices. Save in BOTH games before exiting. The room-exit warning applies '
                                'only to Gen 3. '
                                'Save backups are kept in /storage/.config/butterflyos/'
                                'bslap/sessions. Blink and Bdex are separate tools.')
@@ -512,9 +539,9 @@ def main():
                     peer = ''
                     role = 'host' if choice == 0 else 'join'
                     if role == 'join':
-                        ui.frontend.draw_message('FINDING BSLAP HOSTS',
-                                                 'Searching your local network...', 'Searching...')
-                        rooms = discover()
+                        rooms = discover(ui=ui)
+                        if rooms is None:
+                            continue
                         if not rooms:
                             ui.message('NO HOST FOUND', 'Open Host on the other device '
                                        'first, then choose Join again. Both devices need '
@@ -560,7 +587,7 @@ def main():
                             continue
                     elif not join_lobby(ui, meta):
                         continue
-                    if meta['game_code'].startswith('G') and not any(
+                    if meta.get('backend') == 'sameboy-dual' and not any(
                             p.suffix.lower() in ('.gb', '.gbc') and
                             digest(p) == meta.get('remote_rom_sha') for p in games):
                         if lobby:

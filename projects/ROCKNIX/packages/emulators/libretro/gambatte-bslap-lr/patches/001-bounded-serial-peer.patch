@@ -1,0 +1,464 @@
+diff --git a/libgambatte/libretro/libretro.cpp b/libgambatte/libretro/libretro.cpp
+index b4f337f..1288d45 100644
+--- a/libgambatte/libretro/libretro.cpp
++++ b/libgambatte/libretro/libretro.cpp
+@@ -339,6 +339,7 @@ static void audio_resampler_init(bool startup)
+ /***************************/
+ 
+ static bool internal_palette_active = false;
++static bool palette_switch_buttons_enabled = false;
+ static size_t internal_palette_index = 0;
+ static unsigned palette_switch_counter = 0;
+ 
+@@ -1325,7 +1326,7 @@ static void update_input_state(void)
+    bool palette_prev = false;
+    bool palette_next = false;
+    bool palette_switch_enabled =
+-       (libretro_supports_set_variable && internal_palette_active);
++       (palette_switch_buttons_enabled && libretro_supports_set_variable && internal_palette_active);
+ 
+    if (libretro_supports_bitmasks)
+    {
+@@ -1483,7 +1484,7 @@ static void netpacket_disconnected(uint16_t client_id)
+ 
+ static void netpacket_stop() { netplay_serial->netplayStop(); }
+ 
+-#define GAMBATTE_NETPACKET_VERSION "gambatte-netpacket-v1"
++#define GAMBATTE_NETPACKET_VERSION "bslap-gambatte-netpacket-v3"
+ // Netpacket version of the LinkCable
+ const struct retro_netpacket_callback netpacket_iface = {
+     netpacket_start,            /* start */
+@@ -1503,7 +1504,7 @@ void retro_get_system_info(struct retro_system_info *info)
+ #define GIT_VERSION ""
+ #endif
+ #ifdef HAVE_NETWORK
+-   info->library_version = "v0.5.0-netpacket";
++   info->library_version = "v0.5.0-bslap-netpacket";
+ #else
+    info->library_version = "v0.5.0" GIT_VERSION;
+ #endif
+@@ -2063,6 +2064,11 @@ static void check_variables(bool startup)
+ 
+    unsigned colorCorrection = 0;
+    struct retro_variable var = {0};
++   var.key = "gambatte_gb_palette_switching";
++   palette_switch_buttons_enabled =
++         environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value &&
++         !strcmp(var.value, "enabled");
++   var.value = NULL;
+    var.key = "gambatte_gbc_color_correction";
+    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+    {
+@@ -2579,8 +2585,11 @@ size_t retro_get_memory_size(unsigned id)
+    return 0;
+ }
+ 
++extern unsigned long bslap_serial_frame;
++
+ void retro_run()
+ {
++   ++bslap_serial_frame;
+    static uint64_t samples_count = 0;
+    static uint64_t frames_count = 0;
+ 
+diff --git a/libgambatte/libretro/libretro_core_options.h b/libgambatte/libretro/libretro_core_options.h
+index 536e736..0278967 100644
+--- a/libgambatte/libretro/libretro_core_options.h
++++ b/libgambatte/libretro/libretro_core_options.h
+@@ -50,6 +50,9 @@ extern "C" {
+  *   frontend language definition */
+ 
+ struct retro_core_option_v2_definition option_defs_us[] = {
++    {"gambatte_gb_palette_switching", "GB Palette Cycling with L/R", NULL,
++     "Allow shoulder buttons to cycle internal palettes. Disabled preserves the selected palette.",
++     NULL, NULL, {{"disabled", NULL}, {"enabled", NULL}, {NULL, NULL}}, "disabled"},
+     {"gambatte_gb_colorization",
+      "GB Colorization",
+      NULL,
+diff --git a/libgambatte/libretro/netplay_serial.cpp b/libgambatte/libretro/netplay_serial.cpp
+index 051000d..ede7768 100644
+--- a/libgambatte/libretro/netplay_serial.cpp
++++ b/libgambatte/libretro/netplay_serial.cpp
+@@ -1,128 +1,193 @@
+ #include "netplay_serial.h"
+ #include "gambatte_log.h"
+-#include <string.h>
+-#include <math.h>
++#include <time.h>
++#include <unistd.h>
++#include <stdlib.h>
+ 
+-NetplaySerial::NetplaySerial() : dataAvailable_(0), hasPeer_(false)
+-{
++bool bslap_serial_trace = false;
++unsigned long bslap_serial_frame = 0;
++static unsigned trace_packets = 0, trace_controls = 0;
++void bslap_serial_control(unsigned oldSC, unsigned newSC, unsigned data, unsigned long cc) {
++    if (bslap_serial_trace && trace_controls++ < 512)
++        gambatte_log(RETRO_LOG_INFO, "Bslap SC frame=%lu cc=%lu old=%02x new=%02x sb=%02x\n",
++                     bslap_serial_frame, cc, oldSC, newSC, data);
+ }
++static void trace_packet(const char *event, unsigned type, uint32_t id, unsigned data, unsigned clock) {
++    if (bslap_serial_trace && trace_packets++ < 512)
++        gambatte_log(RETRO_LOG_INFO, "Bslap %s frame=%lu type=%u id=%u data=%02x fast=%u\n",
++                     event, bslap_serial_frame, type, id, data, clock);
++}
++
++namespace { enum { REQUEST = 1, RESPONSE = 2, CANCEL = 3 }; }
++
++NetplaySerial::NetplaySerial() : send_cb_(NULL), poll_cb_(NULL), hasPeer_(false),
++    count_(0), nextId_(0), waitingId_(0), outgoing_(0), response_(0), responseReady_(false),
++    host_(false), externalValid_(false), externalData_(0) {}
++NetplaySerial::~NetplaySerial() {}
+ 
+-NetplaySerial::~NetplaySerial()
+-{
++void NetplaySerial::reset_() {
++    count_ = 0;
++    waitingId_ = 0;
++    responseReady_ = false;
++    externalValid_ = false;
+ }
+ 
+-void NetplaySerial::netplayStart(uint16_t clientId, retro_netpacket_send_t sendCallback, retro_netpacket_poll_receive_t pollCallback)
+-{
+-    gambatte_log(RETRO_LOG_DEBUG, "Starting netplay!\n");
++void NetplaySerial::netplayStart(uint16_t clientId, retro_netpacket_send_t sendCallback,
++                                retro_netpacket_poll_receive_t pollCallback) {
++    reset_();
++    bslap_serial_trace = getenv("BSLAP_SERIAL_TRACE") != NULL;
++    trace_packets = trace_controls = 0;
++    // connected/disconnected callbacks are host-only.
++    host_ = clientId == 0;
++    hasPeer_ = clientId != 0;
+     send_cb_ = sendCallback;
+     poll_cb_ = pollCallback;
+ }
+ 
+-void NetplaySerial::netplayStop()
+-{
+-    gambatte_log(RETRO_LOG_DEBUG, "Stopping netplay!\n");
++void NetplaySerial::netplayStop() {
++    hasPeer_ = false;
+     send_cb_ = NULL;
+     poll_cb_ = NULL;
+-    hasPeer_ = false;
+-    dataAvailable_ = 0;
++    reset_();
+ }
+ 
+-bool NetplaySerial::netplayConnect(uint16_t clientId)
+-{
+-    if (hasPeer_)
+-    {
+-        gambatte_log(RETRO_LOG_DEBUG, "Client tried to connect but we already have a peer\n");
+-        return false;
+-    }
+-    else
+-    {
+-        gambatte_log(RETRO_LOG_DEBUG, "Client connected\n");
+-        hasPeer_ = true;
+-        return true;
+-    }
++bool NetplaySerial::netplayConnect(uint16_t clientId) {
++    if (hasPeer_) return false;
++    reset_();
++    hasPeer_ = true;
++    return true;
+ }
+ 
+-void NetplaySerial::netplayDisconnect(uint16_t clientId)
+-{
+-    gambatte_log(RETRO_LOG_DEBUG, "Client disconnected\n");
++void NetplaySerial::netplayDisconnect(uint16_t clientId) {
+     hasPeer_ = false;
++    reset_();
+ }
+ 
+-void NetplaySerial::netplayReceive(const void *buf, size_t len, uint16_t client_id)
+-{
+-    if (dataAvailable_ + len > NETPLAY_SERIAL_BUFFER_SIZE)
+-    {
+-        gambatte_log(RETRO_LOG_WARN, "[receive] buffer full, dropping packets...\n");
+-        return;
+-    }
+-    memcpy(&buffer_[dataAvailable_], buf, len);
+-    dataAvailable_ += len;
++bool NetplaySerial::isAvailable_() const {
++    return hasPeer_ && send_cb_ && poll_cb_;
+ }
+ 
+-bool NetplaySerial::check(unsigned char out, unsigned char &in, bool &fastCgb)
+-{
+-    if (!isAvailable_() || dataAvailable_ < 2)
+-    {
+-        return false;
++void NetplaySerial::packet_(unsigned char type, uint32_t id, unsigned char data, bool fast) {
++    if (!isAvailable_()) return;
++    unsigned char packet[8] = {type, data, (unsigned char)(fast ? 1 : 0), 0,
++                              (unsigned char)(id >> 24), (unsigned char)(id >> 16),
++                              (unsigned char)(id >> 8), (unsigned char)id};
++    trace_packet("TX", type, id, data, fast);
++    if (type == REQUEST && externalValid_) {
++        packet[2] |= 0x80;
++        packet[3] = externalData_;
+     }
+-    int read;
+-    unsigned char buffer[2];
+-    if ((read = getData_(&buffer, 2)) <= 0)
+-    {
+-        gambatte_log(RETRO_LOG_ERROR, "[check] Error during receive (read=%d)!\n", read);
+-        return false;
++    send_cb_(NETPLAY_SERIAL_PACKET_FLAGS, packet, sizeof(packet), RETRO_NETPACKET_BROADCAST);
++}
++
++void NetplaySerial::cancel_(uint32_t id) {
++    for (unsigned i = 0; i < count_; ++i) {
++        if (queue_[i].id != id) continue;
++        for (unsigned j = i + 1; j < count_; ++j) queue_[j - 1] = queue_[j];
++        --count_;
++        return;
+     }
+-    in = buffer[0];
+-    fastCgb = buffer[1];
+-    buffer[0] = out;
+-    buffer[1] = 128;
+-    send_cb_(NETPLAY_SERIAL_PACKET_FLAGS, buffer, 2, RETRO_NETPACKET_BROADCAST);
+-    return true;
+ }
+ 
+-unsigned char NetplaySerial::send(unsigned char data, bool fastCgb)
+-{
+-    if (!isAvailable_())
+-    {
+-        return 0xFF;
++void NetplaySerial::netplayReceive(const void *buf, size_t len, uint16_t clientId) {
++    if (!isAvailable_() || !buf || len != 8) return;
++    const unsigned char *p = static_cast<const unsigned char *>(buf);
++    uint32_t id = (uint32_t(p[4]) << 24) | (uint32_t(p[5]) << 16) |
++                  (uint32_t(p[6]) << 8) | p[7];
++    if (!id || (p[2] & 0x7E)) return;
++    const bool prepared = p[0] == REQUEST && (p[2] & 0x80);
++    if ((!prepared && p[3]) || (p[0] != REQUEST && (p[2] & 0x80))) return;
++    trace_packet("RX", p[0], id, p[1], p[2]);
++    if (p[0] == CANCEL) { cancel_(id); return; }
++    if (p[0] == RESPONSE) {
++        // A late response to a timed-out byte must not feed a later transfer.
++        if (id == waitingId_ && !responseReady_) {
++            response_ = p[1];
++            responseReady_ = true;
++        }
++        return;
+     }
+-    unsigned char buffer[2];
+-    buffer[0] = data;
+-    buffer[1] = fastCgb;
+-    send_cb_(NETPLAY_SERIAL_PACKET_FLAGS, buffer, 2, RETRO_NETPACKET_BROADCAST);
+-    // Poll data to wait for response
+-    while (!hasData_() && isAvailable_()) // TODO timeout
+-    {
+-        poll_cb_();
++    if (p[0] != REQUEST) return;
++    // Crossed internal-clock transfers exchange their outgoing bytes directly.
++    // Neither CPU can advance to external-clock check() while inside send().
++    if (waitingId_ && !responseReady_) {
++        unsigned char reply = outgoing_;
++        response_ = p[1];
++        if (prepared && externalValid_) {
++            // Both CPUs advanced from external probing to internal clocks
++            // before the LAN delivered either clock request. Reconcile that
++            // collision using the actual byte staged for external reception,
++            // with one stable clock authority. No game byte values are assumed.
++            if (host_) response_ = p[3];
++            else reply = externalData_;
++            if (bslap_serial_trace)
++                gambatte_log(RETRO_LOG_INFO,
++                    "Bslap crossed clocks: host=%u current=%02x prepared=%02x peer=%02x peer_prepared=%02x\n",
++                    host_ ? 1 : 0, outgoing_, externalData_, p[1], p[3]);
++        }
++        responseReady_ = true;
++        packet_(RESPONSE, id, reply, false);
++        return;
+     }
+-    int read;
+-    if ((read = getData_(&buffer, 2)) < 0)
+-    {
+-        gambatte_log(RETRO_LOG_ERROR, "[send] Received invalid data length (%d)\n", read);
+-        return 0xFF;
++    for (unsigned i = 0; i < count_; ++i) if (queue_[i].id == id) return;
++    if (count_ == NETPLAY_SERIAL_QUEUE_SIZE) {
++        gambatte_log(RETRO_LOG_WARN, "Bslap serial request queue full.\n");
++        return;
+     }
+-    return buffer[0];
++    queue_[count_].id = id;
++    queue_[count_].data = p[1];
++    queue_[count_].fast = (p[2] & 1) != 0;
++    ++count_;
+ }
+ 
+-bool NetplaySerial::isAvailable_()
+-{
+-    return send_cb_ != NULL && poll_cb_ != NULL;
++void NetplaySerial::externalReady(unsigned char data) {
++    externalData_ = data;
++    externalValid_ = true;
+ }
+ 
+-bool NetplaySerial::hasData_()
+-{
+-    return dataAvailable_ > 0;
++bool NetplaySerial::check(unsigned char out, unsigned char &in, bool &fastCgb) {
++    if (!isAvailable_() || !count_) return false;
++    Request request = queue_[0];
++    cancel_(request.id);
++    in = request.data;
++    fastCgb = request.fast;
++    packet_(RESPONSE, request.id, out, false);
++    externalValid_ = false;
++    return true;
+ }
+ 
+-int NetplaySerial::getData_(void *buf, size_t len)
+-{
+-    if (len > dataAvailable_ || len <= 0)
+-    {
+-        return -1;
++unsigned char NetplaySerial::send(unsigned char data, bool fastCgb) {
++    if (!isAvailable_()) return 0xFF;
++    // The peer may already be waiting for this byte.
++    unsigned char received;
++    bool clock;
++    if (check(data, received, clock)) return received;
++    if (++nextId_ == 0) ++nextId_;
++    waitingId_ = nextId_;
++    outgoing_ = data;
++    responseReady_ = false;
++    packet_(REQUEST, waitingId_, data, fastCgb);
++    struct timespec start, now;
++    clock_gettime(CLOCK_MONOTONIC, &start);
++    while (!responseReady_ && isAvailable_()) {
++        poll_cb_();
++        if (responseReady_ || !isAvailable_()) break;
++        clock_gettime(CLOCK_MONOTONIC, &now);
++        if ((now.tv_sec - start.tv_sec) * 1000L +
++            (now.tv_nsec - start.tv_nsec) / 1000000L >= 2000) {
++            packet_(CANCEL, waitingId_, 0, false);
++            waitingId_ = 0;
++            externalValid_ = false;
++            gambatte_log(RETRO_LOG_WARN, "Bslap serial byte timed out; link remains available for retry.\n");
++            return 0xFF;
++        }
++        usleep(100);
+     }
+-    int avail = len > dataAvailable_ ? dataAvailable_ : len;
+-    memcpy(buf, &buffer_, avail);
+-    memmove(&buffer_[0], &buffer_[avail], dataAvailable_ - avail);
+-    dataAvailable_ -= avail;
+-    return avail;
++    received = responseReady_ ? response_ : 0xFF;
++    // Also cancel a potentially queued copy of a crossed request.
++    packet_(CANCEL, waitingId_, 0, false);
++    waitingId_ = 0;
++    responseReady_ = false;
++    externalValid_ = false;
++    return received;
+ }
+diff --git a/libgambatte/libretro/netplay_serial.h b/libgambatte/libretro/netplay_serial.h
+index 0ea258b..d84f776 100644
+--- a/libgambatte/libretro/netplay_serial.h
++++ b/libgambatte/libretro/netplay_serial.h
+@@ -3,11 +3,9 @@
+ 
+ #include <gambatte.h>
+ #include <libretro.h>
+-#include <time.h>
+ 
+-#define NETPLAY_SERIAL_PACKET_FLAGS                                            \
+-  RETRO_NETPACKET_FLUSH_HINT | RETRO_NETPACKET_RELIABLE
+-#define NETPLAY_SERIAL_BUFFER_SIZE 128
++#define NETPLAY_SERIAL_PACKET_FLAGS (RETRO_NETPACKET_FLUSH_HINT | RETRO_NETPACKET_RELIABLE)
++#define NETPLAY_SERIAL_QUEUE_SIZE 64
+ 
+ class NetplaySerial : public gambatte::SerialIO {
+ public:
+@@ -19,19 +17,25 @@ public:
+   bool netplayConnect(uint16_t clientId);
+   void netplayDisconnect(uint16_t clientId);
+   void netplayReceive(const void *buf, size_t len, uint16_t client_id);
++  virtual void externalReady(unsigned char data);
+   virtual bool check(unsigned char out, unsigned char &in, bool &fastCgb);
+   virtual unsigned char send(unsigned char data, bool fastCgb);
+ 
+ private:
+-  bool isAvailable_();
+-  bool hasData_();
+-  int getData_(void *buf, size_t len);
+-
++  struct Request { uint32_t id; unsigned char data; bool fast; };
++  bool isAvailable_() const;
++  void reset_();
++  void packet_(unsigned char type, uint32_t id, unsigned char data, bool fast);
++  void cancel_(uint32_t id);
+   retro_netpacket_send_t send_cb_;
+   retro_netpacket_poll_receive_t poll_cb_;
+   bool hasPeer_;
+-  char buffer_[NETPLAY_SERIAL_BUFFER_SIZE]; // Buffer to store received bytes
+-  uint16_t dataAvailable_;
++  Request queue_[NETPLAY_SERIAL_QUEUE_SIZE];
++  unsigned count_;
++  uint32_t nextId_, waitingId_;
++  unsigned char outgoing_, response_;
++  bool responseReady_;
++  bool host_, externalValid_;
++  unsigned char externalData_;
+ };
+-
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/libgambatte/src/gambatte-memory.cpp b/libgambatte/src/gambatte-memory.cpp
+index e4c3435..32842f2 100644
+--- a/libgambatte/src/gambatte-memory.cpp
++++ b/libgambatte/src/gambatte-memory.cpp
+@@ -24,6 +24,10 @@
+ #include "bootloader.h"
+ #include <cstring>
+ 
++#ifdef HAVE_NETWORK
++extern void bslap_serial_control(unsigned, unsigned, unsigned, unsigned long);
++#endif
++
+ namespace gambatte {
+ 
+ Memory::Memory(Interrupter const &interrupter) :
+@@ -682,10 +686,15 @@ void Memory::nontrivial_ff_write(unsigned const p, unsigned data, unsigned long
+ 		updateSerial(cc);
+ 		break;
+ 	case 0x02:
++#ifdef HAVE_NETWORK
++        bslap_serial_control(ioamhram_[0x102], data, ioamhram_[0x101], cc);
++#endif
+ 		updateSerial(cc);
+ 		serialCnt_ = 8;
+ 
+ #ifdef HAVE_NETWORK
++        if ((data & 0x81) == 0x80 && serial_io_ != 0)
++            serial_io_->externalReady(ioamhram_[0x101]);
+ 		if ((data & 0x81) == 0x81)
+       {
+ 			unsigned char receivedByte = 0xFF;
+diff --git a/libgambatte/src/serial_io.h b/libgambatte/src/serial_io.h
+index ad94255..8c3e1c0 100644
+--- a/libgambatte/src/serial_io.h
++++ b/libgambatte/src/serial_io.h
+@@ -26,6 +26,9 @@ class SerialIO
+ 	public:
+ 		virtual ~SerialIO() {};
+ 
++		// Remember the byte prepared while the external clock was armed.
++		virtual void externalReady(unsigned char) {}
++
+ 		virtual bool check(unsigned char out, unsigned char& in, bool& fastCgb) = 0;
+ 		virtual unsigned char send(unsigned char data, bool fastCgb) = 0;
+ };

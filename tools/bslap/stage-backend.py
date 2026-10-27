@@ -42,6 +42,7 @@ def stage(install, build):
     for package, version, target in (
         ('retroarch', 'bdba046fa6766380bc2457532f38e589df769aaf', '/usr/bin/retroarch'),
         ('sameboy-lr', '2d29ece3b8e7ec44347c9daad0fabb84912ed44f', '/usr/lib/libretro/sameboy_libretro.so'),
+        ('gambatte-bslap-lr', '466e8b174982b3fdb5a026f60efc51972d1576b0', '/usr/lib/libretro/gambatte_bslap_libretro.so'),
     ):
         source = build / 'install_pkg' / (package + '-' + version) / target.lstrip('/')
         if not source.is_file():
@@ -51,9 +52,14 @@ def stage(install, build):
     if len(infos) != 1:
         raise SystemExit('Expected one installed gpSP core info file.')
     shutil.copy2(infos[0], install / 'usr/lib/libretro/gpsp_bslap_libretro.info')
+    gambatte_infos = list((build / 'install_pkg').glob('core-info-*/usr/lib/libretro/gambatte_libretro.info'))
+    if len(gambatte_infos) != 1:
+        raise SystemExit('Expected one installed Gambatte core info file.')
+    shutil.copy2(gambatte_infos[0], install / 'usr/lib/libretro/gambatte_bslap_libretro.info')
     manifest = dict(schema=1, files=files, sources={
         'retroarch32': '9e1c1e8ac897625ed75920019f4f62a173a4eedf',
         'gpsp': '5819380c2ffb0900219d700a382ee68c464ebb99',
+        'gambatte-netpacket': '466e8b174982b3fdb5a026f60efc51972d1576b0',
         'sameboy': '2d29ece3b8e7ec44347c9daad0fabb84912ed44f',
         'retroarch': 'bdba046fa6766380bc2457532f38e589df769aaf',
     })

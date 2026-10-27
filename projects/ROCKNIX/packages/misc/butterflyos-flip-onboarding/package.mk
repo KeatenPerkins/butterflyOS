@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.61"
+PKG_VERSION="2.6.62"
 PKG_LICENSE="GPL-2.0-or-later AND MIT AND BSD-3-Clause"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
@@ -100,6 +100,7 @@ makeinstall_target() {
         "${PKG_DIR}/sources/butterflyos-gen1-encounter-maps.json" \
         "${PKG_DIR}/sources/butterflyos-bslap.py" \
         "${PKG_DIR}/sources/butterflyos-bslap-gb.py" \
+        "${PKG_DIR}/sources/butterflyos-bslap-gb-netpacket.py" \
         "${PKG_DIR}/sources/butterflyos-save-backup.py" \
         "${PKG_DIR}/sources/butterflyos-game-card" \
         "${PKG_DIR}/sources/butterflyos-gb-sprite-cache.py" \
@@ -173,6 +174,7 @@ makeinstall_target() {
              "${INSTALL}/usr/bin/butterflyos-bdex-sdl.py" \
              "${INSTALL}/usr/bin/butterflyos-bslap.py" \
              "${INSTALL}/usr/bin/butterflyos-bslap-gb.py" \
+             "${INSTALL}/usr/bin/butterflyos-bslap-gb-netpacket.py" \
              "${INSTALL}/usr/bin/butterflyos-save-backup.py" \
              "${INSTALL}/usr/bin/butterflyos-game-card" \
              "${INSTALL}/usr/bin/butterflyos-gb-sprite-cache.py" \

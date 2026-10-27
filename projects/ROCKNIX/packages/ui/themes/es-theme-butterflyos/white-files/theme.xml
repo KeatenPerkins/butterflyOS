@@ -276,7 +276,7 @@
       <alignment>left</alignment>
       <verticalAlignment>center</verticalAlignment>
       <color>d9e7ffff</color>
-      <text>Add/Remove Favorite</text>
+      <text>Options</text>
       <zIndex>8</zIndex>
     </text>
   </view>

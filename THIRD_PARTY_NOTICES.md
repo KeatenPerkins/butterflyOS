@@ -161,3 +161,14 @@ Game-specific evolution facts are checked against the pret disassembly and
 decompilation projects. Exact references, data boundaries, corrections and
 regeneration instructions are in
 [Bdex acquisition sources](documentation/BDEX_ACQUISITION_SOURCES.md).
+
+
+### Bslap single-instance Game Boy backend
+
+The local test build includes a separate Gambatte Netpacket core from
+[McDjuady/gambatte-libretro](https://github.com/McDjuady/gambatte-libretro), pinned
+to `466e8b174982b3fdb5a026f60efc51972d1576b0`, under GPL-2.0-only. Its source
+recipe and local serial/clock patches are in
+`projects/ROCKNIX/packages/emulators/libretro/gambatte-bslap-lr/`. This does not
+replace the ordinary Gambatte core. No game ROMs, saves or distribution assets
+are included. Backend reproduction instructions are in `tools/bslap/README.md`.

@@ -3,6 +3,7 @@
 # Copyright (C) 2026 Keaten Perkins
 """Controller-first Bdex. Shares Blink's ROM cache, rendering and A/B controls."""
 import json
+import os
 from pathlib import Path
 import re
 import sqlite3
@@ -240,13 +241,46 @@ class Bdex:
         except self.error_types as error:
             self.ui.message('BDEX STOPPED SAFELY', str(error))
 
+    def rom_candidates(self, generation, save_path='', roots=None):
+        """Find ROMs in nested system folders on either card, without link loops."""
+        folder, extensions = {1: ('gb', ('.gb', '.zip')), 2: ('gbc', ('.gbc', '.zip')),
+                              3: ('gba', ('.gba', '.zip'))}[generation]
+        rom_filter = engine.load_module('bdex_discovery_gba', HERE / 'butterflyos_rom_filter.py') if generation == 3 else None
+        roots = ('/storage/roms', '/storage/games-external/roms') if roots is None else roots
+        found, seen = [], set()
+        for root in roots:
+            # os.walk also accepts a symlink as its starting folder, as used by
+            # card layouts, but does not follow nested directory links/loops.
+            for directory, subdirs, files in os.walk(Path(root) / folder, followlinks=False):
+                subdirs.sort()
+                for name in sorted(files):
+                    if not name.lower().endswith(extensions):
+                        continue
+                    path = os.path.join(directory, name)
+                    resolved = os.path.realpath(path)
+                    if resolved in seen or not os.path.isfile(path):
+                        continue
+                    seen.add(resolved)
+                    if rom_filter and not rom_filter.gen3_rom_family(path):
+                        continue
+                    found.append(path)
+        stem = Path(save_path).stem.lower()
+        matching = [path for path in found if Path(path).stem.lower() == stem]
+        if matching:
+            return matching
+        family = self.blink._game_family(Path(save_path).name)
+        matching = [path for path in found if family and
+                    (rom_filter.gen3_rom_family(path) if rom_filter else
+                     self.blink._game_family(Path(path).name)) == family]
+        return matching or found
+
     def prepare_cache(self, save_path='', generation=None, force=False):
         generation = self.generation if generation is None else generation
         gb = engine.load_module('bdex_rom_cache_%d' % generation, HERE / ('butterflyos-gen3-sprite-cache.py' if generation == 3 else 'butterflyos-gb-sprite-cache.py'))
         gifts = engine.load_module('bdex_gen1_roms', HERE / ('butterflyos-gen%d-gift.py' % generation))
         choices = []
         supported = gifts.ROM_PROFILES if generation == 3 else gifts.SUPPORTED_ROMS
-        for path in self.blink._rom_candidates(generation, save_path):
+        for path in self.rom_candidates(generation, save_path):
             try:
                 digest = engine.sha(gb.read_rom_info(path)[0] if generation == 3 else gb.read_rom(path))
                 if digest in supported:
@@ -550,7 +584,7 @@ class Bdex:
         allowlist = acquisition.supported_games(self.generation, gifts)
         choices = []
         seen = set()
-        for path in self.blink._rom_candidates(self.generation, ''):
+        for path in self.rom_candidates(self.generation):
             try:
                 game, data = acquisition.qualify(path, reader, allowlist)
                 digest = engine.sha(data)

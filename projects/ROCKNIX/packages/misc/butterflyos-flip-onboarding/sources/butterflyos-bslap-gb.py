@@ -17,6 +17,7 @@ import struct
 import subprocess
 import time
 
+ID = 'sameboy-dual'
 CORE = Path('/usr/lib/libretro/sameboy_libretro.so')
 FRONTEND = Path('/usr/bin/retroarch')
 CORE_SHA = 'c8564b6539097ecf0ee90bd6edf0574a24576e3ca28e93d0288aaefd013b3fbd'

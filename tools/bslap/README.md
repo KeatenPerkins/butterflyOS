@@ -4,8 +4,8 @@ The `bslap-backend` package installs the exact live-tested ARM32 binaries at
 `/usr/libexec/bslap/retroarch32` and
 `/usr/lib/libretro/gpsp_bslap_libretro.so`, plus a matching core-info alias.
 It leaves normal RetroArch/gpSP untouched. Stripping is disabled for this package
-so the tested binary hashes remain unchanged. Native SameBoy and RetroArch come
-from their existing dependency packages. Their completed package hashes are
+so the tested binary hashes remain unchanged. Native RetroArch, the dedicated Gambatte Netpacket core and SameBoy fallback
+come from their dependency packages. Their completed package hashes are
 recorded alongside the dedicated pair in `/usr/share/bslap/backend.json`.
 The manifest-derived backend ID also prevents incompatible builds joining.
 
@@ -40,7 +40,7 @@ image uses the previously tested outputs. Source patches and revision details
 remain in `tools/gpsp-link` and `documentation/EXPERIMENTAL_GPSP_LINK.md` as
 historical development records; those diagnostic launchers are not installed.
 
-RetroArch is GPL-3.0-or-later, gpSP GPL-2.0-only and SameBoy MIT. Keep the pinned
+RetroArch is GPL-3.0-or-later, gpSP and Gambatte GPL-2.0-only, and SameBoy MIT. Keep the pinned
 upstream source revisions and local patches available with redistributed builds.
 
 ## Build and verification
@@ -52,3 +52,49 @@ After assembly, verify every manifest hash against the actual image, the Bslap
 scripts/module/icon, and normal emulator binaries. No user ROM/save fixtures are
 installed. Run both targeted Bslap test scripts before building, then test the
 flashed image on both devices, including a reboot and ordinary-save reload.
+
+
+## Single-instance Gen 1/2 experiment (October 27)
+
+See [the experiment plan](../../documentation/BSLAP_SINGLE_INSTANCE_PLAN.md).
+This branch adds `gambatte-bslap-lr` to the backend dependencies and records its
+completed package hash in the manifest. The ordinary Gambatte binary is not
+replaced. The core source is GPL-2.0-only, pinned to
+`McDjuady/gambatte-libretro@466e8b174982b3fdb5a026f60efc51972d1576b0`.
+The package's `001-bounded-serial-peer.patch` includes the safety fixes and
+optional shoulder palette cycling adapted to this older source revision.
+No distribution ROMs or game data are included.
+
+Build just this package before considering a full image. Run the Python Bslap
+and Netpacket tests. Compile `tests/bslap-netpacket-serial-test.cpp` together with
+the patched `libgambatte/libretro/netplay_serial.cpp`, using C++98,
+`-DHAVE_NETWORK -DHAVE_STDINT_H` and the core's `libgambatte/src`,
+`libgambatte/include`, `libgambatte/libretro` and
+`libgambatte/libretro-common/include` include directories. This test runs without
+ROMs and checks the real serial implementation, including its two-second timeout.
+On a development device, the Python native-core smoke test accepts `--core`,
+`--rom` and optional `--save`. Run it with no emulator open. It reads ROM/SRAM
+and runs 120 headless frames; it does not save or overwrite files.
+
+The native frontend and sameboy fallback remain installed and are hash-checked.
+Use the `gb-backend` setting documented in the plan to compare both modes. Both
+peers need matching manifests and selected Game Boy backends. Trade, battle,
+repeated room entry/exit, save/reload, RTC, controls and audio are mandatory live
+tests before considering this candidate for release.
+
+Prepare the live-test bundle with:
+
+```sh
+python3 tools/bslap/prepare-netpacket-live.py \
+  --build build.ROCKNIX-RK3566.aarch64 \
+  --out .cache/bslap-single-instance-live-20261027
+```
+
+Copy its `live-test.tar` to each development device, extract into
+`/storage/.config/butterflyos/bslap-single-instance-test`, then run the extracted
+`activate.py` with no game open. It checks the installed native frontend and
+fallback hashes, then temporarily binds the launcher and test manifest. Reopen
+Bslap on both devices. Reboot restores the image's original launcher/backend;
+the staged test files remain available for later activation. Activation is for
+matching development images; it deliberately fails if installed dependencies
+differ. No ROM or save files are included in the bundle.

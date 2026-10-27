@@ -57,6 +57,13 @@ branch. Pre-evolution locations and intermediate evolution steps are also shown.
 Names come from your shared ROM-derived catalog; without a prepared catalog,
 species numbers are used. Selecting a different game changes its locations and rules.
 
+The next build also searches subfolders recursively inside `gb`, `gbc` and `gba`
+on both the OS card and second game card. This applies to source-ROM selection,
+cache preparation, sprite refresh and Where to find. For example,
+`roms/gba/Pokemon/Gen 3/Emerald.gba` is discoverable. Duplicate paths to the same
+file are suppressed; nested directory symlinks are not followed. ROM qualification
+and supported-language/revision restrictions still apply.
+
 Examples of generation-specific rules include Yellow's starter Pikachu refusing
 a Thunder Stone; Gen 2 versus Gen 3 friendship time windows; FireRed/LeafGreen
 lacking time-of-day evolutions; Wurmple's fixed personality branch; Shedinja's

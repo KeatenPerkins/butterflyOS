@@ -9,6 +9,12 @@ is not required. Open **Tools → Bslap** to trade or battle between two Butterf
 devices on the same local network. Each player controls their own game. Blink remains the
 separate save-editing tool; Bdex stores your collection outside the games.
 
+The next local test build replaces Gen 1/2 dual emulation with a dedicated
+single-instance Gambatte Netpacket backend. Each device runs its own game, with
+no peer ROM or save exchange. The previous SameBoy backend remains available as
+a development fallback. See the [test plan](BSLAP_SINGLE_INSTANCE_PLAN.md) for
+qualification status; this change has not yet been published.
+
 ## Supported games
 
 - **Gen 1:** English Red, Blue and Yellow.
@@ -50,14 +56,13 @@ initial Select hotkey in its Bslap session even though normal games used Menu.
 Bluetooth controllers retain their configured hotkeys; connect them before
 launching the session.
 
-In the next build, Bslap's Gen 1 sessions select **Special 3** for monochrome
-Game Boy rendering. SameBoy includes its separate background and two sprite
-palettes, using the color values from Gambatte's Special 3 preset. Red/Blue use
-this palette; Yellow retains its native GBC colors through automatic hardware
-selection. Gen 2 rendering and normal-game Gambatte choices are unchanged.
-This core update changes Bslap's compatibility identifier, so both devices need
-matching backends. A Gen 1 trade/battle and Gen 2 smoke test are required before
-release qualification of this change.
+In the next build, Bslap's Gen 1 sessions select Gambatte's **Special 3** for
+monochrome Game Boy rendering. Red/Blue use this palette; Yellow retains its
+native GBC colors through automatic hardware selection. Gen 2 rendering and
+normal-game Gambatte choices are unchanged. Both devices need matching Bslap
+backends. The single-instance backend includes a clock-collision tie-break for
+the first link request, sequence-tagged replies and recoverable byte waits.
+The full rebuilt image still needs device testing.
 
 B cancels a waiting lobby. Hosting does not start a game before the other player
 is ready and the host chooses Start. No passwords or ROM data are exchanged.
@@ -91,24 +96,31 @@ and launch logs. Automatic save states are disabled; use normal in-game saves.
 **Gen 3:** gpSP links the independent games directly. In-game saves update each
 selected ROM’s adjacent `.srm`; Bslap preserves before/after copies.
 
-**Gen 1/2:** SameBoy emulates both linked Game Boys on both devices, showing and
-playing only the local player’s screen and audio. Both selected ROMs must already
-exist on both devices. Only temporary save copies cross the LAN, authenticated
-with a per-session token. Each original save stays untouched during play. After
-a clean emulator exit, the local player’s validated result is copied back to its
-original path, unless that original changed independently. Failed or conflicting
-results stay in the session folder for recovery. Each device keeps both working
-saves under `content/`; the host owns `player1.srm`, and the joining player owns
-`player2.srm` (the joiner’s updated copy can be under `content/.netplay/`).
-Existing Gambatte RTC trailers are retained. SameBoy RTC files stay in the test
-session; clock persistence across cores has not been fully qualified.
+**Gen 1/2 in the next local build:** each device runs only its own selected ROM
+and a local working save. Only serial-link messages cross the LAN. The original
+save stays untouched during play. After a clean emulator exit, the validated
+result is returned to its original path, unless the original save or clock
+changed independently. Failed or conflicting results remain in the session
+folder for recovery. Working files are under `content/local.srm`; the joining
+frontend can also use `content/.netplay/local.srm`. The launcher distinguishes
+an updated result from an unchanged seed copy. Existing appended save trailers
+are preserved. Adjacent Gambatte `.rtc` sidecars are backed up as `before.rtc`
+and returned when available. Save and RTC files are replaced individually;
+the pair is not an atomic transaction if power is lost during return.
+
+The earlier SameBoy backend runs both games on each device and exchanges
+working save copies on TCP 55438. In that fallback mode both ROMs must exist
+on both devices; the host owns `player1.srm` and the joiner owns `player2.srm`.
+SameBoy RTC files remain in its session. Cross-core clock persistence is not
+fully qualified; keep the session backups.
 
 To restore the original backup:
 
 1. Exit both games and Bslap.
 2. Copy the current ordinary save somewhere safe.
 3. Read the original save path in `session.json` and copy that session’s
-   `before.srm` back to that exact path.
+   `before.srm` back to that exact path. If that session has `before.rtc`, restore
+   it to the same game's adjacent `.rtc` path as well.
 4. Open the game and choose Continue, rather than loading an older state.
 
 For a failed Gen 1/2 session, preserve the entire folder before attempting
@@ -122,10 +134,19 @@ Emerald. This is not an exhaustive every-game, every-host-role matrix. The Gen 3
 room-exit limitation remains. Final-image testing is separate from live staging.
 
 Bslap packages its dedicated ARM32 RetroArch/gpSP pair separately from normal
-emulator defaults and uses the existing native RetroArch/SameBoy pair for Gen 1/2.
+emulator defaults. The next local build uses native RetroArch with its dedicated
+Gambatte Netpacket core for Gen 1/2, retaining native SameBoy as a fallback.
 Installed hashes are checked against `/usr/share/bslap/backend.json`.
 Local discovery uses UDP 55436; lobby readiness uses TCP 55437; gameplay uses
-55435, with a temporary Gen 1/2 save exchange on TCP 55438.
+55435. Only the SameBoy fallback uses the temporary save exchange on TCP 55438.
 
 Build inputs and reproduction notes are in
 [the backend build guide](../tools/bslap/README.md).
+
+
+### Join search in the next build
+
+Join keeps looking for a compatible host for up to **60 seconds** when none is
+found, with an on-screen countdown. Press **B** to cancel and return to Bslap.
+Hosts appear promptly once discovered; you do not need to wait the full minute
+when a compatible host is already available.
