@@ -2,7 +2,7 @@
 
 Reviewed: 2026-10-27.
 
-## v1.6.0 — build 20261027, approved for publication
+## Published v1.6.0 — build 20261027
 
 - Exact tested runtime source: `4ea693e232925b145332986834d6dfbea5924514`.
   Onboarding 2.6.62; all 670 package tasks and 17 image checks passed.
@@ -26,8 +26,11 @@ Reviewed: 2026-10-27.
   is a strict five-file repack of the tested KERNEL/SYSTEM and matching metadata;
   production manifest/archive validation passes. No new end-to-end OTA install
   test is claimed for this build.
-- Upload verification and public updater discovery are recorded separately at
-  publication. See [v1.6.0 release notes](RELEASE_NOTES_v1.6.0.md) and
+- Published as [v1.6.0](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.6.0),
+  Latest stable. All eight uploaded asset sizes and GitHub SHA-256 digests match
+  the verified local files. Read-only production-updater discovery returned
+  build 20261027 and the exact official manifest; no additional OS download or
+  installation was initiated. See [release notes](RELEASE_NOTES_v1.6.0.md) and
   [the release audit](PUBLIC_RELEASE_AUDIT.md).
 
 <details>

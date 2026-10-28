@@ -5,7 +5,15 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
-## October 27, 2026: v1.6.0 qualification
+## October 27, 2026 stable release: v1.6.0
+
+Published as [v1.6.0](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.6.0),
+Latest stable, after all eight uploaded asset sizes and GitHub SHA-256 digests
+matched the verified local files. Public production-updater discovery returned
+build 20261027 with the exact official manifest. This publication check was
+read-only and initiated no OS download or installation. The release tag points
+to documentation commit `b741b1383eea10b52d8296dd1872197e351944b0`; the runtime
+source below remains the exact source of the tested image.
 
 Runtime source: `4ea693e232925b145332986834d6dfbea5924514`, build `20261027`,
 onboarding 2.6.62. All 670 package tasks and 17 image checks passed. Image
