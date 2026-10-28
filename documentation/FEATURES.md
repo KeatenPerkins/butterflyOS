@@ -16,6 +16,9 @@ Available from **v1.4.0**, build **20261022**.
   players confirm readiness before the host starts the games.
 - Trade and battle within Gen 1, Gen 2 or Gen 3 using supported English games.
   Each player controls their own game. No cable or ESP32 adapter is required.
+- From v1.6.0, Gen 1/2 run one Game Boy per device with a dedicated link core.
+  Each player needs only their own ROM/save. Join searches for up to 60 seconds,
+  with B to cancel. Normal game defaults are separate.
 - Per-session ordinary-save backups and logs. Gen 1/2 use working-save copies
   and validate the local result before returning it after a clean exit.
 - Gen 3 can show a communication error on room exit. Let one player initiate
@@ -28,6 +31,10 @@ See [Bslap setup, recovery and limitations](BSLAP.md). No games, saves or Pokém
 assets are bundled. Time Capsule trading and internet play are not included.
 
 ## Save protection and Bdex
+
+From v1.6.0, Bdex includes offline acquisition/evolution guidance for supported
+Gen 1–3 games and recursively finds matching ROMs in nested system folders on
+both cards. This includes missing species; it does not inspect story progress.
 
 Available from v1.2.0, rebuilt locally and tested on the local test device.
 
@@ -42,7 +49,8 @@ Available from v1.2.0, rebuilt locally and tested on the local test device.
   references; the optional read-only web viewer uses the root SSH password.
 - From v1.5.0, Bdex's inspector adds sprites and generation-aware stat graphs.
   Gen 1 **Where to find** reads grass/cave and Surfing locations from a matching
-  supported Red, Blue or Yellow ROM; other encounter types are not indexed yet.
+  supported Red, Blue or Yellow ROM. v1.6.0 adds the offline Gen 1–3 acquisition
+  reference described above.
 - Names and sprites come from the user's matching ROMs. No Pokémon ROMs, saves
   or extracted sprite caches are bundled. See the guides for compatibility,
   cross-generation conversion and backup limitations.
@@ -56,7 +64,7 @@ Available from v1.2.0, rebuilt locally and tested on the local test device.
 - Games, Favorites, Media, Tools, and Settings home destinations
 - Tools also remains accessible through the Start main menu; Settings opens
   that same main menu
-- Correct game-list hints: **Y: Search**, **X: Add/Remove Favorite**
+- Correct game-list hints: **Y: Search**, **X: Options**
 - Matching system art for Atari 2600, PC Engine CD, Sega CD, and distinct
   Arcade, Final Burn Neo, and CPS-I/II/III cabinets
 - Systems shown only when recognized games are present

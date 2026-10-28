@@ -19,8 +19,19 @@ confirm whether a trade was saved; check both ordinary saves after restarting.
 
 Gen 1 and Gen 2 use a different link implementation and passed user testing
 without this error or crashes. See [Bslap](BSLAP.md) for save backups, recovery,
-qualified games and other scope limits. Gen 1/2 clock persistence across cores
-has not been fully qualified; existing Gambatte RTC trailers are retained.
+qualified games and other scope limits. Gen 1/2 clock persistence across cores has not been fully qualified. From
+v1.6.0, the default link backend backs up and returns adjacent Gambatte RTC
+sidecars when available, and retains historical appended save trailers. The
+SameBoy fallback keeps its own clock files in its session folder.
+
+## Bslap v1.6.0 scope
+
+Both devices must run matching Bslap builds; update both before joining. The
+Gen 1/2 serial backend can report recoverable byte waits when the other game is
+not ready. A successful connection is not proof a trade was saved: save in both
+games, leave safely and verify after reloading. The pre-play Gen 1/2 notice in
+this tested image retains development-test wording; release qualification is
+recorded in the release notes and build status. No ROMs or saves are bundled.
 
 ## Connecting controllers while a tool is open
 

@@ -31,11 +31,11 @@ the OS card is the practical limit.
 - **Up/Down:** select a species.
 - **Left/Right:** select Collection, Import, Export or Options.
 - **A:** open the selected tab or choose **Stored copies / Where to find** for
-  a species. Location lookup started with Gen 1 in v1.5.0; the next build extends
-  acquisition guidance to all three generations.
+  a species. Gen 1 lookup started in v1.5.0; v1.6.0 extends acquisition guidance
+  to all three generations.
 - **B:** go back.
 
-## Where to find (v1.5.0 and newer)
+## Where to find (Gen 1–3 from v1.6.0)
 
 Open **Gen 1, Gen 2 or Gen 3 → Collection → select a species → Where to find**,
 then select your qualified English retail ROM for that generation. You can look up a
@@ -43,7 +43,7 @@ species even when you have no stored copies. Select **All** in the species
 filter if missing species are hidden by your current filter.
 
 Gen 1 **grass/cave and Surfing encounter locations and levels** are read directly
-from that game's ROM, including version differences. The next build also includes
+from that game's ROM, including version differences. From v1.6.0, the guide includes
 an offline, game-specific reference for **fishing, Headbutt/Rock Smash where
 applicable, gifts, eggs, fossil revival, NPC trades, static encounters, and roaming
 Pokémon**, plus **evolution and breeding requirements** across all 11 supported games.
@@ -57,7 +57,7 @@ branch. Pre-evolution locations and intermediate evolution steps are also shown.
 Names come from your shared ROM-derived catalog; without a prepared catalog,
 species numbers are used. Selecting a different game changes its locations and rules.
 
-The next build also searches subfolders recursively inside `gb`, `gbc` and `gba`
+From v1.6.0, Bdex searches subfolders recursively inside `gb`, `gbc` and `gba`
 on both the OS card and second game card. This applies to source-ROM selection,
 cache preparation, sprite refresh and Where to find. For example,
 `roms/gba/Pokemon/Gen 3/Emerald.gba` is discoverable. Duplicate paths to the same
@@ -67,7 +67,7 @@ and supported-language/revision restrictions still apply.
 Examples of generation-specific rules include Yellow's starter Pikachu refusing
 a Thunder Stone; Gen 2 versus Gen 3 friendship time windows; FireRed/LeafGreen
 lacking time-of-day evolutions; Wurmple's fixed personality branch; Shedinja's
-party-slot/ball requirements; and Sea/Lax Incense breeding in Gen 3. Ordinary
+generation-specific party-slot requirements; and Sea/Lax Incense breeding in Gen 3. Ordinary
 trade evolutions require an actual in-game trade, such as a compatible Bslap
 session. **Blink/Bdex save copies do not trigger evolution.**
 

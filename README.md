@@ -47,7 +47,7 @@ Project direction is documented in the [vision](docs/VISION.md) and
 - PortMaster in Tools for installing compatible game ports
 - Optional cross-card automatic save backups with version history
 - Bdex for storing and browsing supported Gen 1–3 Pokémon collections
-- Bdex sprite/stat inspector and ROM-derived Gen 1 encounter locations
+- Bdex sprite/stat inspector and offline Gen 1–3 acquisition and evolution guidance
 - Online ButterflyOS updates from System Settings
 - Reversible SD-card boot setup that preserves the internal Miyoo OS
 - Beginner-facing settings with optional Advanced Mode
@@ -59,6 +59,8 @@ Project direction is documented in the [vision](docs/VISION.md) and
 Bslap provides live Pokémon trades and battles between two ButterflyOS devices
 on the same local network. Open **Tools → Bslap**, then Host or Join. English
 Gen 1, Gen 2 and Gen 3 games are supported within their own generation.
+From v1.6.0, Gen 1/2 run one Game Boy per device for smoother tested gameplay.
+Join searches for up to 60 seconds and can be cancelled with B.
 Gen 3 can show a communication error on room exit; letting one player initiate
 leaving gives better results. See the [Bslap guide](documentation/BSLAP.md) for
 setup, save handling and limitations. Available from **v1.4.0**, build **20261022**.
@@ -67,9 +69,11 @@ setup, save handling and limitations. Available from **v1.4.0**, build **2026102
 
 Open **Tools → Bdex** to build a separate Gen 1–3 Pokémon collection from your
 saves. The inspector includes your ROM-derived sprite, stat graphs, moves,
-held items and history. Gen 1 **Where to find** reads grass/cave and Surfing
-locations from a supported Red, Blue or Yellow ROM, including Pokémon you
-have not collected. An optional read-only web viewer lets you browse your
+held items and history. **Where to find** covers supported Gen 1–3 games,
+including Pokémon you have not collected: wild locations, gifts, trades,
+evolutions, breeding and special access requirements. Gen 1 grass/cave and
+Surfing encounters come directly from your ROM; additional guidance uses an
+offline reference. ROM selection also searches nested system folders on both cards. An optional read-only web viewer lets you browse your
 collection from a PC or phone. See the [Bdex guide](documentation/BDEX.md)
 for imports, copy exports, backups and encounter-lookup limits.
 

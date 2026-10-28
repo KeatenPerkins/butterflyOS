@@ -9,7 +9,7 @@ The stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
 
-Current release: [v1.5.0 notes](RELEASE_NOTES_v1.5.0.md), updater build **20261023**.
+Current release: [v1.6.0 notes](RELEASE_NOTES_v1.6.0.md), updater build **20261027**.
 
 ## For users and testers
 

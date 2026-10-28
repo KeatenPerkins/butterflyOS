@@ -1,8 +1,12 @@
-# Next Bslap goal: single-instance Gen 1/2 linking
+# Bslap Gen 1/2 single-instance implementation record
 
-Resumed October 27, 2026 on `experimental/bslap-gb-netpacket-20261027`.
-The previous local image remains unchanged. This branch adds a candidate for live
-testing before an experimental image is built; it is not release-qualified.
+Implemented and qualified for v1.6.0, build 20261027, after development on
+`experimental/bslap-gb-netpacket-20261027` and a full rebuilt-image test. Runtime
+source is `4ea693e232925b145332986834d6dfbea5924514`. The user approved Gen 1/2,
+Gen 3 regression, controller and tool tests on the flashed image and authorized
+publication. The dated investigation and intermediate failures below are retained
+as development history; their earlier pending/deferred status is superseded by
+this outcome. Broader pairing and cross-core RTC limits remain documented.
 
 ## Current candidate
 

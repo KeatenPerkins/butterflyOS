@@ -1,6 +1,6 @@
 # ButterflyOS roadmap
 
-Reviewed **October 22, 2026**, following **v1.4.0**, build **20261022**.
+Reviewed **October 27, 2026**, for **v1.6.0**, build **20261027**.
 This page describes direction, not release dates or commitments. Future work
 requires implementation and testing before it becomes a supported feature.
 The currently released and hardware-tested target is **Miyoo Flip V2**.
@@ -29,17 +29,18 @@ The currently released and hardware-tested target is **Miyoo Flip V2**.
 
 These are summaries, not universal compatibility guarantees. See
 [Features](../documentation/FEATURES.md),
-[release notes](../documentation/RELEASE_NOTES_v1.4.0.md) and
+[release notes](../documentation/RELEASE_NOTES_v1.6.0.md) and
 [current build status](../documentation/CURRENT_BUILD_STATUS.md) for scope and
 recorded validation.
 
 ## Current priorities
 
-**Next development goal, recorded October 26, 2026:** investigate a
-single-instance Gen 1/2 Bslap backend to improve responsiveness and audio.
-This is explicitly **deferred until after the current test build**; its working
-SameBoy backend stays in place for this build. See the
-[investigation plan](../documentation/BSLAP_SINGLE_INSTANCE_PLAN.md).
+**Completed for v1.6.0:** Gen 1/2 Bslap now runs one emulated Game Boy per
+device, with a tested first-connection clock tie-break and local save protection.
+User testing found smoother, more responsive gameplay. The SameBoy fallback is
+retained; Gen 3 is unchanged and passed regression testing. See the
+[implementation and validation record](../documentation/BSLAP_SINGLE_INSTANCE_PLAN.md).
+Bdex now also provides offline Gen 1–3 acquisition/evolution guidance.
 
 1. **Maintain release reliability.** Investigate reproducible reports, protect
    saves and recovery paths, and validate installation, updates, normal game

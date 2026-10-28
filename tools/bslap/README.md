@@ -54,10 +54,10 @@ installed. Run both targeted Bslap test scripts before building, then test the
 flashed image on both devices, including a reboot and ordinary-save reload.
 
 
-## Single-instance Gen 1/2 experiment (October 27)
+## Single-instance Gen 1/2 backend (v1.6.0)
 
 See [the experiment plan](../../documentation/BSLAP_SINGLE_INSTANCE_PLAN.md).
-This branch adds `gambatte-bslap-lr` to the backend dependencies and records its
+v1.6.0 adds `gambatte-bslap-lr` to the backend dependencies and records its
 completed package hash in the manifest. The ordinary Gambatte binary is not
 replaced. The core source is GPL-2.0-only, pinned to
 `McDjuady/gambatte-libretro@466e8b174982b3fdb5a026f60efc51972d1576b0`.

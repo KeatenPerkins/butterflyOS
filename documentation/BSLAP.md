@@ -9,11 +9,12 @@ is not required. Open **Tools → Bslap** to trade or battle between two Butterf
 devices on the same local network. Each player controls their own game. Blink remains the
 separate save-editing tool; Bdex stores your collection outside the games.
 
-The next local test build replaces Gen 1/2 dual emulation with a dedicated
-single-instance Gambatte Netpacket backend. Each device runs its own game, with
-no peer ROM or save exchange. The previous SameBoy backend remains available as
-a development fallback. See the [test plan](BSLAP_SINGLE_INSTANCE_PLAN.md) for
-qualification status; this change has not yet been published.
+**v1.6.0, build 20261027:** Gen 1/2 use one emulated Game Boy per device,
+with a dedicated Gambatte Netpacket core. Each device needs only its own selected
+ROM and save; no peer ROM or save is sent. Local testing found this smoother and
+more responsive than the previous dual-emulation backend. The earlier SameBoy
+backend remains available as a development fallback. Both players must update
+to matching Bslap builds.
 
 ## Supported games
 
@@ -50,22 +51,23 @@ Internet play and GB-Link/ESP32 hardware are outside the current feature.
    controls, the default is **hold Menu and press Start twice**. This applies to
    Gen 1, Gen 2 and Gen 3, whether hosting or joining. Save in-game first.
 
-Bslap uses the controller configuration generated for the current launch. The
-next build fixes an ordering bug where a newly flashed card could retain the
-initial Select hotkey in its Bslap session even though normal games used Menu.
+Bslap uses the controller configuration generated for the current launch.
+v1.6.0 fixes an ordering bug where a newly flashed card could retain the initial
+Select hotkey in its Bslap session even though normal games used Menu.
 Bluetooth controllers retain their configured hotkeys; connect them before
 launching the session.
 
-In the next build, Bslap's Gen 1 sessions select Gambatte's **Special 3** for
+From v1.6.0, Bslap's Gen 1 sessions select Gambatte's **Special 3** for
 monochrome Game Boy rendering. Red/Blue use this palette; Yellow retains its
 native GBC colors through automatic hardware selection. Gen 2 rendering and
 normal-game Gambatte choices are unchanged. Both devices need matching Bslap
 backends. The single-instance backend includes a clock-collision tie-break for
 the first link request, sequence-tagged replies and recoverable byte waits.
-The full rebuilt image still needs device testing.
+The rebuilt image passed user testing on local test devices, including Gen 3
+regression checks. This is not an exhaustive every-game/host-role matrix.
 
 B cancels a waiting lobby. Hosting does not start a game before the other player
-is ready and the host chooses Start. No passwords or ROM data are exchanged.
+is ready and the host chooses Start. No password entry is needed, and no ROM data is exchanged.
 
 The games’ own requirements still apply: have enough party Pokémon, satisfy
 story/Pokédex restrictions and avoid incompatible Pokémon or moves. A game
@@ -96,7 +98,7 @@ and launch logs. Automatic save states are disabled; use normal in-game saves.
 **Gen 3:** gpSP links the independent games directly. In-game saves update each
 selected ROM’s adjacent `.srm`; Bslap preserves before/after copies.
 
-**Gen 1/2 in the next local build:** each device runs only its own selected ROM
+**Gen 1/2 from v1.6.0:** each device runs only its own selected ROM
 and a local working save. Only serial-link messages cross the LAN. The original
 save stays untouched during play. After a clean emulator exit, the validated
 result is returned to its original path, unless the original save or clock
@@ -134,7 +136,7 @@ Emerald. This is not an exhaustive every-game, every-host-role matrix. The Gen 3
 room-exit limitation remains. Final-image testing is separate from live staging.
 
 Bslap packages its dedicated ARM32 RetroArch/gpSP pair separately from normal
-emulator defaults. The next local build uses native RetroArch with its dedicated
+emulator defaults. v1.6.0 uses native RetroArch with its dedicated
 Gambatte Netpacket core for Gen 1/2, retaining native SameBoy as a fallback.
 Installed hashes are checked against `/usr/share/bslap/backend.json`.
 Local discovery uses UDP 55436; lobby readiness uses TCP 55437; gameplay uses
@@ -144,7 +146,7 @@ Build inputs and reproduction notes are in
 [the backend build guide](../tools/bslap/README.md).
 
 
-### Join search in the next build
+### Join search (v1.6.0)
 
 Join keeps looking for a compatible host for up to **60 seconds** when none is
 found, with an on-screen countdown. Press **B** to cancel and return to Bslap.

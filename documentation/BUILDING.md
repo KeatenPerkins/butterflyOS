@@ -56,7 +56,7 @@ No game ROMs or proprietary console BIOS files are required to build the OS and
 none belong in the source tree or release image.
 
 
-## Bslap build inputs for the next image
+## Bslap build inputs
 
 The Bslap backend package requires the checksum-verified, live-tested ARM32
 frontend/core build outputs in the local build cache. They are not committed
@@ -65,3 +65,17 @@ needs those pinned sources and build steps before image assembly; see the
 [Bslap backend build guide](../tools/bslap/README.md). Packaging stops if the
 inputs are missing or differ. Compiler/path/timestamp differences can change
 hashes and require review and renewed validation before updating the pins.
+
+
+## v1.6.0 runtime source
+
+The tested v1.6.0 image uses source
+`4ea693e232925b145332986834d6dfbea5924514`, updater build `20261027`.
+The release tag includes later documentation only; the promoted image is not
+rebuilt after device qualification. `gambatte-bslap-lr` is a normal dependency
+package with a pinned upstream archive and local serial patches. The dedicated
+ARM32 RetroArch/gpSP inputs still require the verified cache preparation above.
+The Bslap corresponding-source bundle includes their upstream sources plus the
+new Gambatte archive and the exact runtime recipes/patches. Reproduction and
+pinned inputs remain in the backend guide; bit-for-bit clean-room rebuild
+reproducibility has not been demonstrated.

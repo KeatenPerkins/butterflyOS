@@ -5,6 +5,32 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## October 27, 2026: v1.6.0 qualification
+
+Runtime source: `4ea693e232925b145332986834d6dfbea5924514`, build `20261027`,
+onboarding 2.6.62. All 670 package tasks and 17 image checks passed. Image
+SHA-256 is `8532b3eb3cc26a98dded94ca6e3263e657654d42493ca6952af267b255eecbfa`.
+Both local test cards passed complete direct readback of the written raw image,
+SHA-256 `ba7db23388c42d9faf527647232e3570ee6bbe20cf6781048d7f9ec48cc43e87`.
+The user approved Bslap Gen 1/2, Gen 3 regression, controller inputs and the
+new tool features on the rebuilt image and authorized publication.
+
+The delivered single-instance Game Boy core matches the live-tested v3 binary,
+SHA-256 `bb25c333e13fa92565f8c79699bf704709dcea1810f00a57361f3356a1b79ba2`.
+All five packaged backend hashes match. Focused checks cover clock collisions,
+late replies, recoverable waits, save/clock protection, Join cancellation,
+nested discovery and both theme footer labels. Tests are not an exhaustive
+matrix of every game, role, peripheral or long-term RTC combination.
+
+The release promotes the exact tested image. The public updater archive is a
+strict five-file repack, with the same KERNEL/SYSTEM and verified internal MD5s.
+The installed updater's manifest/archive validation passes. A new end-to-end
+OTA installation is not claimed; the earlier v1.5.0 result remains separate.
+The corresponding-source bundle adds the pinned Gambatte archive and exact
+runtime patches to the dedicated ARM32 frontend/gpSP sources. The license
+manifest resolves every target package. Optional audit data excludes private
+fixtures, credentials, device addresses/serial numbers and raw logs.
+
 ## October 23, 2026 stable release: v1.5.0
 
 Published as Latest stable after all eight uploaded asset sizes and GitHub

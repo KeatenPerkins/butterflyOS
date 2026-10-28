@@ -1,5 +1,38 @@
 # Current build and test status
 
+Reviewed: 2026-10-27.
+
+## v1.6.0 — build 20261027, approved for publication
+
+- Exact tested runtime source: `4ea693e232925b145332986834d6dfbea5924514`.
+  Onboarding 2.6.62; all 670 package tasks and 17 image checks passed.
+- Both local test cards passed full direct readback of the written image.
+  Raw-image SHA-256: `ba7db23388c42d9faf527647232e3570ee6bbe20cf6781048d7f9ec48cc43e87`.
+- The user approved Bslap Gen 1/2 testing, Gen 3 regression, tool/controller
+  inputs and the new Blink/Bdex features on the rebuilt image, and authorized
+  publication. Broader game-pair/host-role and cross-core RTC testing is not
+  exhaustive. Devices were powered off afterward, so a further final SSH log
+  review was not performed; this does not supersede the recorded earlier checks.
+- Gen 1/2 now use one local Gambatte instance per device. The exact live-tested
+  dedicated core is included, with clock-collision handling and recoverable
+  waits. Backend ID: `bslap-v4-776050f69d21fd34`.
+- Other changes include 60-second cancellable Join discovery, first-boot Bslap
+  exit-hotkey refresh, Special 3 colors, full Gen 1–3 Bdex acquisition guidance,
+  nested ROM discovery, external-controller mapping, ordinary shared Player 1,
+  saved palettes, opt-in L/R cycling, recovery guidance and the X Options footer.
+- Normal emulator defaults and dedicated Gen 3 link binaries remain separate.
+  Gen 3 passed regression testing; its room-exit limitation remains documented.
+- Published downloads use the exact approved image bytes. The updater package
+  is a strict five-file repack of the tested KERNEL/SYSTEM and matching metadata;
+  production manifest/archive validation passes. No new end-to-end OTA install
+  test is claimed for this build.
+- Upload verification and public updater discovery are recorded separately at
+  publication. See [v1.6.0 release notes](RELEASE_NOTES_v1.6.0.md) and
+  [the release audit](PUBLIC_RELEASE_AUDIT.md).
+
+<details>
+<summary>Earlier development and release records (historical)</summary>
+
 Reviewed: 2026-10-23.
 
 ## Local test image 20261026 ready for fresh-card testing
@@ -747,3 +780,6 @@ test are required before publishing an image.
   an interruption between commits needs inspection and recovery from backups.
 - Older package manifests and image audits need regeneration/repetition rather
   than being described as final checks of this candidate.
+
+
+</details>
