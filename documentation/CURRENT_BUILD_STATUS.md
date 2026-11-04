@@ -1,6 +1,26 @@
 # Current build and test status
 
-Reviewed: 2026-10-27.
+Reviewed: 2026-11-04.
+
+## Prepared v1.7.0 — build 20261104 (not published)
+
+- Runtime source: `50813bd28c0404e79409c159a23f0adcab7e422c`; onboarding 2.6.63.
+- All 670 package tasks, 41 targeted tests and 18 image checks passed. Both
+  local test cards passed complete raw-image readback verification.
+- The user confirmed Bslap, deep sleep and the remaining planned checks passed.
+  Silver-specific Time Capsule coverage remains deferred; no new OTA install
+  test is claimed. Runtime image bytes remain frozen after qualification.
+- Includes Time Capsule, faster Bslap scanning/preparation, full-hash-qualified
+  Gen 3 ZIP support, Wi-Fi radio/menu confirmation and callback lifetime fixes,
+  and 12-second closed-lid power-wake protection. No kernel/core/frontend
+  emulator version upgrades; EmulationStation is rebuilt with the menu patch.
+- One intermittent first-connect DHCP timeout and failed retry remain recorded;
+  no root-cause fix is claimed. See [known issues](KNOWN_ISSUES.md).
+- Documentation/release preparation is local only. Do not push, tag, upload,
+  update discovery or publish until the maintainer authorizes promotion.
+- See [draft release notes](RELEASE_NOTES_v1.7.0.md). Narrow updater packaging,
+  production-updater validation, corresponding-source/license audit and final
+  release assets remain to prepare before publication.
 
 ## Published v1.6.0 — build 20261027
 

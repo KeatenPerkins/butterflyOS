@@ -43,7 +43,20 @@ checks passed. Opening during the grace period canceled re-suspend. Disabling
 lid sleep was confirmed after correcting executable permissions on the temporary
 live copy; the package already installs the script executable.
 
-## Full-image test checklist
+## Full-image result
+
+Build 20261104 from commit `50813bd28c0404e79409c159a23f0adcab7e422c`
+passed all 670 package tasks, 41 targeted automated tests and 18 artifact checks.
+Both flashed test cards matched the complete raw image on readback. The user
+confirmed Bslap, deep sleep and the remaining radio/ZIP/persistence checks passed.
+This general full-image approval does not imply a new Silver-specific test.
+
+One initial Wi-Fi connection authenticated but timed out waiting for DHCP, then
+failed its automatic retry. Off/on recovered it; the other local test device
+connected first try. Read-only diagnosis found no established router-versus-driver
+cause, and no corrective code was added. Evidence is retained locally.
+
+## Full-image test checklist (completed by user)
 
 - Wi-Fi off/on with Bluetooth active; saved setting after reboot; actual network
   connection and controller fallback.

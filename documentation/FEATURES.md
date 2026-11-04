@@ -7,6 +7,17 @@ This lists development capabilities, not a guarantee for every game or
 controller. See [current build status](CURRENT_BUILD_STATUS.md) for the exact
 tested image and [known issues](KNOWN_ISSUES.md) for open failures.
 
+## Prepared v1.7.0 changes — not yet published
+
+- Bslap Gen 1 ↔ Gen 2 Time Capsule trading, qualified Gen 3 ZIP support and
+  faster host/join preparation. Native story and party restrictions still apply.
+- Wi-Fi controls confirm actual radio state and work independently of Bluetooth.
+- A closed-lid power-button wake returns to sleep after about 12 seconds when
+  lid sleep remains enabled and inputs stay unchanged, subject to safety limits.
+
+The rebuilt image passed user testing. See the [draft release notes](RELEASE_NOTES_v1.7.0.md)
+for scope and remaining limitations. Public downloads are unchanged.
+
 ## Live Pokémon trades and battles with Bslap
 
 Available from **v1.4.0**, build **20261022**.

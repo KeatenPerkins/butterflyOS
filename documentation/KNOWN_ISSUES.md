@@ -33,6 +33,27 @@ games, leave safely and verify after reloading. The pre-play Gen 1/2 notice in
 this tested image retains development-test wording; release qualification is
 recorded in the release notes and build status. No ROMs or saves are bundled.
 
+## Prepared v1.7.0 candidate — connection and sleep limits
+
+This build is tested locally and is not yet published.
+
+- One fresh-install Wi-Fi attempt authenticated successfully but did not obtain
+  an IP address within the connection helper's 45-second timeout. Its automatic
+  retry failed in IWD with a misleading credentials error. Toggling Wi-Fi off/on
+  recovered the connection; another local test device connected first try.
+  Router DHCP delay versus driver/packet delivery is unresolved. The radio/menu
+  fixes do not claim to resolve this first-connect failure.
+- Power-button wake with the lid still closed now waits about 12 seconds before
+  trying to sleep again. Opening the lid, changed inputs/charging state or
+  disabling lid sleep cancels that attempt. Automatic USB/power retries share
+  a cap of three; repeated rapid wakes stop retries. The device can remain awake
+  after a canceled or exhausted retry. Check that it is asleep before storing it.
+- Time Capsule trades passed with Crystal and Gold; Silver remains a follow-up.
+  An early development Blue freeze was not explained. Later live and full-image
+  Bslap tests passed; every pairing, host role and interruption is not qualified.
+- The historical long-uptime HDMI display-recovery report and missing FireRed
+  progress report have no established root cause or claimed fix.
+
 ## Connecting controllers while a tool is open
 
 Blink, Bdex and Bslap use native SDL input from v1.5.0. Connect an external
@@ -79,7 +100,8 @@ still depends on the game and peripheral.
   while asleep briefly wakes the device for about 10 seconds to update charging
   status and the LED. If the lid stays closed and **Sleep When Lid Closed** is
   enabled, it automatically returns to deep sleep. Opening the lid or pressing
-  the power button keeps it awake. A retry limit prevents repeated wake/sleep
+  the power button keeps it awake in published v1.6.0; the prepared v1.7.0
+  closed-lid power-wake guard is described above. A retry limit prevents repeated wake/sleep
   loops. Plug-in and unplug tests passed on the local test device; the fix is included
   in v1.1.0.
 - v1.1.0 enables tested deep lid sleep by default. The local test device passed

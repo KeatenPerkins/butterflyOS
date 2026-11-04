@@ -22,7 +22,7 @@ to matching Bslap builds.
 - **Gen 2:** English Gold, Silver and Crystal.
 - **Gen 3:** English Ruby, Sapphire, Emerald, FireRed and LeafGreen.
 
-For the next local test image, Gen 3 accepts raw `.gba` files and ZIP archives
+In the prepared v1.7.0 release (build 20261104, not yet published), Gen 3 accepts raw `.gba` files and ZIP archives
 containing exactly one `.gba` file. Full ROM contents must match the qualified
 English revisions: Ruby/Sapphire revision 2, Emerald, and FireRed/LeafGreen
 revision 1. ROM hacks and other revisions/languages are not offered. Gen 1/2
@@ -30,7 +30,7 @@ still require uncompressed qualified English ROMs. A valid ordinary `.srm` save
 must be beside the selected ROM or ZIP, with the same filename stem.
 No ROMs, saves, Pokémon graphics or extracted game data are bundled.
 
-The next test image adds **Host → Time Capsule** for Gen 1 ↔ Gen 2 trading.
+The prepared v1.7.0 release adds **Host → Time Capsule** for Gen 1 ↔ Gen 2 trading.
 The joining device selects an opposite-generation game. Gen 2 must have unlocked
 the Time Capsule through the normal story; use its Time Capsule desk and the
 normal Trade Center in Gen 1. Follow the games' restrictions: Gen 1 species and
@@ -39,8 +39,8 @@ updated Bslap launcher and matching Gambatte backend.
 
 Live trades passed for Blue/Red/Yellow with Crystal and Blue with Gold, including
 both host directions and save/relaunch checks for Blue/Crystal. Silver remains
-a follow-up test. An early Blue freeze was not explained; repeat connection and
-save tests on the rebuilt image. Internet play and GB-Link/ESP32 hardware are
+a follow-up test. Full-image Bslap testing subsequently passed. An early live-test
+Blue freeze was not explained; this does not establish exhaustive pairing coverage. Internet play and GB-Link/ESP32 hardware are
 outside the current feature.
 
 ## Host and join
@@ -48,7 +48,7 @@ outside the current feature.
 1. Save and exit any running games. Connect both devices to the same local
    network. Guest Wi-Fi or client isolation can prevent discovery.
 2. On one device, open **Tools → Bslap → Host**, choose **Gen 1**, **Gen 2** or
-   **Gen 3** (or **Time Capsule** in the next test image), then select the game. Read the save notice and choose **Ready**.
+   **Gen 3** (or **Time Capsule** in the prepared v1.7.0 release), then select the game. Read the save notice and choose **Ready**.
    Stay in the waiting lobby; the game stays closed.
 3. On the other device, open **Bslap → Join**, select the host and a compatible
    game, read the notice and choose **Ready**.

@@ -1,6 +1,7 @@
 # ButterflyOS roadmap
 
-Reviewed **October 27, 2026**, for **v1.6.0**, build **20261027**.
+Reviewed **November 4, 2026**. Published: **v1.6.0**, build **20261027**.
+Prepared and locally tested: **v1.7.0**, build **20261104**; publication is on hold.
 This page describes direction, not release dates or commitments. Future work
 requires implementation and testing before it becomes a supported feature.
 The currently released and hardware-tested target is **Miyoo Flip V2**.
@@ -54,7 +55,7 @@ assume the lid sensor itself is at fault or treat hotplug recovery as a fix.
 control while Bluetooth stays enabled, confirmed NetworkManager radio state in
 the menu, faster Bslap discovery/preparation, verified Gen 3 ZIP support, native
 Gen 1 ↔ Gen 2 Time Capsule trades, and a 12-second closed-lid power-wake guard.
-Live tests passed; full-image validation is next. See the
+Live and full-image user tests passed. Publication remains on hold. See the
 [consolidated validation notes](../documentation/DEVELOPMENT_FIXES_20261101.md).
 Silver Time Capsule and the historical long-uptime HDMI issue remain follow-ups.
 
