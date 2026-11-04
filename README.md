@@ -61,9 +61,8 @@ on the same local network. Open **Tools → Bslap**, then Host or Join. English
 Gen 1, Gen 2 and Gen 3 games are supported within their own generation.
 From v1.6.0, Gen 1/2 run one Game Boy per device for smoother tested gameplay.
 Join searches for up to 60 seconds and can be cancelled with B.
-The locally tested, unpublished [v1.7.0 candidate](documentation/RELEASE_NOTES_v1.7.0.md)
+[v1.7.0](documentation/RELEASE_NOTES_v1.7.0.md)
 adds Gen 1 ↔ Gen 2 Time Capsule trading, Gen 3 ZIP support and faster preparation.
-The latest-release download remains the published version until promotion.
 Gen 3 can show a communication error on room exit; letting one player initiate
 leaving gives better results. See the [Bslap guide](documentation/BSLAP.md) for
 setup, save handling and limitations. Available from **v1.4.0**, build **20261022**.

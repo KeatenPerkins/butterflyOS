@@ -1,7 +1,6 @@
 # ButterflyOS roadmap
 
-Reviewed **November 4, 2026**. Published: **v1.6.0**, build **20261027**.
-Prepared and locally tested: **v1.7.0**, build **20261104**; publication is on hold.
+Reviewed **November 4, 2026**. Release: **v1.7.0**, build **20261104**, rebuilt locally and tested on local test devices.
 This page describes direction, not release dates or commitments. Future work
 requires implementation and testing before it becomes a supported feature.
 The currently released and hardware-tested target is **Miyoo Flip V2**.
@@ -51,11 +50,11 @@ long attachment, and inspect output routing, panel enable state and blocked
 DRM workers before/after recovery. Preserve the working sleep behavior; do not
 assume the lid sensor itself is at fault or treat hotplug recovery as a fix.
 
-**Queued for the next test image (November 4, 2026):** independent Wi-Fi
+**Completed for v1.7.0 (November 4, 2026):** independent Wi-Fi
 control while Bluetooth stays enabled, confirmed NetworkManager radio state in
 the menu, faster Bslap discovery/preparation, verified Gen 3 ZIP support, native
 Gen 1 ↔ Gen 2 Time Capsule trades, and a 12-second closed-lid power-wake guard.
-Live and full-image user tests passed. Publication remains on hold. See the
+Live and full-image user tests passed.  See the
 [consolidated validation notes](../documentation/DEVELOPMENT_FIXES_20261101.md).
 Silver Time Capsule and the historical long-uptime HDMI issue remain follow-ups.
 
@@ -95,7 +94,7 @@ remain in [Known issues](../documentation/KNOWN_ISSUES.md).
 - **Additional Miyoo devices:** assess hardware samples and documentation,
   then establish device-specific builds, safe recovery and physical validation.
   No additional model is promised or supported by this roadmap.
-- **Broader Bslap linking:** Time Capsule trading is implemented for local image testing
+- **Broader Bslap linking:** Time Capsule trading is available from v1.7.0
   described above; evaluate other link activities separately. Internet play and external link adapters
   are outside the current released scope.
 - **More guided management:** consider clearer BIOS status, diagnostic export

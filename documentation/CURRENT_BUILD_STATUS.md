@@ -2,7 +2,7 @@
 
 Reviewed: 2026-11-04.
 
-## Prepared v1.7.0 — build 20261104 (not published)
+## v1.7.0 — build 20261104
 
 - Runtime source: `50813bd28c0404e79409c159a23f0adcab7e422c`; onboarding 2.6.63.
 - All 670 package tasks, 41 targeted tests and 18 image checks passed. Both
@@ -16,11 +16,13 @@ Reviewed: 2026-11-04.
   emulator version upgrades; EmulationStation is rebuilt with the menu patch.
 - One intermittent first-connect DHCP timeout and failed retry remain recorded;
   no root-cause fix is claimed. See [known issues](KNOWN_ISSUES.md).
-- Documentation/release preparation is local only. Do not push, tag, upload,
-  update discovery or publish until the maintainer authorizes promotion.
-- See [draft release notes](RELEASE_NOTES_v1.7.0.md). Narrow updater packaging,
-  production-updater validation, corresponding-source/license audit and final
-  release assets remain to prepare before publication.
+- User-reported uninterrupted four-hour sleep: 100% to 98%. This is an
+  estimated battery-level observation, not a calibrated drain measurement.
+- The approved image is promoted unchanged. Narrow updater packaging and
+  production manifest/archive validation pass. Corresponding source, a resolved
+  package-license manifest and optional audit records accompany the release.
+- See [release notes](RELEASE_NOTES_v1.7.0.md). Upload and public-discovery
+  verification are recorded separately in the release audit after publication.
 
 ## Published v1.6.0 — build 20261027
 

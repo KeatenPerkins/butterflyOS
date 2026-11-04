@@ -244,7 +244,7 @@ save-before-lid-shutdown options are removed. Sleep keeps the running session
 in memory; it does not create a save state. Save in-game before a long break
 because losing power also loses the suspended session.
 
-The prepared **v1.7.0** update (not yet published) adds protection against an
+**v1.7.0** adds protection against an
 accidental power-button wake with the lid still closed. With lid sleep enabled,
 it waits about **12 seconds**, then tries to sleep again if inputs stay unchanged.
 Opening the lid, changing charging/input state or turning lid sleep off cancels

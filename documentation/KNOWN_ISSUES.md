@@ -33,9 +33,9 @@ games, leave safely and verify after reloading. The pre-play Gen 1/2 notice in
 this tested image retains development-test wording; release qualification is
 recorded in the release notes and build status. No ROMs or saves are bundled.
 
-## Prepared v1.7.0 candidate — connection and sleep limits
+## v1.7.0 — connection and sleep limits
 
-This build is tested locally and is not yet published.
+This build was rebuilt locally and tested on the local test devices.
 
 - One fresh-install Wi-Fi attempt authenticated successfully but did not obtain
   an IP address within the connection helper's 45-second timeout. Its automatic
@@ -100,7 +100,7 @@ still depends on the game and peripheral.
   while asleep briefly wakes the device for about 10 seconds to update charging
   status and the LED. If the lid stays closed and **Sleep When Lid Closed** is
   enabled, it automatically returns to deep sleep. Opening the lid or pressing
-  the power button keeps it awake in published v1.6.0; the prepared v1.7.0
+  the power button keeps it awake in v1.6.0; the v1.7.0
   closed-lid power-wake guard is described above. A retry limit prevents repeated wake/sleep
   loops. Plug-in and unplug tests passed on the local test device; the fix is included
   in v1.1.0.

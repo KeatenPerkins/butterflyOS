@@ -1,22 +1,20 @@
 # ButterflyOS v1.7.0 — Time Capsule, connectivity and lid-wake protection
 
-**Release preparation draft — not published.** Locally tested Miyoo Flip V2
-image, updater build **20261104**. The public version is proposed as v1.7.0.
-The links below continue to serve the currently published release until promotion.
+Stable release for **Miyoo Flip V2**, updater build **20261104**.
 
 ## Download and install
 
-New users: download the OS image and matching SHA-256 checksum from the
-[latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest).
+Download **[the OS image](https://github.com/KeatenPerkins/butterflyOS/releases/download/v1.7.0/ButterflyOS-v1.7.0-Miyoo-Flip-V2.img.gz)**
+and its matching **[SHA-256 checksum](https://github.com/KeatenPerkins/butterflyOS/releases/download/v1.7.0/ButterflyOS-v1.7.0-Miyoo-Flip-V2.img.gz.sha256)**.
 Follow [installation and recovery](BUTTERFLYOS_INSTALL_AND_RECOVERY.md), including
 exporting your device-specific recovery backup. Flashing erases the card.
 An already configured device does not need its internal preloader setup repeated.
 
-After this candidate is published, existing users can save and exit games/tools,
-then open **Start → System Settings → Update ButterflyOS**. Have at least **3 GB
-free on the OS card**, charge to at least **50%**, and keep power connected through
-the front USB-C port. Wait for download and verification, then choose **Restart
-to Apply Update**. The new build should report **20261104**.
+Existing users: save and exit games/tools, then open
+**Start → System Settings → Update ButterflyOS**. Have at least **3 GB free on
+the OS card**, charge to at least **50%**, and keep power connected through the
+front USB-C port. Wait for download and verification, then choose **Restart to
+Apply Update**. Check for build **20261104** afterward.
 
 Normal updates retain games, saves, artwork, settings and Bdex collections.
 Back up important files first. The update archive and developer/source records
@@ -104,10 +102,15 @@ passed. Silver-specific Time Capsule testing, the historical long-uptime HDMI
 report and missing FireRed progress investigation remain follow-ups. See
 [Known issues](KNOWN_ISSUES.md).
 
-No new end-to-end OTA installation is claimed. Narrow updater packaging,
-production-updater validation and final corresponding-source/license/release
-asset preparation remain required before publication. Nothing is uploaded by
-this documentation change.
+The public updater archive contains the same tested KERNEL/SYSTEM and passes
+production-updater manifest/archive validation. No new end-to-end OTA
+installation is claimed. The release includes corresponding source, a resolved
+package-license manifest and optional audit records.
+
+A separate user-observed sleep test reported 98% after approximately four hours
+from a reported 100%, with the lid left closed. This is encouraging but is an
+estimated percentage observation, not a calibrated power measurement or proof
+of the cause of another user's drain.
 
 Runtime source: `50813bd28c0404e79409c159a23f0adcab7e422c`.
 Image SHA-256: `41da169539326faf352739de59f22e051a968fe4b2db8a9ddeb4f03a476501d1`.

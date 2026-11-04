@@ -80,11 +80,10 @@ new Gambatte archive and the exact runtime recipes/patches. Reproduction and
 pinned inputs remain in the backend guide; bit-for-bit clean-room rebuild
 reproducibility has not been demonstrated.
 
-## Prepared v1.7.0 runtime source
+## v1.7.0 runtime source
 
 The locally rebuilt and device-tested candidate uses source
 `50813bd28c0404e79409c159a23f0adcab7e422c`, updater build `20261104`,
 onboarding 2.6.63. It retains the v1.6.0 emulator/backend binaries and pins;
 EmulationStation is rebuilt with the new Wi-Fi state/callback patch. Later
-release-documentation changes do not alter the qualified image. The candidate
-has not been published. See its [draft release notes](RELEASE_NOTES_v1.7.0.md).
+release-documentation changes do not alter the qualified image. See its [release notes](RELEASE_NOTES_v1.7.0.md).

@@ -5,6 +5,32 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
+## November 4, 2026 stable release preparation: v1.7.0
+
+Runtime source: `50813bd28c0404e79409c159a23f0adcab7e422c`, build `20261104`,
+onboarding 2.6.63. All 670 package tasks, 41 targeted automated tests and 18
+image checks passed. Both local test cards passed full direct readback against
+raw SHA-256 `9a05be40d44a6e7fcfa9758abb5b3379fcc20985691b5c1b4832587962f13db2`.
+The user approved full-image Bslap, deep sleep, radio and remaining planned
+checks, then authorized publication. Silver-specific Time Capsule remains a
+follow-up, not an inferred pass. A separate four-hour closed-lid observation
+reported 100% to 98%; this is not a calibrated battery measurement.
+
+The flash image is promoted unchanged, SHA-256
+`41da169539326faf352739de59f22e051a968fe4b2db8a9ddeb4f03a476501d1`.
+The narrow five-file update contains identical tested KERNEL/SYSTEM, verified
+MD5s and build identity. Production updater manifest/archive validation passes;
+a fresh end-to-end OTA installation is not claimed. The corresponding-source
+bundle retains verified pinned upstream inputs and this runtime's exact recipes
+and patches. The target package-license manifest resolves every package.
+
+The existing intermittent first-connect DHCP/retry failure, Gen 3 room-exit
+limitation and historical HDMI/progress investigations are not claimed fixed.
+No kernel, RetroArch or emulator-core version upgrade is included. Optional
+release audit records exclude raw device logs, credentials, private fixtures
+and device identities. Upload verification and public updater discovery must
+pass before publication is reported complete.
+
 ## October 27, 2026 stable release: v1.6.0
 
 Published as [v1.6.0](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.6.0),

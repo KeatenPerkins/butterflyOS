@@ -1,7 +1,6 @@
 # Next test image — November 4, 2026
 
-All changes are consolidated from the Time Capsule development branch. This is
-a local test build, not a published release. No kernel, RetroArch or emulator
+All changes are consolidated from the Time Capsule development branch. The approved image is promoted unchanged as v1.7.0. No kernel, RetroArch or emulator
 core updates are included.
 
 ## Included changes
@@ -72,3 +71,10 @@ Long-uptime HDMI/lid recovery and a stuck DRM worker have no root-cause fix.
 A later functional HDMI test passed, which does not resolve that older report.
 Missing FireRed progress also remains unexplained; recovery evidence was
 preserved locally. Neither issue is claimed fixed in this image.
+
+## Additional sleep observation
+
+The user reported 98% after approximately four hours from 100% on a local test
+device left closed throughout. This is battery-estimate evidence, not calibrated
+power measurement. Accidental wakes remain a hypothesis for another user's
+large loss; no causal claim is established by this result.
