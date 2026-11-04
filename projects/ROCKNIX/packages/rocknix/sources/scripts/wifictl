@@ -25,12 +25,34 @@ DEFAULT_CHAN="6"
 # enable/disable only need rfkill and must work even when no WLAN
 # interface exists (e.g. chip powered off via hardware rfkill).
 case "${1}" in
-  enable)
-    rfkill unblock wifi
+  radio-status)
+    [ -n "${NMCLI}" ] || { echo unknown; exit 1; }
+    state=$("${NMCLI}" -t -f WIFI radio 2>/dev/null) || { echo unknown; exit 1; }
+    case "${state}" in
+      enabled|disabled) echo "${state}" ;;
+      *) echo unknown; exit 1 ;;
+    esac
     exit 0
     ;;
+  enable)
+    # NetworkManager owns the persistent software radio state. A platform
+    # power cycle can create a new phy after rfkill has already returned.
+    [ -n "${NMCLI}" ] || exit 1
+    "${NMCLI}" radio wifi on || exit 1
+    rfkill unblock wifi || exit 1
+    for attempt in $(seq 1 10); do
+      "${NMCLI}" radio wifi on || exit 1
+      if "${NMCLI}" -t -f DEVICE,STATE device status | grep -Eq "^wlan[^:]*:(disconnected|connecting.*|connected.*)$"; then
+        exit 0
+      fi
+      sleep 1
+    done
+    echo "Wi-Fi did not become ready after enabling the radio" >&2
+    exit 1
+    ;;
   disable)
-    rfkill block wifi
+    [ -n "${NMCLI}" ] || exit 1
+    "${NMCLI}" radio wifi off || exit 1
     exit 0
     ;;
 esac

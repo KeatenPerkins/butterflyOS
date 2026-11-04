@@ -35,6 +35,29 @@ recorded validation.
 
 ## Current priorities
 
+**Display recovery report (November 1, 2026):** personal device .20 remained
+connected to HDMI for roughly a day. HDMI was unplugged with the lid closed
+(suspend state unknown). Opening the lid produced no image; repeated lid cycles
+did not recover it. With the lid open, reconnecting and disconnecting HDMI
+restored the image without reboot. Gameplay continued, then menu sluggishness
+was noticed. Inspection found a display commit worker blocked in
+`drm_atomic_helper_wait_for_vblanks` for over three days, historical
+`POST_BUF_EMPTY` errors, healthy available RAM and temperatures, and no CPU
+saturation. A subsequent reboot restored responsiveness. The blocked-worker
+age may predate the reported HDMI event: causation is not established.
+Reproduce HDMI disconnect with lid closed both awake and suspended, including
+long attachment, and inspect output routing, panel enable state and blocked
+DRM workers before/after recovery. Preserve the working sleep behavior; do not
+assume the lid sensor itself is at fault or treat hotplug recovery as a fix.
+
+**Queued for the next test image (November 4, 2026):** independent Wi-Fi
+control while Bluetooth stays enabled, confirmed NetworkManager radio state in
+the menu, faster Bslap discovery/preparation, verified Gen 3 ZIP support, native
+Gen 1 ↔ Gen 2 Time Capsule trades, and a 12-second closed-lid power-wake guard.
+Live tests passed; full-image validation is next. See the
+[consolidated validation notes](../documentation/DEVELOPMENT_FIXES_20261101.md).
+Silver Time Capsule and the historical long-uptime HDMI issue remain follow-ups.
+
 **Completed for v1.6.0:** Gen 1/2 Bslap now runs one emulated Game Boy per
 device, with a tested first-connection clock tie-break and local save protection.
 User testing found smoother, more responsive gameplay. The SameBoy fallback is
@@ -71,8 +94,8 @@ remain in [Known issues](../documentation/KNOWN_ISSUES.md).
 - **Additional Miyoo devices:** assess hardware samples and documentation,
   then establish device-specific builds, safe recovery and physical validation.
   No additional model is promised or supported by this roadmap.
-- **Broader Bslap linking:** evaluate Gen 1 ↔ Gen 2 Time Capsule trading and
-  other link activities separately. Internet play and external link adapters
+- **Broader Bslap linking:** Time Capsule trading is implemented for local image testing
+  described above; evaluate other link activities separately. Internet play and external link adapters
   are outside the current released scope.
 - **More guided management:** consider clearer BIOS status, diagnostic export
   and recovery workflows where they reduce the need for terminal access.

@@ -17,6 +17,7 @@ import sys
 import tempfile
 import threading
 import time
+import zipfile
 
 ROOT = Path('/storage/.config/butterflyos/bslap')
 SYSTEM_RETROARCH_CONFIG = Path('/storage/.config/retroarch/retroarch.cfg')
@@ -87,7 +88,7 @@ def find_games(roots=None):
             dirs[:] = [d for d in dirs if not d.startswith('.') and d.lower() not in
                        ('images', 'media', 'savestates', 'screenshots')]
             for name in sorted(files):
-                if Path(name).suffix.lower() not in ('.gba', '.gbc', '.gb'):
+                if Path(name).suffix.lower() not in ('.gba', '.gbc', '.gb', '.zip'):
                     continue
                 path = Path(folder) / name
                 try:
@@ -105,18 +106,64 @@ def find_games(roots=None):
     return sorted(found, key=lambda p: (p.stem.lower(), str(p)))
 
 
-def game_code(path):
+# Same retail revisions already qualified by Blink's Gen 3 gifts.
+GBA_ROM_CODES = {
+ 'a9dec84dfe7f62ab2220bafaef7479da0929d066ece16a6885f6226db19085af': 'BPEE',
+ '0fdd36e92b75bed65d09df4635ab0b707b288c2bf1dc4c6e7a4a4f0eebe9d64c': 'AXVE',
+ '02ca41513580a8b780989dee428df747b52a0b1a55bec617886b4059eb1152fb': 'AXPE',
+ '729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059': 'BPRE',
+ '2f978f635b9593f6ca26ec42481c53a6b39f6cddd894ad5c062c1419fac58825': 'BPGE',
+}
+
+
+def gba_rom_data(path):
+    path = Path(path)
+    if path.suffix.lower() == '.zip':
+        try:
+            with zipfile.ZipFile(path) as archive:
+                members = [m for m in archive.infolist() if not m.is_dir()
+                           and Path(m.filename).suffix.lower() == '.gba']
+                if len(members) != 1 or not 192 <= members[0].file_size <= 32 * 1024**2:
+                    raise ValueError('Choose a ZIP containing exactly one supported GBA ROM.')
+                with archive.open(members[0]) as stream:
+                    header = stream.read(192)
+                    if header[172:176].decode('ascii', 'replace') not in GAMES:
+                        raise ValueError('Not a supported Pokemon GBA header.')
+                    return header + stream.read()
+        except (zipfile.BadZipFile, RuntimeError) as error:
+            raise ValueError('Cannot read this GBA ZIP archive.') from error
+    if not 192 <= path.stat().st_size <= 32 * 1024**2:
+        raise ValueError('Unsupported GBA ROM size.')
+    with path.open('rb') as stream:
+        header = stream.read(192)
+        if header[172:176].decode('ascii', 'replace') not in GAMES:
+            raise ValueError('Not a supported Pokemon GBA header.')
+        return header + stream.read()
+
+
+def generation_roots(code):
+    system = 'gb' if code.startswith('G1') else 'gbc' if code.startswith('G2') else 'gba'
+    return [Path(base) / system for base in ('/storage/roms', '/storage/games-external/roms')]
+
+
+def game_code(path, data=None):
     if Path(path).suffix.lower() in ('.gb', '.gbc'):
         return gb_backend().rom_code(path)
-    with Path(path).open('rb') as stream:
-        header = stream.read(192)
-    code = header[0xAC:0xB0].decode('ascii', 'replace')
-    if code not in GAMES:
-        raise ValueError('Choose an English Ruby, Sapphire, Emerald, FireRed or LeafGreen ROM.')
+    data = gba_rom_data(path) if data is None else data
+    code = GBA_ROM_CODES.get(hashlib.sha256(data).hexdigest())
+    if code is None or data[0xAC:0xB0].decode('ascii', 'replace') != code:
+        raise ValueError('Use qualified English Emerald, Ruby/Sapphire revision 2, '
+                         'or FireRed/LeafGreen revision 1. ROM hacks are unsupported.')
     return code
 
 
-def compatible_games(first, second):
+def compatible_games(first, second, mode='same-generation'):
+    if mode == 'time-capsule':
+        return (isinstance(first, str) and isinstance(second, str) and
+                first in GAMES and second in GAMES and
+                {first[:2], second[:2]} == {'G1', 'G2'})
+    if mode != 'same-generation':
+        return False
     return (isinstance(first, str) and isinstance(second, str) and
             first in GAMES and second in GAMES and
             (first[:2] if first.startswith('G') else 'G3') ==
@@ -136,9 +183,12 @@ def valid_room(data, address):
                 not re.fullmatch('[0-9a-f]{64}', room.get('rom_sha', '')) or
                 not isinstance(room.get('name'), str) or len(room['name']) > 64):
             return None
+        mode = room.get('session_mode', 'same-generation')
+        if mode not in ('same-generation', 'time-capsule') or (mode == 'time-capsule' and not room['game_code'].startswith('G')):
+            return None
         # Never trust an advertised destination supplied in the packet.
         return dict(name=room['name'], ip=str(ip), rom_sha=room['rom_sha'],
-                    game_code=room['game_code'])
+                    game_code=room['game_code'], session_mode=mode)
     except (ValueError, TypeError, AttributeError):
         return None
 
@@ -178,7 +228,7 @@ def discover(seconds=60.0, ui=None):
 
 
 class Advertisement:
-    def __init__(self, rom_sha, code):
+    def __init__(self, rom_sha, code, session_mode='same-generation'):
         self.stop_event = threading.Event()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(('', DISCOVERY_PORT))
@@ -186,7 +236,7 @@ class Advertisement:
         self.data = json.dumps(dict(app='Bslap', version=4, backend=BACKEND,
                                    name=socket.gethostname()[:64], port=PORT,
                                    lobby_port=LOBBY_PORT,
-                                   rom_sha=rom_sha, game_code=code)).encode()
+                                   rom_sha=rom_sha, game_code=code, session_mode=session_mode)).encode()
         self.thread = threading.Thread(target=self.run, daemon=True)
 
     def run(self):
@@ -246,7 +296,7 @@ def host_lobby(ui, meta):
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind(('', LOBBY_PORT))
         server.listen(1)
-        advert = Advertisement(meta['rom_sha'], meta['game_code'])
+        advert = Advertisement(meta['rom_sha'], meta['game_code'], meta.get('session_mode', 'same-generation'))
         advert.thread.start()
         ready, starting, selected = False, False, 0
         try:
@@ -258,7 +308,8 @@ def host_lobby(ui, meta):
                 message = connection.read() if connection else None
                 if message:
                     if message['type'] == 'ready':
-                        if (not compatible_games(meta['game_code'], message.get('game_code')) or
+                        if (not compatible_games(meta['game_code'], message.get('game_code'), meta.get('session_mode', 'same-generation')) or
+                                message.get('session_mode', 'same-generation') != meta.get('session_mode', 'same-generation') or
                                 (meta['game_code'].startswith('G') and
                                  message.get('gb_backend', 'sameboy-dual') != meta.get('backend')) or
                                 message.get('backend') != BACKEND):
@@ -307,7 +358,8 @@ def join_lobby(ui, meta):
     with socket.create_connection((meta['peer'], LOBBY_PORT), timeout=5) as sock:
         connection = LobbyConnection(sock)
         connection.send('ready', rom_sha=meta['rom_sha'], backend=BACKEND,
-                        game_code=meta['game_code'], gb_backend=meta.get('backend'))
+                        game_code=meta['game_code'], gb_backend=meta.get('backend'),
+                        session_mode=meta.get('session_mode', 'same-generation'))
         started, deadline = False, None
         while True:
             message = connection.read()
@@ -391,14 +443,17 @@ def frontend(args):
 
 def prepare_session(rom, role, peer=''):
     validate_backend()
-    code = game_code(rom)
+    # Read/decompress the selected GBA ROM once. Validate exactly the bytes
+    # used for the session, independently of earlier picker qualification.
+    gba_data = gba_rom_data(rom) if Path(rom).suffix.lower() not in ('.gb', '.gbc') else None
+    code = game_code(rom, gba_data)
     if code.startswith('G'):
         gb_backend().validate_backend()
     save = rom.with_suffix('.srm')
     if not save.is_file():
         raise ValueError('No adjacent ordinary .srm save found for this game. '
                          'Launch and save the game normally first. This '
-                         'Bslap supports uncompressed English Ruby, Sapphire, Emerald, FireRed and LeafGreen.')
+                         'Bslap needs an in-game save matching the selected ROM filename.')
     # Reject configuration metacharacters in paths before generating RA config.
     if any(c in str(rom) for c in ('"', '\n', '\r')):
         raise ValueError('This ROM path cannot be used in the Bslap launcher.')
@@ -412,8 +467,15 @@ def prepare_session(rom, role, peer=''):
     shutil.copy2(SYSTEM_RETROARCH_CONFIG, session / 'retroarch.cfg')
     (session / 'states').mkdir()
     (session / 'options.cfg').write_text('gpsp_serial = "mul_poke"\n')
-    meta = dict(rom=str(rom), save=str(save), role=role, peer=peer, game_code=game_code(rom),
-                rom_sha=digest(rom), save_sha=digest(save), frontend_sha=FRONTEND_SHA, core_sha=CORE_SHA)
+    meta = dict(rom=str(rom), save=str(save), role=role, peer=peer, game_code=code,
+                rom_sha=(hashlib.sha256(gba_data).hexdigest() if gba_data is not None else digest(rom)), save_sha=digest(save), frontend_sha=FRONTEND_SHA, core_sha=CORE_SHA)
+    if Path(rom).suffix.lower() == '.zip':
+        content = session / 'content'
+        content.mkdir()
+        unpacked = content / (rom.stem + '.gba')
+        unpacked.write_bytes(gba_data)
+        meta['source_rom'] = str(rom)
+        meta['rom'] = str(unpacked)
     if code.startswith('G'):
         gb = gb_backend()
         meta.update(frontend_sha=gb.FRONTEND_SHA, core_sha=gb.CORE_SHA, backend=gb.ID)
@@ -489,11 +551,9 @@ def load_ui():
 
 def choose_game(ui, games):
     if not games:
-        ui.message('NO SUPPORTED ROM FOUND', 'Bslap supports uncompressed '
-                   'English Gen 1/2 (.gb/.gbc) and Gen 3 (.gba) on either card. ROMs are '
-                   'identified by their header, not their filename.')
+        ui.message('NO SUPPORTED ROM FOUND', 'Bslap supports qualified English Gen 1/2 raw ROMs and Gen 3 raw or single-ROM ZIP archives on either card. ROM content is validated; hacks are unsupported.')
         return None
-    choice = ui.menu('BSLAP - CHOOSE GAME', [(p.stem, str(p.parent)) for p in games])
+    choice = ui.menu('BSLAP - CHOOSE GAME', [(p.stem, ('ZIP archive' if p.suffix.lower() == '.zip' else 'Uncompressed ' + p.suffix.lower()) + ' | ' + str(p.parent)) for p in games])
     return games[choice] if choice is not None else None
 
 
@@ -535,9 +595,9 @@ def main():
                     continue
                 try:
                     validate_backend()
-                    games = find_games()
                     peer = ''
                     role = 'host' if choice == 0 else 'join'
+                    session_mode = 'same-generation'
                     if role == 'join':
                         rooms = discover(ui=ui)
                         if rooms is None:
@@ -553,26 +613,46 @@ def main():
                             continue
                         room = rooms[pick]
                         peer = room['ip']
-                        games = [p for p in games if compatible_games(game_code(p), room['game_code'])]
+                        session_mode = room.get('session_mode', 'same-generation')
+                        ui.frontend.draw_message('CHECKING LOCAL GAMES',
+                                                 'Finding compatible ROMs on your SD cards...',
+                                                 'Please wait')
+                        roots = generation_roots('G2' if room['game_code'].startswith('G1') else 'G1') if session_mode == 'time-capsule' else generation_roots(room['game_code'])
+                        games = [p for p in find_games(roots) if compatible_games(game_code(p), room['game_code'], session_mode)]
                         if not games:
                             ui.message('COMPATIBLE GAME NEEDED', 'Choose a supported English ROM '
-                                       'from the same generation. Both devices must use '
+                                       'compatible with the selected session. Both devices must use '
                                        'the same Bslap build.')
                             continue
                     if role == 'host':
                         generation = ui.menu('BSLAP - GENERATION', [
                             ('Gen 1', 'Red, Blue and Yellow'),
                             ('Gen 2', 'Gold, Silver and Crystal'),
-                            ('Gen 3', 'Ruby, Sapphire, Emerald, FireRed and LeafGreen')])
+                            ('Gen 3', 'Ruby, Sapphire, Emerald, FireRed and LeafGreen'),
+                            ('Time Capsule', 'Gen 1 to Gen 2 trading only')])
                         if generation is None:
                             continue
-                        prefix = ('G1', 'G2', '')[generation]
+                        ui.frontend.draw_message('CHECKING LOCAL GAMES',
+                                                 'Finding supported ROMs on your SD cards...',
+                                                 'Please wait')
+                        session_mode = 'time-capsule' if generation == 3 else 'same-generation'
+                        roots = generation_roots('G1') + generation_roots('G2') if generation == 3 else generation_roots(('G1', 'G2', 'G3')[generation])
+                        games = find_games(roots)
+                        prefix = ('G1', 'G2', '', 'G')[generation]
                         games = [p for p in games if
                                  (game_code(p).startswith(prefix) if prefix else
                                   not game_code(p).startswith('G'))]
                     rom = choose_game(ui, games)
                     if rom is None:
                         continue
+                    if session_mode == 'time-capsule':
+                        if gb_backend().ID != 'gambatte-netpacket':
+                            raise ValueError('Time Capsule requires the single-instance Gambatte backend.')
+                        ui.message('TIME CAPSULE - TRADING ONLY',
+                                   'Gen 2: use the unlocked Time Capsule. Gen 1: use the normal Trade Center. '
+                                   'Gen 2 party must contain only Gen 1 species and moves; no Eggs. '
+                                   'The games enforce their normal restrictions. Save on both games before exiting. '
+                                   'Initial development test: use disposable saves.')
                     ui.message('BEFORE YOU PLAY',
                                gb_backend().NOTICE if game_code(rom).startswith('G') else ISSUE)
                     confirm = ui.menu('ENTER BSLAP LOBBY?', [('Ready', role.title() + ': ' + rom.stem),
@@ -580,6 +660,7 @@ def main():
                     if confirm != 0:
                         continue
                     session, meta = prepare_session(rom, role, peer)
+                    meta['session_mode'] = session_mode
                     lobby = None
                     if role == 'host':
                         lobby = host_lobby(ui, meta)

@@ -85,6 +85,33 @@ class SuspendTests(unittest.TestCase):
                 run.reset_mock();flag.unlink()
                 s.run_lid_cycles();self.assertEqual(run.call_count,1)
 
+    def test_closed_lid_power_wake_classification(self):
+        before, after = self.wake(), self.wake()
+        after['irqs']['rk805_pwrkey_fall'] = 1
+        self.assertTrue(s.closed_lid_power_wake(before, after))
+        self.assertFalse(s.closed_lid_power_wake(before, before))
+        for state in (False, None):
+            self.assertFalse(s.closed_lid_power_wake(before, dict(after, lid_closed=state)))
+        after['irqs']['Lid'] = 1
+        self.assertTrue(s.closed_lid_power_wake(before, after))
+        after['irqs']['Lid'] = 2
+        self.assertFalse(s.closed_lid_power_wake(before, after))
+        self.assertFalse(s.closed_lid_power_wake(before, self.wake(irqs={})))
+
+    def test_power_wake_grace_cancels_or_expires(self):
+        with tempfile.TemporaryDirectory() as directory:
+            flag = Path(directory)/'enabled'; flag.touch()
+            after = self.wake()
+            with patch.object(s,'ENABLED',flag), patch.object(s,'wake_inputs',return_value=after), patch.object(s.time,'monotonic',side_effect=[0,0,12]), patch.object(s.time,'sleep') as sleep:
+                self.assertEqual(s.power_wake_grace(after), after)
+                sleep.assert_called_once_with(0.5)
+            for current in (self.wake(lid_closed=False),self.wake(lid_closed=None),self.wake(1)):
+                with patch.object(s,'ENABLED',flag), patch.object(s,'wake_inputs',return_value=current):
+                    self.assertIsNone(s.power_wake_grace(after))
+            flag.unlink()
+            with patch.object(s,'ENABLED',flag), patch.object(s,'wake_inputs',return_value=after):
+                self.assertIsNone(s.power_wake_grace(after))
+
     def test_hardware_toggle_cli(self):
         with tempfile.TemporaryDirectory() as directory:
             enabled = Path(directory)/'enabled'

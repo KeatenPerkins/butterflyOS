@@ -2,6 +2,8 @@
 """Protocol boundary and ROM-selection checks for the experimental launcher."""
 import importlib.util
 import json
+import hashlib
+import zipfile
 from pathlib import Path
 import tempfile
 import unittest
@@ -133,8 +135,51 @@ class BslapTests(unittest.TestCase):
             (gba / 'short.gba').write_bytes(b'BPEE')
             alias = root / 'alias'
             alias.symlink_to(gba, target_is_directory=True)
-            found = app.find_games([gba, alias])
+            qualified = {hashlib.sha256(p.read_bytes()).hexdigest(): p.read_bytes()[172:176].decode()
+                         for p in gba.glob('*.gba') if p.name not in ('short.gba', 'Emerald.gba', 'Japanese.gba')}
+            with mock.patch.dict(app.GBA_ROM_CODES, qualified, clear=True):
+                found = app.find_games([gba, alias])
             self.assertEqual([p.name for p in found], ['FireRed.gba', 'LeafGreen.gba', 'renamed.gba', 'Ruby.gba', 'Sapphire.gba'])
+
+    def test_zip_and_raw_content_qualification_rejects_header_preserving_hack(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            data = bytearray(192)
+            data[172:176] = b'BPRE'
+            rom = root / 'renamed.zip'
+            with zipfile.ZipFile(rom, 'w') as archive:
+                archive.writestr('nested/game.gba', data)
+            with mock.patch.dict(app.GBA_ROM_CODES, {hashlib.sha256(data).hexdigest(): 'BPRE'}, clear=True):
+                self.assertEqual(app.game_code(rom), 'BPRE')
+                hack = root / 'hack.gba'
+                hack.write_bytes(bytes(data) + b'modified')
+                with self.assertRaises(ValueError): app.game_code(hack)
+                with zipfile.ZipFile(rom, 'a') as archive:
+                    archive.writestr('another.gba', data)
+                with self.assertRaises(ValueError): app.game_code(rom)
+
+    def test_zip_preparation_reads_rom_once_and_preserves_original_save(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            rom = root / 'LeafGreen.zip'
+            data = bytearray(192); data[172:176] = b'BPGE'
+            with zipfile.ZipFile(rom, 'w') as archive:
+                archive.writestr('game.gba', data)
+            save = rom.with_suffix('.srm'); save.write_bytes(b'original-save')
+            config = root / 'retroarch.cfg'; config.write_text('')
+            with mock.patch.object(app, 'ROOT', root / 'bslap'), \
+                 mock.patch.object(app, 'SYSTEM_RETROARCH_CONFIG', config), \
+                 mock.patch.object(app, 'validate_backend'), \
+                 mock.patch.object(app.subprocess, 'run', return_value=mock.Mock(returncode=0)), \
+                 mock.patch.dict(app.GBA_ROM_CODES, {hashlib.sha256(data).hexdigest(): 'BPGE'}, clear=True), \
+                 mock.patch.object(app, 'gba_rom_data', wraps=app.gba_rom_data) as read:
+                session, meta = app.prepare_session(rom, 'host')
+            self.assertEqual(read.call_count, 1)
+            self.assertEqual(Path(meta['rom']).read_bytes(), bytes(data))
+            self.assertEqual(meta['save'], str(save))
+            self.assertEqual(save.read_bytes(), b'original-save')
+            self.assertEqual((session / 'before.srm').read_bytes(), b'original-save')
+            self.assertEqual(meta['rom_sha'], hashlib.sha256(data).hexdigest())
 
     def test_cross_game_gen3_matrix_rejects_unsupported_headers(self):
         for first in app.GAMES:
@@ -144,6 +189,15 @@ class BslapTests(unittest.TestCase):
                                  (second[:2] if second.startswith('G') else 'G3'))
         for unsupported in ('BPRJ', 'BPGJ', 'BPEJ', '', None, []):
             self.assertFalse(app.compatible_games('BPEE', unsupported))
+
+    def test_time_capsule_requires_opposite_gb_generations(self):
+        for a in app.GAMES:
+            for b in app.GAMES:
+                expected = {a[:2], b[:2]} == {'G1', 'G2'}
+                self.assertEqual(app.compatible_games(a, b, 'time-capsule'), expected)
+        self.assertFalse(app.compatible_games('G1BL', 'G2CR'))
+        self.assertFalse(app.compatible_games('BPEE', 'G2CR', 'time-capsule'))
+        self.assertFalse(app.compatible_games('G1BL', None, 'time-capsule'))
 
     def test_room_uses_sender_address_and_requires_matching_backend(self):
         room = dict(app='Bslap', version=4, backend=app.BACKEND, port=app.PORT,

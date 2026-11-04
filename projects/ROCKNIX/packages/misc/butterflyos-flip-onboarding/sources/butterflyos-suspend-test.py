@@ -124,9 +124,40 @@ def charger_only_wake(before, after):
     return changed
 
 
+def closed_lid_power_wake(before, after):
+    if before.get('lid_closed') is not True or after.get('lid_closed') is not True:
+        return False
+    keys = ('Lid', 'rk805_pwrkey_fall', 'rk805_pwrkey_rise')
+    old, new = before.get('irqs', {}), after.get('irqs', {})
+    if not all(isinstance(old.get(k), int) and isinstance(new.get(k), int) for k in keys):
+        return False
+    # Resume may generate one hall IRQ without an EV_SW open transition.
+    # Admit that initial IRQ only; grace-period checks remain strict.
+    return (new['Lid'] - old['Lid'] in (0, 1) and
+            all(new[k] >= old[k] for k in keys) and
+            any(new[k] > old[k] for k in keys[1:]))
+
+
+def power_wake_grace(after, seconds=12):
+    # Poll current EV_SW state throughout the grace period. A lid event,
+    # another power press, unknown sensor state or disabled setting cancels.
+    deadline = time.monotonic() + seconds
+    while True:
+        current = wake_inputs()
+        if (not ENABLED.exists() or not same_user_inputs(after, current)
+                or current.get('charger_online') != after.get('charger_online')):
+            print('Closed-lid wake protection cancelled by changed inputs or setting', flush=True)
+            return None
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return current
+        time.sleep(min(0.5, remaining))
+
+
 def run_lid_cycles():
     # Each retry goes through all normal storage checks and charging LED hooks.
-    # Never retry unknown wakes, user wakes, or more than three cable changes.
+    # Unknown wakes fail open. Power-button wakes get a cancellable grace period.
+    # Bound automatic retries across both power-button and charger wakes.
     retries, rapid, pending_inputs = 0, 0, None
     while True:
         completed = run_cycle(pending_inputs)
@@ -135,20 +166,26 @@ def run_lid_cycles():
         print(str(cycle), flush=True)
         report = json.loads((cycle/'after.json').read_text())
         before, after = report['wake_inputs_before'], report['wake_inputs_after']
-        if not ENABLED.exists() or not charger_only_wake(before, after): return
+        power_wake = closed_lid_power_wake(before, after)
+        if not ENABLED.exists() or not (power_wake or charger_only_wake(before, after)): return
         rapid = rapid + 1 if report['sleep_elapsed_seconds'] < 5 else 0
         if retries >= 3 or rapid >= 2:
             print('Charger wake retry limit reached; staying awake until next lid close', flush=True)
             return
-        time.sleep(3)  # Let cable status settle and allow a user wake to win.
-        current = wake_inputs()
+        if power_wake:
+            print('Power-button wake with lid closed; checking for lid opening for 12 seconds', flush=True)
+            current = power_wake_grace(after)
+            if current is None: return
+        else:
+            time.sleep(3)  # Existing cable-change debounce.
+            current = wake_inputs()
         if (not ENABLED.exists() or not same_user_inputs(after, current)
                 or current.get('charger_online') != after.get('charger_online')):
             print('Charger wake retry cancelled by changed lid, power or charging state', flush=True)
             return
         pending_inputs = current
         retries += 1
-        print('Charger change while lid closed; returning to deep sleep (%d/3)' % retries, flush=True)
+        print('%s while lid closed; returning to deep sleep (%d/3)' % ('Power-button wake' if power_wake else 'Charger change', retries), flush=True)
 
 
 def prune_diagnostics(active=None):

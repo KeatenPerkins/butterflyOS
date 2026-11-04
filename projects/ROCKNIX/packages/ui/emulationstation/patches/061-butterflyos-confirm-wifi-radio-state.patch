@@ -1,0 +1,83 @@
+--- a/es-app/src/ApiSystem.h
++++ b/es-app/src/ApiSystem.h
+@@ -251,6 +251,7 @@
+ 
+ 	virtual std::string getIpAddress();
+ 	virtual std::string getCurrentWifiSSID();
++	virtual std::string getWifiRadioState();
+ 	virtual bool isWifiAPModeSupported();
+ 
+ 	// BlueTooth methods
+--- a/es-app/src/ApiSystem.cpp
++++ b/es-app/src/ApiSystem.cpp
+@@ -571,6 +571,13 @@
+ 		return "NOT CONNECTED";
+ 
+ 	return result;
++}
++
++std::string ApiSystem::getWifiRadioState()
++{
++    auto result = executeEnumerationScript("wifictl radio-status");
++    if (result.empty()) return "unknown";
++    return result.front();
+ }
+ 
+ std::string ApiSystem::getCurrentWifiSSID()
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -5551,8 +5551,9 @@
+ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+ {
+ 	const std::string currentWifiSSID = ApiSystem::getInstance()->getCurrentWifiSSID();
+-	bool baseWifiEnabled = SystemConf::getInstance()->getBool("wifi.enabled") ||
+-		(!currentWifiSSID.empty() && currentWifiSSID != "NOT CONNECTED");
++	const std::string radioState = ApiSystem::getInstance()->getWifiRadioState();
++	bool baseWifiEnabled = radioState == "enabled" ||
++		(radioState != "disabled" && SystemConf::getInstance()->getBool("wifi.enabled"));
+ 	if (baseWifiEnabled != SystemConf::getInstance()->getBool("wifi.enabled"))
+ 		SystemConf::getInstance()->setBool("wifi.enabled", baseWifiEnabled);
+ 	bool baseAdhocEnabled = SystemConf::getInstance()->getBool("wifi.adhoc.enabled");
+@@ -5724,8 +5725,7 @@
+ 
+ 		// Network selection and the advanced editor connect immediately. Leaving
+ 		// this menu must not retry a failed connection with the same credentials.
+-		if (!wifienabled && baseWifiEnabled)
+-			ApiSystem::getInstance()->disableWifi();
++		// Radio changes are applied and checked by the toggle callback.
+ 	});
+ 
+ 	enable_wifi->setOnChangedCallback([this, s, baseWifiEnabled, enable_wifi, baseAdhocEnabled, enable_adhoc]()
+@@ -5748,7 +5748,16 @@
+ 			else
+ 				ApiSystem::getInstance()->disableWifi();
+ 
++			const std::string confirmed = ApiSystem::getInstance()->getWifiRadioState();
++			const bool actual = confirmed == "enabled" ||
++				(confirmed != "disabled" && baseWifiEnabled);
++			enable_wifi->setOnChangedCallback(nullptr);
++			enable_wifi->setState(actual);
++			SystemConf::getInstance()->setBool("wifi.enabled", actual);
++			const bool failed = confirmed == "unknown" || actual != wifienabled;
+ 			delete s;
++			if (failed)
++				mWindow->pushGui(new GuiMsgBox(mWindow, _("WI-FI RADIO DID NOT REACH THE REQUESTED STATE. PLEASE TRY AGAIN.")));
+ 			openNetworkSettings(true);
+ 		}
+ 	});
+--- a/es-core/src/components/SwitchComponent.cpp
++++ b/es-core/src/components/SwitchComponent.cpp
+@@ -148,8 +148,11 @@
+ 	auto theme = ThemeData::getMenuTheme();
+ 	mImage.setImage((mHasAuto && mAutoState) ? theme->Icons.onoffauto : (mState ? theme->Icons.on : theme->Icons.off));
+ 
+-	if (mOnChangedCallback != nullptr)
+-		mOnChangedCallback();
++	// A callback may replace itself or destroy its owning menu. Keep its
++	// captures alive until the invocation has returned.
++	auto callback = mOnChangedCallback;
++	if (callback != nullptr)
++		callback();
+ }
+ 
+ std::vector<HelpPrompt> SwitchComponent::getHelpPrompts()
