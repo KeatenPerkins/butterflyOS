@@ -2,7 +2,7 @@
 
 Reviewed: 2026-11-04.
 
-## v1.7.0 — build 20261104
+## Published v1.7.0 — build 20261104
 
 - Runtime source: `50813bd28c0404e79409c159a23f0adcab7e422c`; onboarding 2.6.63.
 - All 670 package tasks, 41 targeted tests and 18 image checks passed. Both
@@ -21,8 +21,10 @@ Reviewed: 2026-11-04.
 - The approved image is promoted unchanged. Narrow updater packaging and
   production manifest/archive validation pass. Corresponding source, a resolved
   package-license manifest and optional audit records accompany the release.
-- See [release notes](RELEASE_NOTES_v1.7.0.md). Upload and public-discovery
-  verification are recorded separately in the release audit after publication.
+- See [release notes](RELEASE_NOTES_v1.7.0.md). All eight uploaded asset sizes and GitHub SHA-256 digests match. Published
+  as Latest stable; production-updater discovery confirms build 20261104 and
+  the exact manifest without downloading/installing. See the
+  [release audit](PUBLIC_RELEASE_AUDIT.md).
 
 ## Published v1.6.0 — build 20261027
 

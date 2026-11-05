@@ -5,7 +5,7 @@ This records technical release checks. It is not legal advice.
 The dated sections below apply only to their recorded images. Later rebuilds
 require fresh checks; none of these records proves universal compatibility.
 
-## November 4, 2026 stable release preparation: v1.7.0
+## November 4, 2026 stable release: v1.7.0
 
 Runtime source: `50813bd28c0404e79409c159a23f0adcab7e422c`, build `20261104`,
 onboarding 2.6.63. All 670 package tasks, 41 targeted automated tests and 18
@@ -28,8 +28,12 @@ The existing intermittent first-connect DHCP/retry failure, Gen 3 room-exit
 limitation and historical HDMI/progress investigations are not claimed fixed.
 No kernel, RetroArch or emulator-core version upgrade is included. Optional
 release audit records exclude raw device logs, credentials, private fixtures
-and device identities. Upload verification and public updater discovery must
-pass before publication is reported complete.
+and device identities. Published as [v1.7.0](https://github.com/KeatenPerkins/butterflyOS/releases/tag/v1.7.0),
+Latest stable, on November 4, 2026. All eight uploaded sizes and GitHub SHA-256
+digests match the verified local assets. Public production-updater discovery
+returned build 20261104 with the exact official manifest. This read-only check
+did not download or install an update. The release tag points to documentation
+commit `823c6e4beb`; the runtime source and image bytes remain as recorded above.
 
 ## October 27, 2026 stable release: v1.6.0
 
