@@ -2,6 +2,25 @@
 
 Reviewed: 2026-11-04.
 
+## Queued for the next image — update installation feedback
+
+The boot installer replaces file-size percentages with animated writing/flushing,
+verification and finalization stages for KERNEL/SYSTEM. Boot-file updates also
+stay animated, with a keep-power-connected notice before installation. This
+avoids displaying 100% while buffered SD writes or readback checks are still
+running. Existing fsync writes, readback comparisons, remounts, failure handling
+and cleanup gates remain. This is a presentation change, not a speed claim.
+
+Five disposable-file installer tests cover successful stage sequencing, failed
+writes, corrupt readback and mount failures; seven existing updater tests pass.
+Shell syntax and diff checks pass. Full-image/OTA display testing is pending;
+no rebuild or publication was performed for this queued change.
+
+The installed KERNEL/initramfs supplies this screen. An update that first
+introduces the change is still installed by the older boot updater; the new
+feedback applies to subsequent installations after the new image is installed.
+The published v1.7.0 image and downloads are unchanged.
+
 ## Published v1.7.0 — build 20261104
 
 - Runtime source: `50813bd28c0404e79409c159a23f0adcab7e422c`; onboarding 2.6.63.

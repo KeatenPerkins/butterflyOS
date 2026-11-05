@@ -403,54 +403,71 @@ update_failed() {
   done
 }
 
+# File size can reach its final value while dd is still flushing buffered
+# writes. Use an animated stage instead of claiming the installation is 100%.
+update_stage_done() {
+  if [ "$1" -eq 0 ]; then
+    StopProgress "done"
+  else
+    StopProgress "FAILED"
+  fi
+}
+
 update_file() {
   local source="${UPDATE_DIR}/$2" destination="$3" result=0
   [ -f "$source" ] && [ -f "$destination" ] || return 1
   mount -o remount,rw /flash >>"${UPDATE_ROOT}/install-error.log" 2>&1 || return 1
-  StartProgress percent "Updating $1... " "$destination" $(stat -Lt "$source" | awk '{print $2}')
+  StartProgress spinner "Writing $1 / flushing SD card... "
   dd if="$source" of="$destination" bs=1M conv=fsync >>"${UPDATE_ROOT}/install-error.log" 2>&1 || result=1
-  StopProgress
+  update_stage_done "$result"
   # Read back the destination before accepting an installation or deleting inputs.
   if [ "$result" -eq 0 ]; then
+    StartProgress spinner "Verifying $1... "
     cmp -s "$source" "$destination" || result=1
+    update_stage_done "$result"
   fi
+  StartProgress spinner "Finalizing $1... "
   if [ "${disk%%=*}" != "FILE" ]; then
     mount -o remount,ro /flash >>"${UPDATE_ROOT}/install-error.log" 2>&1 || result=1
   fi
   sync
+  update_stage_done "$result"
   return "$result"
 }
 
 update_partition() {
   local source="${UPDATE_DIR}/$2" destination="$3" result=0 size expected actual
   [ -f "$source" ] && [ -b "$destination" ] || return 1
-  StartProgress spinner "Updating $1... "
+  StartProgress spinner "Writing $1 / flushing SD card... "
   dd if="$source" of="$destination" bs=1M conv=fsync >>"${UPDATE_ROOT}/install-error.log" 2>&1 || result=1
-  StopProgress
+  update_stage_done "$result"
   if [ "$result" -eq 0 ]; then
+    StartProgress spinner "Verifying $1... "
     size=$(stat -Lt "$source" | awk '{print $2}')
     expected=$(sha256sum "$source" | awk '{print $1}')
     # The partition can be larger than the kernel; compare only bytes written.
     actual=$(head -c "$size" "$destination" | sha256sum | awk '{print $1}')
     [ -n "$expected" ] && [ "$actual" = "$expected" ] || result=1
+    update_stage_done "$result"
   fi
+  StartProgress spinner "Finalizing $1... "
   sync
+  update_stage_done "$result"
   return "$result"
 }
 
 update_bootloader() {
-  local result
+  local result=0
 
   export BOOT_ROOT="/flash"
   export SYSTEM_ROOT="/update"
   if [ -f ${SYSTEM_ROOT}/usr/share/bootloader/update.sh ]; then
-    echo ""
-    echo "Updating Boot Files... "
-    sh ${SYSTEM_ROOT}/usr/share/bootloader/update.sh >>"${UPDATE_ROOT}/install-error.log" 2>&1 || return 1
+    StartProgress spinner "Updating boot files / flushing SD card... "
+    sh ${SYSTEM_ROOT}/usr/share/bootloader/update.sh >>"${UPDATE_ROOT}/install-error.log" 2>&1 || result=1
     sync
-    echo "Boot Files Updated."
-    echo ""
+    update_stage_done "$result"
   fi
+  return "$result"
 }
 
 load_modules() {
@@ -1143,6 +1160,7 @@ check_update() {
   fi
 
   # all ok, update
+  echo "Keep power connected. Writing, flushing and verification may take several minutes."
   display_versions
   if [ -b "/${IMAGE_KERNEL}" ]; then
     update_partition "Kernel" "${UPDATE_KERNEL}" "/${IMAGE_KERNEL}" || update_failed "Kernel write or verification failed"
