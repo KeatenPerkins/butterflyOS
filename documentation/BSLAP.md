@@ -43,6 +43,20 @@ a follow-up test. Full-image Bslap testing subsequently passed. An early live-te
 Blue freeze was not explained; this does not establish exhaustive pairing coverage. Internet play and GB-Link/ESP32 hardware are
 outside the current feature.
 
+### Queued after v1.7.0: ZIP support across all three generations
+
+The next build also accepts single-ROM GB/GBC ZIPs with the default Gambatte
+backend, including Time Capsule mode. ROM contents must match the same qualified
+English releases as raw files. Multiple-ROM, malformed, oversized and modified
+archives are rejected. The archive's internal paths are never extracted directly.
+
+Bslap stages a private raw ROM copy for play, while the ordinary `.srm` and
+optional `.rtc` remain associated with the original archive's filename stem.
+Existing backup, validation and clean-exit save-return rules still apply. Raw
+and ZIP copies have the same content hash, so one player can use a raw ROM and
+the other a ZIP. The development SameBoy fallback still requires raw GB/GBC ROMs.
+This queued change is not in the published v1.7.0 image.
+
 ## Host and join
 
 1. Save and exit any running games. Connect both devices to the same local

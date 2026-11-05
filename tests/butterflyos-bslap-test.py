@@ -181,6 +181,67 @@ class BslapTests(unittest.TestCase):
             self.assertEqual((session / 'before.srm').read_bytes(), b'original-save')
             self.assertEqual(meta['rom_sha'], hashlib.sha256(data).hexdigest())
 
+    def test_gameboy_zip_prepare_and_frontend_keep_save_clock_and_content_paths(self):
+        for extension, code in (('.gb', 'G1BL'), ('.gbc', 'G2CR')):
+            with self.subTest(code=code), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                data = bytes(range(256)) * 4
+                raw = root / ('renamed' + extension); raw.write_bytes(data)
+                rom = root / 'renamed.zip'
+                with zipfile.ZipFile(rom, 'w') as archive:
+                    archive.writestr('../../nested/game' + extension, data)
+                save = rom.with_suffix('.srm'); save.write_bytes(b'original-save')
+                rtc = rom.with_suffix('.rtc'); rtc.write_bytes(b'12345678')
+                config = root / 'retroarch.cfg'; config.write_text('')
+                base = root / 'base.cfg'; base.write_text('')
+                gb = app.gb_backend('gambatte-netpacket')
+                sha = hashlib.sha256(data).hexdigest()
+                with mock.patch.object(app, 'ROOT', root / 'bslap'), \
+                     mock.patch.object(app, 'gb_backend', return_value=gb), \
+                     mock.patch.object(app, 'SYSTEM_RETROARCH_CONFIG', config), \
+                     mock.patch.object(app, 'validate_backend'), \
+                     mock.patch.object(gb, 'validate_backend'), \
+                     mock.patch.object(app.subprocess, 'run', return_value=mock.Mock(returncode=0)), \
+                     mock.patch.dict(gb.dual.ROM_CODES, {sha: code}, clear=True):
+                    self.assertEqual(app.game_code(raw), code)
+                    self.assertEqual(app.game_code(rom), code)
+                    session, meta = app.prepare_session(rom, 'join', '192.168.1.20')
+                    self.assertEqual(meta['rom_sha'], sha)
+                    self.assertEqual(meta['save'], str(save))
+                    self.assertEqual(meta['source_rom'], str(rom))
+                    self.assertEqual(Path(meta['rom']).suffix, extension)
+                    self.assertEqual(Path(meta['rom']).read_bytes(), data)
+                    self.assertFalse((session / 'content').exists())
+                    self.assertEqual((session / 'before.rtc').read_bytes(), b'12345678')
+                    gb.prepare_token(meta)
+                    args = ['--appendconfig', str(base), '-L', str(app.CORE), meta['rom']]
+                    with mock.patch.object(gb.os, 'execv') as execute, mock.patch.object(gb.time, 'sleep'):
+                        gb.frontend(session, meta, args, app.find_games)
+                    content = session / 'content'
+                    self.assertEqual((content / ('local' + extension)).read_bytes(), data)
+                    self.assertEqual((content / 'local.srm').read_bytes(), b'original-save')
+                    self.assertEqual((content / '.netplay/local.srm').read_bytes(), b'original-save')
+                    self.assertEqual((content / 'local.rtc').read_bytes(), b'12345678')
+                    self.assertIn(str(content / ('local' + extension)), execute.call_args.args[1])
+                self.assertEqual(save.read_bytes(), b'original-save')
+                self.assertEqual(rtc.read_bytes(), b'12345678')
+
+    def test_gameboy_zip_rejects_ambiguous_oversized_and_modified_content(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); rom = root / 'game.zip'
+            with zipfile.ZipFile(rom, 'w') as archive:
+                archive.writestr('game.gb', b'X' * 1024)
+                archive.writestr('other.gba', b'X' * 1024)
+            with self.assertRaises(ValueError): app.game_code(rom)
+            with zipfile.ZipFile(rom, 'w') as archive:
+                archive.writestr('game.gbc', b'X' * (4 * 1024**2 + 1))
+            with self.assertRaises(ValueError): app.game_code(rom)
+            with zipfile.ZipFile(rom, 'w') as archive:
+                archive.writestr('game.gb', b'X' * 1024)
+            with self.assertRaises(ValueError): app.game_code(rom)
+            rom.write_bytes(b'broken archive')
+            with self.assertRaises(ValueError): app.game_code(rom)
+
     def test_cross_game_gen3_matrix_rejects_unsupported_headers(self):
         for first in app.GAMES:
             for second in app.GAMES:

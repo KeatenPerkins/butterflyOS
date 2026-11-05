@@ -2,6 +2,21 @@
 
 Reviewed: 2026-11-04.
 
+## Queued for the next image — Bslap Gen 1/2 ZIP support
+
+Onboarding 2.6.65 includes single-ROM GB/GBC ZIP support for the default Gambatte
+backend, including Time Capsule. Gen 3 ZIP support remains. Qualified content
+hashes are shared by raw/ZIP inputs; GB/GBC extraction uses a separate session
+ROM directory so backend working-save creation does not collide. Original save
+and RTC paths remain adjacent to the source archive. The SameBoy development
+fallback still requires raw Game Boy ROMs.
+
+Thirty launcher, GB backend, Netpacket and discovery tests pass, including new
+ZIP session/frontend routing, RTC preservation and invalid-archive checks.
+Live staging on both local test devices recognizes qualified Blue and Crystal
+ZIPs; ROMs and saves were not changed. User live trade testing is pending. The
+temporary bindings disappear after reboot. No rebuild or publication performed.
+
 ## Queued for the next image — Crystal event ZIP qualification
 
 Blink's Odd Egg and Celebi menus now qualify decompressed ROM contents using the

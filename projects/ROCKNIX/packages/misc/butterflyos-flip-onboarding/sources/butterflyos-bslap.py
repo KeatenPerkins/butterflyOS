@@ -18,6 +18,7 @@ import tempfile
 import threading
 import time
 import zipfile
+import zlib
 
 ROOT = Path('/storage/.config/butterflyos/bslap')
 SYSTEM_RETROARCH_CONFIG = Path('/storage/.config/retroarch/retroarch.cfg')
@@ -141,14 +142,53 @@ def gba_rom_data(path):
         return header + stream.read()
 
 
+def rom_extension(path):
+    """Determine one ZIP's ROM family without trusting the archive filename."""
+    path = Path(path)
+    if path.suffix.lower() != '.zip':
+        return path.suffix.lower()
+    try:
+        with zipfile.ZipFile(path) as archive:
+            members = [m for m in archive.infolist() if not m.is_dir()
+                       and Path(m.filename).suffix.lower() in ('.gb', '.gbc', '.gba')]
+            if len(members) != 1:
+                raise ValueError('Choose a ZIP containing exactly one Game Boy or GBA ROM.')
+            return Path(members[0].filename).suffix.lower()
+    except (zipfile.BadZipFile, RuntimeError, NotImplementedError) as error:
+        raise ValueError('Cannot read this ROM ZIP archive.') from error
+
+
+def gb_rom_data(path):
+    path = Path(path)
+    limit = 4 * 1024**2
+    if path.suffix.lower() != '.zip':
+        if not 0x150 <= path.stat().st_size <= limit:
+            raise ValueError('Unsupported Game Boy ROM size.')
+        return path.read_bytes()
+    try:
+        with zipfile.ZipFile(path) as archive:
+            members = [m for m in archive.infolist() if not m.is_dir()
+                       and Path(m.filename).suffix.lower() in ('.gb', '.gbc', '.gba')]
+            if (len(members) != 1 or Path(members[0].filename).suffix.lower() not in ('.gb', '.gbc')
+                    or not 0x150 <= members[0].file_size <= limit):
+                raise ValueError('Choose a ZIP containing exactly one supported Game Boy ROM.')
+            with archive.open(members[0]) as stream:
+                data = stream.read(limit + 1)
+            if len(data) != members[0].file_size:
+                raise ValueError('Invalid Game Boy ROM size.')
+            return data
+    except (zipfile.BadZipFile, RuntimeError, NotImplementedError, zlib.error) as error:
+        raise ValueError('Cannot read this Game Boy ZIP archive.') from error
+
+
 def generation_roots(code):
     system = 'gb' if code.startswith('G1') else 'gbc' if code.startswith('G2') else 'gba'
     return [Path(base) / system for base in ('/storage/roms', '/storage/games-external/roms')]
 
 
 def game_code(path, data=None):
-    if Path(path).suffix.lower() in ('.gb', '.gbc'):
-        return gb_backend().rom_code(path)
+    if rom_extension(path) in ('.gb', '.gbc'):
+        return gb_backend().rom_code(path, gb_rom_data(path) if data is None else data)
     data = gba_rom_data(path) if data is None else data
     code = GBA_ROM_CODES.get(hashlib.sha256(data).hexdigest())
     if code is None or data[0xAC:0xB0].decode('ascii', 'replace') != code:
@@ -443,10 +483,13 @@ def frontend(args):
 
 def prepare_session(rom, role, peer=''):
     validate_backend()
-    # Read/decompress the selected GBA ROM once. Validate exactly the bytes
-    # used for the session, independently of earlier picker qualification.
-    gba_data = gba_rom_data(rom) if Path(rom).suffix.lower() not in ('.gb', '.gbc') else None
-    code = game_code(rom, gba_data)
+    # Validate the exact decompressed bytes used for play; never trust an
+    # archive's filename or earlier picker qualification. Read the ROM once.
+    extension = rom_extension(rom)
+    rom_data = gb_rom_data(rom) if extension in ('.gb', '.gbc') else gba_rom_data(rom)
+    code = game_code(rom, rom_data)
+    if Path(rom).suffix.lower() == '.zip' and code.startswith('G') and gb_backend().ID != 'gambatte-netpacket':
+        raise ValueError('Game Boy ZIPs require the default Gambatte link backend; use raw ROMs for the SameBoy fallback.')
     if code.startswith('G'):
         gb_backend().validate_backend()
     save = rom.with_suffix('.srm')
@@ -468,12 +511,14 @@ def prepare_session(rom, role, peer=''):
     (session / 'states').mkdir()
     (session / 'options.cfg').write_text('gpsp_serial = "mul_poke"\n')
     meta = dict(rom=str(rom), save=str(save), role=role, peer=peer, game_code=code,
-                rom_sha=(hashlib.sha256(gba_data).hexdigest() if gba_data is not None else digest(rom)), save_sha=digest(save), frontend_sha=FRONTEND_SHA, core_sha=CORE_SHA)
+                rom_sha=hashlib.sha256(rom_data).hexdigest(), save_sha=digest(save), frontend_sha=FRONTEND_SHA, core_sha=CORE_SHA)
     if Path(rom).suffix.lower() == '.zip':
-        content = session / 'content'
+        # The Game Boy backend creates its own content/save working folder.
+        # Keep extracted ROMs separate, and keep the original archive's save path.
+        content = session / 'rom'
         content.mkdir()
-        unpacked = content / (rom.stem + '.gba')
-        unpacked.write_bytes(gba_data)
+        unpacked = content / (rom.stem + extension)
+        unpacked.write_bytes(rom_data)
         meta['source_rom'] = str(rom)
         meta['rom'] = str(unpacked)
     if code.startswith('G'):
@@ -551,7 +596,7 @@ def load_ui():
 
 def choose_game(ui, games):
     if not games:
-        ui.message('NO SUPPORTED ROM FOUND', 'Bslap supports qualified English Gen 1/2 raw ROMs and Gen 3 raw or single-ROM ZIP archives on either card. ROM content is validated; hacks are unsupported.')
+        ui.message('NO SUPPORTED ROM FOUND', 'Bslap supports qualified English Gen 1/2/3 raw ROMs or single-ROM ZIP archives on either card. ROM content is validated; hacks are unsupported.')
         return None
     choice = ui.menu('BSLAP - CHOOSE GAME', [(p.stem, ('ZIP archive' if p.suffix.lower() == '.zip' else 'Uncompressed ' + p.suffix.lower()) + ' | ' + str(p.parent)) for p in games])
     return games[choice] if choice is not None else None

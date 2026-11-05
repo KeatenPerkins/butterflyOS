@@ -49,10 +49,10 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def rom_code(path):
-    if Path(path).stat().st_size > 4 * 1024 * 1024:
+def rom_code(path, data=None):
+    if (len(data) if data is not None else Path(path).stat().st_size) > 4 * 1024 * 1024:
         raise ValueError('Unsupported Game Boy ROM size.')
-    code = ROM_CODES.get(digest(path))
+    code = ROM_CODES.get(hashlib.sha256(data).hexdigest() if data is not None else digest(path))
     if not code:
         raise ValueError('This Game Boy ROM revision/language is not qualified for Bslap.')
     return code
