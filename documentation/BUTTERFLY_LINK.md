@@ -214,7 +214,7 @@ for every addition, levels, testing steps and catalog coverage.
 
 [Historical recipe catalog](https://bulbapedia.bulbagarden.net/wiki/List_of_PCNY_event_Pok%C3%A9mon_distributions_in_Generation_II).
 
-### Crystal Odd Egg replay (unreleased)
+### Crystal Odd Egg replay
 
 Use **Local transfer → Gen 2 → Crystal Events → Odd Egg**. If you have not
 received the Odd Egg, Blink reports that it is already available and makes no
@@ -223,6 +223,11 @@ in-game save and speak to the Day-Care Man **inside** the Day Care on Route 34,
 south of Goldenrod, with a free party slot. Save states can restore the old flag.
 If the man is outside with an ordinary breeding egg, collect that egg first.
 The tool refuses replay while that breeding egg is waiting.
+
+A fix queued after v1.7.0 makes both Crystal event menus recognize qualified
+single-ROM ZIPs by their ROM contents. In v1.7.0 these menus can reject a valid
+ZIP; a qualified uncompressed `.gbc` ROM is a workaround. Other revisions and
+modified ROMs remain unsupported.
 
 Replay clears only the received-event bit and updates its backup and checksums.
 Existing eggs, Pokemon, items, breeding progress and Celebi quest state remain

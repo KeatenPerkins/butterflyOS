@@ -2,6 +2,21 @@
 
 Reviewed: 2026-11-04.
 
+## Queued for the next image — Crystal event ZIP qualification
+
+Blink's Odd Egg and Celebi menus now qualify decompressed ROM contents using the
+existing Gen 1/2 reader, rather than hashing the ZIP container. Qualified raw
+and single-ROM ZIP inputs share the same check; unsupported content remains
+refused. Unreadable candidates do not hide a later valid candidate.
+
+Four focused tests pass, covering raw/ZIP equivalence, bad-archive fallback,
+modified-content rejection and routing through both event menus without save
+writes. Live staging on the local test device recognized the user's qualified
+Crystal ZIP; read-only Odd Egg inspection passed and the personal save's hash
+remained unchanged. Actual replay confirmation is left to the user. Onboarding
+2.6.64 includes this fix for the next rebuild. The temporary live binding lasts
+until reboot; the published v1.7.0 image is unchanged.
+
 ## Queued for the next image — update installation feedback
 
 The boot installer replaces file-size percentages with animated writing/flushing,

@@ -3356,6 +3356,21 @@ def crystal_event_workflow(frontend: SDLFrontEnd) -> None:
         crystal_odd_egg_workflow(frontend)
 
 
+CRYSTAL_EVENT_ROM_SHA256 = "fdcc3c8c43813cf8731fc037d2a6d191bac75439c34b24ba1c27526e6acdc8a2"
+
+
+def crystal_event_rom(save_path: str) -> Optional[str]:
+    # Qualify the ROM contents, not the ZIP container. This is the same reader
+    # used for Gen 1/2 sprite preparation and by the event helper itself.
+    for candidate in _rom_candidates(2, save_path):
+        try:
+            if rom_cache_digest(2, candidate) == CRYSTAL_EVENT_ROM_SHA256:
+                return candidate
+        except (OSError, ValueError):
+            continue
+    return None
+
+
 def crystal_odd_egg_workflow(frontend: SDLFrontEnd) -> None:
     notice(frontend, "CRYSTAL ODD EGG",
            "Replay the Day-Care Man's original egg delivery. Existing Pokemon and breeding progress are kept. Save normally and exit the game first; collect any waiting breeding egg before replay.")
@@ -3369,8 +3384,9 @@ def crystal_odd_egg_workflow(frontend: SDLFrontEnd) -> None:
         return
     path = saves[choice][0]
     try:
-        rom = next(candidate for candidate in _rom_candidates(2, path)
-                   if _file_digest(candidate) == "fdcc3c8c43813cf8731fc037d2a6d191bac75439c34b24ba1c27526e6acdc8a2")
+        rom = crystal_event_rom(path)
+        if not rom:
+            raise ValueError("The qualified Crystal ROM was not found.")
         result = subprocess.run(["python3", "/usr/bin/butterflyos-crystal-event.py",
                                  "--save", path, "--rom", rom, "--action", "odd-egg-inspect"],
                                 text=True, capture_output=True)
@@ -3417,8 +3433,7 @@ def crystal_celebi_workflow(frontend: SDLFrontEnd) -> None:
         return
     path = saves[choice][0]
     try:
-        rom = next((candidate for candidate in _rom_candidates(2, path)
-                    if _file_digest(candidate) == "fdcc3c8c43813cf8731fc037d2a6d191bac75439c34b24ba1c27526e6acdc8a2"), None)
+        rom = crystal_event_rom(path)
     except OSError as error:
         notice(frontend, "ROM CHECK FAILED", str(error))
         return
