@@ -2,6 +2,22 @@
 
 Reviewed: 2026-11-04.
 
+## Queued for the next image — suspend probe mount filtering
+
+Onboarding 2.6.67 excludes file and subtree bind mounts from SD-card probe
+targets by requiring filesystem-root mount entries. Repeated live script
+patches created propagated file mounts under storage; the old scanner treated
+these as card directories and failed before suspend, disabling lid sleep.
+This is a live-staging interaction, not an observed kernel resume/storage failure.
+The actual local MMC filesystem checks and required OS-card gate remain.
+
+Fifteen suspend tests pass, including propagated file/directory bind exclusion
+and refusal when the actual OS-card mount is absent. The fix is staged on the
+local test device; both actual card directories passed read/write preflight,
+the failed service state was cleared and lid sleep was re-enabled. No remote
+suspend was requested. User lid-close confirmation remains pending; no rebuild
+or publication performed.
+
 ## Queued for the next image — faster Bslap ZIP scans
 
 Onboarding 2.6.66 adds an early GB/GBC header filter and a bounded persistent

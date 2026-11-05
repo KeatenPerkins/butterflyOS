@@ -59,6 +59,10 @@ def probe_targets():
         fields, filesystem = left.split(), right.split()
         target = unescape(fields[4])
         source = unescape(filesystem[1])
+        # Bind-mounted scripts/directories still report the backing MMC device.
+        # Probe filesystem roots, not individual files or duplicate subtrees.
+        if unescape(fields[3]) != '/':
+            continue
         if source.startswith('/dev/mmcblk') and filesystem[0] in ('ext4', 'exfat', 'vfat'):
             if target == '/storage' or target.startswith(('/var/media/', '/storage/')):
                 targets.append(Path(target))

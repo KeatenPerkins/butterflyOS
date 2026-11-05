@@ -181,6 +181,20 @@ class SuspendTests(unittest.TestCase):
                   '34 1 179:1 / /flash ro - vfat /dev/mmcblk0p1 ro\n')
         with patch.object(s.Path, 'read_text', return_value=mounts):
             self.assertEqual(s.probe_targets(), [Path('/storage'), Path('/var/media/Second Card')])
+    def test_file_and_directory_bind_mounts_are_not_card_probe_roots(self):
+        mounts = ('31 1 179:2 / /storage rw - ext4 /dev/mmcblk0p2 rw\n'
+                  '32 1 179:9 / /storage/games-external rw - exfat /dev/mmcblk1p1 rw\n'
+                  '33 31 179:2 /.config/patch/script.py /usr/bin/script.py rw - ext4 /dev/mmcblk0p2 rw\n'
+                  '34 31 179:2 /.config/new/script.py /storage/.config/patch/script.py rw - ext4 /dev/mmcblk0p2 rw\n'
+                  '35 31 179:2 /roms /storage/roms-alias rw - ext4 /dev/mmcblk0p2 rw\n')
+        with patch.object(s.Path, 'read_text', return_value=mounts):
+            self.assertEqual(s.probe_targets(), [Path('/storage'), Path('/storage/games-external')])
+
+    def test_bind_mount_does_not_replace_required_os_card_mount(self):
+        mounts = '33 31 179:2 /.config/patch.py /storage/patch.py rw - ext4 /dev/mmcblk0p2 rw\n'
+        with patch.object(s.Path, 'read_text', return_value=mounts):
+            with self.assertRaises(RuntimeError): s.probe_targets()
+
     def test_roundtrip(self): self.cycle()
     def test_corrupt_probe_disables_lid(self): self.cycle('corrupt')
     def test_kernel_timeout_disables_lid(self): self.cycle('kernel')
