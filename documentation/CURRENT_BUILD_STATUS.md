@@ -2,6 +2,25 @@
 
 Reviewed: 2026-11-04.
 
+## Queued for the next image — faster Bslap ZIP scans
+
+Onboarding 2.6.66 adds an early GB/GBC header filter and a bounded persistent
+ROM-picker cache keyed by resolved path, size, modification time and change time.
+Both accepted and rejected files are cached; changed files are requalified.
+Malformed/missing cache data falls back to scanning, and cache write failures
+must not prevent browsing. Full ROM qualification is always repeated during
+session preparation; cached picker results never authorize emulator content.
+
+Thirty-three launcher/backend/discovery tests pass. Live full Gen 1/2 scans
+populated the cache in approximately 12 and 16 seconds; repeated scans measured
+0.51 and 0.70 seconds on the two local test devices. Blue ZIP and Crystal ZIP
+were found on both, alongside a mixture of raw and compressed supported games.
+These are local timing observations, not guaranteed library-size benchmarks.
+A stale pre-patch menu was the likely reason ZIP Blue was absent while raw Red
+was visible. Close and reopen Bslap to load the patched launcher.
+No game saves, RTC files or ROM archives were changed by staging. Full-image
+regression and user trade testing remain pending; published downloads unchanged.
+
 ## Queued for the next image — Bslap Gen 1/2 ZIP support
 
 Onboarding 2.6.65 includes single-ROM GB/GBC ZIP support for the default Gambatte

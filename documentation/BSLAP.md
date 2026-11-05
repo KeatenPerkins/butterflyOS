@@ -57,6 +57,12 @@ and ZIP copies have the same content hash, so one player can use a raw ROM and
 the other a ZIP. The development SameBoy fallback still requires raw GB/GBC ROMs.
 This queued change is not in the published v1.7.0 image.
 
+The next build also caches picker qualification for unchanged files and rejects
+unrelated Game Boy headers before full decompression. A first scan or new/changed
+ROMs can take longer; later scans reuse the cache. Full validation still runs
+before launch. After applying a live patch, close and reopen Bslap on both
+devices so an older process cannot keep using its previous ROM filter.
+
 ## Host and join
 
 1. Save and exit any running games. Connect both devices to the same local

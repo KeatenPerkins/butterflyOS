@@ -185,7 +185,10 @@ class BslapTests(unittest.TestCase):
         for extension, code in (('.gb', 'G1BL'), ('.gbc', 'G2CR')):
             with self.subTest(code=code), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
-                data = bytes(range(256)) * 4
+                data = bytearray(bytes(range(256)) * 4)
+                title = b'POKEMON BLUE' if code == 'G1BL' else b'PM_CRYSTAL'
+                data[0x134:0x134 + len(title)] = title
+                data = bytes(data)
                 raw = root / ('renamed' + extension); raw.write_bytes(data)
                 rom = root / 'renamed.zip'
                 with zipfile.ZipFile(rom, 'w') as archive:
@@ -241,6 +244,45 @@ class BslapTests(unittest.TestCase):
             with self.assertRaises(ValueError): app.game_code(rom)
             rom.write_bytes(b'broken archive')
             with self.assertRaises(ValueError): app.game_code(rom)
+
+    def test_gameboy_scan_reads_only_header_for_unrelated_zip(self):
+        with tempfile.TemporaryDirectory() as directory:
+            rom = Path(directory) / 'renamed.zip'
+            with zipfile.ZipFile(rom, 'w', zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr('unrelated.gbc', b'X' * (2 * 1024**2))
+            reads = []
+            original = zipfile.ZipExtFile.read
+            def read(stream, size=-1):
+                reads.append(size)
+                return original(stream, size)
+            with mock.patch.object(zipfile.ZipExtFile, 'read', read):
+                with self.assertRaises(ValueError): app.gb_rom_data(rom)
+            self.assertEqual(reads, [0x150])
+
+    def test_scan_cache_reuses_unchanged_results_and_rechecks_changed_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); library = root / 'gb'; library.mkdir()
+            rom = library / 'game.zip'; rom.write_bytes(b'first-version')
+            cache = root / 'bslap'; cache.mkdir()
+            with mock.patch.object(app, 'ROOT', cache), mock.patch.object(app, 'game_code', return_value='G1BL') as qualify:
+                self.assertEqual(app.find_games([library]), [rom])
+                self.assertEqual(app.find_games([library]), [rom])
+                self.assertEqual(qualify.call_count, 1)
+                rom.write_bytes(b'changed-version')
+                self.assertEqual(app.find_games([library]), [rom])
+                self.assertEqual(qualify.call_count, 2)
+                qualify.side_effect = ValueError('not qualified')
+                rom.write_bytes(b'new-unqualified-content')
+                self.assertEqual(app.find_games([library]), [])
+                self.assertEqual(app.find_games([library]), [])
+                self.assertEqual(qualify.call_count, 3)
+
+    def test_corrupt_scan_cache_does_not_hide_a_supported_game(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); rom = root / 'game.gb'; rom.write_bytes(b'fixture')
+            (root / 'rom-scan-cache.json').write_text('not json')
+            with mock.patch.object(app, 'ROOT', root), mock.patch.object(app, 'game_code', return_value='G1BL'):
+                self.assertEqual(app.find_games([root]), [rom])
 
     def test_cross_game_gen3_matrix_rejects_unsupported_headers(self):
         for first in app.GAMES:

@@ -79,11 +79,45 @@ def digest(path):
     return h.hexdigest()
 
 
+def load_rom_scan_cache():
+    try:
+        path = ROOT / 'rom-scan-cache.json'
+        if path.stat().st_size > 4 * 1024**2:
+            return {}
+        data = json.loads(path.read_text())
+        if data.get('schema') == 1 and isinstance(data.get('files'), dict) and len(data['files']) <= 20000:
+            return data['files']
+    except (OSError, ValueError, AttributeError):
+        pass
+    return {}
+
+
+def save_rom_scan_cache(cache):
+    temporary = None
+    try:
+        if not ROOT.is_dir() or len(cache) > 20000:
+            return
+        with tempfile.NamedTemporaryFile(mode='w', dir=ROOT, prefix='.rom-scan-', delete=False) as stream:
+            temporary = Path(stream.name)
+            json.dump(dict(schema=1, files=cache), stream)
+        temporary.replace(ROOT / 'rom-scan-cache.json')
+    except OSError:
+        pass  # Cache failures must never prevent browsing or launch validation.
+    finally:
+        if temporary is not None:
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+
 def find_games(roots=None):
     roots = roots or [Path(base) / system for base in
                       ('/storage/roms', '/storage/games-external/roms')
                       for system in ('gba', 'gbc', 'gb')]
     found, seen = [], set()
+    cache = load_rom_scan_cache()
+    changed = False
     for root in roots:
         for folder, dirs, files in os.walk(root, followlinks=False):
             dirs[:] = [d for d in dirs if not d.startswith('.') and d.lower() not in
@@ -96,14 +130,29 @@ def find_games(roots=None):
                     real = path.resolve()
                     if real in seen:
                         continue
-                    try:
-                        game_code(path)
-                    except ValueError:
-                        continue
                     seen.add(real)
-                    found.append(path)
+                    stat = path.stat()
+                    stamp = [stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns]
+                    key = str(real)
+                    entry = cache.get(key)
+                    if (isinstance(entry, list) and len(entry) == 4 and entry[:3] == stamp
+                            and (entry[3] is None or isinstance(entry[3], str) and entry[3] in GAMES)):
+                        code = entry[3]
+                    else:
+                        try:
+                            code = game_code(path)
+                        except ValueError:
+                            code = None
+                        cache[key] = stamp + [code]
+                        changed = True
+                    if code is not None:
+                        found.append(path)
                 except OSError:
                     continue
+    if changed:
+        save_rom_scan_cache(cache)
+    # This cache only accelerates the picker. prepare_session always reads and
+    # qualifies the complete ROM again before the emulator can use it.
     return sorted(found, key=lambda p: (p.stem.lower(), str(p)))
 
 
@@ -161,10 +210,24 @@ def rom_extension(path):
 def gb_rom_data(path):
     path = Path(path)
     limit = 4 * 1024**2
+
+    def read_candidate(stream, size):
+        # Reject unrelated games before decompressing/hashing their full ROM.
+        # The title is only a fast filter; rom_code still checks the full hash.
+        header = stream.read(0x150)
+        if not header[0x134:0x144].startswith((b'POKEMON', b'PM_CRYSTAL')):
+            raise ValueError('Not a supported Pokemon Game Boy header.')
+        data = header + stream.read(limit + 1 - len(header))
+        if len(data) != size:
+            raise ValueError('Invalid Game Boy ROM size.')
+        return data
+
     if path.suffix.lower() != '.zip':
-        if not 0x150 <= path.stat().st_size <= limit:
+        size = path.stat().st_size
+        if not 0x150 <= size <= limit:
             raise ValueError('Unsupported Game Boy ROM size.')
-        return path.read_bytes()
+        with path.open('rb') as stream:
+            return read_candidate(stream, size)
     try:
         with zipfile.ZipFile(path) as archive:
             members = [m for m in archive.infolist() if not m.is_dir()
@@ -173,10 +236,7 @@ def gb_rom_data(path):
                     or not 0x150 <= members[0].file_size <= limit):
                 raise ValueError('Choose a ZIP containing exactly one supported Game Boy ROM.')
             with archive.open(members[0]) as stream:
-                data = stream.read(limit + 1)
-            if len(data) != members[0].file_size:
-                raise ValueError('Invalid Game Boy ROM size.')
-            return data
+                return read_candidate(stream, members[0].file_size)
     except (zipfile.BadZipFile, RuntimeError, NotImplementedError, zlib.error) as error:
         raise ValueError('Cannot read this Game Boy ZIP archive.') from error
 
