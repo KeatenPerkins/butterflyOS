@@ -198,7 +198,7 @@
     </text>
   </view>
 
-  <view name="basic,detailed">
+  <view name="basic,detailed,video">
     <image name="background">
       <visible>false</visible>
     </image>
@@ -240,7 +240,7 @@
     </textlist>
   </view>
 
-  <view name="basic,detailed">
+  <view name="basic,detailed,video">
     <image name="search-button-hint" extra="true">
       <origin>0 1</origin>
       <pos>0.045 0.965</pos>
@@ -288,7 +288,7 @@
     </textlist>
   </view>
 
-  <view name="detailed">
+  <view name="detailed,video">
     <text name="md_lbl_rating,md_lbl_developer,md_developer,md_lbl_publisher,md_publisher,md_lbl_playcount,md_playcount,md_lbl_lastplayed,md_lbl_players,md_players,md_lbl_releasedate,md_lbl_genre,md_genre,md_description,md_name,md_lbl_gametime,md_gametime">
       <visible>false</visible>
     </text>
@@ -331,5 +331,18 @@
       <color>7b8496ff</color>
       <zIndex>3</zIndex>
     </text>
+  </view>
+  <!-- Video previews use the same card/list layout as Detailed view. -->
+  <view name="video">
+    <video name="md_video">
+      <origin>0.5 0.5</origin>
+      <pos>0.75 0.49</pos>
+      <maxSize>0.36 0.46</maxSize>
+      <delay>1</delay>
+      <showSnapshotNoVideo>true</showSnapshotNoVideo>
+      <showSnapshotDelay>true</showSnapshotDelay>
+      <audio>false</audio>
+      <zIndex>5</zIndex>
+    </video>
   </view>
 </theme>

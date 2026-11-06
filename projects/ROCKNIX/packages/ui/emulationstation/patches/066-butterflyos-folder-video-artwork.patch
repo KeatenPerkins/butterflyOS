@@ -1,0 +1,35 @@
+--- a/es-app/src/views/gamelist/DetailedContainer.cpp
++++ b/es-app/src/views/gamelist/DetailedContainer.cpp
+@@ -601,6 +601,15 @@
+ 
+ void DetailedContainer::updateDetailsForFolder(FolderData* folder)
+ {
++	// A folder's own artwork (including ButterflyOS console cards) takes
++	// precedence over a collage or snapshot inherited from its first game.
++	if (mVideo != nullptr && !folder->getImagePath().empty())
++	{
++		mVideo->setVideo("");
++		mVideo->setImage(folder->getImagePath(), false, mVideo->getMaxSizeInfo());
++		return;
++	}
++
+ 	auto games = folder->getChildrenListToDisplay();
+ 	if (games.size() == 0)
+ 		return;
+@@ -803,8 +812,14 @@
+ 
+ 		if (mVideo != nullptr)
+ 		{
+-			if (!mVideo->setVideo(file->getVideoPath()))
+-				mVideo->setDefaultVideo();
++			// Preview clips belong to games, not console/folder entries.
++			if (file->getType() == GAME)
++			{
++				if (!mVideo->setVideo(file->getVideoPath()))
++					mVideo->setDefaultVideo();
++			}
++			else
++				mVideo->setVideo("");
+ 
+ 			std::string snapShot = imagePath;
+ 

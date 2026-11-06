@@ -2,6 +2,25 @@
 
 Reviewed: 2026-11-04.
 
+## Queued for the next image — consistent Video game-list layout
+
+Theme 0.1.11 styles Video view consistently in both ButterflyOS themes: list
+position/colors, title, border and button hints match Detailed view, with rating
+stars and other unused metadata hidden. Individual games play previews inside
+the card after a one-second delay, silently, with artwork fallback.
+
+Frontend patch 066 preserves a folder's own artwork ahead of inherited child
+snapshots and restricts video playback to game entries. Console folders under
+Games retain the original system icons. The incremental frontend build and XML
+checks passed. Live testing confirmed the previously reported unstyled green
+list, then confirmed corrected console artwork and working game video playback.
+The user approved both results. No full-image regression is claimed yet.
+
+A private 320x240 H.264 MP4 test animation was generated from existing ButterflyOS
+branding for local device testing; ROM/save fixtures are not bundled. No image
+rebuild or release publication was performed. Live theme/frontend bindings last
+until reboot.
+
 ## Queued for the next image — suspend probe mount filtering
 
 Onboarding 2.6.67 excludes file and subtree bind mounts from SD-card probe
