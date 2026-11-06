@@ -205,7 +205,7 @@
     </text>
   </view>
 
-  <view name="basic,detailed,video">
+  <view name="basic,detailed,video,grid">
     <image name="background">
       <visible>false</visible>
     </image>
@@ -247,7 +247,7 @@
     </textlist>
   </view>
 
-  <view name="basic,detailed,video">
+  <view name="basic,detailed,video,grid">
     <image name="search-button-hint" extra="true">
       <origin>0 1</origin>
       <pos>0.045 0.965</pos>
@@ -351,5 +351,43 @@
       <audio>false</audio>
       <zIndex>5</zIndex>
     </video>
+  </view>
+  <view name="grid">
+    <text name="md_lbl_rating,md_lbl_developer,md_developer,md_lbl_publisher,md_publisher,md_lbl_playcount,md_playcount,md_lbl_lastplayed,md_lbl_players,md_players,md_lbl_releasedate,md_lbl_genre,md_genre,md_description,md_lbl_gametime,md_gametime"><visible>false</visible></text>
+    <datetime name="md_releasedate,md_lastplayed"><visible>false</visible></datetime>
+    <rating name="md_rating"><visible>false</visible></rating>
+    <image name="md_image"><visible>false</visible></image>
+    <text name="md_name">
+      <visible>true</visible><origin>0.5 0.5</origin><pos>0.5 0.855</pos><size>0.91 0.065</size>
+      <fontPath>${fontBold}</fontPath><fontSize>0.033333</fontSize>
+      <alignment>center</alignment><verticalAlignment>center</verticalAlignment><color>ffffffff</color><zIndex>10</zIndex>
+    </text>
+    <imagegrid name="gamegrid">
+      <pos>0.045 0.19</pos><size>0.91 0.59</size>
+      <autoLayout>0 2</autoLayout><cellProportion>1.4</cellProportion>
+      <margin>0.018 0.018</margin><padding>0.008 0.01 0.008 0.01</padding>
+      <autoLayoutSelectedZoom>1.04</autoLayoutSelectedZoom><animateSelection>true</animateSelection>
+      <imageSource>image</imageSource><scrollDirection>vertical</scrollDirection><scrollLoop>false</scrollLoop>
+      <gameImage>./assets/butterflyos-logo.png</gameImage><folderImage>./assets/butterflyos-logo.png</folderImage>
+      <scrollbarColor>10d9ff88</scrollbarColor><scrollbarSize>0.005</scrollbarSize><zIndex>5</zIndex>
+    </imagegrid>
+    <gridtile name="default">
+      <backgroundImage>./assets/card.png</backgroundImage><backgroundCornerSize>0.018 0.018</backgroundCornerSize>
+      <backgroundColor>8994aaff</backgroundColor><padding>0.012 0.012 0.012 0.012</padding>
+      <imageSizeMode>maxSize</imageSizeMode><selectionMode>full</selectionMode>
+    </gridtile>
+    <gridtile name="selected"><backgroundColor>ffffffff</backgroundColor></gridtile>
+    <!-- The full selected title is below the grid; reserve no label strip
+         inside cards, so artwork uses the whole symmetric content area. -->
+    <image name="gridtile.image">
+      <origin>0.5 0.5</origin><pos>0.5 0.5</pos><maxSize>0.88 0.88</maxSize>
+      <horizontalAlignment>center</horizontalAlignment><verticalAlignment>center</verticalAlignment>
+    </image>
+    <text name="gridtile">
+      <visible>false</visible>
+      <fontPath>${fontBold}</fontPath><fontSize>0.025</fontSize><color>b9c4d6ff</color>
+      <alignment>center</alignment><backgroundColor>080b1ddd</backgroundColor>
+    </text>
+    <text name="gridtile:selected"><visible>false</visible><color>ffffffff</color></text>
   </view>
 </theme>

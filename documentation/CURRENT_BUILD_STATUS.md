@@ -2,6 +2,26 @@
 
 Reviewed: 2026-11-04.
 
+## Queued for the next image — adaptive Grid layout (live tests passed)
+
+Theme 0.1.12 adds consistent Grid styling to both themes: bordered cards,
+selection emphasis, centered artwork fitted without stretching, selected title
+below the grid and the normal bottom button hints. Unused rating/metadata fields
+and invisible per-card label space are removed. Two rows adapt their column
+count to the display proportions: 3 on 640x480, 4 at 16:9, 5 around 21:9.
+Explicit user grid-size overrides can supersede automatic sizing.
+
+Theme XML parsing, layout calculations and diff checks passed. The user approved
+live testing on the larger local test library, including system/game grids,
+artwork/title edge cases and HDMI/handheld transitions. This is user-reported
+qualification, not an exhaustive automated display/peripheral matrix. At the
+user's request, the larger-library device was restored to its exact pre-test
+themes and UI settings; ROMs and saves were untouched.
+
+The existing opaque Game Boy Color system image remains a separate asset issue;
+this theme change does not remove its baked-in black background. Full-image
+regression remains pending. No OS rebuild or publication performed.
+
 ## Queued for the next image — consistent Video game-list layout
 
 Theme 0.1.11 styles Video view consistently in both ButterflyOS themes: list
