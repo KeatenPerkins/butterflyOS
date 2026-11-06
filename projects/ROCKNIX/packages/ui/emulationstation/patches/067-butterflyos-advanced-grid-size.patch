@@ -1,0 +1,61 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -4481,9 +4481,10 @@
+ 			themeconfig->addWithLabel(_("GAMELIST VIEW STYLE"), gamelist_style);
+ 	}
+ 
+-	// Default grid size
++	// Automatic is the normal grid layout; fixed sizes are an advanced override.
++	const bool advancedGridSize = SystemConf::getInstance()->get("ButterflyAdvancedMode") == "1";
+ 	std::shared_ptr<OptionListComponent<std::string>> mGridSize = nullptr;
+-	if (showGridFeatures && system != NULL && theme->hasView("grid"))
++	if (advancedGridSize && showGridFeatures && system != NULL && theme->hasView("grid"))
+ 	{
+ 		Vector2f gridOverride =
+ 			systemTheme.empty() ? Vector2f::parseString(Settings::getInstance()->getString("DefaultGridSize")) :
+@@ -4491,7 +4492,7 @@
+ 
+ 		auto ovv = std::to_string((int)gridOverride.x()) + "x" + std::to_string((int)gridOverride.y());
+ 
+-		mGridSize = std::make_shared<OptionListComponent<std::string>>(mWindow, _("DEFAULT GRID SIZE"), false);
++		mGridSize = std::make_shared<OptionListComponent<std::string>>(mWindow, _("GRID SIZE OVERRIDE"), false);
+ 
+ 		bool found = false;
+ 		for (auto it = GuiGamelistOptions::gridSizes.cbegin(); it != GuiGamelistOptions::gridSizes.cend(); it++)
+@@ -4506,7 +4507,7 @@
+ 		if (!found)
+ 			mGridSize->selectFirstItem();
+ 
+-		themeconfig->addWithLabel(_("DEFAULT GRID SIZE"), mGridSize);
++		themeconfig->addWithDescription(_("GRID SIZE OVERRIDE"), _("Automatic adapts to the display. A fixed size overrides adaptive sizing."), mGridSize);
+ 	}
+ 
+ 
+@@ -4957,7 +4958,7 @@
+ 	}
+ 
+ 	//  theme_colorset, theme_iconset, theme_menu, theme_systemview, theme_gamelistview, theme_region,
+-	themeconfig->addSaveFunc([systemTheme, system, themeconfig, options, gamelist_style, mGridSize, window]
++	themeconfig->addSaveFunc([systemTheme, system, themeconfig, options, gamelist_style, mGridSize, advancedGridSize, window]
+ 	{
+ 		bool reloadAll = false;
+ 
+@@ -4988,7 +4989,8 @@
+ 				reloadAll |= Settings::getInstance()->setString(option.first, value);
+ 		}
+ 
+-		Vector2f gridSizeOverride(0, 0);
++		// Opening the normal menu must not erase a saved advanced override.
++		Vector2f gridSizeOverride = (!advancedGridSize && system != nullptr) ? system->getGridSizeOverride() : Vector2f(0, 0);
+ 
+ 		if (mGridSize != nullptr)
+ 		{
+@@ -5008,7 +5010,7 @@
+ 			if (systemTheme.empty())
+ 				reloadAll |= Settings::getInstance()->setString("DefaultGridSize", value);
+ 		}
+-		else if (systemTheme.empty())
++		else if (systemTheme.empty() && advancedGridSize)
+ 			reloadAll |= Settings::getInstance()->setString("DefaultGridSize", "");
+ 
+ 		if (systemTheme.empty())

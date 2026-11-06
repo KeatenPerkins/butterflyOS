@@ -219,8 +219,9 @@ When changing base layout or artwork, regenerate the variant before building.
 
 Select Grid in User Interface Settings' game-list view style. The new layout
 keeps two rows and chooses columns from the active display proportions: roughly
-3x2 on the Flip, 4x2 at 16:9 and 5x2 on ultrawide. An explicit grid-size override
-can take precedence. Images fit centered within cards without stretching;
+3x2 on the Flip, 4x2 at 16:9 and 5x2 on ultrawide. **Grid Size Override** is available only in **Advanced Mode**. Leave it on
+**Automatic** for display-adaptive sizing; fixed dimensions take precedence.
+Existing overrides are preserved when using the normal menu. Images fit centered within cards without stretching;
 the selected title appears below the grid. System folders use their console art.
 An opaque source image can still show its baked-in background.
 

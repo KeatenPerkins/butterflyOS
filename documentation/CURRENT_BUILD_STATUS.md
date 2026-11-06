@@ -2,6 +2,19 @@
 
 Reviewed: 2026-11-04.
 
+## Queued for the next image — advanced Grid size override
+
+Frontend patch 067 hides the fixed-size selector outside Advanced Mode, labels
+it Grid Size Override, and explains that Automatic adapts to the display while
+fixed dimensions override it. The existing fresh-install default remains
+Automatic. Opening/saving the normal menu preserves existing global and
+per-system advanced overrides rather than silently clearing them.
+
+The incremental frontend build and diff checks are the validation for this
+menu-only change; live normal/Advanced menu testing remains part of the next
+image's checklist. No additional live patch was applied to the restored
+larger-library device. No image rebuild or publication performed.
+
 ## Queued for the next image — adaptive Grid layout (live tests passed)
 
 Theme 0.1.12 adds consistent Grid styling to both themes: bordered cards,
