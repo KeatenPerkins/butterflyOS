@@ -5,11 +5,11 @@
 ButterflyOS currently targets the Miyoo Flip V2 only. Download the latest installation
 image and its matching checksum from the
 [latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest).
-The stable release includes both a fresh-install image and an online update
+A stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
 
-Current release: [v1.6.0 notes](RELEASE_NOTES_v1.6.0.md), updater build **20261027**.
+Prepared candidate: [v1.8.0 notes](RELEASE_NOTES_v1.8.0.md), build **20261106**; publication pending.
 
 ## For users and testers
 

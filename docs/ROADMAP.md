@@ -1,6 +1,6 @@
 # ButterflyOS roadmap
 
-Reviewed **November 4, 2026**. Release: **v1.7.0**, build **20261104**, rebuilt locally and tested on local test devices.
+Reviewed **November 6, 2026**. Prepared release candidate: build **20261106**, tested on local test devices; publication pending.
 This page describes direction, not release dates or commitments. Future work
 requires implementation and testing before it becomes a supported feature.
 The currently released and hardware-tested target is **Miyoo Flip V2**.
@@ -29,9 +29,18 @@ The currently released and hardware-tested target is **Miyoo Flip V2**.
 
 These are summaries, not universal compatibility guarantees. See
 [Features](../documentation/FEATURES.md),
-[release notes](../documentation/RELEASE_NOTES_v1.6.0.md) and
+[release notes](../documentation/RELEASE_NOTES_v1.8.0.md),
+[previous release notes](../documentation/RELEASE_NOTES_v1.7.0.md) and
 [current build status](../documentation/CURRENT_BUILD_STATUS.md) for scope and
 recorded validation.
+
+## Completed for the 20261106 candidate
+
+Adaptive Grid and styled Video views in both themes, advanced-only Grid Size
+Override, qualified GB/GBC ZIP support and cached Bslap library scans, Crystal
+ZIP recognition in Blink, suspend card-probe filtering, and animated updater
+installation stages. The local image passed its targeted tests and user
+validation; publication is pending. See the [candidate release notes](../documentation/RELEASE_NOTES_v1.8.0.md).
 
 ## Current priorities
 

@@ -43,9 +43,9 @@ a follow-up test. Full-image Bslap testing subsequently passed. An early live-te
 Blue freeze was not explained; this does not establish exhaustive pairing coverage. Internet play and GB-Link/ESP32 hardware are
 outside the current feature.
 
-### Queued after v1.7.0: ZIP support across all three generations
+### v1.8.0: ZIP support across all three generations
 
-The next build also accepts single-ROM GB/GBC ZIPs with the default Gambatte
+Build 20261106 accepts single-ROM GB/GBC ZIPs with the default Gambatte
 backend, including Time Capsule mode. ROM contents must match the same qualified
 English releases as raw files. Multiple-ROM, malformed, oversized and modified
 archives are rejected. The archive's internal paths are never extracted directly.
@@ -55,13 +55,13 @@ optional `.rtc` remain associated with the original archive's filename stem.
 Existing backup, validation and clean-exit save-return rules still apply. Raw
 and ZIP copies have the same content hash, so one player can use a raw ROM and
 the other a ZIP. The development SameBoy fallback still requires raw GB/GBC ROMs.
-This queued change is not in the published v1.7.0 image.
+This is available in build 20261106; both devices need the matching Bslap build.
 
-The next build also caches picker qualification for unchanged files and rejects
+Build 20261106 also caches picker qualification for unchanged files and rejects
 unrelated Game Boy headers before full decompression. A first scan or new/changed
 ROMs can take longer; later scans reuse the cache. Full validation still runs
-before launch. After applying a live patch, close and reopen Bslap on both
-devices so an older process cannot keep using its previous ROM filter.
+before launch. After updating, close and reopen Bslap on both devices so any earlier process
+ends. The user confirmed raw/ZIP Bslap testing passed on the local test devices.
 
 ## Host and join
 

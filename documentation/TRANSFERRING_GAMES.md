@@ -182,10 +182,10 @@ and is not included in v1.1.0.
 
 ## Optional game preview videos
 
-A theme fix queued after v1.7.0 makes **Video** game-list view match the normal
-ButterflyOS layout. Console folders keep system artwork; highlighted individual
-games can play preview clips. Published v1.7.0 has an unstyled Video layout;
-use Detailed view there until upgrading to an image containing this fix.
+Build v1.8.0 makes **Video** game-list view match the normal ButterflyOS
+layout. Console folders keep system artwork; highlighted individual games can
+play preview clips. Earlier builds have an unstyled Video layout; use Detailed
+view there until upgrading.
 
 Use lightweight **MP4/H.264** previews; 320x240 or 640x480 is a practical starting
 point. A scraper can record the video path in the game's `gamelist.xml` entry:
@@ -198,7 +198,7 @@ That path is relative to the system ROM folder, alongside its `gamelist.xml`.
 With local artwork lookup enabled, the frontend also searches the system's
 `videos` folder for the game's display name with `.mp4` or `-video.mp4`.
 Explicit gamelist paths avoid ambiguity when display names differ from filenames.
-Select **Video** under User Interface Settings' game-list view style. The queued
-ButterflyOS layout delays playback one second, keeps previews silent and shows
-artwork when no video is available. Videos are optional; normal games do not
-require them.
+Select **Video** under User Interface Settings' game-list view style. In
+build 20261106, the ButterflyOS layout delays playback one second, keeps
+previews silent and shows artwork when no video is available. Videos are
+optional; normal games do not require them.

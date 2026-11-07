@@ -7,16 +7,19 @@ This lists development capabilities, not a guarantee for every game or
 controller. See [current build status](CURRENT_BUILD_STATUS.md) for the exact
 tested image and [known issues](KNOWN_ISSUES.md) for open failures.
 
-## v1.7.0 changes
+## v1.8.0 changes
 
-- Bslap Gen 1 ↔ Gen 2 Time Capsule trading, qualified Gen 3 ZIP support and
-  faster host/join preparation. Native story and party restrictions still apply.
-- Wi-Fi controls confirm actual radio state and work independently of Bluetooth.
-- A closed-lid power-button wake returns to sleep after about 12 seconds when
-  lid sleep remains enabled and inputs stay unchanged, subject to safety limits.
+- Adaptive centered Grid and styled Video game lists work in both themes across
+  handheld, HDMI and ultrawide displays. Grid Size Override is limited to
+  Advanced Mode; automatic sizing follows the display.
+- Bslap accepts qualified Gen 1 and Gen 2 ZIPs, caches ROM scans and rejects
+  unrelated headers early. Blink correctly qualifies zipped Crystal ROMs.
+- Suspend card probes ignore bind-mounted patch files. The updater shows writing,
+  verification and finalization activity.
 
-The rebuilt image passed user testing. See the [release notes](RELEASE_NOTES_v1.7.0.md)
-for scope and remaining limitations.
+The image passed 64 targeted tests, 20 image checks, full read-back verification
+on both test cards, and user testing of the UI, Blink, Bslap and lid sleep. See
+the [release notes](RELEASE_NOTES_v1.8.0.md) for scope and remaining limitations.
 
 ## Live Pokémon trades and battles with Bslap
 

@@ -224,10 +224,9 @@ south of Goldenrod, with a free party slot. Save states can restore the old flag
 If the man is outside with an ordinary breeding egg, collect that egg first.
 The tool refuses replay while that breeding egg is waiting.
 
-A fix queued after v1.7.0 makes both Crystal event menus recognize qualified
-single-ROM ZIPs by their ROM contents. In v1.7.0 these menus can reject a valid
-ZIP; a qualified uncompressed `.gbc` ROM is a workaround. Other revisions and
-modified ROMs remain unsupported.
+Build 20261106 makes both Crystal event menus recognize qualified single-ROM
+ZIPs by their ROM contents. Other revisions and modified ROMs remain
+unsupported.
 
 Replay clears only the received-event bit and updates its backup and checksums.
 Existing eggs, Pokemon, items, breeding progress and Celebi quest state remain

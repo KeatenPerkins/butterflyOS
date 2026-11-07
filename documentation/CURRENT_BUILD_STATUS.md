@@ -1,142 +1,81 @@
 # Current build and test status
 
-Reviewed: 2026-11-04.
+Reviewed: 2026-11-06.
 
-## Queued for the next image — advanced Grid size override
+## Prepared release candidate — build 20261106
 
-Frontend patch 067 hides the fixed-size selector outside Advanced Mode, labels
-it Grid Size Override, and explains that Automatic adapts to the display while
-fixed dimensions override it. The existing fresh-install default remains
-Automatic. Opening/saving the normal menu preserves existing global and
-per-system advanced overrides rather than silently clearing them.
+Source commit: `1661cf148382f0b2f2e0edfb1f4a0aa45381b5a8`. The local Miyoo
+Flip V2 image passed 64 targeted automated tests, 20 image checks, and complete
+read-back verification on both test cards. User testing confirmed the UI/UX
+changes, Blink, Bslap and lid sleep.
 
-The incremental frontend build and diff checks are the validation for this
-menu-only change; live normal/Advanced menu testing remains part of the next
-image's checklist. No additional live patch was applied to the restored
-larger-library device. No image rebuild or publication performed.
+The image adds adaptive Grid and styled Video views in both themes. Grid Size
+Override is limited to Advanced Mode, and saved overrides are preserved. Video
+view retains system folder artwork and plays silent game previews with artwork
+fallback. Blink qualifies zipped Crystal ROMs by content. Bslap supports
+qualified Gen 1/2 ZIPs with Gambatte and caches picker scans while repeating
+full validation before launch. Suspend probes ignore bind-mounted patch files.
+The initramfs updater shows writing, verification and finalization stages.
 
-## Queued for the next image — adaptive Grid layout (live tests passed)
+The image and update archive are built and verified locally, but have not been
+uploaded or published. The updater progress display will appear when a later
+update is installed; it was not separately observed during this test cycle.
+See [v1.8.0 release notes](RELEASE_NOTES_v1.8.0.md) for details.
 
-Theme 0.1.12 adds consistent Grid styling to both themes: bordered cards,
-selection emphasis, centered artwork fitted without stretching, selected title
-below the grid and the normal bottom button hints. Unused rating/metadata fields
-and invisible per-card label space are removed. Two rows adapt their column
-count to the display proportions: 3 on 640x480, 4 at 16:9, 5 around 21:9.
-Explicit user grid-size overrides can supersede automatic sizing.
+## Included in build 20261106 — Grid size override
 
-Theme XML parsing, layout calculations and diff checks passed. The user approved
-live testing on the larger local test library, including system/game grids,
-artwork/title edge cases and HDMI/handheld transitions. This is user-reported
-qualification, not an exhaustive automated display/peripheral matrix. At the
-user's request, the larger-library device was restored to its exact pre-test
-themes and UI settings; ROMs and saves were untouched.
+Frontend patch 067 exposes Grid Size Override only in Advanced Mode. Automatic
+adapts to the display; fixed dimensions override it. The fresh-install default
+remains Automatic, and using the regular settings menu preserves saved global
+and per-system overrides. User testing passed on the full test image.
 
-The existing opaque Game Boy Color system image remains a separate asset issue;
-this theme change does not remove its baked-in black background. Full-image
-regression remains pending. No OS rebuild or publication performed.
+## Included in build 20261106 — adaptive Grid
 
-## Queued for the next image — consistent Video game-list layout
+Theme 0.1.12 provides centered two-row cards in both themes, with columns
+adapting to the active display: 3 on 640x480, 4 at 16:9, 5 around 21:9. Artwork
+is fitted without stretching, selected title appears below the grid, and unused
+metadata and label space are removed. Explicit size overrides take precedence.
+User testing with a larger library, HDMI and handheld displays passed.
 
-Theme 0.1.11 styles Video view consistently in both ButterflyOS themes: list
-position/colors, title, border and button hints match Detailed view, with rating
-stars and other unused metadata hidden. Individual games play previews inside
-the card after a one-second delay, silently, with artwork fallback.
+## Included in build 20261106 — styled Video view
 
-Frontend patch 066 preserves a folder's own artwork ahead of inherited child
-snapshots and restricts video playback to game entries. Console folders under
-Games retain the original system icons. The incremental frontend build and XML
-checks passed. Live testing confirmed the previously reported unstyled green
-list, then confirmed corrected console artwork and working game video playback.
-The user approved both results. No full-image regression is claimed yet.
+Both themes style Video lists consistently with Detailed view. Individual game
+previews play silently after a short delay, with artwork fallback. Frontend
+patch 066 keeps a folder's own system artwork and only starts previews for game
+entries. Console artwork, game previews and the full-image UI passed user tests.
+A local ButterflyOS preview clip was used for testing and is not bundled.
 
-A private 320x240 H.264 MP4 test animation was generated from existing ButterflyOS
-branding for local device testing; ROM/save fixtures are not bundled. No image
-rebuild or release publication was performed. Live theme/frontend bindings last
-until reboot.
-
-## Queued for the next image — suspend probe mount filtering
+## Included in build 20261106 — suspend card probe filtering
 
 Onboarding 2.6.67 excludes file and subtree bind mounts from SD-card probe
-targets by requiring filesystem-root mount entries. Repeated live script
-patches created propagated file mounts under storage; the old scanner treated
-these as card directories and failed before suspend, disabling lid sleep.
-This is a live-staging interaction, not an observed kernel resume/storage failure.
-The actual local MMC filesystem checks and required OS-card gate remain.
+targets. This prevents propagated live-patch mounts under storage from being
+mistaken for card directories and disabling lid sleep. Actual OS and second-card
+checks remain. Fifteen focused tests and full-image lid sleep testing passed.
 
-Fifteen suspend tests pass, including propagated file/directory bind exclusion
-and refusal when the actual OS-card mount is absent. The fix is staged on the
-local test device; both actual card directories passed read/write preflight,
-the failed service state was cleared and lid sleep was re-enabled. No remote
-suspend was requested. User lid-close confirmation remains pending; no rebuild
-or publication performed.
+## Included in build 20261106 — Bslap scan cache and ZIP support
 
-## Queued for the next image — faster Bslap ZIP scans
+Bslap rejects unrelated Game Boy headers early and caches qualification by
+resolved path, size, modification time and change time. Changed files are
+rechecked, and full ROM qualification always runs before launch. Qualified
+single-ROM GB/GBC ZIPs work with the default Gambatte backend, including Time
+Capsule; raw and zipped copies share content identity. Invalid or unsupported
+archives are rejected. The development SameBoy fallback still requires raw
+files. Focused launcher/backend tests and full-image Bslap tests passed.
 
-Onboarding 2.6.66 adds an early GB/GBC header filter and a bounded persistent
-ROM-picker cache keyed by resolved path, size, modification time and change time.
-Both accepted and rejected files are cached; changed files are requalified.
-Malformed/missing cache data falls back to scanning, and cache write failures
-must not prevent browsing. Full ROM qualification is always repeated during
-session preparation; cached picker results never authorize emulator content.
+## Included in build 20261106 — Blink Crystal ZIP qualification
 
-Thirty-three launcher/backend/discovery tests pass. Live full Gen 1/2 scans
-populated the cache in approximately 12 and 16 seconds; repeated scans measured
-0.51 and 0.70 seconds on the two local test devices. Blue ZIP and Crystal ZIP
-were found on both, alongside a mixture of raw and compressed supported games.
-These are local timing observations, not guaranteed library-size benchmarks.
-A stale pre-patch menu was the likely reason ZIP Blue was absent while raw Red
-was visible. Close and reopen Bslap to load the patched launcher.
-No game saves, RTC files or ROM archives were changed by staging. Full-image
-regression and user trade testing remain pending; published downloads unchanged.
+Blink's Crystal Odd Egg and Celebi menus now qualify the decompressed ROM
+contents rather than the ZIP container. Raw and single-ROM ZIP copies of the
+same qualified ROM are treated alike. Focused tests passed and Blink passed
+user testing on the full image.
 
-## Queued for the next image — Bslap Gen 1/2 ZIP support
+## Included in build 20261106 — updater progress
 
-Onboarding 2.6.65 includes single-ROM GB/GBC ZIP support for the default Gambatte
-backend, including Time Capsule. Gen 3 ZIP support remains. Qualified content
-hashes are shared by raw/ZIP inputs; GB/GBC extraction uses a separate session
-ROM directory so backend working-save creation does not collide. Original save
-and RTC paths remain adjacent to the source archive. The SameBoy development
-fallback still requires raw Game Boy ROMs.
-
-Thirty launcher, GB backend, Netpacket and discovery tests pass, including new
-ZIP session/frontend routing, RTC preservation and invalid-archive checks.
-Live staging on both local test devices recognizes qualified Blue and Crystal
-ZIPs; ROMs and saves were not changed. User live trade testing is pending. The
-temporary bindings disappear after reboot. No rebuild or publication performed.
-
-## Queued for the next image — Crystal event ZIP qualification
-
-Blink's Odd Egg and Celebi menus now qualify decompressed ROM contents using the
-existing Gen 1/2 reader, rather than hashing the ZIP container. Qualified raw
-and single-ROM ZIP inputs share the same check; unsupported content remains
-refused. Unreadable candidates do not hide a later valid candidate.
-
-Four focused tests pass, covering raw/ZIP equivalence, bad-archive fallback,
-modified-content rejection and routing through both event menus without save
-writes. Live staging on the local test device recognized the user's qualified
-Crystal ZIP; read-only Odd Egg inspection passed and the personal save's hash
-remained unchanged. Actual replay confirmation is left to the user. Onboarding
-2.6.64 includes this fix for the next rebuild. The temporary live binding lasts
-until reboot; the published v1.7.0 image is unchanged.
-
-## Queued for the next image — update installation feedback
-
-The boot installer replaces file-size percentages with animated writing/flushing,
-verification and finalization stages for KERNEL/SYSTEM. Boot-file updates also
-stay animated, with a keep-power-connected notice before installation. This
-avoids displaying 100% while buffered SD writes or readback checks are still
-running. Existing fsync writes, readback comparisons, remounts, failure handling
-and cleanup gates remain. This is a presentation change, not a speed claim.
-
-Five disposable-file installer tests cover successful stage sequencing, failed
-writes, corrupt readback and mount failures; seven existing updater tests pass.
-Shell syntax and diff checks pass. Full-image/OTA display testing is pending;
-no rebuild or publication was performed for this queued change.
-
-The installed KERNEL/initramfs supplies this screen. An update that first
-introduces the change is still installed by the older boot updater; the new
-feedback applies to subsequent installations after the new image is installed.
-The published v1.7.0 image and downloads are unchanged.
+The initramfs installer shows animated writing/flushing, verification and
+finalization stages for system partitions and boot files. Existing fsync writes,
+read-back comparisons, remounts and error handling remain. This improves
+feedback; it does not claim faster writes. Embedded updater contents passed
+image verification. The display itself is encountered during a future update.
 
 ## Published v1.7.0 — build 20261104
 

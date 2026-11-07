@@ -215,9 +215,9 @@ dimensions and original artwork while changing vector outlines to white.
 
 When changing base layout or artwork, regenerate the variant before building.
 
-## Adaptive Grid view (queued after v1.7.0)
+## Adaptive Grid view (v1.8.0)
 
-Select Grid in User Interface Settings' game-list view style. The new layout
+Select Grid in User Interface Settings' game-list view style. Build 20261106
 keeps two rows and chooses columns from the active display proportions: roughly
 3x2 on the Flip, 4x2 at 16:9 and 5x2 on ultrawide. **Grid Size Override** is available only in **Advanced Mode**. Leave it on
 **Automatic** for display-adaptive sizing; fixed dimensions take precedence.
@@ -225,6 +225,6 @@ Existing overrides are preserved when using the normal menu. Images fit centered
 the selected title appears below the grid. System folders use their console art.
 An opaque source image can still show its baked-in background.
 
-Both ButterflyOS themes include the layout. Live larger-library and HDMI tests
-passed; the next full image still needs regression testing. This layout is not
-part of the already-published v1.7.0 image.
+Both ButterflyOS themes include the layout. Larger-library, HDMI and full-image
+tests passed. The existing opaque Game Boy Color system image can still show
+its baked-in background.
