@@ -1,6 +1,6 @@
 # ButterflyOS v1.8.0 — Grid and Video views, faster Pokémon linking
 
-Release candidate for **Miyoo Flip V2**, build **20261106**. Image and update assets have not yet been published.
+Stable release for **Miyoo Flip V2**, build **20261106**.
 
 ## Download and install
 

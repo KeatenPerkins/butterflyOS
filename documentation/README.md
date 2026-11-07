@@ -9,7 +9,7 @@ A stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
 
-Prepared candidate: [v1.8.0 notes](RELEASE_NOTES_v1.8.0.md), build **20261106**; publication pending.
+Prepared candidate: [v1.8.0 notes](RELEASE_NOTES_v1.8.0.md), build **20261106**; draft release prepared, publication pending.
 
 ## For users and testers
 

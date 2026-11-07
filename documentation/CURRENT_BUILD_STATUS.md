@@ -17,8 +17,8 @@ qualified Gen 1/2 ZIPs with Gambatte and caches picker scans while repeating
 full validation before launch. Suspend probes ignore bind-mounted patch files.
 The initramfs updater shows writing, verification and finalization stages.
 
-The image and update archive are built and verified locally, but have not been
-uploaded or published. The updater progress display will appear when a later
+The image and update archive are built and verified. They are uploaded to a
+private draft release, not yet published. The updater progress display will appear when a later
 update is installed; it was not separately observed during this test cycle.
 See [v1.8.0 release notes](RELEASE_NOTES_v1.8.0.md) for details.
 
