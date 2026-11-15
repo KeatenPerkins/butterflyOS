@@ -107,12 +107,11 @@ current safe target while hardware-decoding coverage is still being validated.
 
 ## Project status
 
-Development currently targets only the Miyoo Flip V2. Images do not include
+Development currently targets only the Miyoo Flip V1/V2. Images do not include
 commercial games or proprietary console BIOS files. Users must supply content
 they are legally entitled to use.
 
-Release images are device-specific. Do not use the Miyoo Flip V2 image on a
-Miyoo Flip V1, Miyoo Mini, Miyoo Mini Plus, or another RK3566 handheld.
+Release images are device-specific. Do not use the Miyoo Flip V1/V2 image on a Miyoo Mini, Miyoo Mini Plus, or another RK3566 handheld.
 
 ButterflyOS is an independent community project. It is not affiliated with or
 endorsed by Miyoo, ROCKNIX, Nintendo, Sega, Sony, or any other platform owner.
