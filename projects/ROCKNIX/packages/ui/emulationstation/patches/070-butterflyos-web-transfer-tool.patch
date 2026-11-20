@@ -102,7 +102,7 @@
 -				return;
 -			}
 -
--			std::system(("setrootpass " + Utils::String::shellQuote(newPassword)).c_str());
+-			Utils::Platform::runSystemCommand("setrootpass " + Utils::String::shellQuote(newPassword), "", nullptr);
 -			onsave(newPassword);
 -			SystemConf::getInstance()->saveSystemConf();
 -			win->pushGui(new GuiMsgBox(win, _("SSH PASSWORD UPDATED. YOU CAN NOW ENABLE SSH.")));
