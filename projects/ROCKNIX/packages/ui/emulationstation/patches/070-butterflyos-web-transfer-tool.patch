@@ -1,0 +1,189 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -5551,6 +5551,86 @@
+ 	}));
+ }
+ 
++static void addWebTransferPassword(GuiSettings* s, const std::string& label)
++{
++	auto editSshPassword = [](Window* win, std::string title, std::string currentPassword,
++		const std::function<void(std::string)>& onsave)
++	{
++		auto applyPassword = [win, onsave](const std::string& newPassword)
++		{
++			if (newPassword.empty())
++			{
++				win->pushGui(new GuiMsgBox(win, _("PASSWORD CANNOT BE EMPTY.")));
++				return;
++			}
++
++			if (std::system(("setrootpass " + Utils::String::shellQuote(newPassword)).c_str()) != 0)
++			{
++				win->pushGui(new GuiMsgBox(win, _("COULD NOT UPDATE THE DEVICE PASSWORD.")));
++				return;
++			}
++			onsave(newPassword);
++			SystemConf::getInstance()->saveSystemConf();
++			win->pushGui(new GuiMsgBox(win, _("DEVICE PASSWORD UPDATED. THIS ALSO CHANGES SSH LOGIN.")));
++		};
++
++		// Never put the existing password back into the editor. This prevents an
++		// accidental suffix and makes it clear that this action sets a new value.
++		if (Settings::getInstance()->getBool("UseOSK"))
++			win->pushGui(new GuiTextEditPopupKeyboard(win, title, "", applyPassword, false, "OK", true));
++		else
++			win->pushGui(new GuiTextEditPopup(win, title, "", applyPassword, false));
++	};
++	s->addInputTextConfigRow(label, "root.password", true, false, editSshPassword);
++}
++
++static void addWebTransferControls(GuiSettings* s, Window* window)
++{
++	auto toggle = std::make_shared<SwitchComponent>(window);
++	toggle->setState(std::system("systemctl is-active --quiet simple-http-server") == 0);
++	s->addWithDescription(_("WEB FILE TRANSFER"), _("Browse and upload games or media from your local network."), toggle);
++
++	const auto ip = ApiSystem::getInstance()->getIpAddress();
++	auto theme = ThemeData::getMenuTheme();
++	auto address = std::make_shared<TextComponent>(window,
++		ip.empty() || ip == "0.0.0.0" ? _("NOT CONNECTED") : "http://" + ip,
++		theme->Text.font, theme->Text.color);
++	s->addWithDescription(_("WEB ADDRESS"), _("Sign in as root with your device password."), address);
++
++	toggle->setOnChangedCallback([control = toggle.get(), window, restoring = std::make_shared<bool>(false)] {
++		if (*restoring)
++			return;
++		const bool enabled = control->getState();
++		const auto password = SystemConf::getInstance()->get("root.password");
++		std::string error;
++		if (enabled && (password.empty() || password == "rocknix"))
++			error = _("SET A DEVICE PASSWORD BEFORE ENABLING WEB FILE TRANSFER.");
++		else if (std::system(enabled ? "systemctl enable --now simple-http-server" :
++			"systemctl disable --now simple-http-server") != 0)
++			error = _("COULD NOT CHANGE WEB FILE TRANSFER. PLEASE TRY AGAIN.");
++
++		if (!error.empty())
++		{
++			*restoring = true;
++			control->setState(!enabled);
++			*restoring = false;
++			window->pushGui(new GuiMsgBox(window, error));
++			return;
++		}
++		SystemConf::getInstance()->set("simplehttp.enabled", enabled ? "1" : "0");
++		SystemConf::getInstance()->saveSystemConf();
++	});
++}
++
++void GuiMenu::openWebTransferTool(Window* window)
++{
++	auto menu = new GuiSettings(window, _("WEB FILE TRANSFER"));
++	addWebTransferPassword(menu, _("SET OR CHANGE DEVICE PASSWORD"));
++	addWebTransferControls(menu, window);
++	menu->updateSize();
++	window->pushGui(menu);
++}
++
+ void GuiMenu::openNetworkSettings(bool selectWifiEnable, bool selectAdhocEnable)
+ {
+ 	const std::string currentWifiSSID = ApiSystem::getInstance()->getCurrentWifiSSID();
+@@ -5797,31 +5877,7 @@
+ 	// ButterflyOS remote access
+ 	s->addGroup(_("BUTTERFLYOS REMOTE ACCESS"));
+ 
+-	auto editSshPassword = [](Window* win, std::string title, std::string currentPassword,
+-		const std::function<void(std::string)>& onsave)
+-	{
+-		auto applyPassword = [win, onsave](const std::string& newPassword)
+-		{
+-			if (newPassword.empty())
+-			{
+-				win->pushGui(new GuiMsgBox(win, _("PASSWORD CANNOT BE EMPTY.")));
+-				return;
+-			}
+-
+-			std::system(("setrootpass " + Utils::String::shellQuote(newPassword)).c_str());
+-			onsave(newPassword);
+-			SystemConf::getInstance()->saveSystemConf();
+-			win->pushGui(new GuiMsgBox(win, _("SSH PASSWORD UPDATED. YOU CAN NOW ENABLE SSH.")));
+-		};
+-
+-		// Never put the existing password back into the editor. This prevents an
+-		// accidental suffix and makes it clear that this action sets a new value.
+-		if (Settings::getInstance()->getBool("UseOSK"))
+-			win->pushGui(new GuiTextEditPopupKeyboard(win, title, "", applyPassword, false, "OK", true));
+-		else
+-			win->pushGui(new GuiTextEditPopup(win, title, "", applyPassword, false));
+-	};
+-	s->addInputTextConfigRow(_("SET SSH PASSWORD"), "root.password", true, false, editSshPassword);
++	addWebTransferPassword(s, _("SET SSH PASSWORD"));
+ 
+        auto sshd_enabled = std::make_shared<SwitchComponent>(mWindow);
+ 	bool sshbaseEnabled = SystemConf::getInstance()->get("ssh.enabled") == "1";
+@@ -5874,28 +5930,7 @@
+ 			SystemConf::getInstance()->set("samba.enabled", sambaenabled ? "1" : "0");
+ 		});
+ 
+-	auto simple_http_enabled = std::make_shared<SwitchComponent>(mWindow);
+-	bool simplehttpEnabled = SystemConf::getInstance()->get("simplehttp.enabled") == "1";
+-	simple_http_enabled->setState(simplehttpEnabled);
+-	s->addWithDescription(_("WEB FILE TRANSFER"), _("Browse and upload games or media from a web browser on your local network."), simple_http_enabled);
+-	auto webAddress = std::make_shared<TextComponent>(mWindow,
+-		"http://" + ApiSystem::getInstance()->getIpAddress(), font, color);
+-	s->addWithDescription(_("WEB ADDRESS"), _("Open this address on a computer or phone connected to the same network."), webAddress);
+-	simple_http_enabled->setOnChangedCallback([simple_http_enabled, window] {
+-		const std::string rootPassword = SystemConf::getInstance()->get("root.password");
+-		if (simple_http_enabled->getState() && (rootPassword.empty() || rootPassword == "rocknix")) {
+-			simple_http_enabled->setState(false);
+-			window->pushGui(new GuiMsgBox(window, _("SET A DEVICE PASSWORD BEFORE ENABLING WEB FILE TRANSFER.")));
+-			return;
+-		}
+-		if(simple_http_enabled->getState() == false) {
+-			Utils::Platform::runSystemCommand("systemctl disable --now simple-http-server", "", nullptr);
+-		} else {
+-			Utils::Platform::runSystemCommand("systemctl enable --now simple-http-server", "", nullptr);
+-		}
+-		bool simplehttpenabled = simple_http_enabled->getState();
+-		SystemConf::getInstance()->set("simplehttp.enabled", simplehttpenabled ? "1" : "0");
+-	});
++	addWebTransferControls(s, window);
+ 
+ 	const std::string usbGadgetScript = "/usr/bin/usbgadget";
+ 	auto optionsUSBGadget = std::make_shared<OptionListComponent<std::string> >(mWindow, _("USB GADGET FUNCTION"), false);
+--- a/es-app/src/guis/GuiMenu.h
++++ b/es-app/src/guis/GuiMenu.h
+@@ -38,6 +38,7 @@
+         static void openThemeConfiguration(Window* mWindow, GuiComponent* s, std::shared_ptr<OptionListComponent<std::string>> theme_set, const std::string systemTheme = "");
+ 
+         static void openToolDownloads(Window* window);
++        static void openWebTransferTool(Window* window);
+         static void updateGameLists(Window* window, bool confirm = true);
+         static void editKeyboardMappings(Window *window, IKeyboardMapContainer* mapping, bool editable);
+ 
+--- a/es-app/src/views/ViewController.cpp
++++ b/es-app/src/views/ViewController.cpp
+@@ -516,6 +516,13 @@
+ 
+ void ViewController::launch(FileData* game, LaunchGameOptions options, Vector3f center, bool allowCheckLaunchOptions)
+ {
++	if (game && game->getType() == GAME &&
++		game->getFullPath() == "/storage/.config/modules/Web File Transfer.sh")
++	{
++		GuiMenu::openWebTransferTool(mWindow);
++		return;
++	}
++
+ 	if (allowCheckLaunchOptions && !checkLaunchOptions(game, options, center))
+ 		return;
+ 
+--- a/es-app/src/FileData.cpp
++++ b/es-app/src/FileData.cpp
+@@ -1098,6 +1098,8 @@
+ 			(*it)->getName() != "Butterfly Link" &&
+ 			(*it)->getName() != "Blink" &&
+ 			(*it)->getName() != "PortMaster" &&
++			(*it)->getName() != "Files" &&
++			(*it)->getName() != "Web File Transfer" &&
+ 			(*it)->getName() != "Format 2nd SD Card")
+ 			continue;
+ 

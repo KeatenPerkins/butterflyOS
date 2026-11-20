@@ -1,0 +1,26 @@
+{
+  "root": "/storage/.config/butterflyos/apps",
+  "public_key": "/usr/share/butterflyos/apps/catalog-public.pem",
+  "catalog_url": "https://github.com/KeatenPerkins/ButterflyOS-Tools/releases/latest/download/catalog.json",
+  "profile": {
+    "api": 1,
+    "id": "miyoo-flip",
+    "arch": "aarch64",
+    "layout": "single",
+    "features": [
+      "python3",
+      "sdl2",
+      "rocknix-storage-v1",
+      "bslap-flip-v1"
+    ],
+    "bundled": {},
+    "tools_directory": "/storage/.config/modules",
+    "launcher_command": "/usr/bin/btools",
+    "confirm_button": 0,
+    "cancel_button": 1,
+    "window": {
+      "width": 640,
+      "height": 480
+    }
+  }
+}

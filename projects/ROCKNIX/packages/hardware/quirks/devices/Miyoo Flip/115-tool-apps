@@ -1,0 +1,17 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Remove stock launcher copies left by older images. Preserve customized
+# launchers and all application data.
+remove_legacy_launcher() {
+    launcher="/storage/.config/modules/$1"
+    [ -f "$launcher" ] && [ ! -L "$launcher" ] || return 0
+    actual=$(sha256sum < "$launcher") || return 0
+    if [ "${actual%% *}" = "$2" ]; then
+        rm -f -- "$launcher"
+    fi
+}
+remove_legacy_launcher 'Butterfly Link.sh' 130d1a3a1a70ee94e9634394d178bc3c13d944df17400fe5be64b18b9f9d65d4
+remove_legacy_launcher 'Bdex.sh' 137342657317cd5d25e4649875750204691a903a2b995512a6365f0cfa34b7d9
+remove_legacy_launcher 'Bslap.sh' 89dca86586a5e9143088acca603ca5ec6819e9630f1dd9bee1eaa41eb304898a
+mkdir -p /storage/.config/butterflyos/apps/locks
+/usr/bin/btools sync
