@@ -14,11 +14,12 @@
     header p,.note{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
     a.card{min-height:118px;padding:22px;text-decoration:none;color:var(--ink);background:linear-gradient(var(--panel),var(--panel)) padding-box,linear-gradient(135deg,var(--cyan),var(--violet),var(--pink)) border-box;border:2px solid transparent;border-radius:16px;box-shadow:0 12px 30px #0008;transition:.15s}
     a.card:hover,a.card:focus{transform:translateY(-3px);box-shadow:0 0 24px #10d9ff55;outline:none}.icon{font-size:28px}.card strong{display:block;font-size:20px;margin:8px 0 3px}.card span{color:var(--muted);font-size:14px}
-    .signin{margin:28px auto 0;padding:20px 24px;max-width:720px;background:#080c1ce8;border:1px solid #405078;border-left:4px solid var(--pink);border-radius:10px;line-height:1.55;box-shadow:0 12px 28px #0007}.signin h2{margin:0 0 10px;font-size:21px;color:#fff}.signin ol{margin:8px 0;padding-left:22px}.signin li{margin:7px 0}.signin code{padding:2px 7px;background:#171e3c;border-radius:5px;color:#35dcff;font:600 15px ui-monospace,monospace}.note{margin:16px auto 0;padding:13px 18px;max-width:720px;background:#080c1cdd;border-left:4px solid var(--violet);border-radius:8px;line-height:1.5;color:var(--muted)}
+    .signin{margin:28px auto 0;padding:20px 24px;max-width:720px;background:#080c1ce8;border:1px solid #405078;border-left:4px solid var(--pink);border-radius:10px;line-height:1.55;box-shadow:0 12px 28px #0007}.signin h2{margin:0 0 10px;font-size:21px;color:#fff}.signin ol{margin:8px 0;padding-left:22px}.signin li{margin:7px 0}.signin code{padding:2px 7px;background:#171e3c;border-radius:5px;color:#35dcff;font:600 15px ui-monospace,monospace}.note{margin:16px auto;padding:13px 18px;max-width:720px;background:#080c1cdd;border-left:4px solid var(--violet);border-radius:8px;line-height:1.5;color:var(--muted)}
   </style>
 </head>
 <body><main>
   <header><img class="mark" src="butterfly.png?v=3" alt=""><h1>ButterflyOS</h1><p>Move files to and from your handheld</p></header>
+  <p class="note"><b>Browser sign-in</b><br>Username <code>root</code> · Password: your Flip’s device password. Your browser may ask after you open a folder.</p>
   <section class="grid">
     <a class="card" data-path="roms/"><span class="icon">🎮</span><strong>Games</strong><span>Add ROMs to their system folders</span></a>
     <a class="card" data-path="games-external/roms/"><span class="icon">▤</span><strong>Second Game Card</strong><span>Manage files stored in the second SD slot</span></a>
@@ -29,14 +30,12 @@
     <a class="card" data-path=""><span class="icon">▦</span><strong>All Storage</strong><span>Browse the complete storage partition</span></a>
   </section>
   <section class="signin">
-    <h2>How to sign in</h2>
+    <h2>Set up Web File Transfer on your Flip</h2>
     <ol>
-      <li>On your ButterflyOS device, open <b>Settings</b>, then <b>Network Settings</b>.</li>
-      <li>Select <b>Set SSH Password</b>. Enter a password you will remember and save it.</li>
-      <li>Turn on <b>Web File Transfer</b>.</li>
-      <li>When your browser asks, enter <code>root</code> as the username and your new password as the password.</li>
+      <li>Connect your Flip and the computer or phone to the same local network.</li>
+      <li>On the Flip, open <b>Tools → Web File Transfer</b>. Choose <b>Set or Change Device Password</b> if you need to set one.</li>
+      <li>Turn on <b>Web File Transfer</b> and enter the displayed <b>Web Address</b> in your browser. On older builds, use <b>Settings → Network Settings</b> and <b>Set SSH Password</b>.</li>
     </ol>
-    <p><b>What is root?</b> It is the built-in administrator account name used by ButterflyOS. You do not need to create a separate account.</p>
   </section>
   <p class="note">Choose a folder, then use the upload control on that page. Games uploads use the OS card; Second Game Card writes directly to the card in the second slot. Run Update Gamelists after adding files. For your security, enable Web File Transfer only on a trusted local network.</p>
 </main><script>

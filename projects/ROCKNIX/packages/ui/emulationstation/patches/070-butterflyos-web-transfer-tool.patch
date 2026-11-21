@@ -1,6 +1,6 @@
 --- a/es-app/src/guis/GuiMenu.cpp
 +++ b/es-app/src/guis/GuiMenu.cpp
-@@ -5551,6 +5551,86 @@
+@@ -5551,6 +5551,88 @@
  	}));
  }
  
@@ -48,7 +48,9 @@
 +	auto address = std::make_shared<TextComponent>(window,
 +		ip.empty() || ip == "0.0.0.0" ? _("NOT CONNECTED") : "http://" + ip,
 +		theme->Text.font, theme->Text.color);
-+	s->addWithDescription(_("WEB ADDRESS"), _("Sign in as root with your device password."), address);
++	s->addWithLabel(_("WEB ADDRESS"), address);
++	auto username = std::make_shared<TextComponent>(window, "root", theme->Text.font, theme->Text.color);
++	s->addWithDescription(_("USERNAME"), _("Use your device password when the browser asks you to sign in."), username);
 +
 +	toggle->setOnChangedCallback([control = toggle.get(), window, restoring = std::make_shared<bool>(false)] {
 +		if (*restoring)

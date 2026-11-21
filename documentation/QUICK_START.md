@@ -190,10 +190,12 @@ Open **Settings → Network Settings**, enable Wi-Fi, choose **Select Wi-Fi Netw
 and enter the network password. Submit with the keyboard's on-screen Enter
 button; B is a back/cancel control, not a substitute for submitting the value.
 
-Choose **Set SSH Password** and submit the new device password before enabling
-SSH or Web File Transfer. In Web File Transfer, open the displayed web address
-on another device on the same network. The login name is `root` and the
-password is the one you set; do not assume a development test password.
+Open **Tools → Web File Transfer** to set a device password, turn on file
+transfer, and find the web address. Enter that address on another device on
+the same network. Sign in as **`root`** with your device password.
+On older builds, use **Settings → Network Settings**. See the
+[web transfer walkthrough](TRANSFERRING_GAMES.md#option-1-web-file-transfer)
+for upload steps.
 
 For SSH, use `ssh root@<device-IP>` with the IP shown in Network Settings.
 The default hostname is `butterflyos`; two Flips can share that default, so use
