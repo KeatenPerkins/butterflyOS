@@ -25,7 +25,7 @@ the [release notes](RELEASE_NOTES_v1.8.0.md) for scope and remaining limitations
 
 Available from **v1.4.0**, build **20261022**.
 
-- Open **Tools → Bslap** alongside Blink and Bdex, without Advanced Mode.
+- Open **Tools → Bslap**. On builds with **Y Add Tools**, [install Bslap](BTOOLS.md) first.
 - Host or join another ButterflyOS device on the same local network. Both
   players confirm readiness before the host starts the games.
 - Trade and battle within Gen 1, Gen 2 or Gen 3 using supported English games.
@@ -42,7 +42,7 @@ Available from **v1.4.0**, build **20261022**.
   gameplay keeps its existing frontend and cores; no kernel changes are needed.
 
 See [Bslap setup, recovery and limitations](BSLAP.md). No games, saves or Pokémon
-assets are bundled. Time Capsule trading and internet play are not included.
+assets are bundled. Time Capsule supports eligible trades between Gen 1 and Gen 2. Bslap uses the local network.
 
 ## Save protection and Bdex
 
@@ -114,6 +114,12 @@ Available from v1.2.0, rebuilt locally and tested on the local test device.
 ## Connectivity and files
 
 - Friendly Wi-Fi selection and password entry
+- On builds with **Welcome & Setup**, a first-boot wizard for language, time
+  zone, Wi-Fi, device name, SSH password, and RetroAchievements
+- **Tools → Manage Files** for browsing both cards, copying, moving, renaming,
+  and restoring items from Trash
+- **Tools → Web File Transfer** for starting and stopping browser uploads.
+  The service starts disabled. Sign in as `root` with the device password.
 - SSH with a user-selected password and `butterflyos` hostname
 - Bluetooth controllers and Bluetooth audio
 - ButterflyOS-themed authenticated web file transfer for games, BIOS, music,

@@ -23,6 +23,7 @@ Start here:
 - [Controls and hotkeys](documentation/HOTKEYS.md)
 - [Emulators and performance tuning](documentation/EMULATORS_AND_PERFORMANCE.md)
 - [Features](documentation/FEATURES.md)
+- [Install and manage Blink, Bdex, and Bslap](documentation/BTOOLS.md)
 - [Blink save trading](documentation/BUTTERFLY_LINK.md)
 - [Bslap live trades and battles](documentation/BSLAP.md)
 - [Bdex collections and read-only web viewer](documentation/BDEX.md)

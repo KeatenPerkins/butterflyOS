@@ -11,8 +11,8 @@ prereleases tagged `development-<build>`, with the same
 Development tags are excluded from Stable checks.
 
 Build a candidate from the development source branch. Publish the OTA
-`.tar`, `butterflyos-update.json`, and OTA SHA-256 checksum as a GitHub
-prerelease. Keep the flashable `.img.gz` local for development card testing.
+`.tar` and its matching `butterflyos-update.json` as a GitHub prerelease.
+The manifest carries the OTA SHA-256 checksum. Keep the flashable `.img.gz` local for development card testing.
 Stable releases include both the OTA assets and the flashable image with its
 checksum.
 

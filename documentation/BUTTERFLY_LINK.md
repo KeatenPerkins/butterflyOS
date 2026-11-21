@@ -555,6 +555,8 @@ and save/reload normally. Gameplay qualification is pending on the local test de
 
 ## Opening Blink
 
+On builds with **Y Add Tools**, [install Blink](BTOOLS.md) first.
+
 Blink copies or exchanges Pokémon between selected emulator save files.
 Open **Tools → Blink**, from the home screen or **Start → Tools**.
 Use the D-pad to navigate, **A/Start** to select, and **B/Menu** to go back.

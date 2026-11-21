@@ -72,6 +72,21 @@ you used **Restart System**. If no update is offered, your installed build may
 already be current. Do not delete staged update files or reflash simply to
 retry a failed download; read the error and resolve its cause first.
 
+## After switching to downloadable Pokémon tools
+
+When upgrading from v1.8.0 or another build that bundled Blink, Bdex, and
+Bslap, open **Tools → Y Add Tools** while connected to Wi-Fi and install the
+tools you use once. Your collection, sprite cache, and saves carry over with
+a normal update. See [installing and managing Btools](BTOOLS.md).
+
+## Update channels
+
+Where **Start → System Settings → Update Channel** is available, leave it
+on **Stable** for public releases. **Development** is for test cards and
+receives OTA test builds. Download the flashable image from the Stable release
+for a fresh installation. Select **Stable** again to check for future Stable
+builds. Changing channels does not downgrade an installed build.
+
 ## Current status
 
 The [latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest) includes a
@@ -119,12 +134,13 @@ update feature; install/restore remains a separate explicit process.
 ## Release rules and safety checks
 
 - Only the official `KeatenPerkins/butterflyOS` GitHub repository is queried.
-- Draft/prerelease releases and releases without `butterflyos-update.json` are
-  skipped. Publishing an installation image alone does not enable updates.
+- Drafts and releases without `butterflyos-update.json` are skipped. Stable
+  skips prereleases. On builds with channel selection, Development checks
+  published prereleases tagged `development-<build>`. An OTA archive and its
+  matching manifest are required.
 - Updates target Miyoo Flip V2, aarch64, and identify themselves as ButterflyOS.
 - Build versions use `YYYYMMDD`; same-date updates and downgrades are refused.
-  Publish update builds on distinct dates. Stable/nightly/force selections from
-  the inherited interface are not honored by this updater.
+  Publish update builds on distinct dates.
 - The archive contains only an identity file, SYSTEM/KERNEL, and their checksums.
   Links, path traversal, extra files, and mismatched identity are rejected.
 - Incomplete downloads remain outside `/storage/.update`, so a reboot cannot

@@ -129,6 +129,12 @@ stock Miyoo OS when the card is removed. Read the complete
 [installation and recovery guide](BUTTERFLYOS_INSTALL_AND_RECOVERY.md) before
 starting, especially the current exact-restoration and licensing caveats.
 
+On a fresh install with Welcome & Setup, the wizard appears after ButterflyOS
+boots. It offers language, time zone (region, country, then location), Wi-Fi,
+device name, SSH password, and RetroAchievements setup. Choose **Skip All**
+to go straight to the menu. Finishing or skipping is remembered across updates.
+Setting an SSH password leaves the SSH service disabled until you enable it.
+
 ## Add games and BIOS files
 
 See [How to transfer games](TRANSFERRING_GAMES.md) for step-by-step web uploads,

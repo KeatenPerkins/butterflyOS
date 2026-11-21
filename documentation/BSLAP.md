@@ -4,8 +4,8 @@
 
 Available from **v1.4.0**, build **20261022**.
 
-Bslap appears in the normal Tools menu alongside Blink and Bdex; Advanced Mode
-is not required. Open **Tools → Bslap** to trade or battle between two ButterflyOS
+Once installed, Bslap appears in the normal Tools menu. Open **Tools → Bslap**
+to trade or battle between two ButterflyOS
 devices on the same local network. Each player controls their own game. Blink remains the
 separate save-editing tool; Bdex stores your collection outside the games.
 
@@ -64,6 +64,11 @@ before launch. After updating, close and reopen Bslap on both devices so any ear
 ends. The user confirmed raw/ZIP Bslap testing passed on the local test devices.
 
 ## Host and join
+
+On builds with **Y Add Tools**, [install Bslap](BTOOLS.md) first. For
+reliable pairing, use the same downloadable Bslap version on both
+devices. The bundled v1.8.0 Bslap and the downloadable build use different
+link backend identifiers.
 
 1. Save and exit any running games. Connect both devices to the same local
    network. Guest Wi-Fi or client isolation can prevent discovery.
