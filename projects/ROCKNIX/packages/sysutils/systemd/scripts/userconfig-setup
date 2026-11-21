@@ -59,6 +59,9 @@ then
   fi
 
   mkdir -p /storage/.config/modprobe.d  >/dev/null 2>&1
+  if [ -f /usr/share/butterflyos/update-device ]; then
+    touch /storage/.config/butterflyos-flip-welcome.pending
+  fi
   touch /storage/.configured  >/dev/null 2>&1
   sync
 fi
