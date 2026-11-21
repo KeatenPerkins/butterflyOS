@@ -10,9 +10,14 @@ prereleases tagged `development-<build>`, with the same
 `butterflyos-update.json` and matching update archive as Stable.
 Development tags are excluded from Stable checks.
 
-Build a candidate from the development source branch and publish it as a
-prerelease when the test image is ready. Give each candidate an update build
-number newer than the number already installed on the test card. The updater
+Build a candidate from the development source branch. Publish the OTA
+`.tar`, `butterflyos-update.json`, and OTA SHA-256 checksum as a GitHub
+prerelease. Keep the flashable `.img.gz` local for development card testing.
+Stable releases include both the OTA assets and the flashable image with its
+checksum.
+
+Give each candidate an update build number newer than the number already
+installed on the test card. The updater
 compares the existing date-based build numbers, so two candidates with the
 same number cannot update over each other.
 

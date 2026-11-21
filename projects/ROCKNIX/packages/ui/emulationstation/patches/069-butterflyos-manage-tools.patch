@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/es-app/src/guis/GuiBtools.h
-@@ -0,0 +1,341 @@
+@@ -0,0 +1,375 @@
 +#pragma once
 +#include <array>
 +#include <future>
@@ -89,7 +89,9 @@
 +        onFinalize([windowPtr, changed] {
 +            if (*changed) windowPtr->postToUiThread([windowPtr] { GuiMenu::updateGameLists(windowPtr, false); });
 +        });
-+        mMenu.addButton("REFRESH", "refresh tools", [this] { if (!mLookup.valid()) loadCatalog(true); });
++        mMenu.addButton("REFRESH", "refresh tools", [this] {
++            if (!mLookup.valid()) beginRefresh(mMenu.getList()->getSelectedUserData());
++        });
 +        addEntry("LOADING TOOLS…");
 +        updateSize();
 +        loadCatalog(false);
@@ -103,12 +105,24 @@
 +        auto selected = mPendingSelection.empty() ? mMenu.getList()->getSelectedUserData() : mPendingSelection;
 +        mPendingSelection.clear();
 +        auto result = mLookup.get();
-+        if (result.refreshed) mRefreshError = result.refreshError;
-+        populate(result.catalog, selected);
++        if (result.refreshed)
++        {
++            mChecking = false;
++            mRefreshError = std::move(result.refreshError);
++        }
++        mCatalog = std::move(result.catalog);
 +        if (mRefreshOnOpen)
 +        {
 +            mRefreshOnOpen = false;
-+            loadCatalog(true);
++            beginRefresh(selected);
++            return;
++        }
++        populate(mCatalog, selected);
++        if (!mPendingAction.first.empty())
++        {
++            auto action = std::move(mPendingAction);
++            mPendingAction = {};
++            operation(action.first, action.second);
 +        }
 +    }
 +    std::vector<HelpPrompt> getHelpPrompts() override
@@ -128,6 +142,15 @@
 +    std::string mRefreshError;
 +    std::string mPendingSelection;
 +    bool mRefreshOnOpen = true;
++    bool mChecking = false;
++    CommandResult mCatalog;
++    std::pair<std::string, std::string> mPendingAction;
++    void beginRefresh(const std::string& selected)
++    {
++        mChecking = true;
++        populate(mCatalog, selected);
++        loadCatalog(true);
++    }
 +    void loadCatalog(bool refresh)
 +    {
 +        std::packaged_task<CatalogResult()> lookup([refresh] {
@@ -183,6 +206,12 @@
 +    }
 +    void operation(const std::string& action, const std::string& id = "")
 +    {
++        if (mLookup.valid())
++        {
++            if (mPendingAction.first.empty()) mPendingAction = {action, id};
++            populate(mCatalog, mPendingAction.second);
++            return;
++        }
 +        auto window = mWindow;
 +        window->pushGui(new GuiLoading<std::pair<std::string, int>>(window,
 +            action == "refresh" ? "REFRESHING TOOLS..." : "UPDATING TOOL...",
@@ -289,7 +318,9 @@
 +            return false;
 +        };
 +        auto error = mRefreshError.empty() ? text(data, "error") : mRefreshError;
-+        if (!mRefreshError.empty())
++        if (mChecking)
++            addGroup(mPendingAction.first.empty() ? "CHECKING FOR TOOLS…" : "CHECKING FOR TOOLS… YOUR ACTION WILL START NEXT");
++        else if (!mRefreshError.empty())
 +        {
 +            const bool offline = error.find("Connect to Wi-Fi") != std::string::npos;
 +            addEntry(offline ? "CONNECT TO WI-FI TO CHECK FOR TOOLS" : "COULD NOT REFRESH TOOLS",
@@ -307,11 +338,14 @@
 +            auto reason = text(app, "reason");
 +            bool update = downloaded && installed[id.c_str()].HasMember("current") &&
 +                          newerVersion(text(app, "version"), text(installed[id.c_str()]["current"], "version"));
-+            std::string status = update && compatible ? "Update Available" : exists ? "Installed — select to manage" : compatible ? "Select to add this tool" : "Not available for this device";
++            std::string status = update && compatible ? "Update Available" : exists ? "Installed — select to manage" : compatible ? "Select to add this tool" : mChecking ? "Checking availability…" : "Not available for this device";
 +            card(app, id, name, status + "  |  v" + text(app, "version"),
 +                [this, id, name, exists, previous, compatible, reason] {
 +                    if (exists) manage(id, name, true, previous, compatible);
-+                    else if (!compatible) mWindow->pushGui(new GuiMsgBox(mWindow, reason));
++                    else if (!compatible)
++                    {
++                        if (!mChecking) mWindow->pushGui(new GuiMsgBox(mWindow, reason));
++                    }
 +                    else mWindow->pushGui(new GuiMsgBox(mWindow, "Add " + name + "?",
 +                        "ADD TOOL", [this, id] {
 +                            mWindow->postToUiThread([this, id] { operation("install", id); });
