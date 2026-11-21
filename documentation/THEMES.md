@@ -1,20 +1,18 @@
 # ButterflyOS themes
 
-From v1.0.4, ButterflyOS includes a selectable **ButterflyOS White** theme alongside
-the original `es-theme-butterflyos` theme.
+Open **User Interface Settings → Theme Set** to change themes.
 
-Open **User Interface Settings → Theme Set** and choose **ButterflyOS White**.
-The frontend reloads the theme after applying the selection. Select
-the original theme to return to its appearance. Packaged defaults may appear
-as `system-theme` in the selector (the link to `es-theme-butterflyos`).
+- **ButterflyOS** is the default design with multicolor borders and the
+  ButterflyOS emblem above the home carousel. It may appear as `system-theme`.
+- **ButterflyOS White** removes the large home emblem and uses white borders.
+  Builds that include Butterfly Clean also give White the matching Games,
+  Media, and Tools icons.
+- **Butterfly Clean** (`butterfly-clean`) keeps the default colors and
+  multicolor borders, hides the large home emblem, and uses Games, Media,
+  and Tools icons without the butterfly emblem.
 
-White keeps the original layout, scaling, colors and artwork, removes the large
-butterfly branding image above the home carousel, and uses white outlines for
-Games, Tools, Media, Favorites, Settings and the game-art frame. Butterfly
-details drawn inside individual artwork, such as the Tools toolbox, remain.
-Custom tools have their own presentation and are not changed by this theme.
-
-Both packaged themes appear automatically on fresh installations and normal updates.
+The packaged themes share the same layout and display scaling. Individual
+tools use their own interface.
 
 ## Make your own theme
 

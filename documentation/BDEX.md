@@ -11,6 +11,8 @@ from Bdex. No games, saves, species-name tables or sprites are bundled.
 
 ## Open your collection
 
+On builds with **Y Add Tools**, [install Bdex](BTOOLS.md) first.
+
 Open **Tools → Bdex → Gen 1** (Red, Blue, Yellow) or **Gen 2** (Gold, Silver,
 Crystal), or **Gen 3** (Ruby, Sapphire, Emerald, FireRed, LeafGreen).
 On first use, choose your matching supported English retail ROM to

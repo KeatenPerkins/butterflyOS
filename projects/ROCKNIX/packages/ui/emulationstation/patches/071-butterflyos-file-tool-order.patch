@@ -1,0 +1,35 @@
+--- a/es-app/src/FileData.cpp
++++ b/es-app/src/FileData.cpp
+@@ -1098,7 +1098,7 @@
+ 			(*it)->getName() != "Butterfly Link" &&
+ 			(*it)->getName() != "Blink" &&
+ 			(*it)->getName() != "PortMaster" &&
+-			(*it)->getName() != "Files" &&
++			(*it)->getName() != "Manage Files" &&
+ 			(*it)->getName() != "Web File Transfer" &&
+ 			(*it)->getName() != "Format 2nd SD Card")
+ 			continue;
+@@ -1194,6 +1194,23 @@
+ 
+ 				return sort.comparisonFunction(file1, file2) == sort.ascending;
+ 			});
++	}
++
++	if (mSystem->getName() == "tools" && idx == nullptr)
++	{
++		std::vector<FileData*> fileTools;
++		for (const char* name : {"Manage Files", "Web File Transfer"})
++		{
++			auto tool = std::find_if(ret.begin(), ret.end(), [name](FileData* file) {
++				return file->getName() == name;
++			});
++			if (tool != ret.end())
++			{
++				fileTools.push_back(*tool);
++				ret.erase(tool);
++			}
++		}
++		ret.insert(ret.begin() + std::min<size_t>(4, ret.size()), fileTools.begin(), fileTools.end());
+ 	}
+ 
+ 	return ret;

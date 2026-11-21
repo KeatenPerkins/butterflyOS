@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="es-theme-butterflyos"
-PKG_VERSION="0.1.12"
+PKG_VERSION="0.1.14"
 PKG_LICENSE="GPL-2.0-only"
 PKG_SITE="https://github.com/KeatenPerkins/butterflyOS"
 PKG_URL=""
@@ -12,6 +12,7 @@ PKG_TOOLCHAIN="manual"
 makeinstall_target() {
   mkdir -p ${INSTALL}/usr/share/themes/${PKG_NAME}
   cp ${PKG_DIR}/files/theme.xml ${INSTALL}/usr/share/themes/${PKG_NAME}/
+  cp -R ${PKG_DIR}/files/tools ${INSTALL}/usr/share/themes/${PKG_NAME}/
   cp -R ${PKG_DIR}/files/assets ${INSTALL}/usr/share/themes/${PKG_NAME}/
   # System artwork is maintained as original ButterflyOS source art and
   # installed separately so it can be shared by future system views.
@@ -30,4 +31,9 @@ makeinstall_target() {
     "${INSTALL}/usr/share/themes/ButterflyOS White/"
   cp -a ${PKG_DIR}/white-files/. \
     "${INSTALL}/usr/share/themes/ButterflyOS White/"
+  local clean_theme="${INSTALL}/usr/share/themes/butterfly-clean"
+  mkdir -p "${clean_theme}"
+  cp -a "${INSTALL}/usr/share/themes/${PKG_NAME}/." "${clean_theme}/"
+  sed -i '/<image name="butterfly-brand" extra="true">/,/<\/image>/d' "${clean_theme}/theme.xml"
+  cp "${PKG_DIR}"/clean-art/*.png "${clean_theme}/assets/menu/"
 }

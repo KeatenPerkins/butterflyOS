@@ -2,27 +2,17 @@
 # Copyright (C) 2026 Keaten Perkins
 
 PKG_NAME="butterflyos-flip-onboarding"
-PKG_VERSION="2.6.67"
+PKG_VERSION="2.6.70"
 PKG_LICENSE="GPL-2.0-or-later AND MIT AND BSD-3-Clause"
 PKG_SITE="https://github.com/apommel/baseos-my355"
 PKG_URL=""
-PKG_DEPENDS_TARGET="toolchain dialog SDL2 SDL2_ttf dejavu xxd Python3 pksav fbalpha2012-lr fbalpha2019-lr \
+PKG_DEPENDS_TARGET="toolchain dialog SDL2 SDL2_image SDL2_ttf dejavu xxd Python3 butterflyos-apps fbalpha2012-lr fbalpha2019-lr \
                     fbneo-lr genesis-plus-gx-lr genesis-plus-gx-wide-lr \
                     snes9x-lr snes9x2002-lr snes9x2005_plus-lr \
                     snes9x2010-lr supersnes9x-lr"
-if [ "${ARCH}" = "aarch64" ]; then
-  PKG_DEPENDS_TARGET+=" bslap-backend"
-fi
 PKG_LONGDESC="ButterflyOS guided Miyoo Flip multiboot setup and recovery tools"
 PKG_TOOLCHAIN="manual"
 
-make_target() {
-  cd "${PKG_BUILD}"
-  ${CC} ${CFLAGS} ${CPPFLAGS} -I${SYSROOT_PREFIX}/usr/include \
-    -o butterflyos-save-trade \
-    "${PKG_DIR}/sources/butterflyos-save-trade.c" \
-    -L${SYSROOT_PREFIX}/usr/lib -Wl,-Bstatic -lpksav -Wl,-Bdynamic -lm
-}
 
 makeinstall_target() {
   mkdir -p "${INSTALL}/usr/bin" "${INSTALL}/usr/config/modules" "${INSTALL}/usr/lib/systemd/system"
@@ -67,11 +57,12 @@ makeinstall_target() {
         "${PKG_DIR}/sources/preloader-installer/BASEOS_LICENSE" \
         "${INSTALL}/usr/share/butterflyos/flip-preloader/"
 
+  install -Dm755 "${PKG_DIR}/sources/Web File Transfer.sh" "${INSTALL}/usr/config/modules/Web File Transfer.sh"
+  install -Dm755 "${PKG_DIR}/sources/Files.sh" "${INSTALL}/usr/config/modules/Files.sh"
+  mkdir -p "${INSTALL}/usr/share/butterflyos/files"
+  cp -a "${PKG_DIR}/sources/files/." "${INSTALL}/usr/share/butterflyos/files/"
   mkdir -p "${INSTALL}/usr/config/modules/images"
   cp -a "${PKG_DIR}/sources/ButterflyOS Boot Check.sh" \
-        "${PKG_DIR}/sources/Butterfly Link.sh" \
-        "${PKG_DIR}/sources/Bdex.sh" \
-        "${PKG_DIR}/sources/Bslap.sh" \
         "${PKG_DIR}/sources/Extended Diagnostics.sh" \
         "${PKG_DIR}/sources/SD Card Info.sh" \
         "${PKG_DIR}/sources/Export ButterflyOS Recovery Backup.sh" \
@@ -84,35 +75,10 @@ makeinstall_target() {
   cp -a "${PKG_DIR}/sources/flip-onboarding.sh" \
         "${PKG_DIR}/sources/flip-onboarding.gptk" \
         "${PKG_DIR}/sources/game-card-ui.sh" \
-        "${PKG_DIR}/sources/save-trade.gptk" \
-        "${PKG_DIR}/sources/save-trade.dialogrc" \
-        "${PKG_DIR}/sources/save-trade-ui.sh" \
         "${INSTALL}/usr/share/butterflyos/"
   mkdir -p "${INSTALL}/usr/bin"
-  cp -a "${PKG_DIR}/sources/bdex-web" "${INSTALL}/usr/bin/"
-  cp -a "${PKG_DIR}/sources/butterflyos-bdex-web.py" "${INSTALL}/usr/bin/"
-  cp -a "${PKG_DIR}/sources/butterflyos-bdex.py" \
-        "${PKG_DIR}/sources/butterflyos-bdex-sdl.py" \
-        "${PKG_DIR}/sources/butterflyos-bdex-inspector.py" \
-        "${PKG_DIR}/sources/butterflyos-bdex-locations.py" \
-        "${PKG_DIR}/sources/butterflyos-bdex-acquisition.py" \
-        "${PKG_DIR}/sources/butterflyos-bdex-acquisition.json" \
-        "${PKG_DIR}/sources/butterflyos-gen1-encounter-maps.json" \
-        "${PKG_DIR}/sources/butterflyos-bslap.py" \
-        "${PKG_DIR}/sources/butterflyos-bslap-gb.py" \
-        "${PKG_DIR}/sources/butterflyos-bslap-gb-netpacket.py" \
-        "${PKG_DIR}/sources/butterflyos-save-backup.py" \
+  cp -a "${PKG_DIR}/sources/butterflyos-save-backup.py" \
         "${PKG_DIR}/sources/butterflyos-game-card" \
-        "${PKG_DIR}/sources/butterflyos-gb-sprite-cache.py" \
-        "${PKG_DIR}/sources/butterflyos-gen1-gift.py" \
-        "${PKG_DIR}/sources/butterflyos-gen2-gift.py" \
-        "${PKG_DIR}/sources/butterflyos-gen3-gift.py" \
-        "${PKG_DIR}/sources/butterflyos-gen3-event.py" \
-        "${PKG_DIR}/sources/butterflyos-crystal-event.py" \
-        "${PKG_DIR}/sources/butterflyos_rom_filter.py" \
-        "${PKG_DIR}/sources/butterflyos-save-trade-sdl.py" \
-        "${PKG_DIR}/sources/butterflyos-gen3-sprite-cache.py" \
-        "${PKG_BUILD}/butterflyos-save-trade" \
         "${PKG_DIR}/sources/butterflyos-extended-diagnostics" \
         "${PKG_DIR}/sources/butterflyos-health-monitor" \
         "${PKG_DIR}/sources/butterflyos-sd-card-info" \
@@ -123,9 +89,7 @@ makeinstall_target() {
         "${INSTALL}/usr/bin/"
 
   mkdir -p "${INSTALL}/usr/lib/systemd/system/var-log.mount.d"
-  cp -a "${PKG_DIR}/system.d/butterflyos-bdex-web.service" "${INSTALL}/usr/lib/systemd/system/"
   mkdir -p "${INSTALL}/usr/lib/systemd/system/multi-user.target.wants"
-  ln -sf ../butterflyos-bdex-web.service "${INSTALL}/usr/lib/systemd/system/multi-user.target.wants/butterflyos-bdex-web.service"
   cp -a "${PKG_DIR}/system.d/butterflyos-save-backup.service" \
         "${PKG_DIR}/system.d/butterflyos-save-backup.timer" \
         "${PKG_DIR}/system.d/butterflyos-health-monitor.service" \
@@ -157,9 +121,6 @@ makeinstall_target() {
         "${INSTALL}/usr/share/butterflyos/stock-bootstrap/App/ButterflyOS_Setup/"
 
   chmod 0755 "${INSTALL}/usr/config/modules/ButterflyOS Boot Check.sh" \
-             "${INSTALL}/usr/config/modules/Butterfly Link.sh" \
-             "${INSTALL}/usr/config/modules/Bdex.sh" \
-             "${INSTALL}/usr/config/modules/Bslap.sh" \
              "${INSTALL}/usr/config/modules/Extended Diagnostics.sh" \
              "${INSTALL}/usr/config/modules/SD Card Info.sh" \
              "${INSTALL}/usr/config/modules/Export ButterflyOS Recovery Backup.sh" \
@@ -167,22 +128,10 @@ makeinstall_target() {
              "${INSTALL}/usr/config/modules/Restore Stock Miyoo Boot.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-onboarding.sh" \
              "${INSTALL}/usr/share/butterflyos/game-card-ui.sh" \
-             "${INSTALL}/usr/share/butterflyos/save-trade-ui.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/manage.sh" \
              "${INSTALL}/usr/share/butterflyos/flip-preloader/patch-preloader.sh" \
-             "${INSTALL}/usr/bin/butterflyos-bdex.py" \
-             "${INSTALL}/usr/bin/butterflyos-bdex-sdl.py" \
-             "${INSTALL}/usr/bin/butterflyos-bslap.py" \
-             "${INSTALL}/usr/bin/butterflyos-bslap-gb.py" \
-             "${INSTALL}/usr/bin/butterflyos-bslap-gb-netpacket.py" \
              "${INSTALL}/usr/bin/butterflyos-save-backup.py" \
              "${INSTALL}/usr/bin/butterflyos-game-card" \
-             "${INSTALL}/usr/bin/butterflyos-gb-sprite-cache.py" \
-             "${INSTALL}/usr/bin/butterflyos-save-trade-sdl.py" \
-             "${INSTALL}/usr/bin/butterflyos-gen3-gift.py" \
-             "${INSTALL}/usr/bin/butterflyos-gen3-event.py" \
-             "${INSTALL}/usr/bin/butterflyos-gen3-sprite-cache.py" \
-             "${INSTALL}/usr/bin/butterflyos-save-trade" \
              "${INSTALL}/usr/bin/butterflyos-extended-diagnostics" \
              "${INSTALL}/usr/bin/butterflyos-health-monitor" \
              "${INSTALL}/usr/bin/butterflyos-sd-card-info" \

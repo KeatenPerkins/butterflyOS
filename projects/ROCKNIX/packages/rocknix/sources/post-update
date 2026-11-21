@@ -45,6 +45,15 @@ fi
 echo "Sync modules..." >>${LOG}
 tocon "Update tool modules..."
 rsync -a /usr/config/modules/* /storage/.config/modules/
+
+# The stock gamelist copy above replaces downloaded tool metadata. Restore it
+# from the local install records before the frontend scans its Tools list.
+if [ -x /usr/bin/btools ]; then
+  tocon "Restore downloaded tools..."
+  if ! /usr/bin/btools sync >>"${LOG}" 2>&1; then
+    echo "Downloaded tools could not be restored during the update; startup will retry." >>"${LOG}"
+  fi
+fi
 cp -f /usr/config/retroarch/retroarch-core-options.cfg /storage/.config/retroarch/retroarch-core-options.cfg
 
 ### Apply developer ssh keys if they exist

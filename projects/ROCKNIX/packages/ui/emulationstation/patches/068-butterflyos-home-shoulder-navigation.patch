@@ -1,0 +1,30 @@
+--- a/es-app/src/views/SystemView.cpp
++++ b/es-app/src/views/SystemView.cpp
+@@ -391,23 +391,23 @@
+ 			auto carousel = mCarousel.asCarousel();
+ 			if (carousel != nullptr && carousel->isHorizontalCarousel())
+ 			{
+-				if (config->isMappedLike("left", input) || config->isMappedLike("lefttrigger", input))
++				if (config->isMappedLike("left", input) || config->isMappedLike("lefttrigger", input) || config->isMappedTo("leftshoulder", input))
+ 				{
+ 					mCarousel.moveSelectionBy(-1);
+ 					return true;
+ 				}
+-				if (config->isMappedLike("right", input) || config->isMappedLike("righttrigger", input))
++				if (config->isMappedLike("right", input) || config->isMappedLike("righttrigger", input) || config->isMappedTo("rightshoulder", input))
+ 				{
+ 					mCarousel.moveSelectionBy(1);
+ 					return true;
+ 				}
+-				if ((Settings::getInstance()->getBool("QuickSystemSelect") && config->isMappedLike("down", input)) || config->isMappedTo("rightshoulder", input))
++				if ((Settings::getInstance()->getBool("QuickSystemSelect") && config->isMappedLike("down", input)))
+ 				{
+ 					int cursor = moveCursorFast(true);
+ 					mCarousel.moveSelectionBy(cursor - mCursor);
+ 					return true;
+ 				}
+-				if ((Settings::getInstance()->getBool("QuickSystemSelect") && config->isMappedLike("up", input)) || config->isMappedTo("leftshoulder", input))
++				if ((Settings::getInstance()->getBool("QuickSystemSelect") && config->isMappedLike("up", input)))
+ 				{
+ 					int cursor = moveCursorFast(false);
+ 					mCarousel.moveSelectionBy(cursor - mCursor);

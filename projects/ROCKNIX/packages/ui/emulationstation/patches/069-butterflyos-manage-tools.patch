@@ -1,0 +1,433 @@
+--- /dev/null
++++ b/es-app/src/guis/GuiBtools.h
+@@ -0,0 +1,375 @@
++#pragma once
++#include <array>
++#include <future>
++#include <thread>
++#include "guis/GuiSettings.h"
++#include "guis/GuiMenu.h"
++#include "views/ViewController.h"
++#include <memory>
++#include "components/ImageComponent.h"
++#include "components/TextComponent.h"
++#include "guis/GuiLoading.h"
++#include "guis/GuiMsgBox.h"
++#include <cstdio>
++#include <unistd.h>
++#include <sys/wait.h>
++#include <rapidjson/document.h>
++
++class BtoolCard : public GuiComponent
++{
++public:
++    BtoolCard(Window* window, const std::string& name, const std::string& description,
++              const std::string& status, const std::string& icon) : GuiComponent(window),
++        mIcon(window, true), mName(window), mDescription(window), mStatus(window)
++    {
++        auto theme = ThemeData::getMenuTheme();
++        float scale = Renderer::getScreenHeight() / 768.0f;
++        mName.setFont(Font::get(29 * scale, theme->Text.font->getPath()));
++        mDescription.setFont(Font::get(22 * scale, theme->Text.font->getPath()));
++        mStatus.setFont(Font::get(19 * scale, theme->Text.font->getPath()));
++        mName.setText(name);
++        mDescription.setText(description);
++        mStatus.setText(status);
++        mName.setMultiLine(TextComponent::MultiLineType::SINGLELINE);
++        mDescription.setVerticalAlignment(ALIGN_TOP);
++        mDescription.setLineSpacing(1.05f);
++        mStatus.setMultiLine(TextComponent::MultiLineType::SINGLELINE);
++        if (!icon.empty()) mIcon.setImage(icon);
++        addChild(&mIcon);
++        addChild(&mName);
++        addChild(&mDescription);
++        addChild(&mStatus);
++        setColor(theme->Text.color);
++        setSize(0, 140 * scale);
++    }
++    void onSizeChanged() override
++    {
++        float height = mSize.y();
++        float left = height + height * 0.12f;
++        float width = std::max(1.0f, mSize.x() - left - 12);
++        mIcon.setOrigin(0.5f, 0.5f);
++        mIcon.setPosition(height * 0.5f, height * 0.5f);
++        mIcon.setMaxSize(height * 0.83f, height * 0.83f);
++        mName.setPosition(left, height * 0.06f);
++        mName.setSize(width, height * 0.26f);
++        mDescription.setPosition(left, height * 0.34f);
++        mDescription.setSize(width, height * 0.40f);
++        mStatus.setPosition(left, height * 0.79f);
++        mStatus.setSize(width, height * 0.18f);
++    }
++    void setColor(unsigned int color) override
++    {
++        mName.setColor(color);
++        mDescription.setColor((color & 0xffffff00) | 0xd8);
++        const auto status = mStatus.getText();
++        unsigned int statusColor = (color & 0xffffff00) | 0xb8;
++        if (status.compare(0, 9, "Installed") == 0)
++            statusColor = 0x35b565ff;
++        else if (status.compare(0, 16, "Update Available") == 0)
++            statusColor = 0xff6262ff;
++        mStatus.setColor(statusColor);
++    }
++private:
++    ImageComponent mIcon;
++    TextComponent mName, mDescription, mStatus;
++};
++
++class GuiBtools : public GuiSettings
++{
++public:
++    GuiBtools(Window* window) : GuiSettings(window, "MANAGE TOOLS", true)
++    {
++        mMenu.clearButtons();
++        mMenu.addButton("BACK", "back to Tools", [this] { close(); });
++        auto windowPtr = mWindow;
++        auto changed = mChanged;
++        onFinalize([windowPtr, changed] {
++            if (*changed) windowPtr->postToUiThread([windowPtr] { GuiMenu::updateGameLists(windowPtr, false); });
++        });
++        mMenu.addButton("REFRESH", "refresh tools", [this] {
++            if (!mLookup.valid()) beginRefresh(mMenu.getList()->getSelectedUserData());
++        });
++        addEntry("LOADING TOOLS…");
++        updateSize();
++        loadCatalog(false);
++    }
++    void update(int deltaTime) override
++    {
++        GuiSettings::update(deltaTime);
++        if (mWindow->peekGui() != this || !mLookup.valid() ||
++            mLookup.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
++            return;
++        auto selected = mPendingSelection.empty() ? mMenu.getList()->getSelectedUserData() : mPendingSelection;
++        mPendingSelection.clear();
++        auto result = mLookup.get();
++        if (result.refreshed)
++        {
++            mChecking = false;
++            mRefreshError = std::move(result.refreshError);
++        }
++        mCatalog = std::move(result.catalog);
++        if (mRefreshOnOpen)
++        {
++            mRefreshOnOpen = false;
++            beginRefresh(selected);
++            return;
++        }
++        populate(mCatalog, selected);
++        if (!mPendingAction.first.empty())
++        {
++            auto action = std::move(mPendingAction);
++            mPendingAction = {};
++            operation(action.first, action.second);
++        }
++    }
++    std::vector<HelpPrompt> getHelpPrompts() override
++    {
++        return {HelpPrompt(BUTTON_OK, "SELECT"),
++                HelpPrompt(BUTTON_BACK, "BACK TO TOOLS", [this] { close(); })};
++    }
++private:
++    using CommandResult = std::pair<std::string, int>;
++    struct CatalogResult
++    {
++        CommandResult catalog;
++        bool refreshed;
++        std::string refreshError;
++    };
++    std::future<CatalogResult> mLookup;
++    std::string mRefreshError;
++    std::string mPendingSelection;
++    bool mRefreshOnOpen = true;
++    bool mChecking = false;
++    CommandResult mCatalog;
++    std::pair<std::string, std::string> mPendingAction;
++    void beginRefresh(const std::string& selected)
++    {
++        mChecking = true;
++        populate(mCatalog, selected);
++        loadCatalog(true);
++    }
++    void loadCatalog(bool refresh)
++    {
++        std::packaged_task<CatalogResult()> lookup([refresh] {
++            std::string error;
++            if (refresh)
++            {
++                auto result = command("refresh");
++                if (result.second != 0)
++                {
++                    rapidjson::Document response;
++                    response.Parse(result.first.c_str());
++                    error = text(response, "error");
++                    if (error.empty()) error = "Could not refresh the tools list. Try Refresh again.";
++                }
++            }
++            return CatalogResult{command("list"), refresh, error};
++        });
++        mLookup = lookup.get_future();
++        std::thread(std::move(lookup)).detach();
++    }
++    std::shared_ptr<bool> mChanged = std::make_shared<bool>(false);
++    static std::string text(const rapidjson::Value& value, const char* key)
++    {
++        return value.IsObject() && value.HasMember(key) && value[key].IsString() ? value[key].GetString() : "";
++    }
++    static bool newerVersion(const std::string& available, const std::string& installed)
++    {
++        std::array<int, 3> candidate{}, current{};
++        auto parse = [](const std::string& version, std::array<int, 3>& parts) {
++            return std::sscanf(version.c_str(), "%9d.%9d.%9d", &parts[0], &parts[1], &parts[2]) == 3;
++        };
++        return parse(available, candidate) && parse(installed, current) && candidate > current;
++    }
++    static std::pair<std::string, int> command(const std::string& action, const std::string& id = "", IGuiLoadingHandler* gui = nullptr)
++    {
++        if (id.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789-") != std::string::npos)
++            return {"Invalid app ID", 1};
++        std::string helper = access("/usr/bin/btools", X_OK) == 0 ? "/usr/bin/btools" : "/storage/bin/btools";
++        auto stream = popen((helper + " " + action + " " + id + (gui ? " --progress" : "") + " 2>/dev/null").c_str(), "r");
++        if (!stream) return {"", 1};
++        std::string output;
++        char buffer[4096];
++        while (fgets(buffer, sizeof(buffer), stream))
++        {
++            rapidjson::Document progress;
++            progress.Parse(buffer);
++            auto label = text(progress, "progress");
++            if (gui && !label.empty()) gui->setText(label);
++            else if (output.size() < 2 * 1024 * 1024) output += buffer;
++        }
++        int status = pclose(stream);
++        return {output, status >= 0 && WIFEXITED(status) ? WEXITSTATUS(status) : 1};
++    }
++    void operation(const std::string& action, const std::string& id = "")
++    {
++        if (mLookup.valid())
++        {
++            if (mPendingAction.first.empty()) mPendingAction = {action, id};
++            populate(mCatalog, mPendingAction.second);
++            return;
++        }
++        auto window = mWindow;
++        window->pushGui(new GuiLoading<std::pair<std::string, int>>(window,
++            action == "refresh" ? "REFRESHING TOOLS..." : "UPDATING TOOL...",
++            [action, id](IGuiLoadingHandler* gui) { return command(action, id, gui); },
++            [this, window, action, id](std::pair<std::string, int> result) {
++                if (result.second == 0 && action != "refresh") *mChanged = true;
++                mPendingSelection = id;
++                loadCatalog(false);
++                if (result.second != 0)
++                {
++                    rapidjson::Document data;
++                    data.Parse(result.first.c_str());
++                    auto error = text(data, "error");
++                    window->pushGui(new GuiMsgBox(window, error.empty() ? "Could not complete this operation. Please try again." : error));
++                }
++            }));
++    }
++    void manage(const std::string& id, const std::string& name, bool installed, bool previous, bool compatible)
++    {
++        auto menu = new GuiSettings(mWindow, name);
++        if (compatible)
++            menu->addEntry(installed ? "UPDATE / REINSTALL" : "ADD TOOL", true, [this, menu, id] {
++                mWindow->postToUiThread([this, menu, id] {
++                    delete menu;
++                    operation("install", id);
++                });
++            });
++        if (previous)
++            menu->addEntry("ROLL BACK", true, [this, menu, id] {
++                mWindow->postToUiThread([this, menu, id] {
++                    delete menu;
++                    operation("rollback", id);
++                });
++            });
++        if (installed)
++            menu->addEntry("REMOVE TOOL", true, [this, menu, id] {
++                mWindow->pushGui(new GuiMsgBox(mWindow,
++                    "Remove this tool from Tools? Your saves, collection, settings and sprite cache will be kept. You can add it again from Add Tools.",
++                    "REMOVE", [this, menu, id] {
++                        mWindow->postToUiThread([this, menu, id] {
++                            delete menu;
++                            operation("remove", id);
++                        });
++                    }, "CANCEL", nullptr));
++            });
++        menu->updateSize();
++        mWindow->pushGui(menu);
++    }
++    static std::string description(const std::string& id)
++    {
++        if (id == "blink") return "Copy and trade Pokemon between saves, or replay gifts and events.";
++        if (id == "bdex") return "Build your Pokemon collection, inspect stats, and browse it on the web.";
++        if (id == "bslap") return "Trade and battle in-game with another nearby ButterflyOS handheld.";
++        return "Optional ButterflyOS tool.";
++    }
++    static std::string iconPath(const rapidjson::Value& app, const std::string& id)
++    {
++        auto icon = text(app, "icon_path");
++        if (!icon.empty() && access(icon.c_str(), R_OK) == 0) return icon;
++        std::string installedIcon = "/storage/.config/modules/images/btools-" + id + ".png";
++        if (access(installedIcon.c_str(), R_OK) == 0) return installedIcon;
++        auto file = id == "blink" ? "butterfly-link.png" : id + ".png";
++        for (const auto& folder : {"/storage/.config/modules/images/", "/usr/config/modules/images/"})
++        {
++            std::string path = folder + file;
++            if (access(path.c_str(), R_OK) == 0) return path;
++        }
++        return "";
++    }
++    void card(const rapidjson::Value& app, const std::string& id, const std::string& name,
++              const std::string& status, const std::function<void()>& action)
++    {
++        auto detail = text(app, "description");
++        ComponentListRow row;
++        auto item = std::make_shared<BtoolCard>(mWindow, name, detail.empty() ? description(id) : detail,
++                                               status, iconPath(app, id));
++        row.addElement(item, true);
++        row.makeAcceptInputHandler(action);
++        mMenu.addRow(row, id == mSelectedTool, false, id);
++    }
++    std::string mSelectedTool;
++    void populate(const CommandResult& result, const std::string& selected)
++    {
++        mSelectedTool = selected;
++        clear();
++        rapidjson::Document data;
++        data.Parse(result.first.c_str());
++        if (result.second || !data.IsObject() || !data.HasMember("installed") || !data["installed"].IsObject() ||
++            !data.HasMember("apps") || !data["apps"].IsArray() ||
++            !data.HasMember("bundled") || !data["bundled"].IsObject())
++        {
++            addEntry("APP MANAGER UNAVAILABLE", true, [this] {
++                mWindow->pushGui(new GuiMsgBox(mWindow, "The app manager is not installed or configured on this OS."));
++            });
++            updateSize();
++            return;
++        }
++        const auto& installed = data["installed"];
++        const auto& bundled = data["bundled"];
++        const auto& apps = data["apps"];
++        auto inCatalog = [&apps](const std::string& id) {
++            for (const auto& app : apps.GetArray())
++                if (text(app, "id") == id) return true;
++            return false;
++        };
++        auto error = mRefreshError.empty() ? text(data, "error") : mRefreshError;
++        if (mChecking)
++            addGroup(mPendingAction.first.empty() ? "CHECKING FOR TOOLS…" : "CHECKING FOR TOOLS… YOUR ACTION WILL START NEXT");
++        else if (!mRefreshError.empty())
++        {
++            const bool offline = error.find("Connect to Wi-Fi") != std::string::npos;
++            addEntry(offline ? "CONNECT TO WI-FI TO CHECK FOR TOOLS" : "COULD NOT REFRESH TOOLS",
++                true, [this, error] { mWindow->pushGui(new GuiMsgBox(mWindow, error)); });
++        }
++        else if (!error.empty())
++            addEntry("CATALOG INFORMATION", true, [this, error] { mWindow->pushGui(new GuiMsgBox(mWindow, error)); });
++        for (const auto& app : data["apps"].GetArray())
++        {
++            auto id = text(app, "id"), name = text(app, "name");
++            bool compatible = app.HasMember("compatible") && app["compatible"].IsBool() && app["compatible"].GetBool();
++            bool downloaded = installed.HasMember(id.c_str());
++            bool exists = downloaded || bundled.HasMember(id.c_str());
++            bool previous = downloaded && installed[id.c_str()].HasMember("previous") && !installed[id.c_str()]["previous"].IsNull();
++            auto reason = text(app, "reason");
++            bool update = downloaded && installed[id.c_str()].HasMember("current") &&
++                          newerVersion(text(app, "version"), text(installed[id.c_str()]["current"], "version"));
++            std::string status = update && compatible ? "Update Available" : exists ? "Installed — select to manage" : compatible ? "Select to add this tool" : mChecking ? "Checking availability…" : "Not available for this device";
++            card(app, id, name, status + "  |  v" + text(app, "version"),
++                [this, id, name, exists, previous, compatible, reason] {
++                    if (exists) manage(id, name, true, previous, compatible);
++                    else if (!compatible)
++                    {
++                        if (!mChecking) mWindow->pushGui(new GuiMsgBox(mWindow, reason));
++                    }
++                    else mWindow->pushGui(new GuiMsgBox(mWindow, "Add " + name + "?",
++                        "ADD TOOL", [this, id] {
++                            mWindow->postToUiThread([this, id] { operation("install", id); });
++                        }, "CANCEL", nullptr));
++                });
++        }
++        for (auto it = installed.MemberBegin(); it != installed.MemberEnd(); ++it)
++        {
++            std::string id = it->name.GetString();
++            if (inCatalog(id)) continue;
++            bool previous = it->value.HasMember("previous") && !it->value["previous"].IsNull();
++            auto version = it->value.HasMember("current") ? text(it->value["current"], "version") : "";
++            rapidjson::Value empty(rapidjson::kObjectType);
++            auto name = id;
++            card(empty, id, name, "Installed v" + version + " — select to manage",
++                 [this, id, name, previous] { manage(id, name, true, previous, false); });
++        }
++        if (data.HasMember("bundled") && data["bundled"].IsObject())
++            for (auto it = data["bundled"].MemberBegin(); it != data["bundled"].MemberEnd(); ++it)
++                if (!installed.HasMember(it->name.GetString()) && !inCatalog(it->name.GetString()))
++                {
++                    std::string id = it->name.GetString();
++                    auto name = text(it->value, "name");
++                    card(it->value, id, name.empty() ? id : name, "Included with ButterflyOS — select to manage", [this, id, name] {
++                        manage(id, name.empty() ? id : name, true, false, false);
++                    });
++                }
++        updateSize();
++    }
++};
+--- a/es-app/src/guis/GuiMenu.h
++++ b/es-app/src/guis/GuiMenu.h
+@@ -37,6 +37,7 @@
+ 
+         static void openThemeConfiguration(Window* mWindow, GuiComponent* s, std::shared_ptr<OptionListComponent<std::string>> theme_set, const std::string systemTheme = "");
+ 
++        static void openToolDownloads(Window* window);
+         static void updateGameLists(Window* window, bool confirm = true);
+         static void editKeyboardMappings(Window *window, IKeyboardMapContainer* mapping, bool editable);
+ 
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -1,3 +1,4 @@
++#include "guis/GuiBtools.h"
+ #include "guis/GuiMenu.h"
+ 
+ #include "components/OptionListComponent.h"
+@@ -7247,3 +7248,8 @@
+ 	mWindow->pushGui(s);
+ }
+ #endif
++
++void GuiMenu::openToolDownloads(Window* window)
++{
++    window->pushGui(new GuiBtools(window));
++}
+--- a/es-app/src/views/gamelist/ISimpleGameListView.cpp
++++ b/es-app/src/views/gamelist/ISimpleGameListView.cpp
+@@ -1,3 +1,5 @@
++#include <unistd.h>
++#include "guis/GuiMenu.h"
+ #include "views/gamelist/ISimpleGameListView.h"
+ 
+ #include "views/UIModeController.h"
+@@ -440,6 +442,11 @@
+ 
+ void ISimpleGameListView::showQuickSearch()
+ {
++    if (mRoot->getSystem()->getName() == "tools" && (access("/usr/bin/btools", X_OK) == 0 || access("/storage/bin/btools", X_OK) == 0))
++    {
++        GuiMenu::openToolDownloads(mWindow);
++        return;
++    }
+ 	std::string searchText;
+ 
+ 	auto idx = mRoot->getSystem()->getIndex(false);
+@@ -720,7 +727,7 @@
+ 	else if (!UIModeController::getInstance()->isUIModeKid())
+ 		prompts.push_back(HelpPrompt("x", _("FAVORITE")));
+ 
+-	prompts.push_back(HelpPrompt("y", _("SEARCH") + std::string("/") + _("RANDOM"), [&] { showQuickSearch(); }));
++	prompts.push_back(HelpPrompt("y", mRoot->getSystem()->getName() == "tools" ? _("ADD TOOLS") : _("SEARCH") + std::string("/") + _("RANDOM"), [&] { showQuickSearch(); }));
+ 
+ 	return prompts;
+ }

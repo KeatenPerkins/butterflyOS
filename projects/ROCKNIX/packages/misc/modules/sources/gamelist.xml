@@ -1,25 +1,19 @@
 <?xml version="1.0"?>
 <gameList>
     <game>
-        <path>./Bslap.sh</path>
-        <name>Bslap</name>
-        <desc>Live Pokemon Gen 1, Gen 2 and Gen 3 trades and battles over your local network. Host or join with device controls. Gen 3 room-exit communication errors remain a known issue; let one player initiate leaving in Gen 3.</desc>
-        <developer>ButterflyOS</developer>
-        <publisher>ButterflyOS</publisher>
-        <genre>Utility</genre>
-        <players>2</players>
-        <image>./images/bslap.png</image>
+        <path>./Web File Transfer.sh</path>
+        <name>Web File Transfer</name>
+        <desc>Turn browser file transfer on or off, view the web address, and set your device password.</desc>
+        <image>./images/web-transfer.png</image>
     </game>
+
     <game>
-        <path>./Bdex.sh</path>
-        <name>Bdex</name>
-        <desc>Gen 1–3 collection. Copy party and boxed Pokemon into an off-game collection, inspect stored copies, recover Trash, and export safely to an empty PC slot. Names and sprites come from your own matching ROM.</desc>
-        <developer>ButterflyOS</developer>
-        <publisher>ButterflyOS</publisher>
-        <genre>Utility</genre>
-        <players>1</players>
-        <image>./images/bdex.png</image>
+        <path>./Files.sh</path>
+        <name>Manage Files</name>
+        <desc>Browse your SD cards. Copy, move, rename and restore files from Trash.</desc>
+        <image>./images/files.png</image>
     </game>
+
     <game>
         <path>./SD Card Info.sh</path>
         <name>SD Card Info</name>
@@ -29,17 +23,6 @@
         <genre>Utility</genre>
         <players>1</players>
         <image>./images/sd-card-info.png</image>
-    </game>
-    <game>
-        <path>./Butterfly Link.sh</path>
-        <name>Blink</name>
-        <desc>Inspect compatible Pokemon saves and safely swap boxed Pokemon without unreliable cable emulation.</desc>
-        <developer>ButterflyOS</developer>
-        <publisher>ButterflyOS</publisher>
-        <releasedate>2026</releasedate>
-        <genre>Utility</genre>
-        <players>2</players>
-        <image>./images/butterfly-link.png</image>
     </game>
     <game>
         <path>./Extended Diagnostics.sh</path>

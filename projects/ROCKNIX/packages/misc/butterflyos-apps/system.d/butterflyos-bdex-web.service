@@ -1,0 +1,20 @@
+[Unit]
+Description=Bdex read-only LAN collection viewer
+After=network.target
+ConditionPathExists=/storage/.config/butterflyos/bdex-web.json
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/btools run bdex --role web
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/storage
+ReadWritePaths=/storage/.config/butterflyos/apps
+PrivateTmp=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

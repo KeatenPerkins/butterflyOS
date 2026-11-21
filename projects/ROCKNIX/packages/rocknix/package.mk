@@ -66,7 +66,10 @@ EOF
   cp ${PKG_DIR}/sources/motd ${INSTALL}/etc
   cat ${INSTALL}/etc/issue >> ${INSTALL}/etc/motd
 
-  cp ${PKG_DIR}/sources/scripts/* ${INSTALL}/usr/bin
+  for script in "${PKG_DIR}"/sources/scripts/*; do
+    [ -f "${script}" ] || continue
+    cp "${script}" "${INSTALL}/usr/bin/"
+  done
   chmod 0755 ${INSTALL}/usr/bin/* 2>/dev/null ||:
 
   ### Fix and migrate to autostart package

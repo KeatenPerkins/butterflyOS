@@ -37,22 +37,22 @@ are identical, the OS-card copy takes precedence.
 
 ## Option 1: Web File Transfer
 
-1. Open **Settings → Network Settings** and enable Wi-Fi.
-2. Choose **Select Wi-Fi Network**, select your network, and enter its password.
-   Submit using the keyboard's on-screen Enter button; B cancels/backtracks.
-3. Choose **Set SSH Password**, enter a device password, and submit it with
-   on-screen Enter. This is a separate password from your Wi-Fi password.
-4. Enable **Web File Transfer**. Open its displayed web address on a computer
-   or phone connected to the same local network.
-5. When asked to log in, the account name is `root`; the password is the device
-   password you just set. “Root” is the device's administrator account.
-6. Choose **Games**, open the appropriate system folder, and upload your files.
-   **Second Game Card** writes to the second card instead. **Music**, **Videos**,
-   and **BIOS** select the corresponding OS-card folders.
-7. Refresh the library after uploads finish.
+1. Connect your Flip and your computer or phone to the same local network.
+   On the Flip, use **Settings → Network Settings** to connect to Wi-Fi.
+2. Open **Tools → Web File Transfer**. If you haven’t set a device password,
+   choose **Set or Change Device Password** and submit it with the on-screen Enter key.
+3. Turn on **Web File Transfer**. On your computer or phone, enter the
+   displayed **Web Address** in your browser, including `http://`.
+4. Choose **Games** for the OS card or **Second Game Card** for the extra SD card.
+   When the browser asks you to sign in, enter **`root`** as the username and your
+   **device password** as the password.
+5. Open the folder for your game system and use the page’s upload control.
+   After your uploads finish, choose **Update Gamelists** on the Flip.
 
-You do not need to enable SSH just to use the web interface. Enable file-transfer
-services only on a trusted network; do not forward their ports to the internet.
+On older releases, use **Settings → Network Settings** for **Set SSH Password**
+and **Web File Transfer**. The device password is shared with SSH, and Web File
+Transfer works with SSH off. When you’re done transferring files, turn Web File
+Transfer off from the same menu.
 
 ## Option 2: Remove the SD card and copy with a computer
 

@@ -6,14 +6,16 @@
 . /etc/profile.d/001-functions
 
 # ROCKNIX discovers themes through writable theme directories, rather than
-# /usr/share/themes. Register the packaged variant without replacing a user's
+# /usr/share/themes. Register the packaged variants without replacing a user's
 # custom theme of the same name. The existing system-theme remains the default.
-white_theme="/usr/share/themes/ButterflyOS White"
-white_link="/storage/.config/emulationstation/themes/ButterflyOS White"
-if [ -f "${white_theme}/theme.xml" ] && [ ! -e "${white_link}" ] && [ ! -L "${white_link}" ]; then
-  mkdir -p /storage/.config/emulationstation/themes
-  ln -s "${white_theme}" "${white_link}"
-fi
+for theme in "ButterflyOS White" butterfly-clean; do
+  theme_path="/usr/share/themes/${theme}"
+  theme_link="/storage/.config/emulationstation/themes/${theme}"
+  if [ -f "${theme_path}/theme.xml" ] && [ ! -e "${theme_link}" ] && [ ! -L "${theme_link}" ]; then
+    mkdir -p /storage/.config/emulationstation/themes
+    ln -s "${theme_path}" "${theme_link}"
+  fi
+done
 
 if [ ! -L "/storage/.emulationstation" ] && \
    [ -d /storage/.config/emulationstation ]

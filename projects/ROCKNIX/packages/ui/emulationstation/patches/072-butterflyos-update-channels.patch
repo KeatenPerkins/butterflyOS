@@ -1,0 +1,19 @@
+--- a/es-app/src/guis/GuiMenu.cpp
++++ b/es-app/src/guis/GuiMenu.cpp
+@@ -1485,6 +1485,16 @@
+ 	if (Utils::FileSystem::exists("/usr/share/butterflyos/update-device") &&
+ 		ApiSystem::getInstance()->isScriptingSupported(ApiSystem::UPGRADE))
+ 	{
++		auto channel = std::make_shared<OptionListComponent<std::string>>(window, _("UPDATE CHANNEL"), false);
++		const bool development = SystemConf::getInstance()->get("butterflyos.update.channel") == "development";
++		channel->add(_("STABLE"), "stable", !development);
++		channel->add(_("DEVELOPMENT"), "development", development);
++		s->addWithDescription(_("UPDATE CHANNEL"), _("Stable is recommended. Development receives test builds."), channel);
++		channel->setSelectedChangedCallback([](std::string selection) {
++			SystemConf::getInstance()->set("butterflyos.update.channel", selection);
++			SystemConf::getInstance()->saveSystemConf();
++		});
++
+ 		s->addEntry(GuiUpdate::state == GuiUpdateState::State::UPDATE_READY
+ 			? _("RESTART TO APPLY UPDATE") : _("UPDATE BUTTERFLYOS"), true, [this]
+ 		{

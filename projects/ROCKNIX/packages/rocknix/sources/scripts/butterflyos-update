@@ -20,6 +20,8 @@ DEVICE = "Miyoo_Flip_V2"
 IDENTITY = Path("/usr/share/butterflyos")
 STAGING = Path("/storage/.update")
 DOWNLOADS = Path("/storage/.cache/butterflyos-update")
+SYSTEM_CONFIG = Path("/storage/.config/system/configs/system.cfg")
+DEVELOPMENT_TAG_PREFIX = "development-"
 REQUIRED = {"KERNEL", "SYSTEM", "KERNEL.md5", "SYSTEM.md5"}
 
 
@@ -61,11 +63,32 @@ def validate_manifest(data):
     return data
 
 
-def find_release():
-    # Stable releases only: alpha/test packages cannot silently reach users.
+def update_channel():
+    try:
+        lines = SYSTEM_CONFIG.read_text().splitlines()
+    except FileNotFoundError:
+        return "stable"
+    selected = "stable"
+    for line in lines:
+        key, _, value = line.partition("=")
+        if key == "butterflyos.update.channel":
+            selected = value
+    return "development" if selected == "development" else "stable"
+
+
+def find_release(channel="stable"):
+    if channel not in ("stable", "development"):
+        raise ValueError("Unsupported update channel")
     releases = fetch_json("https://api.github.com/repos/" + REPO + "/releases?per_page=30")
     for release in releases:
-        if release.get("draft") or release.get("prerelease"):
+        tag = release.get("tag_name") or ""
+        development_tag = tag.startswith(DEVELOPMENT_TAG_PREFIX)
+        if release.get("draft"):
+            continue
+        if channel == "development":
+            if not (release.get("prerelease") and development_tag):
+                continue
+        elif release.get("prerelease") or development_tag:
             continue
         asset = next((a for a in release.get("assets", [])
                       if a.get("name") == "butterflyos-update.json"), None)
@@ -189,7 +212,7 @@ def main():
     if mode not in ("check", "update", "releases"):
         raise ValueError("Use check, update, or releases; forced/downgrade updates are disabled")
     current = (IDENTITY / "update-version").read_text().strip()
-    manifest = find_release()
+    manifest = find_release(update_channel())
     if not re.fullmatch(r"20[0-9]{6}", current):
         raise ValueError("Installed build has no supported update version")
     if not manifest or manifest["version"] <= current:

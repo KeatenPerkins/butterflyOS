@@ -2,14 +2,12 @@
 
 <img src="assets/butterflyos-logo.png" alt="ButterflyOS logo" width="280">
 
-ButterflyOS currently targets the Miyoo Flip V2 only. Download the latest installation
+ButterflyOS for the Miyoo Flip supports V1 and V2. Download the latest installation
 image and its matching checksum from the
 [latest stable release](https://github.com/KeatenPerkins/butterflyOS/releases/latest).
 A stable release includes both a fresh-install image and an online update
 package for installations with the corrected updater. Read [How to update](UPDATES.md#how-to-update) for
 version requirements, download instructions, and the older-build migration.
-
-Prepared candidate: [v1.8.0 notes](RELEASE_NOTES_v1.8.0.md), build **20261106**; draft release prepared, publication pending.
 
 ## For users and testers
 
@@ -35,8 +33,10 @@ Prepared candidate: [v1.8.0 notes](RELEASE_NOTES_v1.8.0.md), build **20261106**;
   saved system/game choices, CPU/GPU settings, and battery tradeoffs.
 - [Themes and customization](THEMES.md): theme switching, custom copies, image
   sizes, colors, fonts, installation and testing.
+- [Install and manage Btools](BTOOLS.md): download, update, or remove Blink, Bdex,
+  and Bslap and keep your collection when upgrading from bundled tools.
 - [Bdex](BDEX.md): Gen 1–3 collections, imports, copy exports, Trash,
-  database backup/recovery, graphical stat inspector, Gen 1 encounter lookup,
+  database backup/recovery, graphical stat inspector, Gen 1–3 encounter lookup,
   sprite refresh and the read-only web viewer;
   setup and limitations.
 - [Blink](BUTTERFLY_LINK.md): local/remote save transfers and supported
